@@ -3,7 +3,8 @@
     "description": "SPA framework",
     "author": "Jafar Shadiq <reekoheek@gmail.com>",
     "dependencies": {
-        "backbone": ">=1.0.0"
+        "backbone": "~1.0.0",
+        "simply-deferred": "~2.2.0"
     },
     "version": "0.0.1",
     "ignore": [
