@@ -268,11 +268,58 @@
         }
     });
 
+    var BindDirective = function(app) {
+        this.app = app;
+    };
+
+    _.extend(BindDirective.prototype, {
+
+        newRef: function() {
+            this.ref = this.ref || 0;
+            return 'bind-' + this.ref++;
+        },
+
+        matcher: function($el) {
+            return $el.data('bind');
+        },
+
+        run: function($el) {
+            var deferred = $.Deferred(),
+                app = this.app,
+                that = this;
+
+            var $elScope = ($el.is('[data-role]')) ? $el : $el.parents('[data-role]'),
+                view = $elScope.data('instance');
+
+                var binds = $el.data('bind').trim().split(/\s+/);
+                _.each(binds, function(bind) {
+                    var eventName, refName, method;
+                    bind = bind.split(':');
+                    if (bind.length > 1) {
+                        eventName = bind[0];
+                        method = bind[1];
+                        method = view[method];
+                        if (_.isFunction(method)) {
+                            refName = that.newRef();
+                            $el.attr('data-bind-ref', refName);
+
+                                method = _.bind(method, view);
+                                view.$el.on(eventName, '[data-bind-ref=' + refName + ']', method);
+                        }
+                    }
+                });
+                deferred.resolve();
+
+            return deferred.promise();
+        }
+    });
+
     window.xin.directive = {
         AppDirective: AppDirective,
         RoleDirective: RoleDirective,
         // ListDirective: ListDirective,
-        URIDirective: URIDirective
+        URIDirective: URIDirective,
+        BindDirective: BindDirective
     };
 
 })();

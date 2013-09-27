@@ -140,6 +140,8 @@
             this.listenTo(this.collection, 'reset', this.reset);
             this.listenTo(this.collection, 'add', this.add);
             this.listenTo(this.collection, 'remove', this.remove);
+
+            this.children = {};
         },
 
         reset: function() {
@@ -148,10 +150,19 @@
                     this.emptyView = this.emptyPrototype.newInstance();
                 }
 
+                var that = this;
+
+                _.each(this.children, function(o, k) {
+                    var view = o,
+                        $el = o.$el;
+
+                    delete that.children[k];
+                    if (view.destroy) view.destroy();
+                    $el.remove();
+                });
+
                 this.emptyView.$el.detach();
 
-                // FIXME potentially leak memory here because item views
-                // and empty view unpurged
                 this.$emptyAttachPoint.html('');
                 this.$itemAttachPoint.html('');
 
@@ -166,14 +177,21 @@
                 var itemView = this.itemPrototype.newInstance({
                     model: model
                 });
+                itemView.parent = this;
+                this.children[itemView.cid] = itemView;
                 this.$itemAttachPoint.append(itemView.$el);
             }
         },
 
         remove: function(model, collection) {
-            // FIXME potentially leak memory here because item views
-            // and empty view unpurged
-            this.$itemAttachPoint.find('[data-cid=' + model.cid + ']').remove();
+            var $el = this.$itemAttachPoint.find('[data-cid=' + model.cid + ']'),
+                view = $el.data('instance');
+
+            delete this.children[view.cid];
+
+            if (view.destroy) view.destroy();
+            $el.remove();
+
             if (!collection.length) {
                 this.reset();
             }
