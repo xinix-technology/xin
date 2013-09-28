@@ -42,28 +42,28 @@
 
             view.parent = this;
 
-            var evaluateScroll = _.throttle(function() {
+            // var evaluateScroll = _.throttle(function() {
 
-                var domEl = view.$el[0];
+            //     var domEl = view.$el[0];
 
-                if (view.$el.height() + 20 >= domEl.scrollHeight) {
-                    // view.$el.css('overflow', 'hidden');
-                    return;
-                // } else {
-                //     view.$el.css('overflow', 'auto');
-                }
+            //     if (view.$el.height() + 20 >= domEl.scrollHeight) {
+            //         // view.$el.css('overflow', 'hidden');
+            //         return;
+            //     // } else {
+            //     //     view.$el.css('overflow', 'auto');
+            //     }
 
-                if (domEl.scrollTop === 0) {
-                    domEl.scrollTop = 10;
-                } else if (domEl.offsetHeight + domEl.scrollTop === domEl.scrollHeight) {
-                    domEl.scrollTop = domEl.scrollTop - 10;
-                }
-            }, 300);
+            //     if (domEl.scrollTop === 0) {
+            //         domEl.scrollTop = 10;
+            //     } else if (domEl.offsetHeight + domEl.scrollTop === domEl.scrollHeight) {
+            //         domEl.scrollTop = domEl.scrollTop - 10;
+            //     }
+            // }, 300);
 
-            view.$el.off('scroll').on('scroll', function() {
-                evaluateScroll();
-                // console.log(a.scrollTop, a.offsetHeight + a.scrollTop, a.scrollHeight) });
-            });
+            // view.$el.off('scroll').on('scroll', function() {
+            //     evaluateScroll();
+            //     // console.log(a.scrollTop, a.offsetHeight + a.scrollTop, a.scrollHeight) });
+            // });
 
             return this;
         },
