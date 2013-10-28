@@ -1,0 +1,45 @@
+{
+  "name": "xin",
+  "description": "spa framework",
+  "devDependencies": {
+    "grunt": "~0.4.1",
+    "shelljs": "~0.2.6",
+    "grunt-pax-task": "0.0.3",
+    "grunt-contrib-clean": "~0.5.0",
+    "grunt-bower-task": "~0.3.2",
+    "grunt-contrib-concat": "~0.3.0",
+    "grunt-contrib-jshint": "~0.7.0"
+  },
+  "pax": {
+    "prerun": "./pax/prerun",
+    "config": {
+      "clean": {
+        "build": [
+          "css",
+          "js",
+          "vendor"
+        ]
+      },
+      "build": {
+        "flow": [
+          "concat",
+          "jshint"
+        ]
+      },
+      "concat": {
+        "options": {
+          "separator": ""
+        },
+        "dist": {
+          "src": [
+            "src/*"
+          ],
+          "dest": "js/xin.js"
+        }
+      },
+      "jshint": {
+        "dist": ["js/xin.js"]
+      }
+    }
+  }
+}

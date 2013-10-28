@@ -1,5 +1,12 @@
-(function() {
+/**
+ * Xin library
+ * https://github.com/reekoheek/xin
+ * Copyright 2013, Xinix Technology <http://xinix.co.id>
+ * Free to use under the MIT license.
+ * http://www.opensource.org/licenses/mit-license.php
+ */
 
+;(function() {
     "use strict";
 
     window.xin = window.xin || {};

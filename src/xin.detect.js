@@ -55,13 +55,13 @@
         // after it fires the onload event
         setTimeout(scrollTo, 0, 0, 1);
     };
-
-    (window.onresize = function() {
+    window.onresize = function() {
         var pageWidth = page.offsetWidth;
         // Android doesn't support orientation change, so check for when the width
         // changes to figure out when the orientation changes
         if (lastWidth == pageWidth) return;
         lastWidth = pageWidth;
         setupScroll();
-    })();
+    };
+    window.onresize();
 })();
