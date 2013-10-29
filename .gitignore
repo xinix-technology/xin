@@ -2,3 +2,5 @@
 /node_modules
 /vendor
 /project.sublime-*
+/.sass-cache
+/css
