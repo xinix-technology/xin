@@ -1,5 +1,3 @@
-.xin-app {
-    .xin-listview {
-        border: 1px solid red;
-    }
-}
+@import 'include/global';
+@import 'include/app';
+@import 'include/ui';

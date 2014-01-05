@@ -1,0 +1,7 @@
+.xin-pager {
+    border: 1px solid red;
+}
+
+.xin-pager > .xin-view {
+    background-color: #aaf;
+}

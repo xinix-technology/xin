@@ -9,7 +9,8 @@
     "grunt-bower-task": "~0.3.2",
     "grunt-contrib-concat": "~0.3.0",
     "grunt-contrib-jshint": "~0.7.0",
-    "grunt-contrib-compass": "~0.6.0"
+    "grunt-contrib-compass": "~0.6.0",
+    "grunt-contrib-uglify": "~0.2.5"
   },
   "pax": {
     "prerun": "./pax/prerun",
@@ -17,7 +18,9 @@
       "clean": {
         "build": [
           "css",
-          "js",
+          "js"
+        ],
+        "release": [
           "vendor"
         ]
       },
@@ -25,12 +28,21 @@
         "flow": [
           "concat",
           "jshint",
-          "compass"
+          "compass",
+          "uglify",
+          "clean:release"
         ]
       },
       "concat": {
         "options": {
           "separator": ""
+        },
+        "lib": {
+          "src": [
+            "vendor/underscore/underscore.js",
+            "vendor/backbone/backbone.js"
+          ],
+          "dest": "js/libs.js"
         },
         "dist": {
           "src": [
@@ -43,6 +55,18 @@
         "dist": [
           "js/xin.js"
         ]
+      },
+      "uglify": {
+        "dist": {
+          "files": {
+            "js/xin.min.js": [
+              "js/xin.js"
+            ],
+            "js/libs.min.js": [
+              "js/libs.js"
+            ]
+          }
+        }
       },
       "compass": {
         "dist": {
