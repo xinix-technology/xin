@@ -67,7 +67,7 @@
             });
 
             if (!promise) {
-                promise = $.Deferred().resolve().promise();
+                promise = xin.Deferred().resolve().promise();
             }
 
             return promise;

@@ -43,7 +43,7 @@
     _.extend(SlideIn.prototype, {
         play: function() {
             var that = this,
-                deferred = $.Deferred();
+                deferred = xin.Deferred();
 
             this.$el.on('webkitTransitionEnd', function() {
                 that.$el.off('webkitTransitionEnd');
@@ -77,7 +77,7 @@
     _.extend(SlideOut.prototype, {
         play: function() {
             var that = this,
-                deferred = $.Deferred();
+                deferred = xin.Deferred();
 
             this.$el.on('webkitTransitionEnd', function() {
                 that.$el.off('webkitTransitionEnd');

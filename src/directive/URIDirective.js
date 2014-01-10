@@ -51,14 +51,10 @@
 
         run: function($el) {
             var that = this,
-                deferred = $.Deferred(),
+                deferred = xin.Deferred(),
                 uri = $el.data('uri');
 
-
-            this.router.viewRoutes[uri] = $el;
-            if (!this.router.viewDefaultRoute || $el.data('uri-default')) {
-                this.router.viewDefaultRoute = uri;
-            }
+            this.router.registerView(uri, $el);
 
             return deferred.resolve().promise();
         }

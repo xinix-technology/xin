@@ -15,9 +15,9 @@
     demo.simple.LoginView = LoginView;
 
 
-    $(function() {
+    xin.$(function() {
         var app = window.app = new xin.App({
-            el: $('body'),
+            el: xin.$('body'),
             directives: {
                 '[data-role=app]': xin.directive.AppDirective,
                 '[data-role]': xin.directive.RoleDirective,

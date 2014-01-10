@@ -62,12 +62,12 @@
 
             this.directiveManager = new xin.DirectiveManager(this);
             if (options.directives) {
-                $.each(options.directives, function(key, directive) {
+                xin.$.each(options.directives, function(key, directive) {
                     that.directiveManager.put(key, directive);
                 });
             }
 
-            this.$el = $(options.el);
+            this.$el = xin.$(options.el);
             this.$el.addClass('xin-app').attr('data-role', 'app');
 
             this.providerRepository = new xin.ProviderRepository(this);
@@ -95,7 +95,7 @@
                     return that.directiveManager.scan();
                 }).
                 done(function() {
-                    $('body').show();
+                    xin.$('body').show();
                     if (typeof that.router.start === 'function') {
                         that.router.start();
                     } else {
@@ -107,8 +107,24 @@
         catchAllHref: function() {
             this.$el.on('click', 'a', function(evt) {
                 evt.preventDefault();
-                var href = $(this).attr('href');
-                location.href = '#' + href;
+                var href = xin.$(this).attr('href');
+                if (href[0] === '/') {
+                    href = location.origin + href;
+                }
+                location.hash = (href.split('#')[0] == location.href.split('#')[0]) ? '#_' : '#' + href;
+            });
+
+            this.$el.on('submit', 'form', function(evt) {
+                evt.preventDefault();
+                xin.$.ajax({
+                    url: xin.$(this).attr('action'),
+                    method: xin.$(this).attr('method'),
+                    data: xin.$(this).serialize(),
+                }).done(function(data, info, xhr) {
+                    alert(info);
+                }).fail(function(xhr, err, message) {
+                    alert(message);
+                });
             });
         },
 

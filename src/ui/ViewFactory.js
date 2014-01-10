@@ -2,7 +2,7 @@
     "use strict";
 
     var ViewFactory = function(options) {
-        var $el = $(options.el);
+        var $el = xin.$(options.el);
         delete options.el;
 
         if (!options.template) {
@@ -24,7 +24,7 @@
             this.attrs[attrs[i].nodeName] = attrs[i].nodeValue;
         }
 
-        this.$roleParent = $el.parents('[data-role]').eq(0);
+        this.$roleParent = $el.parents('.xin-role').eq(0);
         this.$parent = $el.parent();
         $el.remove();
 

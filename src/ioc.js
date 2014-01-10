@@ -105,7 +105,7 @@
         },
 
         createObject: function(Constructor) {
-            var deferred = $.Deferred(),
+            var deferred = xin.Deferred(),
                 object,
                 args = [];
             for(var i in arguments) {
@@ -154,7 +154,7 @@
             var index,
                 resolver,
                 type = '',
-                deferred = $.Deferred(),
+                deferred = xin.Deferred(),
                 args = [],
                 value;
 
@@ -218,8 +218,8 @@
 
             xhr: function(key) {
                 // key is in URL form
-                return $.get(key).then(null, function(xhr, state, message) {
-                    return $.Deferred().reject(new Error(message)).promise();
+                return xin.$.get(key).then(null, function(xhr, state, message) {
+                    return xin.Deferred().reject(new Error(message)).promise();
                 }).promise();
             },
 
@@ -227,7 +227,7 @@
                 var resolver = IoC.getResolver('xhr');
 
                 return resolver(key).then(function(data) {
-                    return $.Deferred().resolve(_.template(data));
+                    return xin.Deferred().resolve(_.template(data));
                 }, null);
             },
 

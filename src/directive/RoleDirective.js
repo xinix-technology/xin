@@ -55,7 +55,7 @@
         },
         run: function($el) {
             var deferredRules = [],
-                deferred = new $.Deferred(),
+                deferred = new xin.Deferred(),
                 app = this.app,
                 options,
                 role;
@@ -87,7 +87,7 @@
 
             });
 
-            $.when.apply(null, deferredRules).done(function() {
+            xin.$.when.apply(null, deferredRules).done(function() {
                 app.resolve(role, options).done(function(instance) {
                     if (!instance) {
                         throw new Error('Role: "' + role + '" undefined');
@@ -96,7 +96,7 @@
                         $parent;
 
                     if ($el) {
-                        $parent = $el.parent('[data-role]');
+                        $parent = $el.parent('.xin-role');
 
                         $el.attr('data-instantiated', true)
                             .data('instance', instance)
@@ -109,10 +109,12 @@
                             }
                         }
                     }
-
                     if (instance instanceof Backbone.View) {
                         instance.app = instance.options.app;
-                        instance.$el.addClass('xin-view');
+                        instance.$el.addClass('xin-role');
+                        if (!instance.isContainer) {
+                            instance.$el.addClass('xin-view');
+                        }
                         instance.render();
                     }
                     deferred.resolve();

@@ -2,6 +2,7 @@
     "use strict";
 
     var Pager = xin.ui.Outlet.extend({
+        isContainer: true,
 
         initialize: function(options) {
             this.constructor.__super__.initialize.apply(this, arguments);
@@ -10,7 +11,6 @@
             this.activePage = null;
             this.pages = {};
 
-            console.log(options.mainViewport);
             if (!options.app.router.mainViewport || options.mainViewport) {
                 options.app.router.mainViewport = this.$el;
             }
@@ -55,7 +55,7 @@
         },
 
         showChild: function(view) {
-            var inIndex = -1, outIndex = -1, deferred = $.Deferred();
+            var inIndex = -1, outIndex = -1, deferred = xin.Deferred();
 
             if (this.activePage == view) return deferred.resolve().promise();
 
@@ -80,7 +80,7 @@
     _.extend(Pager, {
         transitions: {
             plain: function(pager, inView, outView, direction) {
-                var deferred = $.Deferred();
+                var deferred = xin.Deferred();
 
                 if (outView) {
                     outView.$el.removeClass('xin-show');
@@ -92,7 +92,7 @@
             },
 
             slide: function(pager, inView, outView, direction) {
-                var method, inFx, outFx, deferred = $.Deferred();
+                var method, inFx, outFx, deferred = xin.Deferred();
                 if (direction < 0) {
                     method = "left";
                 } else {
@@ -109,7 +109,7 @@
 
                 if (inFx) inFx.play();
                 if (outFx) outFx.play().then(function() {
-                    $(this).removeClass('xin-show');
+                    xin.$(this).removeClass('xin-show');
                     _.defer(deferred.resolve);
                 });
 

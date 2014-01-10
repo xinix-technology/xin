@@ -32,7 +32,7 @@
  *
  */
 
-;window.xin = (function() {
+window.xin = (function() {
     "use strict";
 
     /**
@@ -75,30 +75,31 @@
 
     // If application using Zepto (you can also use jQuery to substitute Zepto)
     if (window.jQuery) {
-
+        xin.when = jQuery.when;
+        xin.Deferred = jQuery.Deferred;
         // TODO reekoheek: please copy references of Deferred<fn|con>,
         // when<fn>, etc to xin namespace object.
-        throw new Error('Unimplemented later in order to use');
-
+        xin.$ = jQuery;
     } else if (window.Zepto) {
         Deferred.installInto(xin);
-        if (!$.Deferred) {
-            Deferred.installInto($);
+        if (!Zepto.Deferred) {
+            Deferred.installInto(Zepto);
         }
+        xin.$ = Zepto;
     }
 
     // Add reference Zepto.fn.detach with Zepto.fn.remove
     if (window.Zepto) {
-        $.fn.detach = $.fn.remove;
+        xin.$.fn.detach = xin.$.fn.remove;
     }
 
     /**
      * Function to serializing form as object
      * @return object Object serialization of form
      */
-    $.fn.serializeObject = function() {
+    xin.$.fn.serializeObject = function() {
         var form = {};
-        _.each($(this).serializeArray(), function(value) {
+        _.each(xin.$(this).serializeArray(), function(value) {
             form[value.name] = value.value;
         });
         return form;

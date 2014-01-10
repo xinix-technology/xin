@@ -10,43 +10,46 @@
     "grunt-contrib-concat": "~0.3.0",
     "grunt-contrib-jshint": "~0.7.0",
     "grunt-contrib-compass": "~0.6.0",
-    "grunt-contrib-uglify": "~0.2.5"
+    "grunt-contrib-uglify": "~0.2.5",
+    "grunt-contrib-cssmin": "~0.7.0"
   },
   "pax": {
-    "prerun": "./pax/prerun",
-    "config": {
+    "grunt": {
       "clean": {
-        "build": [
-          "css",
-          "js"
-        ],
-        "release": [
-          "vendor"
+        "dist": [
+          "www/fonts",
+          "www/css"
         ]
       },
       "build": {
-        "flow": [
+        "dist": [
           "concat",
           "jshint",
           "compass",
-          "uglify",
-          "clean:release"
+          "cssmin",
+          "uglify"
         ]
       },
       "concat": {
         "options": {
           "separator": ""
         },
-        "lib": {
-          "src": [
-            "vendor/underscore/underscore.js",
-            "vendor/backbone/backbone.js"
-          ],
-          "dest": "js/libs.js"
-        },
         "dist": {
           "src": [
-            "src/*"
+            "./src/global.js",
+            "./src/detect.js",
+            "./src/app.js",
+            "./src/ioc.js",
+            "./src/router.js",
+            "./src/directive.js",
+            "./src/provider.js",
+            "./src/fx.js",
+            "./src/directive/AppDirective.js",
+            "./src/directive/RoleDirective.js",
+            "./src/directive/URIDirective.js",
+            "./src/directive/BindDirective.js",
+            "./src/ui/Outlet.js",
+            "./src/ui/Pager.js"
           ],
           "dest": "js/xin.js"
         }
@@ -56,24 +59,29 @@
           "js/xin.js"
         ]
       },
+      "compass": {
+        "dist": {
+          "options": {
+            "sassDir": "scss",
+            "cssDir": "css"
+          }
+        }
+      },
+      "cssmin": {
+        "combine": {
+          "files": {
+            "css/xin.min.css": [
+              "css/xin.css"
+            ]
+          }
+        }
+      },
       "uglify": {
         "dist": {
           "files": {
             "js/xin.min.js": [
               "js/xin.js"
-            ],
-            "js/libs.min.js": [
-              "js/libs.js"
             ]
-          }
-        }
-      },
-      "compass": {
-        "dist": {
-          "options": {
-            "sassDir": "scss",
-            "cssDir": "css",
-            "environment": "production"
           }
         }
       }

@@ -61,6 +61,13 @@
             });
         },
 
+        registerView: function(uri, $el) {
+            this.viewRoutes[uri] = $el;
+            if (!this.viewDefaultRoute || $el.data('uri-default')) {
+                this.viewDefaultRoute = uri;
+            }
+        },
+
         /**
          * Callback handler on route missing
          *
@@ -70,17 +77,44 @@
             var that = this,
                 args = arguments;
 
+
             // TODO reekoheek: why do we need this to be deferred?
-            // _.defer(function() {
+            // _.defer(function() { });
             var $handler = that.viewRoutes[uri];
+            if (!$handler && uri == '_') {
+                $handler = xin.$('.xin-app .xin-view');
+                that.viewDefaultRoute = '_';
+                $handler.attr('data-uri', '_');
+                this.registerView('_', $handler);
+            }
             if (uri === '') {
+                if (!that.viewDefaultRoute) {
+                    $handler = xin.$('.xin-app .xin-view');
+                    that.viewDefaultRoute = '_';
+                    $handler.attr('data-uri', '_');
+                    this.registerView('_', $handler);
+                }
                 location.hash = that.viewDefaultRoute;
             } else if ($handler) {
                 xin.ui.show($handler.data('instance'));
             } else {
-                $.get(uri).done(function(data) {
-                    // FIXME should define default viewport
-                    var $newView = $('<div data-role="view" data-uri="' + uri + '">' + data + '</div>');
+                xin.$.get(uri).done(function(data) {
+                    data = data.trim();
+                    if (data.indexOf('<body')) {
+                        data = data.substr(data.indexOf('<body') + 1);
+                        data = '<div>' + data.substr(data.indexOf('>') + 1) + '</div>';
+                    } else if (data.indexOf('<BODY')) {
+                        data = data.substr(data.indexOf('<BODY') + 1);
+                        data = '<div>' + data.substr(data.indexOf('>') + 1) + '</div>';
+                    }
+                    var $data = xin.$(data);
+                    if ($data.find('[data-role]').length > 0) {
+                        $data = $data.find('[data-role]');
+                    } else if ($data.find('body')) {
+                        $data = $data.find('body');
+                    }
+                    data = $data.html() || '';
+                    var $newView = xin.$('<div data-role="view" data-uri="' + uri + '">' + data + '</div>');
                     that.mainViewport.append($newView);
                     xin.when(that.app.directiveManager.scan()).done(function() {
                         that.routeMissing(uri);
@@ -89,7 +123,6 @@
                     console.error('Missing route for URI: "' + uri + '"');
                 });
             }
-            // });
         },
 
         /**
@@ -163,7 +196,7 @@
             });
 
             if (!promise) {
-                promise = $.Deferred().resolve().promise();
+                promise = xin.Deferred().resolve().promise();
             }
 
             return promise;

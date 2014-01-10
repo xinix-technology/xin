@@ -67,7 +67,7 @@
             var deferred = xin.Deferred();
             // console.log('AppDirective start');
 
-            $el.attr('instantiated', true).data('instance', this.app);
+            $el.attr('instantiated', true).addClass('xin-role').data('instance', this.app);
 
             // console.log('AppDirective done');
             deferred.resolve();

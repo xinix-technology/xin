@@ -3,6 +3,7 @@
 
     var Outlet = Backbone.View.extend({
         initialize: function(options) {
+            this.options = options;
             this.template = options.template || null;
         },
 

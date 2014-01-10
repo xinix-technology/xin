@@ -55,16 +55,16 @@
         scan: function($el) {
             var directiveManager = this,
                 deferredRules = [],
-                deferred = new $.Deferred(),
+                deferred = new xin.Deferred(),
                 promise,
                 onDone = function() {
                     deferredRules = [];
                     $el.children().each(function() {
-                        var $el = $(this);
+                        var $el = xin.$(this);
                         deferredRules.push(directiveManager.scan($el));
                     });
 
-                    $.when.apply(null, deferredRules).done(function() {
+                    xin.$.when.apply(null, deferredRules).done(function() {
                         deferred.resolve();
                     });
 
@@ -73,7 +73,7 @@
                     return function(stop) {
                         if (stop) {
                             onDone();
-                            return $.Deferred().reject().promise();
+                            return xin.Deferred().reject().promise();
                         } else {
                             return directive.run($el);
                         }
@@ -93,7 +93,7 @@
             });
 
             if (!promise) {
-                promise = $.Deferred().resolve().promise();
+                promise = xin.Deferred().resolve().promise();
             }
 
             promise.done(onDone);
@@ -129,7 +129,7 @@
     //             var tmpId = 't-' + new Date().getTime();
     //             $el.wrap('<div id="' + tmpId + '"></div>');
     //             var content = $el.parent().html();
-    //             $('#' + tmpId).remove();
+    //             xin.$('#' + tmpId).remove();
 
     //             content = content.replace(/&lt;%/g, '<%').replace(/%&gt;/g, '%>');
 

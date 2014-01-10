@@ -55,11 +55,11 @@
         },
 
         run: function($el) {
-            var deferred = $.Deferred(),
+            var deferred = xin.Deferred(),
                 app = this.app,
                 that = this;
 
-            var $elScope = ($el.is('[data-role]')) ? $el : $el.parents('[data-role]'),
+            var $elScope = ($el.hasClass('xin-role')) ? $el : $el.parents('.xin-role'),
                 view = $elScope.data('instance');
 
                 var binds = $el.data('bind').trim().split(/\s+/);
