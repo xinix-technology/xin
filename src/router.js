@@ -100,17 +100,20 @@
             } else {
                 xin.$.get(uri).done(function(data) {
                     data = data.trim();
-                    if (data.indexOf('<body')) {
+                    if (data.indexOf('<body') >= 0) {
                         data = data.substr(data.indexOf('<body') + 1);
                         data = '<div>' + data.substr(data.indexOf('>') + 1) + '</div>';
-                    } else if (data.indexOf('<BODY')) {
+                    } else if (data.indexOf('<BODY') >= 0) {
                         data = data.substr(data.indexOf('<BODY') + 1);
                         data = '<div>' + data.substr(data.indexOf('>') + 1) + '</div>';
+                    } else {
+                        data = '<div>' + data + '</div>';
                     }
                     var $data = xin.$(data);
+
                     if ($data.find('[data-role]').length > 0) {
                         $data = $data.find('[data-role]');
-                    } else if ($data.find('body')) {
+                    } else if ($data.find('body').length > 0) {
                         $data = $data.find('body');
                     }
                     data = $data.html() || '';
