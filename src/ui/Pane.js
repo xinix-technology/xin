@@ -1,9 +1,7 @@
 ;(function(xin) {
     "use strict";
-
-    var Pager = xin.ui.Outlet.extend({
-        isContainer: true,
-
+    var Container = Backbone.View.extend({});
+    var Pane = Container.extend({
         initialize: function(options) {
             this.constructor.__super__.initialize.apply(this, arguments);
 
@@ -15,7 +13,7 @@
                 options.app.router.mainViewport = this.$el;
             }
 
-            this.$el.addClass('xin-pager');
+            this.$el.addClass('xin-pane');
         },
 
         addChild: function(view) {
@@ -68,7 +66,7 @@
 
             this.$el.scrollTop(0);
 
-            xin.ui.Pager.transitions[this.transition](this, view, this.activePage, outIndex - inIndex)
+            xin.ui.Pane.transitions[this.transition](this, view, this.activePage, outIndex - inIndex)
                 .done(deferred.resolve);
 
             this.activePage = view;
@@ -77,9 +75,9 @@
         }
     });
 
-    _.extend(Pager, {
+    _.extend(Pane, {
         transitions: {
-            plain: function(pager, inView, outView, direction) {
+            plain: function(pane, inView, outView, direction) {
                 var deferred = xin.Deferred();
 
                 if (outView) {
@@ -91,7 +89,7 @@
                 return deferred.promise();
             },
 
-            slide: function(pager, inView, outView, direction) {
+            slide: function(pane, inView, outView, direction) {
                 var method, inFx, outFx, deferred = xin.Deferred();
                 if (direction < 0) {
                     method = "left";
@@ -118,5 +116,6 @@
         }
     });
 
-    xin.set('xin.ui.Pager', Pager);
+    xin.set('xin.ui.Container', Container);
+    xin.set('xin.ui.Pane', Pane);
 })(window.xin);

@@ -1,7 +1,23 @@
-.xin-pager {
-    border: 1px solid red;
-}
+/**
+ * normalize
+ */
+@media screen {
+    * {
+        padding: 0;
+        margin: 0;
+    }
 
-.xin-pager > .xin-view {
-    background-color: #aaf;
+    html {
+        font-family: sans-serif;
+    }
+
+    body {
+        font-size: 14px;
+        color: #000;
+        -webkit-font-smoothing: antialiased;
+    }
+
+    /*.layout-body {
+        padding: 10px;
+    }*/
 }

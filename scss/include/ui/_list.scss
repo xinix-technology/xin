@@ -1,0 +1,10 @@
+.xin-list {
+    li{
+        padding: .5em .7em;
+        border-top: 1px solid rgba(180,180,180,0.5);
+
+        &:first-child {
+            border-top: 0;
+        }
+    }
+}

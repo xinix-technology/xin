@@ -152,6 +152,8 @@ window.xin = (function() {
         // Detect if this is running as a fullscreen app from the homescreen
         fullscreen = window.navigator.standalone,
         android = ~ua.indexOf('Android'),
+        moz = 'mozRequestAnimationFrame' in window,
+        webkit = 'webkitRequestAnimationFrame' in window,
         lastWidth = 0;
 
     /**
@@ -164,8 +166,28 @@ window.xin = (function() {
         ipad: ipad,
         ios: ios,
         fullscreen: fullscreen,
-        android: android
+        android: android,
+        moz: moz,
+        webkit: webkit
     });
+
+    var oldCss = xin.$.fn.css;
+    xin.$.fn.css = function(key, val) {
+        if (typeof(key) == 'string') {
+            switch(key) {
+                case 'transform':
+                case 'transition':
+                    if (xin.detect.moz) {
+                        oldCss.call(this, '-moz-' + key, val);
+                    }
+                    if (xin.detect.webkit) {
+                        oldCss.call(this, '-webkit-' + key, val);
+                    }
+                    break;
+            }
+        }
+        return oldCss.apply(this, arguments);
+    };
 
     // TODO reekoheek: move below lines to global or application init as single
     // function
@@ -301,6 +323,8 @@ window.xin = (function() {
         start: function() {
             var that = this;
 
+            this.baseURL = location.href.split('#')[0];
+
             this.catchAllHref();
 
             xin.when(this.providerRepository.initialize()).
@@ -318,12 +342,18 @@ window.xin = (function() {
         },
 
         catchAllHref: function() {
+            var that = this;
             this.$el.on('click', 'a', function(evt) {
-                evt.preventDefault();
                 var href = xin.$(this).attr('href');
-                if (href[0] === '/') {
+                if (href[0] === '#') {
+                    return;
+                } else if (href[0] === '/') {
                     href = location.origin + href;
                 }
+                evt.preventDefault();
+
+                href = that.simplifyURL(href);
+
                 location.hash = (href.split('#')[0] == location.href.split('#')[0]) ? '#_' : '#' + href;
             });
 
@@ -339,6 +369,13 @@ window.xin = (function() {
                     alert(message);
                 });
             });
+        },
+
+        simplifyURL: function(url) {
+            if (url.indexOf(this.baseURL) == 0) {
+                url = url.substr(this.baseURL.length);
+            }
+            return url;
         },
 
         /**
@@ -425,12 +462,14 @@ window.xin = (function() {
             this.fallbackContext = options.fallbackContext || window;
 
             this.aliases = {
-                'app': 'xin.Application',
+                'app': 'xin.App',
                 'view': 'xin.ui.Outlet',
-                'pager': 'xin.ui.Pager',
-                'list': 'xin.ui.List',
-                'list-item': 'xin.ui.ListItem',
-                'list-empty': 'xin.ui.ListEmpty'
+                'layout': 'xin.ui.Layout',
+                'header': 'xin.ui.Header',
+                'pane': 'xin.ui.Pane',
+                'list': 'xin.ui.List'
+                // 'list-item': 'xin.ui.ListItem',
+                // 'list-empty': 'xin.ui.ListEmpty'
             };
         },
 
@@ -517,17 +556,19 @@ window.xin = (function() {
             return deferred.promise();
         },
 
-        resolve: function(key) {
+        resolveAlias: function(key) {
             var found;
             do {
+                found = false;
                 if (this.aliases[key]) {
                     key = this.aliases[key];
                     found = true;
-                } else {
-                    found = false;
                 }
             } while(found);
+            return key;
+        },
 
+        resolve: function(key) {
             var index,
                 resolver,
                 type = '',
@@ -535,16 +576,21 @@ window.xin = (function() {
                 args = [],
                 value;
 
+            key = this.resolveAlias(key);
+
             if (!key) return deferred.reject(new Error('Key not found or cannot resolve!')).promise();
 
             for(var i in arguments) {
                 args.push(arguments[i]);
             }
 
+
             if (typeof key == 'function') {
+
                 // if type of key is function, we assume it as a Class constructor
                 // so we will create object based on that Class constructor
                 this.createObject.apply(this, args).then(deferred.resolve, deferred.reject);
+
             } else if (typeof key == 'string') {
 
                 // if type of key is string, we parse it, is there any type of
@@ -601,6 +647,11 @@ window.xin = (function() {
             },
 
             template: function(key) {
+                var $template = xin.$('script#' + key);
+                if ($template.length > 0) {
+                    return xin.Deferred().resolve(_.template($template.html())).promise();
+                }
+
                 var resolver = IoC.getResolver('xhr');
 
                 return resolver(key).then(function(data) {
@@ -613,7 +664,16 @@ window.xin = (function() {
             },
 
             collection: function(key) {
-                return this.resolve(key);
+                var deferred = xin.Deferred();
+
+                xin.when(this.resolve(key)).then(function(collection) {
+                    if (!(collection instanceof Backbone.Collection)) {
+                        collection = new Backbone.Collection(collection);
+                    }
+                    deferred.resolve(collection);
+                });
+
+                return deferred.promise();;
             }
 
         },
@@ -711,25 +771,33 @@ window.xin = (function() {
          * @param  String uri URI that missing
          */
         routeMissing: function(uri) {
+            uri = uri.trim();
+
             var that = this,
-                args = arguments;
+                args = arguments,
+                newUri = this.app.simplifyURL(uri);
+
+            if (uri !== newUri) {
+                location.hash = newUri;
+                return;
+            }
 
 
             // TODO reekoheek: why do we need this to be deferred?
             // _.defer(function() { });
-            var $handler = that.viewRoutes[uri];
+            var $handler = that.viewRoutes[uri],
+                registerDefaultView = function() {
+                    $handler = xin.$('.xin-pane > .xin-view');
+                    that.viewDefaultRoute = '_';
+                    $handler.attr('data-uri', '_');
+                    that.registerView('_', $handler);
+                };
             if (!$handler && uri == '_') {
-                $handler = xin.$('.xin-app .xin-view');
-                that.viewDefaultRoute = '_';
-                $handler.attr('data-uri', '_');
-                this.registerView('_', $handler);
+                registerDefaultView();
             }
             if (uri === '') {
                 if (!that.viewDefaultRoute) {
-                    $handler = xin.$('.xin-app .xin-view');
-                    that.viewDefaultRoute = '_';
-                    $handler.attr('data-uri', '_');
-                    this.registerView('_', $handler);
+                    registerDefaultView();
                 }
                 location.hash = that.viewDefaultRoute;
             } else if ($handler) {
@@ -737,22 +805,36 @@ window.xin = (function() {
             } else {
                 xin.$.get(uri).done(function(data) {
                     data = data.trim();
-                    if (data.indexOf('<body')) {
+                    if (data.indexOf('<body') >= 0) {
                         data = data.substr(data.indexOf('<body') + 1);
                         data = '<div>' + data.substr(data.indexOf('>') + 1) + '</div>';
-                    } else if (data.indexOf('<BODY')) {
+                    } else if (data.indexOf('<BODY') >= 0) {
                         data = data.substr(data.indexOf('<BODY') + 1);
                         data = '<div>' + data.substr(data.indexOf('>') + 1) + '</div>';
+                    } else {
+                        data = '<div>' + data + '</div>';
                     }
+
                     var $data = xin.$(data);
                     if ($data.find('[data-role]').length > 0) {
-                        $data = $data.find('[data-role]');
-                    } else if ($data.find('body')) {
-                        $data = $data.find('body');
+                        var $role = $data.find('[data-role]');
+                        $role = $role.filter(function() {
+                            var K = that.app.get(that.app.container.resolveAlias(xin.$(this).data('role')));
+                            return (K.prototype instanceof Backbone.View && !(K.prototype instanceof xin.ui.Container));
+                        });
+                        if ($role.length > 0) {
+                            $data = $role;
+                            $data.attr('data-uri', uri);
+                        }
+                    } else {
+                        if ($data.find('body').length > 0) {
+                            $data = $data.find('body');
+                        }
+                        data = $data.html() || '';
+                        $data = xin.$('<div data-role="view" data-uri="' + uri + '">' + data + '</div>');
                     }
-                    data = $data.html() || '';
-                    var $newView = xin.$('<div data-role="view" data-uri="' + uri + '">' + data + '</div>');
-                    that.mainViewport.append($newView);
+
+                    that.mainViewport.append($data);
                     xin.when(that.app.directiveManager.scan()).done(function() {
                         that.routeMissing(uri);
                     });
@@ -841,7 +923,8 @@ window.xin = (function() {
     });
 
     xin.set('xin.Router', Router);
-})(window.xin);/**
+})(window.xin);
+/**
  * XIN SPA Framework
  *
  * MIT LICENSE
@@ -1112,9 +1195,10 @@ window.xin = (function() {
             var that = this,
                 deferred = xin.Deferred();
 
-            this.$el.on('webkitTransitionEnd', function() {
-                that.$el.off('webkitTransitionEnd');
-                that.$el.css('-webkit-transition', '');
+            this.$el.on('transitionend', function() {
+                that.$el.off('transitionend');
+                that.$el.css('transition', '');
+                that.$el.css('transform', '');
                 deferred.resolve();
             });
 
@@ -1123,12 +1207,12 @@ window.xin = (function() {
                 from = '-' + from;
             }
 
-            this.$el.css('-webkit-transform', 'translate3d(' + from + ', 0, 0)');
-            this.$el.css('-webkit-transition', 'all ' + that.timeout + 's');
+            this.$el.css('transform', 'translate3d(' + from + ', 0, 0)');
+            this.$el.css('transition', 'all ' + that.timeout + 's');
             that.$el.addClass('xin-show');
 
             setTimeout(function() {
-                that.$el.css('-webkit-transform', 'translate3d(0, 0, 0)');
+                that.$el.css('transform', 'translate3d(0, 0, 0)');
             }, xin.fx.defaultOptions.delay);
 
             return deferred.promise();
@@ -1146,22 +1230,23 @@ window.xin = (function() {
             var that = this,
                 deferred = xin.Deferred();
 
-            this.$el.on('webkitTransitionEnd', function() {
-                that.$el.off('webkitTransitionEnd');
+            this.$el.on('transitionend', function() {
+                that.$el.off('transitionend');
                 that.$el.removeClass('xin-show');
-                that.$el.css('-webkit-transition', '');
+                that.$el.css('transition', '');
+                that.$el.css('transform', '');
                 deferred.resolve();
             });
 
-            this.$el.css('-webkit-transform', 'translate3d(0, 0, 0)');
-            this.$el.css('-webkit-transition', 'all ' + that.timeout + 's');
+            this.$el.css('transform', 'translate3d(0, 0, 0)');
+            this.$el.css('transition', 'all ' + that.timeout + 's');
 
             setTimeout(function() {
                 var to = '100%';
                 if (that.to == 'left') {
                     to = '-' + to;
                 }
-                that.$el.css('-webkit-transform', 'translate3d(' + to + ', 0, 0)');
+                that.$el.css('transform', 'translate3d(' + to + ', 0, 0)');
             }, xin.fx.defaultOptions.delay);
 
             return deferred.promise();
@@ -1174,6 +1259,58 @@ window.xin = (function() {
         },
         SlideIn: SlideIn,
         SlideOut: SlideOut,
+    });
+
+})(window.xin);/**
+ * XIN SPA Framework
+ *
+ * MIT LICENSE
+ *
+ * Copyright (c) 2014 PT Sagara Xinix Solusitama
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining
+ * a copy of this software and associated documentation files (the
+ * "Software"), to deal in the Software without restriction, including
+ * without limitation the rights to use, copy, modify, merge, publish,
+ * distribute, sublicense, and/or sell copies of the Software, and to
+ * permit persons to whom the Software is furnished to do so, subject to
+ * the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be
+ * included in all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+ * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+ * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+ * LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+ * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+ * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ *
+ * @author      Ganesha <reekoheek@gmail.com>
+ * @copyright   2014 PT Sagara Xinix Solusitama
+ * @link        http://xinix.co.id/products/xin
+ * @license     https://raw.github.com/reekoheek/xin/master/LICENSE
+ * @package     xin
+ *
+ */
+
+;(function(xin) {
+    "use strict";
+
+    xin.set('xin.ui', {
+        show: function(view) {
+            _.defer(function() {
+                if (view.parent && view.parent.showChild) {
+                    view.parent.showChild(view).done(function() {
+                        view.$el[0].scrollTop = 0;
+                        view.$el.addClass('xin-show');
+                    });
+                } else {
+                   view.$el.addClass('xin-show');
+                }
+            });
+        }
     });
 
 })(window.xin);/**
@@ -1301,16 +1438,13 @@ window.xin = (function() {
     };
 
     _.extend(RoleDirective.prototype, {
+
         matcher: function($el) {
             if ($el.data('role') && ($el.data('role').toLowerCase() !== 'app')) {
                 return true;
-                // var role = $el.data('role').toLowerCase();
-                // if (role.substr(0, 5) !== 'list-') {
-                //     return true;
-                // }
-
             }
         },
+
         run: function($el) {
             var deferredRules = [],
                 deferred = new xin.Deferred(),
@@ -1318,20 +1452,26 @@ window.xin = (function() {
                 options,
                 role;
 
+            // if already instantiated then it is resolved
             if ($el.data('instantiated')) {
                 return deferred.resolve().promise();
             }
 
+            // prepare options for instantiating
             options = _.defaults($el.data(), {
                 el: $el,
                 app: app
             });
-            role = options.role;
 
+            // save role
+            role = options.role;
             // TODO: reekoheek, there was a reason why options.role should be
             // deleted
-            // delete options.role;
+            delete options.role;
 
+
+            // try to resolve each option from application context before
+            // instantiating
             _.each(options, function(option, key) {
                 if (typeof option == 'string') {
 
@@ -1342,18 +1482,21 @@ window.xin = (function() {
 
                     deferredRules.push(promise);
                 }
-
             });
 
-            xin.$.when.apply(null, deferredRules).done(function() {
+            // after every option already resolved then instantiating
+            xin.when.apply(null, deferredRules).done(function() {
+
+                // resolve from application context
                 app.resolve(role, options).done(function(instance) {
+                    var $el,
+                        $parent;
+
                     if (!instance) {
                         throw new Error('Role: "' + role + '" undefined');
                     }
-                    var $el = instance.$el,
-                        $parent;
 
-                    if ($el) {
+                    if ($el = instance.$el) {
                         $parent = $el.parent('.xin-role');
 
                         $el.attr('data-instantiated', true)
@@ -1367,10 +1510,11 @@ window.xin = (function() {
                             }
                         }
                     }
+
                     if (instance instanceof Backbone.View) {
                         instance.app = instance.options.app;
                         instance.$el.addClass('xin-role');
-                        if (!instance.isContainer) {
+                        if (!(instance instanceof xin.ui.Pane)) {
                             instance.$el.addClass('xin-view');
                         }
                         instance.render();
@@ -1540,10 +1684,63 @@ window.xin = (function() {
 })(window.xin);;(function(xin) {
     "use strict";
 
+    var Layout = function(options) {
+        var $el;
+        this.id = options.id = options.id || 'default';
+        this.app = options.app;
+
+        $el = xin.$(options.el);
+        this.$el = $el.clone();
+        this.$el.find('[data-region]').addClass(function() {
+            return 'xin-region-' + xin.$(this).data('region');
+        });
+
+        $el.remove();
+
+        if (!Layout.get(this.app, this.id)) {
+            Layout.put(this.app, this.id, this);
+        }
+    };
+
+    _.extend(Layout.prototype, {
+        apply: function($el) {
+
+            var $clone = this.$el.clone();
+
+            $clone.find('[data-region=body]').html($el.html());
+
+            if ($el.data('title')) {
+                $clone.find('[data-region=title]').html($el.data('title'));
+            }
+
+            $el.html($clone.html());
+            $el.addClass($clone.attr('class'));
+        }
+    });
+
+    Layout.get = function(app, id) {
+        var layout = app.get('_layout.' + id);
+        return layout;
+    };
+
+    Layout.put = function(app, id, o) {
+        app.set('_layout.' + id, o);
+    }
+
+    xin.set('xin.ui.Layout', Layout);
+
+})(window.xin);;(function(xin) {
+    "use strict";
+
     var Outlet = Backbone.View.extend({
         initialize: function(options) {
-            this.options = options;
+            var app = options.app;
+
             this.template = options.template || null;
+
+            if (options.layout) {
+                xin.ui.Layout.get(app, options.layout).apply(this.$el);
+            }
         },
 
         render: function() {
@@ -1556,26 +1753,10 @@ window.xin = (function() {
 
     xin.set('xin.ui.Outlet', Outlet);
 
-    _.extend(xin.ui, {
-        show: function(view) {
-            _.defer(function() {
-                if (view.parent && view.parent.showChild) {
-                    view.parent.showChild(view).done(function() {
-                        view.$el[0].scrollTop = 0;
-                        view.$el.addClass('xin-show');
-                    });
-                } else {
-                   view.$el.addClass('xin-show');
-                }
-            });
-        }
-    });
 })(window.xin);;(function(xin) {
     "use strict";
-
-    var Pager = xin.ui.Outlet.extend({
-        isContainer: true,
-
+    var Container = Backbone.View.extend({});
+    var Pane = Container.extend({
         initialize: function(options) {
             this.constructor.__super__.initialize.apply(this, arguments);
 
@@ -1587,7 +1768,7 @@ window.xin = (function() {
                 options.app.router.mainViewport = this.$el;
             }
 
-            this.$el.addClass('xin-pager');
+            this.$el.addClass('xin-pane');
         },
 
         addChild: function(view) {
@@ -1640,7 +1821,7 @@ window.xin = (function() {
 
             this.$el.scrollTop(0);
 
-            xin.ui.Pager.transitions[this.transition](this, view, this.activePage, outIndex - inIndex)
+            xin.ui.Pane.transitions[this.transition](this, view, this.activePage, outIndex - inIndex)
                 .done(deferred.resolve);
 
             this.activePage = view;
@@ -1649,9 +1830,9 @@ window.xin = (function() {
         }
     });
 
-    _.extend(Pager, {
+    _.extend(Pane, {
         transitions: {
-            plain: function(pager, inView, outView, direction) {
+            plain: function(pane, inView, outView, direction) {
                 var deferred = xin.Deferred();
 
                 if (outView) {
@@ -1663,7 +1844,7 @@ window.xin = (function() {
                 return deferred.promise();
             },
 
-            slide: function(pager, inView, outView, direction) {
+            slide: function(pane, inView, outView, direction) {
                 var method, inFx, outFx, deferred = xin.Deferred();
                 if (direction < 0) {
                     method = "left";
@@ -1690,5 +1871,160 @@ window.xin = (function() {
         }
     });
 
-    xin.set('xin.ui.Pager', Pager);
+    xin.set('xin.ui.Container', Container);
+    xin.set('xin.ui.Pane', Pane);
+})(window.xin);;(function(xin) {
+    "use strict";
+
+    var List = xin.ui.Outlet.extend({
+        initialize: function(options)  {
+            this.$el.addClass('xin-list');
+
+            this.itemTemplate = options.template || _.template('<li><%= model %></li>');
+        },
+
+        render: function() {
+            var that = this;
+            if (this.collection) {
+                this.collection.each(function(model) {
+                    var item = new List.Item({
+                        template: that.itemTemplate,
+                        model: model
+                    });
+                    that.$el.append(item.render().$el);
+                });
+            }
+        }
+    });
+
+    List.Item = xin.ui.Outlet.extend({
+        render: function() {
+            this.$el = xin.$(this.template(this));
+            return this;
+        }
+    });
+
+    // var List = xin.ui.Outlet.extend({
+    //     initialize: function() {
+    //         this.listenTo(this.collection, 'reset', this.reset);
+    //         this.listenTo(this.collection, 'add', this.add);
+    //         this.listenTo(this.collection, 'remove', this.remove);
+
+    //         this.children = {};
+    //     },
+
+    //     reset: function() {
+    //         if (this.emptyPrototype) {
+    //             if (!this.emptyView) {
+    //                 this.emptyView = this.emptyPrototype.newInstance();
+    //             }
+
+    //             var that = this;
+
+    //             _.each(this.children, function(o, k) {
+    //                 var view = o,
+    //                     $el = o.$el;
+
+    //                 delete that.children[k];
+    //                 if (view.destroy) view.destroy();
+    //                 $el.remove();
+    //             });
+
+    //             if (this.emptyView) {
+    //                 this.emptyView.$el.detach();
+    //             }
+
+    //             this.$emptyAttachPoint.html('');
+    //             this.$itemAttachPoint.html('');
+
+    //             this.$emptyAttachPoint.append(this.emptyView.$el);
+    //         }
+    //     },
+
+    //     add: function(model) {
+    //         if (this.emptyView) {
+    //             this.emptyView.$el.detach();
+    //         }
+
+    //         console.log(this.itemPrototype);
+    //         if (this.itemPrototype) {
+    //             var itemView = this.itemPrototype.newInstance({
+    //                 model: model
+    //             });
+    //             itemView.parent = this;
+    //             this.children[itemView.cid] = itemView;
+    //             this.$itemAttachPoint.append(itemView.$el);
+    //         }
+    //     },
+
+    //     remove: function(model, collection) {
+    //         var $el = this.$itemAttachPoint.find('[data-cid=' + model.cid + ']'),
+    //             view = $el.data('instance');
+
+    //         delete this.children[view.cid];
+
+    //         if (view.destroy) view.destroy();
+    //         $el.remove();
+
+    //         if (!collection.length) {
+    //             this.reset();
+    //         }
+    //     }
+    // });
+    xin.set('xin.ui.List', List);
+
+    // var ListItem = xin.ui.ViewFactory.extend({
+    //     initialize: function(options) {
+    //         var roleParentView = this.$roleParent.data('instance');
+    //         if (roleParentView) {
+    //             roleParentView.itemPrototype = this;
+    //             roleParentView.$itemAttachPoint = this.$parent;
+    //         }
+    //     }
+    // });
+
+    // xin.set('xin.ui.ListItem', ListItem);
+
+    // var ListEmpty = xin.ui.ViewFactory.extend({
+    //     initialize: function(options) {
+    //         var roleParentView = this.$roleParent.data('instance');
+    //         if (roleParentView) {
+    //             roleParentView.emptyPrototype = this;
+    //             roleParentView.$emptyAttachPoint = this.$parent;
+    //         }
+    //     }
+    // });
+
+    // xin.set('xin.ui.ListEmpty', ListEmpty);
+
+})(window.xin);;(function(xin) {
+    "use strict";
+
+    var Drawer = xin.ui.Outlet.extend({
+
+        initialize: function(options)  {
+            if (options.layout) {
+                xin.ui.Layout.get(app, options.layout).apply(this.$el);
+            }
+
+            // this.$el.html('<div class="xin-drawer-placeholder">' + this.$el.html() + '</div>');
+            this.$el.addClass('xin-drawer').css('-webkit-transform', 'translateX(-100%)');
+            this.$el.on('click', 'a', _.bind(this.clicked, this));
+        },
+
+        show: function() {
+            this.$el.css('-webkit-transform', '');
+        },
+
+        hide: function() {
+            this.$el.css('-webkit-transform', 'translateX(-100%)');
+        },
+
+        clicked: function() {
+            // console.log('xxx');
+            this.hide();
+        }
+    });
+
+    xin.set('xin.ui.Drawer', Drawer);
 })(window.xin);

@@ -88,6 +88,8 @@
         start: function() {
             var that = this;
 
+            this.baseURL = location.href.split('#')[0];
+
             this.catchAllHref();
 
             xin.when(this.providerRepository.initialize()).
@@ -105,12 +107,18 @@
         },
 
         catchAllHref: function() {
+            var that = this;
             this.$el.on('click', 'a', function(evt) {
-                evt.preventDefault();
                 var href = xin.$(this).attr('href');
-                if (href[0] === '/') {
+                if (href[0] === '#') {
+                    return;
+                } else if (href[0] === '/') {
                     href = location.origin + href;
                 }
+                evt.preventDefault();
+
+                href = that.simplifyURL(href);
+
                 location.hash = (href.split('#')[0] == location.href.split('#')[0]) ? '#_' : '#' + href;
             });
 
@@ -126,6 +134,13 @@
                     alert(message);
                 });
             });
+        },
+
+        simplifyURL: function(url) {
+            if (url.indexOf(this.baseURL) == 0) {
+                url = url.substr(this.baseURL.length);
+            }
+            return url;
         },
 
         /**

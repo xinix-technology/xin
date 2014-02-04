@@ -8,7 +8,6 @@
 
         clicked: function(evt) {
             evt.preventDefault();
-            alert('axxxx');
         }
     });
 
@@ -28,10 +27,6 @@
 
             }
         });
-
-        window.clicked = function() {
-            alert('window context');
-        };
 
         // app.set('clicked', function() {
         //     alert('ini yang dijalankan');

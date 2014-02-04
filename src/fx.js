@@ -45,9 +45,10 @@
             var that = this,
                 deferred = xin.Deferred();
 
-            this.$el.on('webkitTransitionEnd', function() {
-                that.$el.off('webkitTransitionEnd');
-                that.$el.css('-webkit-transition', '');
+            this.$el.on('transitionend', function() {
+                that.$el.off('transitionend');
+                that.$el.css('transition', '');
+                that.$el.css('transform', '');
                 deferred.resolve();
             });
 
@@ -56,12 +57,12 @@
                 from = '-' + from;
             }
 
-            this.$el.css('-webkit-transform', 'translate3d(' + from + ', 0, 0)');
-            this.$el.css('-webkit-transition', 'all ' + that.timeout + 's');
+            this.$el.css('transform', 'translate3d(' + from + ', 0, 0)');
+            this.$el.css('transition', 'all ' + that.timeout + 's');
             that.$el.addClass('xin-show');
 
             setTimeout(function() {
-                that.$el.css('-webkit-transform', 'translate3d(0, 0, 0)');
+                that.$el.css('transform', 'translate3d(0, 0, 0)');
             }, xin.fx.defaultOptions.delay);
 
             return deferred.promise();
@@ -79,22 +80,23 @@
             var that = this,
                 deferred = xin.Deferred();
 
-            this.$el.on('webkitTransitionEnd', function() {
-                that.$el.off('webkitTransitionEnd');
+            this.$el.on('transitionend', function() {
+                that.$el.off('transitionend');
                 that.$el.removeClass('xin-show');
-                that.$el.css('-webkit-transition', '');
+                that.$el.css('transition', '');
+                that.$el.css('transform', '');
                 deferred.resolve();
             });
 
-            this.$el.css('-webkit-transform', 'translate3d(0, 0, 0)');
-            this.$el.css('-webkit-transition', 'all ' + that.timeout + 's');
+            this.$el.css('transform', 'translate3d(0, 0, 0)');
+            this.$el.css('transition', 'all ' + that.timeout + 's');
 
             setTimeout(function() {
                 var to = '100%';
                 if (that.to == 'left') {
                     to = '-' + to;
                 }
-                that.$el.css('-webkit-transform', 'translate3d(' + to + ', 0, 0)');
+                that.$el.css('transform', 'translate3d(' + to + ', 0, 0)');
             }, xin.fx.defaultOptions.delay);
 
             return deferred.promise();

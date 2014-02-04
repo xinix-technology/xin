@@ -2,91 +2,124 @@
     "use strict";
 
     var List = xin.ui.Outlet.extend({
-        initialize: function() {
-            this.listenTo(this.collection, 'reset', this.reset);
-            this.listenTo(this.collection, 'add', this.add);
-            this.listenTo(this.collection, 'remove', this.remove);
+        initialize: function(options)  {
+            this.$el.addClass('xin-list');
 
-            this.children = {};
+            this.itemTemplate = options.template || _.template('<li><%= model %></li>');
         },
 
-        reset: function() {
-            if (this.emptyPrototype) {
-                if (!this.emptyView) {
-                    this.emptyView = this.emptyPrototype.newInstance();
-                }
-
-                var that = this;
-
-                _.each(this.children, function(o, k) {
-                    var view = o,
-                        $el = o.$el;
-
-                    delete that.children[k];
-                    if (view.destroy) view.destroy();
-                    $el.remove();
+        render: function() {
+            var that = this;
+            if (this.collection) {
+                this.collection.each(function(model) {
+                    var item = new List.Item({
+                        template: that.itemTemplate,
+                        model: model
+                    });
+                    that.$el.append(item.render().$el);
                 });
-
-                this.emptyView.$el.detach();
-
-                this.$emptyAttachPoint.html('');
-                this.$itemAttachPoint.html('');
-
-                this.$emptyAttachPoint.append(this.emptyView.$el);
-            }
-        },
-
-        add: function(model) {
-            this.emptyView.$el.detach();
-
-            if (this.itemPrototype) {
-                var itemView = this.itemPrototype.newInstance({
-                    model: model
-                });
-                itemView.parent = this;
-                this.children[itemView.cid] = itemView;
-                this.$itemAttachPoint.append(itemView.$el);
-            }
-        },
-
-        remove: function(model, collection) {
-            var $el = this.$itemAttachPoint.find('[data-cid=' + model.cid + ']'),
-                view = $el.data('instance');
-
-            delete this.children[view.cid];
-
-            if (view.destroy) view.destroy();
-            $el.remove();
-
-            if (!collection.length) {
-                this.reset();
             }
         }
     });
+
+    List.Item = xin.ui.Outlet.extend({
+        render: function() {
+            this.$el = xin.$(this.template(this));
+            return this;
+        }
+    });
+
+    // var List = xin.ui.Outlet.extend({
+    //     initialize: function() {
+    //         this.listenTo(this.collection, 'reset', this.reset);
+    //         this.listenTo(this.collection, 'add', this.add);
+    //         this.listenTo(this.collection, 'remove', this.remove);
+
+    //         this.children = {};
+    //     },
+
+    //     reset: function() {
+    //         if (this.emptyPrototype) {
+    //             if (!this.emptyView) {
+    //                 this.emptyView = this.emptyPrototype.newInstance();
+    //             }
+
+    //             var that = this;
+
+    //             _.each(this.children, function(o, k) {
+    //                 var view = o,
+    //                     $el = o.$el;
+
+    //                 delete that.children[k];
+    //                 if (view.destroy) view.destroy();
+    //                 $el.remove();
+    //             });
+
+    //             if (this.emptyView) {
+    //                 this.emptyView.$el.detach();
+    //             }
+
+    //             this.$emptyAttachPoint.html('');
+    //             this.$itemAttachPoint.html('');
+
+    //             this.$emptyAttachPoint.append(this.emptyView.$el);
+    //         }
+    //     },
+
+    //     add: function(model) {
+    //         if (this.emptyView) {
+    //             this.emptyView.$el.detach();
+    //         }
+
+    //         console.log(this.itemPrototype);
+    //         if (this.itemPrototype) {
+    //             var itemView = this.itemPrototype.newInstance({
+    //                 model: model
+    //             });
+    //             itemView.parent = this;
+    //             this.children[itemView.cid] = itemView;
+    //             this.$itemAttachPoint.append(itemView.$el);
+    //         }
+    //     },
+
+    //     remove: function(model, collection) {
+    //         var $el = this.$itemAttachPoint.find('[data-cid=' + model.cid + ']'),
+    //             view = $el.data('instance');
+
+    //         delete this.children[view.cid];
+
+    //         if (view.destroy) view.destroy();
+    //         $el.remove();
+
+    //         if (!collection.length) {
+    //             this.reset();
+    //         }
+    //     }
+    // });
     xin.set('xin.ui.List', List);
 
-    var ListItem = xin.ui.ViewFactory.extend({
-        initialize: function(options) {
-            var roleParentView = this.$roleParent.data('instance');
-            if (roleParentView) {
-                roleParentView.itemPrototype = this;
-                roleParentView.$itemAttachPoint = this.$parent;
-            }
-        }
-    });
+    // var ListItem = xin.ui.ViewFactory.extend({
+    //     initialize: function(options) {
+    //         var roleParentView = this.$roleParent.data('instance');
+    //         if (roleParentView) {
+    //             roleParentView.itemPrototype = this;
+    //             roleParentView.$itemAttachPoint = this.$parent;
+    //         }
+    //     }
+    // });
 
-    xin.set('xin.ui.ListItem', ListItem);
+    // xin.set('xin.ui.ListItem', ListItem);
 
-    var ListEmpty = ViewFactory.extend({
-        initialize: function(options) {
-            var roleParentView = this.$roleParent.data('instance');
-            if (roleParentView) {
-                roleParentView.emptyPrototype = this;
-                roleParentView.$emptyAttachPoint = this.$parent;
-            }
-        }
-    });
+    // var ListEmpty = xin.ui.ViewFactory.extend({
+    //     initialize: function(options) {
+    //         var roleParentView = this.$roleParent.data('instance');
+    //         if (roleParentView) {
+    //             roleParentView.emptyPrototype = this;
+    //             roleParentView.$emptyAttachPoint = this.$parent;
+    //         }
+    //     }
+    // });
 
-    xin.set('xin.ui.ListEmpty', ListEmpty);
+    // xin.set('xin.ui.ListEmpty', ListEmpty);
 
 })(window.xin);

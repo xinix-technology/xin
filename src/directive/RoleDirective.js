@@ -43,16 +43,13 @@
     };
 
     _.extend(RoleDirective.prototype, {
+
         matcher: function($el) {
             if ($el.data('role') && ($el.data('role').toLowerCase() !== 'app')) {
                 return true;
-                // var role = $el.data('role').toLowerCase();
-                // if (role.substr(0, 5) !== 'list-') {
-                //     return true;
-                // }
-
             }
         },
+
         run: function($el) {
             var deferredRules = [],
                 deferred = new xin.Deferred(),
@@ -60,20 +57,26 @@
                 options,
                 role;
 
+            // if already instantiated then it is resolved
             if ($el.data('instantiated')) {
                 return deferred.resolve().promise();
             }
 
+            // prepare options for instantiating
             options = _.defaults($el.data(), {
                 el: $el,
                 app: app
             });
-            role = options.role;
 
+            // save role
+            role = options.role;
             // TODO: reekoheek, there was a reason why options.role should be
             // deleted
-            // delete options.role;
+            delete options.role;
 
+
+            // try to resolve each option from application context before
+            // instantiating
             _.each(options, function(option, key) {
                 if (typeof option == 'string') {
 
@@ -84,18 +87,21 @@
 
                     deferredRules.push(promise);
                 }
-
             });
 
-            xin.$.when.apply(null, deferredRules).done(function() {
+            // after every option already resolved then instantiating
+            xin.when.apply(null, deferredRules).done(function() {
+
+                // resolve from application context
                 app.resolve(role, options).done(function(instance) {
+                    var $el,
+                        $parent;
+
                     if (!instance) {
                         throw new Error('Role: "' + role + '" undefined');
                     }
-                    var $el = instance.$el,
-                        $parent;
 
-                    if ($el) {
+                    if ($el = instance.$el) {
                         $parent = $el.parent('.xin-role');
 
                         $el.attr('data-instantiated', true)
@@ -109,10 +115,11 @@
                             }
                         }
                     }
+
                     if (instance instanceof Backbone.View) {
                         instance.app = instance.options.app;
                         instance.$el.addClass('xin-role');
-                        if (!instance.isContainer) {
+                        if (!(instance instanceof xin.ui.Pane)) {
                             instance.$el.addClass('xin-view');
                         }
                         instance.render();

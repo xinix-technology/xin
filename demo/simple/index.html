@@ -1,4 +1,4 @@
-<!doctype html>
+    <!doctype html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -9,22 +9,96 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black" />
 
     <link rel="stylesheet" type="text/css" href="../../css/xin.css" />
+    <link rel="stylesheet" type="text/css" href="../../css/xin-contrib.css" />
     <link rel="stylesheet" type="text/css" href="init.css" />
 
 </head>
 <body data-role="app">
+    <div data-role="layout" data-id="drawer" class="xc-flex vertical">
+        <div data-region="header">
+            <div class="xin-navbar xc-flex horizontal">
+                <div class="no-flex" style="left:0">
 
-    <div data-role="pager" data-transition="slide">
-        <div data-role="view"
-            data-uri="login">
-            login
-            <a href="#" data-bind="click:clicked">Test</a>
-            <a href="anu.html">Anu</a>
+                </div>
+                <div class="xin-title center">
+                    Menu
+                </div>
+                <div class="no-flex" style="right:0">
+
+                </div>
+            </div>
         </div>
-        <div data-role="view"
-            data-uri="signup">
-            signup
+        <div data-region="body" class="center layout-body">
+
         </div>
+    </div>
+
+    <div data-role="layout" data-id="default" class="xc-flex vertical">
+        <div data-region="header">
+            <div class="xin-navbar xc-flex horizontal">
+                <div class="no-flex" style="left:0">
+                    <a href="#" onclick="xin.$('.xin-drawer').data('instance').show(); return false">menu</a>
+                </div>
+                <div data-region="title" class="xin-title center">
+                    Simple Demo
+                </div>
+                <div class="no-flex" style="right:0">
+
+                </div>
+            </div>
+        </div>
+        <div data-region="body" class="center layout-body">
+
+        </div>
+        <div data-region="footer">
+            <div class="xin-navbar">
+                <div class="xin-title">
+                    Footer
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <div data-role="pane" data-transition="slide" class="xc-fill" data-id="pane">
+
+        <div data-role="view" data-uri="login" data-layout="default" data-title="Login">
+        <!-- <div data-role="view" data-layout="default" data-title="Login"> -->
+            <form action="">
+                <ul data-role="list">
+                    <li>
+                        <input type="text" placeholder="Username" name="username" />
+                    </li>
+                    <li>
+                        <input type="text" placeholder="Password" name="password" />
+                    </li>
+                </ul>
+            </form>
+        </div>
+
+        <div data-role="view" data-uri="signup" data-layout="default" data-title="Signup">
+            Signup
+        </div>
+
+        <div data-role="view" data-uri="list" data-layout="default" data-title="List">
+            <ul data-role="list" data-collection="listData" data-template="listTemplate"></ul>
+        </div>
+
+        <script type="text/template" id="listTemplate">
+            <li>
+                <%= model.get('username') %> (<%= model.get('age') %>)
+            </li>
+        </script>
+
+    </div>
+
+    <div data-role="drawer" data-align="left" data-layout="drawer" style="width: 80%">
+        <ul data-role="list">
+            <li><a href="#">Login</a></li>
+            <li><a href="#signup">Signup</a></li>
+            <li><a href="#list">List</a></li>
+            <li><a href="another.php">Another</a></li>
+        </ul>
     </div>
 
     <script type="text/javascript" src="../../bower_components/zeptojs/src/zepto.js"></script>
@@ -44,18 +118,30 @@
     <script type="text/javascript" src="../../src/directive.js"></script>
     <script type="text/javascript" src="../../src/provider.js"></script>
     <script type="text/javascript" src="../../src/fx.js"></script>
+    <script type="text/javascript" src="../../src/ui.js"></script>
 
     <script type="text/javascript" src="../../src/directive/AppDirective.js"></script>
     <script type="text/javascript" src="../../src/directive/RoleDirective.js"></script>
     <script type="text/javascript" src="../../src/directive/URIDirective.js"></script>
     <script type="text/javascript" src="../../src/directive/BindDirective.js"></script>
 
+    <script type="text/javascript" src="../../src/ui/Layout.js"></script>
     <script type="text/javascript" src="../../src/ui/Outlet.js"></script>
-    <script type="text/javascript" src="../../src/ui/Pager.js"></script>
+    <!-- <script type="text/javascript" src="../../src/ui/ViewFactory.js"></script> -->
+    <script type="text/javascript" src="../../src/ui/Pane.js"></script>
+    <script type="text/javascript" src="../../src/ui/List.js"></script>
+    <script type="text/javascript" src="../../src/ui/Drawer.js"></script>
 
+    <script>
+        var listData = new Backbone.Collection([
+            { username: 'anes', age: 32 },
+            { username: 'reeko', age: 17 },
+            { username: 'jafar', age: 40 }
+        ]);
+    </script>
     <script type="text/javascript" src="./init.js"></script>
 
-    <script type="text/javascript" src="http://localhost:9999/devreload.js"></script>
+    <!-- <script type="text/javascript" src="http://localhost:9999/devreload.js"></script> -->
 
 </body>
 </html>

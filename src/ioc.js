@@ -48,12 +48,15 @@
             this.fallbackContext = options.fallbackContext || window;
 
             this.aliases = {
-                'app': 'xin.Application',
+                'app': 'xin.App',
                 'view': 'xin.ui.Outlet',
-                'pager': 'xin.ui.Pager',
+                'layout': 'xin.ui.Layout',
+                'header': 'xin.ui.Header',
+                'pane': 'xin.ui.Pane',
                 'list': 'xin.ui.List',
-                'list-item': 'xin.ui.ListItem',
-                'list-empty': 'xin.ui.ListEmpty'
+                'drawer': 'xin.ui.Drawer'
+                // 'list-item': 'xin.ui.ListItem',
+                // 'list-empty': 'xin.ui.ListEmpty'
             };
         },
 
@@ -140,17 +143,19 @@
             return deferred.promise();
         },
 
-        resolve: function(key) {
+        resolveAlias: function(key) {
             var found;
             do {
+                found = false;
                 if (this.aliases[key]) {
                     key = this.aliases[key];
                     found = true;
-                } else {
-                    found = false;
                 }
             } while(found);
+            return key;
+        },
 
+        resolve: function(key) {
             var index,
                 resolver,
                 type = '',
@@ -158,16 +163,21 @@
                 args = [],
                 value;
 
+            key = this.resolveAlias(key);
+
             if (!key) return deferred.reject(new Error('Key not found or cannot resolve!')).promise();
 
             for(var i in arguments) {
                 args.push(arguments[i]);
             }
 
+
             if (typeof key == 'function') {
+
                 // if type of key is function, we assume it as a Class constructor
                 // so we will create object based on that Class constructor
                 this.createObject.apply(this, args).then(deferred.resolve, deferred.reject);
+
             } else if (typeof key == 'string') {
 
                 // if type of key is string, we parse it, is there any type of
@@ -224,6 +234,11 @@
             },
 
             template: function(key) {
+                var $template = xin.$('script#' + key);
+                if ($template.length > 0) {
+                    return xin.Deferred().resolve(_.template($template.html())).promise();
+                }
+
                 var resolver = IoC.getResolver('xhr');
 
                 return resolver(key).then(function(data) {
@@ -236,7 +251,16 @@
             },
 
             collection: function(key) {
-                return this.resolve(key);
+                var deferred = xin.Deferred();
+
+                xin.when(this.resolve(key)).then(function(collection) {
+                    if (!(collection instanceof Backbone.Collection)) {
+                        collection = new Backbone.Collection(collection);
+                    }
+                    deferred.resolve(collection);
+                });
+
+                return deferred.promise();;
             }
 
         },

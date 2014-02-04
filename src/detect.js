@@ -43,6 +43,8 @@
         // Detect if this is running as a fullscreen app from the homescreen
         fullscreen = window.navigator.standalone,
         android = ~ua.indexOf('Android'),
+        moz = 'mozRequestAnimationFrame' in window,
+        webkit = 'webkitRequestAnimationFrame' in window,
         lastWidth = 0;
 
     /**
@@ -55,8 +57,28 @@
         ipad: ipad,
         ios: ios,
         fullscreen: fullscreen,
-        android: android
+        android: android,
+        moz: moz,
+        webkit: webkit
     });
+
+    var oldCss = xin.$.fn.css;
+    xin.$.fn.css = function(key, val) {
+        if (typeof(key) == 'string') {
+            switch(key) {
+                case 'transform':
+                case 'transition':
+                    if (xin.detect.moz) {
+                        oldCss.call(this, '-moz-' + key, val);
+                    }
+                    if (xin.detect.webkit) {
+                        oldCss.call(this, '-webkit-' + key, val);
+                    }
+                    break;
+            }
+        }
+        return oldCss.apply(this, arguments);
+    };
 
     // TODO reekoheek: move below lines to global or application init as single
     // function

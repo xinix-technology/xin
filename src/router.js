@@ -74,25 +74,33 @@
          * @param  String uri URI that missing
          */
         routeMissing: function(uri) {
+            uri = uri.trim();
+
             var that = this,
-                args = arguments;
+                args = arguments,
+                newUri = this.app.simplifyURL(uri);
+
+            if (uri !== newUri) {
+                location.hash = newUri;
+                return;
+            }
 
 
             // TODO reekoheek: why do we need this to be deferred?
             // _.defer(function() { });
-            var $handler = that.viewRoutes[uri];
+            var $handler = that.viewRoutes[uri],
+                registerDefaultView = function() {
+                    $handler = xin.$('.xin-pane > .xin-view');
+                    that.viewDefaultRoute = '_';
+                    $handler.attr('data-uri', '_');
+                    that.registerView('_', $handler);
+                };
             if (!$handler && uri == '_') {
-                $handler = xin.$('.xin-app .xin-view');
-                that.viewDefaultRoute = '_';
-                $handler.attr('data-uri', '_');
-                this.registerView('_', $handler);
+                registerDefaultView();
             }
             if (uri === '') {
                 if (!that.viewDefaultRoute) {
-                    $handler = xin.$('.xin-app .xin-view');
-                    that.viewDefaultRoute = '_';
-                    $handler.attr('data-uri', '_');
-                    this.registerView('_', $handler);
+                    registerDefaultView();
                 }
                 location.hash = that.viewDefaultRoute;
             } else if ($handler) {
@@ -109,16 +117,27 @@
                     } else {
                         data = '<div>' + data + '</div>';
                     }
-                    var $data = xin.$(data);
 
+                    var $data = xin.$(data);
                     if ($data.find('[data-role]').length > 0) {
-                        $data = $data.find('[data-role]');
-                    } else if ($data.find('body').length > 0) {
-                        $data = $data.find('body');
+                        var $role = $data.find('[data-role]');
+                        $role = $role.filter(function() {
+                            var K = that.app.get(that.app.container.resolveAlias(xin.$(this).data('role')));
+                            return (K.prototype instanceof Backbone.View && !(K.prototype instanceof xin.ui.Container));
+                        });
+                        if ($role.length > 0) {
+                            $data = $role;
+                            $data.attr('data-uri', uri);
+                        }
+                    } else {
+                        if ($data.find('body').length > 0) {
+                            $data = $data.find('body');
+                        }
+                        data = $data.html() || '';
+                        $data = xin.$('<div data-role="view" data-uri="' + uri + '">' + data + '</div>');
                     }
-                    data = $data.html() || '';
-                    var $newView = xin.$('<div data-role="view" data-uri="' + uri + '">' + data + '</div>');
-                    that.mainViewport.append($newView);
+
+                    that.mainViewport.append($data);
                     xin.when(that.app.directiveManager.scan()).done(function() {
                         that.routeMissing(uri);
                     });

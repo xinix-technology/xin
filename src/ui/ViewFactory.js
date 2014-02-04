@@ -11,7 +11,7 @@
         }
 
         if (!options.view) {
-            this.View = Outlet;
+            this.View = xin.ui.Outlet;
         } else {
             this.View = options.app.get(options.view);
         }

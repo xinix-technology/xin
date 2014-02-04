@@ -3,8 +3,13 @@
 
     var Outlet = Backbone.View.extend({
         initialize: function(options) {
-            this.options = options;
+            var app = options.app;
+
             this.template = options.template || null;
+
+            if (options.layout) {
+                xin.ui.Layout.get(app, options.layout).apply(this.$el);
+            }
         },
 
         render: function() {
@@ -17,18 +22,4 @@
 
     xin.set('xin.ui.Outlet', Outlet);
 
-    _.extend(xin.ui, {
-        show: function(view) {
-            _.defer(function() {
-                if (view.parent && view.parent.showChild) {
-                    view.parent.showChild(view).done(function() {
-                        view.$el[0].scrollTop = 0;
-                        view.$el.addClass('xin-show');
-                    });
-                } else {
-                   view.$el.addClass('xin-show');
-                }
-            });
-        }
-    });
 })(window.xin);
