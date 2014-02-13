@@ -37,6 +37,9 @@
 
     xin.set('xin.ui', {
         show: function(view) {
+
+            Backbone.trigger('xin-show', view);
+
             _.defer(function() {
                 if (view.parent && view.parent.showChild) {
                     view.parent.showChild(view).done(function() {
@@ -46,6 +49,8 @@
                 } else {
                    view.$el.addClass('xin-show');
                 }
+
+                view.trigger('show', view);
             });
         }
     });

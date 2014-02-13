@@ -41,6 +41,7 @@
      */
     var BindDirective = function(app) {
         this.app = app;
+        this.binding = [];
     };
 
     _.extend(BindDirective.prototype, {
@@ -54,32 +55,96 @@
             return $el.data('bind');
         },
 
+        onChanged: function(view, model) {
+            // console.log('model:onChanged', arguments);
+            view.$('[data-bind-key]').each(function() {
+                var $object = xin.$(this),
+                    d = $object.data(),
+                    val = model.get(d.bindKey);
+
+                if (d.bindTo.indexOf('attr-') === 0) {
+                    var attr = d.bindTo.substr(5);
+                    $object.attr(attr, val);
+                } else {
+                    if ($object[0].tagName == 'INPUT') {
+                        if ($object.attr('type') == 'checkbox' || $object.attr('type') == 'radio') {
+                            $object.attr('checked', val || false);
+                        } else {
+                            $object.val(val);
+                        }
+                    } else {
+                        $object.html(val);
+                    }
+                }
+
+            });
+        },
+
         run: function($el) {
             var deferred = xin.Deferred(),
                 app = this.app,
                 that = this;
 
-            var $elScope = ($el.hasClass('xin-role')) ? $el : $el.parents('.xin-role'),
+            if ($el.data('bindRef')) {
+                return deferred.resolve().promise();
+            }
+
+            var $elScope = ($el.hasClass('xin-role')) ? $el : $el.parents('.xin-role:not(.xin-layout)'),
                 view = $elScope.data('instance');
 
-                var binds = $el.data('bind').trim().split(/\s+/);
-                _.each(binds, function(bind) {
-                    var eventName, refName, method;
-                    bind = bind.split(':');
-                    if (bind.length > 1) {
-                        eventName = bind[0];
-                        method = bind[1];
-                        method = view[method] || that.app.get(method);
-                        if (_.isFunction(method)) {
-                            refName = that.newRef();
-                            $el.attr('data-bind-ref', refName);
+            var binds = $el.data('bind').trim().split(/\s+/);
 
-                                method = _.bind(method, view);
-                                view.$el.on(eventName, '[data-bind-ref=' + refName + ']', method);
+            _.each(binds, function(bind) {
+                var eventName, refName, method;
+                bind = bind.split(':');
+                if (bind.length === 1) {
+                    bind[1] = bind[0];
+                    bind[0] = 'val';
+                }
+
+                if (bind[0] == 'val' || (bind[0] || '').indexOf('attr-') === 0) {
+                    // FIXME data binding please!!!
+                    that.binding[view.cid] = that.binding[view.cid] || [];
+                    if (view && view.model) {
+                        refName = that.newRef();
+                        $el.attr('data-bind-ref', refName).attr('data-bind-to', bind[0]).attr('data-bind-key', bind[1]);
+
+                        method = _.bind(function() {
+                            var val = $el.val();
+                            if ($el.attr('type') == 'checkbox' || $el.attr('type') == 'radio') {
+                                val = $el.attr('checked') ? true : false;
+                            }
+                            this.model.attributes[$el.data('bindKey')] = val;
+                            // console.log('set:'+val);
+                        }, view);
+
+                        view.model.on('change', _.partial(that.onChanged, view));
+                        view.$el.on('change.delegateEvents' + view.cid, '[data-bind-ref=' + refName + ']', method);
+                    }
+                } else {
+
+                    eventName = bind[0];
+                    method = bind[1];
+                    if (view && view[method]) {
+                        method = view[method];
+                    } else {
+                        method = that.app.get(method);
+                    }
+                    if (_.isFunction(method)) {
+                        refName = that.newRef();
+                        $el.attr('data-bind-ref', refName);
+
+                        if (view && view.delegateEvents) {
+                            view.events = _.result(view, 'events') || {};
+                            view.events[eventName + ' [data-bind-ref=' + refName + ']'] = method;
+                            view.delegateEvents();
+                        } else {
+                            app.$el.on(eventName, '[data-bind-ref=' + refName + ']', method);
                         }
                     }
-                });
-                deferred.resolve();
+                }
+            });
+            deferred.resolve();
 
             return deferred.promise();
         }

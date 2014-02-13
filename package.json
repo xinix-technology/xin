@@ -53,12 +53,34 @@
             "./src/ui/Outlet.js",
             "./src/ui/Pane.js",
             "./src/ui/List.js",
-            "./src/ui/Drawer.js"
+            "./src/ui/Drawer.js",
+            "./src/ui/Navbar.js"
           ],
           "dest": "js/xin.js"
         }
       },
       "jshint": {
+        "single": [
+          "./src/global.js",
+          "./src/detect.js",
+          "./src/app.js",
+          "./src/ioc.js",
+          "./src/router.js",
+          "./src/directive.js",
+          "./src/provider.js",
+          "./src/fx.js",
+          "./src/ui.js",
+          "./src/directive/AppDirective.js",
+          "./src/directive/RoleDirective.js",
+          "./src/directive/URIDirective.js",
+          "./src/directive/BindDirective.js",
+          "./src/ui/Layout.js",
+          "./src/ui/Outlet.js",
+          "./src/ui/Pane.js",
+          "./src/ui/List.js",
+          "./src/ui/Drawer.js",
+          "./src/ui/Navbar.js"
+        ],
         "dist": [
           "js/xin.js"
         ]

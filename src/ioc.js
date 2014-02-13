@@ -54,9 +54,9 @@
                 'header': 'xin.ui.Header',
                 'pane': 'xin.ui.Pane',
                 'list': 'xin.ui.List',
-                'drawer': 'xin.ui.Drawer'
-                // 'list-item': 'xin.ui.ListItem',
-                // 'list-empty': 'xin.ui.ListEmpty'
+                'list-item': 'xin.ui.List.Item',
+                'drawer': 'xin.ui.Drawer',
+                'navbar': 'xin.ui.Navbar'
             };
         },
 
@@ -66,6 +66,11 @@
         },
 
         get: function(key) {
+            if (!key) {
+                console.error('IoC cannot get from key:', key);
+                return;
+            }
+
             var keys = key.split('.'),
                 from = this.context,
                 found;
@@ -90,6 +95,11 @@
         },
 
         set: function(key, value) {
+            if (!key) {
+                console.error('cannot set key:', key, 'value:', value);
+                return;
+            }
+
             var keys = key.split('.'),
                 to = this.context,
                 index = 0;
@@ -107,14 +117,22 @@
             });
         },
 
-        createObject: function(Constructor) {
+        createObject: function(Constructor, options) {
             var deferred = xin.Deferred(),
                 object,
-                args = [];
+                id = (options) ? options.id : null,
+                args = [],
+                f;
+
             for(var i in arguments) {
                 args.push(arguments[i]);
             }
-            args = args.slice(1);
+
+            if (Constructor.prototype instanceof Backbone.Collection || Constructor.prototype instanceof Backbone.Model) {
+                args[0] = null;
+            } else {
+                args = args.slice(1);
+            }
 
             // TODO if there is any other technique that works cross browser
             // for construct new object based on dynamic length arguments
@@ -138,6 +156,26 @@
                     object = new Constructor(args[0], args[1], args[2], args[3], args[4]);
                     break;
             }
+
+            object.app = this.app;
+
+            if (id) {
+                this.set(id, object);
+            }
+
+            if (options.show) {
+                f = this.get(options.show);
+                if (f && typeof object.on == 'function') {
+                    object.on('show', f);
+                }
+            }
+
+            if (options.init) {
+                f = this.get(options.init);
+                f.apply(object);
+            }
+
+            // Backbone.trigger('xin-init', object);
 
             deferred.resolve(object);
             return deferred.promise();
@@ -165,12 +203,12 @@
 
             key = this.resolveAlias(key);
 
+
             if (!key) return deferred.reject(new Error('Key not found or cannot resolve!')).promise();
 
             for(var i in arguments) {
                 args.push(arguments[i]);
             }
-
 
             if (typeof key == 'function') {
 
@@ -200,12 +238,16 @@
                 } else {
                     // no type of resolver, then resolve the key as it is
                     value = this.get(key);
+                    if (!value) {
+                        throw new Error('Key: ' + key + ' not found!');
+                    }
 
+                    value.xrole = key;
                     if (typeof value == 'function') {
                         var first = _.last(key.split('.'))[0];
                         if (first.toUpperCase() == first) {
                             args[0] = value;
-                            this.createObject.apply(this, args).then(deferred.resolve, deferred.reject);
+                            this.createObject(args[0], args[1]).then(deferred.resolve, deferred.reject);
                         } else {
                             deferred.resolve(value.apply(undefined, args.slice(1)));
                         }
@@ -235,6 +277,7 @@
 
             template: function(key) {
                 var $template = xin.$('script#' + key);
+
                 if ($template.length > 0) {
                     return xin.Deferred().resolve(_.template($template.html())).promise();
                 }
@@ -260,7 +303,7 @@
                     deferred.resolve(collection);
                 });
 
-                return deferred.promise();;
+                return deferred.promise();
             }
 
         },

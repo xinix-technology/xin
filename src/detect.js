@@ -51,7 +51,8 @@
      * xin.detect
      *
      */
-    xin.set('xin.detect', {
+
+    var detect = {
         ua: ua,
         iphone: iphone,
         ipad: ipad,
@@ -60,7 +61,14 @@
         android: android,
         moz: moz,
         webkit: webkit
-    });
+    };
+
+    detect.TRANSITION_END = 'transitionend';
+    if (webkit) {
+        detect.TRANSITION_END = 'webkitTransitionEnd';
+    }
+
+    xin.set('xin.detect', detect);
 
     var oldCss = xin.$.fn.css;
     xin.$.fn.css = function(key, val) {
@@ -115,6 +123,7 @@
         // after it fires the onload event
         setTimeout(scrollTo, 0, 0, 1);
     };
+
     window.onresize = function() {
         var pageWidth = page.offsetWidth;
         // Android doesn't support orientation change, so check for when the width

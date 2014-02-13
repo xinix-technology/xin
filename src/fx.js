@@ -45,8 +45,8 @@
             var that = this,
                 deferred = xin.Deferred();
 
-            this.$el.on('transitionend', function() {
-                that.$el.off('transitionend');
+            this.$el.on(xin.detect.TRANSITION_END, function() {
+                that.$el.off(xin.detect.TRANSITION_END);
                 that.$el.css('transition', '');
                 that.$el.css('transform', '');
                 deferred.resolve();
@@ -80,8 +80,8 @@
             var that = this,
                 deferred = xin.Deferred();
 
-            this.$el.on('transitionend', function() {
-                that.$el.off('transitionend');
+            this.$el.on(xin.detect.TRANSITION_END, function() {
+                that.$el.off(xin.detect.TRANSITION_END);
                 that.$el.removeClass('xin-show');
                 that.$el.css('transition', '');
                 that.$el.css('transform', '');
