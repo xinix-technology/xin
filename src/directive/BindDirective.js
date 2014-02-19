@@ -105,6 +105,7 @@
                 if (bind[0] == 'val' || (bind[0] || '').indexOf('attr-') === 0) {
                     // FIXME data binding please!!!
                     that.binding[view.cid] = that.binding[view.cid] || [];
+
                     if (view && view.model) {
                         refName = that.newRef();
                         $el.attr('data-bind-ref', refName).attr('data-bind-to', bind[0]).attr('data-bind-key', bind[1]);

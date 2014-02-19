@@ -58,8 +58,9 @@ window.xin = (function() {
             tokens = ns.substr(4).split('.');
             lastToken = tokens[tokens.length - 1];
 
-            for(var i in tokens) {
-                var token = tokens[i];
+            _.each(tokens, function(token, i) {
+
+                // var token = tokens[i];
 
                 if (token === lastToken) {
                     nsObject[token] = object;
@@ -68,7 +69,9 @@ window.xin = (function() {
                 }
 
                 nsObject = nsObject[token];
-            }
+            });
+            // for(var i in tokens) {
+            // }
         },
 
         htmlDecode: function(input){
@@ -1854,6 +1857,7 @@ window.xin = (function() {
                 if (bind[0] == 'val' || (bind[0] || '').indexOf('attr-') === 0) {
                     // FIXME data binding please!!!
                     that.binding[view.cid] = that.binding[view.cid] || [];
+
                     if (view && view.model) {
                         refName = that.newRef();
                         $el.attr('data-bind-ref', refName).attr('data-bind-to', bind[0]).attr('data-bind-key', bind[1]);
@@ -1946,7 +1950,7 @@ window.xin = (function() {
 
             $clone.find('.xin-region-body').html(view.$el.html());
 
-            view.$el.html($clone.html()).addClass($clone.attr('class'));
+            view.$el.html($clone.html()).addClass($clone.attr('class')).removeClass('xin-layout');
         },
 
         applyTo: function(view) {
@@ -1992,6 +1996,8 @@ window.xin = (function() {
     xin.set('xin.ui.Layout', Layout);
 
     Backbone.on('xin-show', function(view) {
+        if (!view.$el.data('layout')) return;
+
         var layout = view.app.get(view.$el.data('layout'));
         if (layout) {
             layout.applyTo(view);

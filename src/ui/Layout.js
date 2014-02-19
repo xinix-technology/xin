@@ -44,7 +44,7 @@
 
             $clone.find('.xin-region-body').html(view.$el.html());
 
-            view.$el.html($clone.html()).addClass($clone.attr('class'));
+            view.$el.html($clone.html()).addClass($clone.attr('class')).removeClass('xin-layout');
         },
 
         applyTo: function(view) {
@@ -90,6 +90,8 @@
     xin.set('xin.ui.Layout', Layout);
 
     Backbone.on('xin-show', function(view) {
+        if (!view.$el.data('layout')) return;
+
         var layout = view.app.get(view.$el.data('layout'));
         if (layout) {
             layout.applyTo(view);

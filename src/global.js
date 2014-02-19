@@ -58,8 +58,9 @@ window.xin = (function() {
             tokens = ns.substr(4).split('.');
             lastToken = tokens[tokens.length - 1];
 
-            for(var i in tokens) {
-                var token = tokens[i];
+            _.each(tokens, function(token, i) {
+
+                // var token = tokens[i];
 
                 if (token === lastToken) {
                     nsObject[token] = object;
@@ -68,7 +69,9 @@ window.xin = (function() {
                 }
 
                 nsObject = nsObject[token];
-            }
+            });
+            // for(var i in tokens) {
+            // }
         },
 
         htmlDecode: function(input){
