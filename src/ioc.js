@@ -290,7 +290,16 @@
             },
 
             model: function(key) {
-                return this.resolve(key);
+                var deferred = xin.Deferred();
+
+                xin.when(this.resolve(key)).then(function(model) {
+                    if (!(model instanceof Backbone.Model)) {
+                        model = new Backbone.Model(model);
+                    }
+                    deferred.resolve(model);
+                });
+
+                return deferred.promise();
             },
 
             collection: function(key) {

@@ -107,8 +107,11 @@
 
                         $el.attr('data-instantiated', true)
                             .data('instance', instance)
-                            .attr('data-cid', instance.cid)
                             .addClass('xin-role');
+
+                        if (instance.cid) {
+                            $el.attr('data-cid', instance.cid);
+                        }
 
                         if ($parent.length) {
                             var parent = $parent.data('instance');

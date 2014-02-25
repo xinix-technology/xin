@@ -115,12 +115,22 @@
                             if ($el.attr('type') == 'checkbox' || $el.attr('type') == 'radio') {
                                 val = $el.attr('checked') ? true : false;
                             }
-                            this.model.attributes[$el.data('bindKey')] = val;
+                            // console.log('set', $el.data('bindKey'));
+                            this.model.set($el.data('bindKey'), val);
+                            // this.model.attributes[$el.data('bindKey')] = val;
                             // console.log('set:'+val);
                         }, view);
 
                         view.model.on('change', _.partial(that.onChanged, view));
-                        view.$el.on('change.delegateEvents' + view.cid, '[data-bind-ref=' + refName + ']', method);
+
+                        view.events = _.result(view, 'events') || {};
+                        view.events['change [data-bind-ref=' + refName + ']'] = method;
+                        view.delegateEvents();
+
+                        // REMOVED: use delegateEvents from backbone as above
+                        // view.$el.on('change.delegateEvents' + view.cid, '[data-bind-ref=' + refName + ']', function() {
+                        //     console.log('dasdasd');
+                        // });
                     }
                 } else {
 
@@ -138,6 +148,7 @@
                         if (view && view.delegateEvents) {
                             view.events = _.result(view, 'events') || {};
                             view.events[eventName + ' [data-bind-ref=' + refName + ']'] = method;
+                            // console.log(view.cid, view.events);
                             view.delegateEvents();
                         } else {
                             app.$el.on(eventName, '[data-bind-ref=' + refName + ']', method);

@@ -35,7 +35,7 @@
 
     <div data-role="layout" data-id="default" class="xc-flex vertical">
         <div data-region="header">
-            <div class="xin-navbar xc-flex horizontal">
+            <div data-role="navbar" class="xc-flex horizontal">
                 <div class="no-flex" style="left:0">
                     <a href="#" onclick="xin.$('.xin-drawer').data('instance').show(); return false">menu</a>
                 </div>
@@ -74,6 +74,19 @@
                     </li>
                 </ul>
             </form>
+
+            <div data-role="simple.Anu" data-model="simple.Anu.model" id="anu">
+                <input type="text" data-bind="name" />
+                <span data-bind="name"></span>
+                <a href="#" data-bind="click:doAnu">Anu</a>
+
+            </div>
+
+            <div data-role="view" data-model="simple.Anu.model" id="itu">
+                <input type="text" data-bind="name" />
+                <span data-bind="name"></span>
+
+            </div>
         </div>
 
         <div data-role="view" data-uri="signup" data-layout="default" data-title="Signup">
@@ -108,10 +121,12 @@
         </ul>
     </div>
 
-    <script type="text/javascript" src="../../bower_components/zeptojs/src/zepto.js"></script>
+    <script type="text/javascript" src="../../js/jquery-2.1.0.min.js"></script>
+
+    <!-- <script type="text/javascript" src="../../bower_components/zeptojs/src/zepto.js"></script>
     <script type="text/javascript" src="../../bower_components/zeptojs/src/event.js"></script>
     <script type="text/javascript" src="../../bower_components/zeptojs/src/data.js"></script>
-    <script type="text/javascript" src="../../bower_components/zeptojs/src/ajax.js"></script>
+    <script type="text/javascript" src="../../bower_components/zeptojs/src/ajax.js"></script> -->
 
     <script type="text/javascript" src="../../bower_components/simply-deferred/deferred.js"></script>
     <script type="text/javascript" src="../../bower_components/underscore/underscore.js"></script>
@@ -173,6 +188,21 @@
                 Form: Form
             }
         };
+
+        var simple = {};
+
+        var Anu = simple.Anu = xin.ui.Outlet.extend({
+            doAnu: function(evt) {
+                evt.preventDefault();
+                alert('xxxx');
+            }
+        });
+
+        simple.Anu.model = new Backbone.Model({
+            name: 'Anu',
+            alias: 'Gemes',
+            age: 99
+        });
     </script>
     <script type="text/javascript" src="./init.js"></script>
 

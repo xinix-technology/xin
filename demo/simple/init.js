@@ -33,7 +33,7 @@
     _.extend(AuthMiddleware.prototype, {
         call: function(a) {
             var d = xin.Deferred();
-            if (location.hash != '#login' && !sessionStorage['username']) {
+            if (location.hash != '#login' && !sessionStorage.getItem('username')) {
                 location.hash = '#login';
                 d.reject();
             } else {
@@ -41,6 +41,42 @@
             }
             return d.promise();
 
+        }
+    });
+
+    var Satu = function() {};
+    _.extend(Satu.prototype, {
+        call: function() {
+            console.log('Satu');
+            var deferred = xin.Deferred();
+            setTimeout(function() {
+                deferred.resolve();
+            }, 1000);
+            return deferred;
+        }
+    });
+
+    var Dua = function() {};
+    _.extend(Dua.prototype, {
+        call: function() {
+            console.log('Dua');
+            var deferred = xin.Deferred();
+            setTimeout(function() {
+                deferred.resolve();
+            }, 1000);
+            return deferred;
+        }
+    });
+
+    var Tiga = function() {};
+    _.extend(Tiga.prototype, {
+        call: function() {
+            console.log('Tiga');
+            var deferred = xin.Deferred();
+            setTimeout(function() {
+                deferred.resolve();
+            }, 1000);
+            return deferred;
         }
     });
 
@@ -54,9 +90,12 @@
                 '[data-bind]': xin.directive.BindDirective,
                 '[data-value]': ValueDirective
             },
-            middlewares: [
+            middlewares: {
+                'satu': Satu,
+                'dua': Dua,
+                'tiga': Tiga
                 // AuthMiddleware
-            ],
+            },
             providers: {
 
             }
