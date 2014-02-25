@@ -53,6 +53,10 @@
         },
 
         scan: function($el) {
+            // if ($el) {
+            //     console.error('');
+            //     console.log($el[0]);
+            // }
             var directiveManager = this,
                 deferredRules = [],
                 deferred = new xin.Deferred(),

@@ -2,31 +2,118 @@
     "use strict";
 
     var List = xin.ui.Outlet.extend({
-        initialize: function(options)  {
+        initialize: function(options) {
             this.$el.addClass('xin-list');
 
-            this.itemTemplate = options.template || _.template('<li><%= model %></li>');
+            this.app = options.app;
+
+            if (this.collection) {
+                var template,
+                    $fetch;
+
+                // template priority:
+                // - options.template
+                // - embedded html as template
+                // - hardcoded template
+                if (options.template) {
+                    if (options.template.text) {
+                        template = options.template.text;
+                    } else {
+                        this.itemTemplate = options.template;
+                        this.itemAttributes = [];
+                        this.itemTagName = 'li';
+                    }
+                } else {
+                    template = xin.htmlDecode(this.$el.html());
+                    if (!template) {
+                        this.itemTemplate = _.template('<%= model %>');
+                        this.itemAttributes = [];
+                        this.itemTagName = 'li';
+                    }
+                }
+
+                if (template) {
+                    $fetch = xin.$(template);
+                    this.itemAttributes = $fetch.attr();
+                    this.itemTemplate = _.template(xin.htmlDecode($fetch.html()));
+                    this.itemTagName = $fetch[0].tagName.toLowerCase();
+                }
+
+                this.itemAttributes['data-role'] = this.itemAttributes['data-role'] || 'list-item';
+
+                this.listenTo(this.collection, 'reset', this.reset);
+                this.listenTo(this.collection, 'add', this.add);
+                this.listenTo(this.collection, 'remove', this.remove);
+
+                this.reset();
+            }
+
         },
 
-        render: function() {
+        reset: function() {
             var that = this;
-            if (this.collection) {
-                this.collection.each(function(model) {
-                    var item = new List.Item({
-                        template: that.itemTemplate,
-                        model: model
-                    });
-                    that.$el.append(item.render().$el);
-                });
-            }
+            this.$el.html('');
+
+            _.each(this.collection.models, function(model) {
+                that.add(model);
+            });
+        },
+
+        add: function(model) {
+            var $item = xin.$('<' + this.itemTagName + '/>').attr(this.itemAttributes).data({
+                template: this.itemTemplate,
+                model: model
+            }).addClass('xin-list-item');
+            this.$el.append($item);
+
+            this.app.directiveManager.scan($item);
+        },
+
+        remove: function(model, collection) {
+            // var $el = this.$itemAttachPoint.find('[data-cid=' + model.cid + ']'),
+            //     view = $el.data('instance');
+
+            // delete this.children[view.cid];
+
+            // if (view.destroy) view.destroy();
+            // $el.remove();
+
+            // if (!collection.length) {
+            //     this.reset();
+            // }
         }
     });
 
     List.Item = xin.ui.Outlet.extend({
-        render: function() {
-            this.$el = xin.$(this.template(this));
-            return this;
-        }
+        // attributes: function() {
+        //     return {
+        //         'data-cid': this.cid,
+        //         'data-model-cid': this.model.cid,
+        //         'data-instantiated': true
+        //     };
+        // },
+
+        // render: function() {
+        //     // var attrs = _.extend({}, _.result(this, 'attributes'));
+
+        //     // if (this.id) attrs.id = _.result(this, 'id');
+        //     // if (this.className) attrs['class'] = _.result(this, 'className');
+
+
+        //     var $el = xin.$(this.template(this));
+        //     // .attr(attrs);
+
+        //     // $el.addClass('xin-list-item');
+
+        //     // if (!$el.attr('data-role')) {
+        //     //     $el.attr('data-role', 'list-item');
+        //     // }
+
+        //     this.setElement($el, false);
+        //     $el.data('instance', this);
+
+        //     return this;
+        // }
     });
 
     // var List = xin.ui.Outlet.extend({

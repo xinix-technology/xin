@@ -101,12 +101,14 @@
                         throw new Error('Role: "' + role + '" undefined');
                     }
 
-                    if ($el = instance.$el) {
+                    $el = instance.$el;
+                    if ($el) {
                         $parent = $el.parent('.xin-role');
 
                         $el.attr('data-instantiated', true)
                             .data('instance', instance)
-                            .attr('data-cid', instance.cid);
+                            .attr('data-cid', instance.cid)
+                            .addClass('xin-role');
 
                         if ($parent.length) {
                             var parent = $parent.data('instance');
@@ -116,15 +118,11 @@
                         }
                     }
 
-                    if (instance instanceof Backbone.View) {
-                        instance.app = instance.options.app;
-                        instance.$el.addClass('xin-role');
-                        if (!(instance instanceof xin.ui.Pane)) {
-                            instance.$el.addClass('xin-view');
-                        }
-                        instance.render();
+                    if (instance.onReady) {
+                        xin.when(instance.onReady()).then(deferred.resolve);
+                    } else {
+                        deferred.resolve();
                     }
-                    deferred.resolve();
                 }).fail(function() {
                     console.log(arguments);
                 });

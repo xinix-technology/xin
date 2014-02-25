@@ -4,11 +4,8 @@
     var Drawer = xin.ui.Outlet.extend({
 
         initialize: function(options)  {
-            if (options.layout) {
-                xin.ui.Layout.get(app, options.layout).apply(this.$el);
-            }
+            this.constructor.__super__.initialize.apply(this, arguments);
 
-            // this.$el.html('<div class="xin-drawer-placeholder">' + this.$el.html() + '</div>');
             this.$el.addClass('xin-drawer').css('-webkit-transform', 'translateX(-100%)');
             this.$el.on('click', 'a', _.bind(this.clicked, this));
         },

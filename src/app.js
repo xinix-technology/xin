@@ -57,8 +57,15 @@
             this.options = options = options || {};
 
             this.container = new xin.IoC();
+            this.container.app = this;
             this.router = options.router || new xin.Router();
             this.router.app = this;
+
+            if (options.middlewares) {
+                _.each(options.middlewares, function(middleware) {
+                    that.use(middleware);
+                });
+            }
 
             this.directiveManager = new xin.DirectiveManager(this);
             if (options.directives) {
@@ -86,7 +93,8 @@
          * Start the application context
          */
         start: function() {
-            var that = this;
+            var that = this,
+                deferred = xin.Deferred();
 
             this.baseURL = location.href.split('#')[0];
 
@@ -97,19 +105,30 @@
                     return that.directiveManager.scan();
                 }).
                 done(function() {
-                    xin.$('body').show();
+                    // xin.$('body').show();
                     if (typeof that.router.start === 'function') {
                         that.router.start();
                     } else {
                         Backbone.history.start();
                     }
+
+                    deferred.resolve();
                 });
+
+            return deferred.promise();
         },
 
         catchAllHref: function() {
             var that = this;
             this.$el.on('click', 'a', function(evt) {
-                var href = xin.$(this).attr('href');
+                var $form = xin.$(this);
+
+                if ($form.data('rel') == 'external') {
+                    return;
+                }
+
+                var href = $form.attr('href');
+
                 if (href[0] === '#') {
                     return;
                 } else if (href[0] === '/') {
@@ -119,28 +138,50 @@
 
                 href = that.simplifyURL(href);
 
-                location.hash = (href.split('#')[0] == location.href.split('#')[0]) ? '#_' : '#' + href;
+                var hash = (href.split('#')[0] == location.href.split('#')[0]) ? '#_' : '#' + href;
+
+                location.hash = hash;
             });
 
             this.$el.on('submit', 'form', function(evt) {
+                var $form = xin.$(this),
+                    onSubmit = $form.data('submit');
+
+                if ($form.data('rel') == 'external') {
+                    return;
+                }
+
+                if (onSubmit) {
+                    onSubmit = that.get(onSubmit);
+                }
+
                 evt.preventDefault();
                 xin.$.ajax({
-                    url: xin.$(this).attr('action'),
-                    method: xin.$(this).attr('method'),
-                    data: xin.$(this).serialize(),
+                    url: $form.attr('action'),
+                    method: $form.attr('method'),
+                    data: $form.serialize(),
                 }).done(function(data, info, xhr) {
-                    alert(info);
+                    onSubmit(null, data, xhr);
+                    Backbone.trigger('form-success', $form, data, info, xhr);
                 }).fail(function(xhr, err, message) {
-                    alert(message);
+                    onSubmit(err, message, xhr);
+                    Backbone.trigger('form-error', $form, xhr, err, message);
                 });
             });
         },
 
         simplifyURL: function(url) {
-            if (url.indexOf(this.baseURL) == 0) {
+            if (url.indexOf(this.baseURL) === 0) {
                 url = url.substr(this.baseURL.length);
             }
             return url;
+        },
+
+        siteURL: function(uri) {
+            if (uri[0] == '/') {
+                uri = uri.substr(1);
+            }
+            return this.baseURL + uri;
         },
 
         /**
@@ -171,6 +212,19 @@
         },
 
         use: function(middleware) {
+            if (typeof(middleware) === 'string') {
+                middleware = this.get(middleware);
+            }
+
+            if (typeof(middleware) === 'function') {
+                var Middleware = middleware;
+                middleware = new Middleware();
+            }
+
+            if (!middleware) {
+                throw new Error('Middleware not found or instantiated!');
+            }
+
             this.router.use(middleware);
         }
     });

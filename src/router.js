@@ -45,21 +45,25 @@
 
     _.extend(Router.prototype, Backbone.Router.prototype, {
 
+        routes: {
+            "*splats": "routeMissing"
+        },
+
         /**
          * Start router
          */
         start: function() {
-            this.setDefaultRoute();
+            // this.setDefaultRoute();
 
             Backbone.history.start();
         },
 
-        setDefaultRoute: function() {
-            Backbone.history.handlers.push({
-                route: /^(.*?)$/,
-                callback: _.bind((this.options && this.options.routeMissing) || this.routeMissing, this)
-            });
-        },
+        // setDefaultRoute: function() {
+        //     Backbone.history.handlers.push({
+        //         route: /^(.*?)$/,
+        //         callback: _.bind((this.options && this.options.routeMissing) || this.routeMissing, this)
+        //     });
+        // },
 
         registerView: function(uri, $el) {
             this.viewRoutes[uri] = $el;
@@ -74,7 +78,7 @@
          * @param  String uri URI that missing
          */
         routeMissing: function(uri) {
-            uri = uri.trim();
+            uri = (uri || '').trim();
 
             var that = this,
                 args = arguments,
@@ -118,17 +122,13 @@
                         data = '<div>' + data + '</div>';
                     }
 
-                    var $data = xin.$(data);
-                    if ($data.find('[data-role]').length > 0) {
-                        var $role = $data.find('[data-role]');
-                        $role = $role.filter(function() {
-                            var K = that.app.get(that.app.container.resolveAlias(xin.$(this).data('role')));
-                            return (K.prototype instanceof Backbone.View && !(K.prototype instanceof xin.ui.Container));
-                        });
-                        if ($role.length > 0) {
-                            $data = $role;
-                            $data.attr('data-uri', uri);
-                        }
+                    // FIXME on remote load, should scan every doms to update
+                    // every view or datasource
+                    var $data = xin.$(data),
+                        $role = $data.find('[data-role=pane] > [data-role]');
+                    if ($role.length > 0) {
+                        $data = $role;
+                        $data.attr('data-uri', uri);
                     } else {
                         if ($data.find('body').length > 0) {
                             $data = $data.find('body');
@@ -136,7 +136,6 @@
                         data = $data.html() || '';
                         $data = xin.$('<div data-role="view" data-uri="' + uri + '">' + data + '</div>');
                     }
-
                     that.mainViewport.append($data);
                     xin.when(that.app.directiveManager.scan()).done(function() {
                         that.routeMissing(uri);
@@ -176,6 +175,10 @@
                 for(var i = 1; i < arguments.length; i++) {
                     callbacks.push(callback = arguments[i]);
                 }
+            }
+
+            if (typeof(callback) === 'string') {
+                callback = this[callback];
             }
 
             Backbone.Router.prototype.route.call(this, route, function() {

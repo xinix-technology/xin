@@ -58,8 +58,9 @@ window.xin = (function() {
             tokens = ns.substr(4).split('.');
             lastToken = tokens[tokens.length - 1];
 
-            for(var i in tokens) {
-                var token = tokens[i];
+            _.each(tokens, function(token, i) {
+
+                // var token = tokens[i];
 
                 if (token === lastToken) {
                     nsObject[token] = object;
@@ -68,7 +69,13 @@ window.xin = (function() {
                 }
 
                 nsObject = nsObject[token];
-            }
+            });
+            // for(var i in tokens) {
+            // }
+        },
+
+        htmlDecode: function(input){
+            return input.replace(/&lt;/g, '<').replace(/&gt;/g, '>');
         }
 
     };
@@ -93,17 +100,50 @@ window.xin = (function() {
         xin.$.fn.detach = xin.$.fn.remove;
     }
 
-    /**
-     * Function to serializing form as object
-     * @return object Object serialization of form
-     */
-    xin.$.fn.serializeObject = function() {
-        var form = {};
-        _.each(xin.$(this).serializeArray(), function(value) {
-            form[value.name] = value.value;
-        });
-        return form;
-    };
+    (function() {
+        /**
+         * Function to serializing form as object
+         * @return object Object serialization of form
+         */
+        xin.$.fn.serializeObject = function() {
+            var form = {};
+            _.each(xin.$(this).serializeArray(), function(value) {
+                form[value.name] = value.value;
+            });
+            return form;
+        };
+    })();
+
+    (function(old) {
+        _.template = function(text, data) {
+            var r = old.apply(this, arguments);
+
+            if (!data)  {
+                r.text = text;
+            }
+            return r;
+        };
+    })(_.template);
+
+    (function(old) {
+        xin.$.fn.attr = function() {
+            if(arguments.length === 0) {
+                if(this.length === 0) {
+                    return null;
+                }
+
+                var obj = {};
+                xin.$.each(this[0].attributes, function() {
+                    if(this.specified) {
+                        obj[this.name] = this.value;
+                    }
+                });
+                return obj;
+            }
+
+            return old.apply(this, arguments);
+        };
+    })(xin.$.fn.attr);
 
     return xin;
 

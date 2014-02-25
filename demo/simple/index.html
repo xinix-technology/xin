@@ -77,18 +77,25 @@
         </div>
 
         <div data-role="view" data-uri="signup" data-layout="default" data-title="Signup">
-            Signup
+            <div data-role="anu.ui.Form">
+                <div data-value="Sebuah value">xxx</div>
+                <a href="#" class="click" data-bind="click:doClick2">Click</a>
+            </div>
         </div>
 
         <div data-role="view" data-uri="list" data-layout="default" data-title="List">
-            <ul data-role="list" data-collection="listData" data-template="listTemplate"></ul>
+            <ul data-role="list" data-collection="listData">
+                <li>
+                    <%= model.get('username') %> (<%= model.get('age') %>)
+                </li>
+            </ul>
         </div>
 
-        <script type="text/template" id="listTemplate">
+        <!-- <script type="text/template" id="listTemplate">
             <li>
                 <%= model.get('username') %> (<%= model.get('age') %>)
             </li>
-        </script>
+        </script> -->
 
     </div>
 
@@ -131,6 +138,7 @@
     <script type="text/javascript" src="../../src/ui/Pane.js"></script>
     <script type="text/javascript" src="../../src/ui/List.js"></script>
     <script type="text/javascript" src="../../src/ui/Drawer.js"></script>
+    <script type="text/javascript" src="../../src/ui/Navbar.js"></script>
 
     <script>
         var listData = new Backbone.Collection([
@@ -138,6 +146,33 @@
             { username: 'reeko', age: 17 },
             { username: 'jafar', age: 40 }
         ]);
+
+        var Form = Backbone.View.extend({
+            // events: {
+            //     'click .click': 'doClick'
+            // },
+
+            doClick: function(evt) {
+                evt.preventDefault();
+                alert('telah diklik');
+            },
+            doClick2: function(evt) {
+                evt.preventDefault();
+                alert('telah diklik 2');
+            },
+            render: function() {
+                this.$el.append('<input type="text" />');
+                this.$el.append('<input type="text" />');
+                this.$el.append('<input type="text" />');
+                return this;
+            }
+        });
+
+        var anu = {
+            ui: {
+                Form: Form
+            }
+        };
     </script>
     <script type="text/javascript" src="./init.js"></script>
 
