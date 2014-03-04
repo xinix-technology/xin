@@ -60,14 +60,26 @@
             view.$('[data-bind-key]').each(function() {
                 var $object = xin.$(this),
                     d = $object.data(),
-                    val = model.get(d.bindKey);
+                    val = model.get(d.bindKey),
+                    splitted = d.bindKey.split('.'),
+                    Model = window.Backbone.Model.extend({});
+
+                if (splitted.length > 1) {
+                    for(var i in splitted) {
+                        if (i === '0') {
+                            val = new Model(model.get(splitted[i]));
+                        } else {
+                            val = val.get(splitted[i]);
+                        }
+                    }
+                }
 
                 if (d.bindTo.indexOf('attr-') === 0) {
                     var attr = d.bindTo.substr(5);
                     $object.attr(attr, val);
                 } else {
-                    if ($object[0].tagName == 'INPUT') {
-                        if ($object.attr('type') == 'checkbox' || $object.attr('type') == 'radio') {
+                    if ($object[0].tagName === 'INPUT') {
+                        if ($object.attr('type') === 'checkbox' || $object.attr('type') === 'radio') {
                             $object.attr('checked', val || false);
                         } else {
                             $object.val(val);
