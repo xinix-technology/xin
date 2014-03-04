@@ -282,7 +282,8 @@ window.xin = (function() {
         setupScroll();
     };
     window.onresize();
-})(window.xin);/**
+})(window.xin);
+/**
  * XIN SPA Framework
  *
  * MIT LICENSE
@@ -316,7 +317,7 @@ window.xin = (function() {
  *
  */
 
-;(function(xin) {
+(function(xin) {
     "use strict";
 
     /**
@@ -329,7 +330,7 @@ window.xin = (function() {
         this.initialize.apply(this, arguments);
     };
 
-    _.extend(App.prototype, Backbone.Events, {
+    window._.extend(App.prototype, window.Backbone.Events, {
 
         /**
          * Initialize the application context
@@ -346,7 +347,7 @@ window.xin = (function() {
             this.router.app = this;
 
             if (options.middlewares) {
-                _.each(options.middlewares, function(middleware) {
+                window._.each(options.middlewares, function(middleware) {
                     that.use(middleware);
                 });
             }
@@ -393,7 +394,7 @@ window.xin = (function() {
                     if (typeof that.router.start === 'function') {
                         that.router.start();
                     } else {
-                        Backbone.history.start();
+                        window.Backbone.history.start();
                     }
 
                     deferred.resolve();
@@ -407,7 +408,7 @@ window.xin = (function() {
             this.$el.on('click', 'a', function(evt) {
                 var $form = xin.$(this);
 
-                if ($form.data('rel') == 'external') {
+                if ($form.data('rel') === 'external') {
                     return;
                 }
 
@@ -422,7 +423,7 @@ window.xin = (function() {
 
                 href = that.simplifyURL(href);
 
-                var hash = (href.split('#')[0] == location.href.split('#')[0]) ? '#_' : '#' + href;
+                var hash = (href.split('#')[0] === location.href.split('#')[0]) ? '#_' : '#' + href;
 
                 location.hash = hash;
             });
@@ -431,7 +432,7 @@ window.xin = (function() {
                 var $form = xin.$(this),
                     onSubmit = $form.data('submit');
 
-                if ($form.data('rel') == 'external') {
+                if ($form.data('rel') === 'external') {
                     return;
                 }
 
@@ -446,10 +447,10 @@ window.xin = (function() {
                     data: $form.serialize(),
                 }).done(function(data, info, xhr) {
                     onSubmit(null, data, xhr);
-                    Backbone.trigger('form-success', $form, data, info, xhr);
+                    window.Backbone.trigger('form-success', $form, data, info, xhr);
                 }).fail(function(xhr, err, message) {
                     onSubmit(err, message, xhr);
-                    Backbone.trigger('form-error', $form, xhr, err, message);
+                    window.Backbone.trigger('form-error', $form, xhr, err, message);
                 });
             });
         },
@@ -462,7 +463,7 @@ window.xin = (function() {
         },
 
         siteURL: function(uri) {
-            if (uri[0] == '/') {
+            if (uri[0] === '/') {
                 uri = uri.substr(1);
             }
             return this.baseURL + uri;
@@ -515,7 +516,8 @@ window.xin = (function() {
 
     xin.set('xin.App', App);
 
-})(window.xin);/**
+})(window.xin);
+/**
  * XIN SPA Framework
  *
  * MIT LICENSE
@@ -807,7 +809,16 @@ window.xin = (function() {
             },
 
             model: function(key) {
-                return this.resolve(key);
+                var deferred = xin.Deferred();
+
+                xin.when(this.resolve(key)).then(function(model) {
+                    if (!(model instanceof Backbone.Model)) {
+                        model = new Backbone.Model(model);
+                    }
+                    deferred.resolve(model);
+                });
+
+                return deferred.promise();
             },
 
             collection: function(key) {
@@ -1661,8 +1672,11 @@ window.xin = (function() {
 
                         $el.attr('data-instantiated', true)
                             .data('instance', instance)
-                            .attr('data-cid', instance.cid)
                             .addClass('xin-role');
+
+                        if (instance.cid) {
+                            $el.attr('data-cid', instance.cid);
+                        }
 
                         if ($parent.length) {
                             var parent = $parent.data('instance');
@@ -1812,14 +1826,26 @@ window.xin = (function() {
             view.$('[data-bind-key]').each(function() {
                 var $object = xin.$(this),
                     d = $object.data(),
-                    val = model.get(d.bindKey);
+                    val = model.get(d.bindKey),
+                    splitted = d.bindKey.split('.'),
+                    Model = window.Backbone.Model.extend({});
+
+                if (splitted.length > 1) {
+                    for(var i in splitted) {
+                        if (i === '0') {
+                            val = new Model(model.get(splitted[i]));
+                        } else {
+                            val = val.get(splitted[i]);
+                        }
+                    }
+                }
 
                 if (d.bindTo.indexOf('attr-') === 0) {
                     var attr = d.bindTo.substr(5);
                     $object.attr(attr, val);
                 } else {
-                    if ($object[0].tagName == 'INPUT') {
-                        if ($object.attr('type') == 'checkbox' || $object.attr('type') == 'radio') {
+                    if ($object[0].tagName === 'INPUT') {
+                        if ($object.attr('type') === 'checkbox' || $object.attr('type') === 'radio') {
                             $object.attr('checked', val || false);
                         } else {
                             $object.val(val);
@@ -1867,12 +1893,22 @@ window.xin = (function() {
                             if ($el.attr('type') == 'checkbox' || $el.attr('type') == 'radio') {
                                 val = $el.attr('checked') ? true : false;
                             }
-                            this.model.attributes[$el.data('bindKey')] = val;
+                            // console.log('set', $el.data('bindKey'));
+                            this.model.set($el.data('bindKey'), val);
+                            // this.model.attributes[$el.data('bindKey')] = val;
                             // console.log('set:'+val);
                         }, view);
 
                         view.model.on('change', _.partial(that.onChanged, view));
-                        view.$el.on('change.delegateEvents' + view.cid, '[data-bind-ref=' + refName + ']', method);
+
+                        view.events = _.result(view, 'events') || {};
+                        view.events['change [data-bind-ref=' + refName + ']'] = method;
+                        view.delegateEvents();
+
+                        // REMOVED: use delegateEvents from backbone as above
+                        // view.$el.on('change.delegateEvents' + view.cid, '[data-bind-ref=' + refName + ']', function() {
+                        //     console.log('dasdasd');
+                        // });
                     }
                 } else {
 
@@ -1890,6 +1926,7 @@ window.xin = (function() {
                         if (view && view.delegateEvents) {
                             view.events = _.result(view, 'events') || {};
                             view.events[eventName + ' [data-bind-ref=' + refName + ']'] = method;
+                            // console.log(view.cid, view.events);
                             view.delegateEvents();
                         } else {
                             app.$el.on(eventName, '[data-bind-ref=' + refName + ']', method);
@@ -1904,7 +1941,8 @@ window.xin = (function() {
     });
 
     xin.set('xin.directive.BindDirective', BindDirective);
-})(window.xin);;(function(xin) {
+})(window.xin);
+;(function(xin) {
     "use strict";
 
     var Layout = function(options) {
@@ -2418,6 +2456,7 @@ window.xin = (function() {
 
             this.$el.addClass('xin-drawer').css('-webkit-transform', 'translateX(-100%)');
             this.$el.on('click', 'a', _.bind(this.clicked, this));
+            $(document).on('mouseup', _.bind(this.mouseUp, this));
         },
 
         show: function() {
@@ -2428,6 +2467,13 @@ window.xin = (function() {
             this.$el.css('-webkit-transform', 'translateX(-100%)');
         },
 
+        mouseUp: function(e) {
+            var container = $('[data-layout=drawer]');
+            if (!container.is(e.target) && container.has(e.target).length === 0) {
+                this.hide();
+            }
+        },
+
         clicked: function() {
             // console.log('xxx');
             this.hide();
@@ -2435,7 +2481,8 @@ window.xin = (function() {
     });
 
     xin.set('xin.ui.Drawer', Drawer);
-})(window.xin);;(function(xin) {
+})(window.xin);
+;(function(xin) {
     "use strict";
 
     var Navbar = xin.ui.Outlet.extend({

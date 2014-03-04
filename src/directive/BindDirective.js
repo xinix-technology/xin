@@ -60,14 +60,26 @@
             view.$('[data-bind-key]').each(function() {
                 var $object = xin.$(this),
                     d = $object.data(),
-                    val = model.get(d.bindKey);
+                    val = model.get(d.bindKey),
+                    splitted = d.bindKey.split('.'),
+                    Model = window.Backbone.Model.extend({});
+
+                if (splitted.length > 1) {
+                    for(var i in splitted) {
+                        if (i === '0') {
+                            val = new Model(model.get(splitted[i]));
+                        } else {
+                            val = val.get(splitted[i]);
+                        }
+                    }
+                }
 
                 if (d.bindTo.indexOf('attr-') === 0) {
                     var attr = d.bindTo.substr(5);
                     $object.attr(attr, val);
                 } else {
-                    if ($object[0].tagName == 'INPUT') {
-                        if ($object.attr('type') == 'checkbox' || $object.attr('type') == 'radio') {
+                    if ($object[0].tagName === 'INPUT') {
+                        if ($object.attr('type') === 'checkbox' || $object.attr('type') === 'radio') {
                             $object.attr('checked', val || false);
                         } else {
                             $object.val(val);
@@ -115,12 +127,22 @@
                             if ($el.attr('type') == 'checkbox' || $el.attr('type') == 'radio') {
                                 val = $el.attr('checked') ? true : false;
                             }
-                            this.model.attributes[$el.data('bindKey')] = val;
+                            // console.log('set', $el.data('bindKey'));
+                            this.model.set($el.data('bindKey'), val);
+                            // this.model.attributes[$el.data('bindKey')] = val;
                             // console.log('set:'+val);
                         }, view);
 
                         view.model.on('change', _.partial(that.onChanged, view));
-                        view.$el.on('change.delegateEvents' + view.cid, '[data-bind-ref=' + refName + ']', method);
+
+                        view.events = _.result(view, 'events') || {};
+                        view.events['change [data-bind-ref=' + refName + ']'] = method;
+                        view.delegateEvents();
+
+                        // REMOVED: use delegateEvents from backbone as above
+                        // view.$el.on('change.delegateEvents' + view.cid, '[data-bind-ref=' + refName + ']', function() {
+                        //     console.log('dasdasd');
+                        // });
                     }
                 } else {
 
@@ -138,6 +160,7 @@
                         if (view && view.delegateEvents) {
                             view.events = _.result(view, 'events') || {};
                             view.events[eventName + ' [data-bind-ref=' + refName + ']'] = method;
+                            // console.log(view.cid, view.events);
                             view.delegateEvents();
                         } else {
                             app.$el.on(eventName, '[data-bind-ref=' + refName + ']', method);

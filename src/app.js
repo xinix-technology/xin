@@ -32,7 +32,7 @@
  *
  */
 
-;(function(xin) {
+(function(xin) {
     "use strict";
 
     /**
@@ -45,7 +45,7 @@
         this.initialize.apply(this, arguments);
     };
 
-    _.extend(App.prototype, Backbone.Events, {
+    window._.extend(App.prototype, window.Backbone.Events, {
 
         /**
          * Initialize the application context
@@ -62,7 +62,7 @@
             this.router.app = this;
 
             if (options.middlewares) {
-                _.each(options.middlewares, function(middleware) {
+                window._.each(options.middlewares, function(middleware) {
                     that.use(middleware);
                 });
             }
@@ -109,7 +109,7 @@
                     if (typeof that.router.start === 'function') {
                         that.router.start();
                     } else {
-                        Backbone.history.start();
+                        window.Backbone.history.start();
                     }
 
                     deferred.resolve();
@@ -123,7 +123,7 @@
             this.$el.on('click', 'a', function(evt) {
                 var $form = xin.$(this);
 
-                if ($form.data('rel') == 'external') {
+                if ($form.data('rel') === 'external') {
                     return;
                 }
 
@@ -138,7 +138,7 @@
 
                 href = that.simplifyURL(href);
 
-                var hash = (href.split('#')[0] == location.href.split('#')[0]) ? '#_' : '#' + href;
+                var hash = (href.split('#')[0] === location.href.split('#')[0]) ? '#_' : '#' + href;
 
                 location.hash = hash;
             });
@@ -147,7 +147,7 @@
                 var $form = xin.$(this),
                     onSubmit = $form.data('submit');
 
-                if ($form.data('rel') == 'external') {
+                if ($form.data('rel') === 'external') {
                     return;
                 }
 
@@ -162,10 +162,10 @@
                     data: $form.serialize(),
                 }).done(function(data, info, xhr) {
                     onSubmit(null, data, xhr);
-                    Backbone.trigger('form-success', $form, data, info, xhr);
+                    window.Backbone.trigger('form-success', $form, data, info, xhr);
                 }).fail(function(xhr, err, message) {
                     onSubmit(err, message, xhr);
-                    Backbone.trigger('form-error', $form, xhr, err, message);
+                    window.Backbone.trigger('form-error', $form, xhr, err, message);
                 });
             });
         },
@@ -178,7 +178,7 @@
         },
 
         siteURL: function(uri) {
-            if (uri[0] == '/') {
+            if (uri[0] === '/') {
                 uri = uri.substr(1);
             }
             return this.baseURL + uri;
