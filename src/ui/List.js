@@ -42,6 +42,7 @@
                 this.itemAttributes['data-role'] = this.itemAttributes['data-role'] || 'list-item';
 
                 this.listenTo(this.collection, 'reset', this.reset);
+                this.listenTo(this.collection, 'sort', this.reset);
                 this.listenTo(this.collection, 'add', this.add);
                 this.listenTo(this.collection, 'remove', this.remove);
 

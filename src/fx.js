@@ -105,7 +105,7 @@
 
     xin.set('xin.fx', {
         defaultOptions: {
-            delay: 300,
+            delay: 0,
         },
         SlideIn: SlideIn,
         SlideOut: SlideOut,

@@ -65,7 +65,6 @@
             }
 
             this.$el.scrollTop(0);
-
             xin.ui.Pane.transitions[this.transition](this, view, this.activePage, outIndex - inIndex)
                 .done(deferred.resolve);
 

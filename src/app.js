@@ -32,7 +32,7 @@
  *
  */
 
-(function(xin) {
+(function(xin, _, Backbone) {
     "use strict";
 
     /**
@@ -45,7 +45,7 @@
         this.initialize.apply(this, arguments);
     };
 
-    window._.extend(App.prototype, window.Backbone.Events, {
+    _.extend(App.prototype, Backbone.Events, {
 
         /**
          * Initialize the application context
@@ -62,7 +62,7 @@
             this.router.app = this;
 
             if (options.middlewares) {
-                window._.each(options.middlewares, function(middleware) {
+                _.each(options.middlewares, function(middleware) {
                     that.use(middleware);
                 });
             }
@@ -109,7 +109,7 @@
                     if (typeof that.router.start === 'function') {
                         that.router.start();
                     } else {
-                        window.Backbone.history.start();
+                        Backbone.history.start();
                     }
 
                     deferred.resolve();
@@ -144,6 +144,9 @@
             });
 
             this.$el.on('submit', 'form', function(evt) {
+                if (document.activeElement) {
+                    document.activeElement.blur();
+                }
                 var $form = xin.$(this),
                     onSubmit = $form.data('submit');
 
@@ -161,11 +164,11 @@
                     method: $form.attr('method'),
                     data: $form.serialize(),
                 }).done(function(data, info, xhr) {
-                    onSubmit(null, data, xhr);
-                    window.Backbone.trigger('form-success', $form, data, info, xhr);
+                    if (onSubmit) onSubmit(null, data, xhr);
+                    Backbone.trigger('form-success', $form, data, info, xhr);
                 }).fail(function(xhr, err, message) {
-                    onSubmit(err, message, xhr);
-                    window.Backbone.trigger('form-error', $form, xhr, err, message);
+                    if (onSubmit) onSubmit(err, message, xhr);
+                    Backbone.trigger('form-error', $form, xhr, err, message);
                 });
             });
         },
@@ -231,4 +234,4 @@
 
     xin.set('xin.App', App);
 
-})(window.xin);
+})(window.xin, window._, window.Backbone);
