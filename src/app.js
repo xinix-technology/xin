@@ -78,6 +78,11 @@
             this.$el.addClass('xin-app').attr('data-role', 'app');
 
             this.providerRepository = new xin.ProviderRepository(this);
+            if (options.providers) {
+                xin.$.each(options.providers, function(key, provider) {
+                    that.providerRepository.add(provider);
+                });
+            }
 
             xin.app = xin.app || this;
         },

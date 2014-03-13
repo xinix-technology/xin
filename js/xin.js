@@ -363,6 +363,11 @@ window.xin = (function() {
             this.$el.addClass('xin-app').attr('data-role', 'app');
 
             this.providerRepository = new xin.ProviderRepository(this);
+            if (options.providers) {
+                xin.$.each(options.providers, function(key, provider) {
+                    that.providerRepository.add(provider);
+                });
+            }
 
             xin.app = xin.app || this;
         },
@@ -1423,7 +1428,7 @@ window.xin = (function() {
 
     xin.set('xin.fx', {
         defaultOptions: {
-            delay: 0,
+            delay: 50,
         },
         SlideIn: SlideIn,
         SlideOut: SlideOut,
@@ -2208,27 +2213,34 @@ window.xin = (function() {
                 } else {
                     method = "right";
                 }
-                //in
-                if (inView) {
-                    inFx = new xin.fx.SlideIn(inView.$el, method);
-                }
-                //out
-                if (outView) {
-                    outFx = new xin.fx.SlideOut(outView.$el, method);
-                }
 
                 var afterFx = function() {
                     xin.$(this).removeClass('xin-show');
                     _.defer(deferred.resolve);
                 };
 
-                if (inFx) {
-                    var fx = inFx.play();
-                    if (!outFx) {
-                        fx.then(afterFx);
+                if (!outView) {
+                    afterFx();
+                } else {
+                    //in
+                    if (inView) {
+                        inFx = new xin.fx.SlideIn(inView.$el, method);
                     }
+                    //out
+                    if (outView) {
+                        outFx = new xin.fx.SlideOut(outView.$el, method);
+                    }
+
+
+                    if (inFx) {
+                        var fx = inFx.play();
+                        if (!outFx) {
+                            fx.then(afterFx);
+                        }
+                    }
+                    if (outFx) outFx.play().then(afterFx);
                 }
-                if (outFx) outFx.play().then(afterFx);
+
 
                 return deferred.promise();
             }
