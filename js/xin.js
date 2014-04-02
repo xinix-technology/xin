@@ -798,10 +798,12 @@ window.xin = (function() {
             },
 
             template: function(key) {
-                var $template = xin.$('script#' + key);
 
-                if ($template.length > 0) {
-                    return xin.Deferred().resolve(_.template($template.html())).promise();
+                if (key.indexOf('/') < 0) {
+                    var $template = xin.$('script#' + key);
+                    if ($template.length > 0) {
+                        return xin.Deferred().resolve(_.template($template.html())).promise();
+                    }
                 }
 
                 var resolver = IoC.getResolver('xhr');
