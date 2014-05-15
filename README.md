@@ -15,7 +15,7 @@ Follow these steps below :
 * sudo npm -g install bower
 * bower install
 * pax build
-* compas compile
+* compass compile
 
 UI
 --
