@@ -99,7 +99,7 @@
 
         <div data-role="view" data-uri="list" data-layout="default" data-title="List">
             <ul data-role="list" data-collection="listData">
-                <li>
+                <li data-name="<%= model.get('username') %>">
                     <%= model.get('username') %> (<%= model.get('age') %>)
                 </li>
             </ul>
