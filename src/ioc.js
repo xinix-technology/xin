@@ -67,13 +67,14 @@
 
         get: function(key) {
             if (!key) {
-                var target = document.getElementsByClassName('xin-show'),
-                    id     = target.item().dataset.id;
-                if(!id){
+                var data = $('.xin-show').data();
+
+                if(data.instance) return data.instance;
+                if(!data.id){
                     console.error('IoC cannot get from key:', key);
                     return;
                 }
-                key = id;
+                key = data.id;
             }
 
             var keys = key.split('.'),
@@ -95,8 +96,6 @@
             });
 
             return (found) ? from : undefined;
-
-
         },
 
         set: function(key, value) {
