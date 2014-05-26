@@ -67,8 +67,13 @@
 
         get: function(key) {
             if (!key) {
-                console.error('IoC cannot get from key:', key);
-                return;
+                var target = document.getElementsByClassName('xin-show'),
+                    id     = target.item().dataset.id;
+                if(!id){
+                    console.error('IoC cannot get from key:', key);
+                    return;
+                }
+                key = id;
             }
 
             var keys = key.split('.'),
