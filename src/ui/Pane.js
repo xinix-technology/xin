@@ -65,12 +65,8 @@
             }
 
             this.$el.scrollTop(0);
-            // if (xin.ui.isFirstRender()) {
-            //     deferred.resolve();
-            // } else {
             xin.ui.Pane.transitions[this.transition](this, view, this.activePage, outIndex - inIndex)
                 .done(deferred.resolve);
-            // }
 
             this.activePage = view;
 
@@ -124,6 +120,7 @@
                             fx.then(afterFx);
                         }
                     }
+
                     if (outFx) outFx.play().then(afterFx);
                 }
 

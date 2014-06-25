@@ -1,26 +1,35 @@
 xin
 ===
 
-SPA framework
+Xin is Single Page Application framework using javascript.
 
+![Xin](https://github.com/reekoheek/xin/raw/master/img/logo.png "SPA Framework")
 
-Install
---
+# Install
 
-Follow these steps below :
+```
+xpax init
+```
 
-* xpax init
+to rebuild js and css
+```
+gulp
+```
 
-UI
---
+# Watch
 
+```
+gulp watch
+```
 
-Directive
----------
+# UI
 
+TBD
 
+# Directive
 
-TODO
-----
+TBD
 
-* Fullscreen on mobile browser
+# TODO
+
+[] Fullscreen on mobile browser
