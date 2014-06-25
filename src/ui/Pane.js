@@ -65,8 +65,12 @@
             }
 
             this.$el.scrollTop(0);
+            // if (xin.ui.isFirstRender()) {
+            //     deferred.resolve();
+            // } else {
             xin.ui.Pane.transitions[this.transition](this, view, this.activePage, outIndex - inIndex)
                 .done(deferred.resolve);
+            // }
 
             this.activePage = view;
 
@@ -131,4 +135,5 @@
 
     xin.set('xin.ui.Container', Container);
     xin.set('xin.ui.Pane', Pane);
+
 })(window.xin);

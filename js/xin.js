@@ -147,7 +147,8 @@ window.xin = (function() {
 
     return xin;
 
-})();/**
+})();
+/**
  * XIN SPA Framework
  *
  * MIT LICENSE
@@ -283,6 +284,7 @@ window.xin = (function() {
     };
     window.onresize();
 })(window.xin);
+
 /**
  * XIN SPA Framework
  *
@@ -525,6 +527,7 @@ window.xin = (function() {
     xin.set('xin.App', App);
 
 })(window.xin, window._, window.Backbone);
+
 /**
  * XIN SPA Framework
  *
@@ -803,7 +806,6 @@ window.xin = (function() {
             },
 
             template: function(key) {
-
                 if (key.indexOf('/') < 0) {
                     var $template = xin.$('script#' + key);
                     if ($template.length > 0) {
@@ -863,7 +865,8 @@ window.xin = (function() {
 
     xin.set('xin.IoC', IoC);
 
-})(window.xin);/**
+})(window.xin);
+/**
  * XIN SPA Framework
  *
  * MIT LICENSE
@@ -1095,6 +1098,7 @@ window.xin = (function() {
 
     xin.set('xin.Router', Router);
 })(window.xin);
+
 /**
  * XIN SPA Framework
  *
@@ -1245,7 +1249,8 @@ window.xin = (function() {
 
 
 
-})(window.xin);/**
+})(window.xin);
+/**
  * XIN SPA Framework
  *
  * MIT LICENSE
@@ -1323,7 +1328,8 @@ window.xin = (function() {
 
     xin.set('xin.ProviderRepository', ProviderRepository);
 
-})(window.xin);/**
+})(window.xin);
+/**
  * XIN SPA Framework
  *
  * MIT LICENSE
@@ -1436,7 +1442,8 @@ window.xin = (function() {
         SlideOut: SlideOut,
     });
 
-})(window.xin);/**
+})(window.xin);
+/**
  * XIN SPA Framework
  *
  * MIT LICENSE
@@ -1473,7 +1480,17 @@ window.xin = (function() {
 ;(function(xin) {
     "use strict";
 
+    var firstRender = true;
+
     xin.set('xin.ui', {
+        isFirstRender: function() {
+            var f = firstRender;
+            if (f) {
+                firstRender = false;
+            }
+            return f;
+        },
+
         show: function(view) {
 
             Backbone.trigger('xin-show', view);
@@ -1493,7 +1510,8 @@ window.xin = (function() {
         }
     });
 
-})(window.xin);/**
+})(window.xin);
+/**
  * XIN SPA Framework
  *
  * MIT LICENSE
@@ -1573,7 +1591,8 @@ window.xin = (function() {
 
     xin.set('xin.directive.AppDirective', AppDirective);
 
-})(window.xin);/**
+})(window.xin);
+/**
  * XIN SPA Framework
  *
  * MIT LICENSE
@@ -1711,7 +1730,8 @@ window.xin = (function() {
     });
 
     xin.set('xin.directive.RoleDirective', RoleDirective);
-})(window.xin);/**
+})(window.xin);
+/**
  * XIN SPA Framework
  *
  * MIT LICENSE
@@ -1774,7 +1794,8 @@ window.xin = (function() {
     });
 
     xin.set('xin.directive.URIDirective', URIDirective);
-})(window.xin);/**
+})(window.xin);
+/**
  * XIN SPA Framework
  *
  * MIT LICENSE
@@ -1952,6 +1973,7 @@ window.xin = (function() {
 
     xin.set('xin.directive.BindDirective', BindDirective);
 })(window.xin);
+
 ;(function(xin) {
     "use strict";
 
@@ -2063,7 +2085,8 @@ window.xin = (function() {
     //     }
     // });
 
-})(window.xin);;(function(xin) {
+})(window.xin);
+;(function(xin) {
     "use strict";
 
     var Outlet = Backbone.View.extend({
@@ -2118,7 +2141,8 @@ window.xin = (function() {
 
     xin.set('xin.ui.Outlet', Outlet);
 
-})(window.xin);;(function(xin) {
+})(window.xin);
+;(function(xin) {
     "use strict";
     var Container = Backbone.View.extend({});
     var Pane = Container.extend({
@@ -2185,8 +2209,12 @@ window.xin = (function() {
             }
 
             this.$el.scrollTop(0);
+            // if (xin.ui.isFirstRender()) {
+            //     deferred.resolve();
+            // } else {
             xin.ui.Pane.transitions[this.transition](this, view, this.activePage, outIndex - inIndex)
                 .done(deferred.resolve);
+            // }
 
             this.activePage = view;
 
@@ -2251,7 +2279,9 @@ window.xin = (function() {
 
     xin.set('xin.ui.Container', Container);
     xin.set('xin.ui.Pane', Pane);
-})(window.xin);;(function(xin) {
+
+})(window.xin);
+;(function(xin) {
     "use strict";
 
     var List = xin.ui.Outlet.extend({
@@ -2463,7 +2493,8 @@ window.xin = (function() {
 
     // xin.set('xin.ui.ListEmpty', ListEmpty);
 
-})(window.xin);;(function(xin) {
+})(window.xin);
+;(function(xin) {
     "use strict";
 
     var Drawer = xin.ui.Outlet.extend({
@@ -2499,6 +2530,7 @@ window.xin = (function() {
 
     xin.set('xin.ui.Drawer', Drawer);
 })(window.xin);
+
 ;(function(xin) {
     "use strict";
 

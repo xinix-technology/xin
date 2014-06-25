@@ -9,13 +9,7 @@ Install
 
 Follow these steps below :
 
-* npm install
-* sudo gem install compass
-* sudo apt-get install ruby
-* sudo npm -g install bower
-* bower install
-* pax build
-* compas compile
+* xpax init
 
 UI
 --

@@ -1,116 +1,14 @@
 {
-    "name": "xin",
-    "description": "spa framework",
-    "devDependencies": {
-        "grunt": "~0.4.1",
-        "shelljs": "~0.2.6",
-        "grunt-pax-task": "0.0.3",
-        "grunt-contrib-clean": "~0.5.0",
-        "grunt-bower-task": "~0.3.2",
-        "grunt-contrib-concat": "~0.3.0",
-        "grunt-contrib-jshint": "~0.7.0",
-        "grunt-contrib-compass": "~0.6.0",
-        "grunt-contrib-uglify": "~0.2.5",
-        "grunt-contrib-cssmin": "~0.7.0"
-    },
-    "pax": {
-        "grunt": {
-            "clean": {
-                "dist": [
-                    "www/fonts",
-                    "www/css"
-                ]
-            },
-            "build": {
-                "dist": [
-                    "concat",
-                    "jshint",
-                    "compass",
-                    "cssmin",
-                    "uglify"
-                ]
-            },
-            "concat": {
-                "options": {
-                    "separator": ""
-                },
-                "dist": {
-                    "src": [
-                        "./src/global.js",
-                        "./src/detect.js",
-                        "./src/app.js",
-                        "./src/ioc.js",
-                        "./src/router.js",
-                        "./src/directive.js",
-                        "./src/provider.js",
-                        "./src/fx.js",
-                        "./src/ui.js",
-                        "./src/directive/AppDirective.js",
-                        "./src/directive/RoleDirective.js",
-                        "./src/directive/URIDirective.js",
-                        "./src/directive/BindDirective.js",
-                        "./src/ui/Layout.js",
-                        "./src/ui/Outlet.js",
-                        "./src/ui/Pane.js",
-                        "./src/ui/List.js",
-                        "./src/ui/Drawer.js",
-                        "./src/ui/Navbar.js"
-                    ],
-                    "dest": "js/xin.js"
-                }
-            },
-            "jshint": {
-                "single": [
-                    "./src/global.js",
-                    "./src/detect.js",
-                    "./src/app.js",
-                    "./src/ioc.js",
-                    "./src/router.js",
-                    "./src/directive.js",
-                    "./src/provider.js",
-                    "./src/fx.js",
-                    "./src/ui.js",
-                    "./src/directive/AppDirective.js",
-                    "./src/directive/RoleDirective.js",
-                    "./src/directive/URIDirective.js",
-                    "./src/directive/BindDirective.js",
-                    "./src/ui/Layout.js",
-                    "./src/ui/Outlet.js",
-                    "./src/ui/Pane.js",
-                    "./src/ui/List.js",
-                    "./src/ui/Drawer.js",
-                    "./src/ui/Navbar.js"
-                ],
-                "dist": [
-                    "js/xin.js"
-                ]
-            },
-            "compass": {
-                "dist": {
-                    "options": {
-                        "sassDir": "scss",
-                        "cssDir": "css"
-                    }
-                }
-            },
-            "cssmin": {
-                "combine": {
-                    "files": {
-                        "css/xin.min.css": [
-                            "css/xin.css"
-                        ]
-                    }
-                }
-            },
-            "uglify": {
-                "dist": {
-                    "files": {
-                        "js/xin.min.js": [
-                            "js/xin.js"
-                        ]
-                    }
-                }
-            }
-        }
-    }
+  "name": "xin",
+  "description": "spa framework",
+  "devDependencies": {
+    "gulp": "^3.8.2",
+    "gulp-util": "^2.2.17",
+    "gulp-jshint": "^1.6.3",
+    "gulp-concat": "^2.2.0",
+    "gulp-uglify": "^0.3.1",
+    "gulp-compass": "^1.1.9",
+    "gulp-minify-css": "^0.3.5",
+    "gulp-rename": "^1.2.0"
+  }
 }
