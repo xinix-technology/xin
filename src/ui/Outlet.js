@@ -2,6 +2,57 @@
     "use strict";
 
     var Outlet = Backbone.View.extend({
+
+        events : {
+            'click .showDrawer': 'showDrawer',
+            'click [data-role="navbar"] .more': 'moreMenu',
+            'click [data-role="navbar"] .search': 'showSearchBox',
+            'click [data-region="body"]': 'bodyClicked',
+            'submit form.searchForm': 'submitSearch'
+        },
+
+        submitSearch: function(evt) {
+            var form = $(evt.target).serializeObject();
+            if(form.search.trim() === '') {
+                alert("Searh is required.");
+                return false;
+            }
+
+            this.search(form.search.trim());
+            return false;
+        },
+
+        search: function(text) {
+            console.log(text);
+        },
+
+        bodyClicked: function(evt) {
+            this.$el.find('.navbar').removeClass('hide');
+            this.$el.find('.searchBox').addClass('hide');
+            this.$el.find('.moreMenu').addClass('hide');
+        },
+
+        showSearchBox: function(evt) {
+            this.$el.find('.navbar').addClass('hide');
+            this.$el.find('.searchBox').removeClass('hide');
+            this.$el.find('form.searchForm input[name="search"]').val(null);
+            this.$el.find('form.searchForm input[name="search"]').focus();
+        },
+
+        moreMenu: function(evt) {
+
+            if (this.$el.find('.moreMenu').hasClass('hide')) {
+                this.$el.find('.moreMenu').removeClass('hide');
+            } else {
+                this.$el.find('.moreMenu').addClass('hide');
+            }
+        },
+
+        showDrawer: function() {
+            xin.$('.xin-drawer').data('instance').show();
+            return false;
+        },
+
         initialize: function(options) {
             var app = options.app,
                 f,
