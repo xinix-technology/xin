@@ -24,7 +24,12 @@
                         this.itemTagName = 'li';
                     }
                 } else {
-                    template = xin.htmlDecode(this.$el.html());
+                    var $template = this.$('>template');
+                    if ($template.length <= 0) {
+                        $template = this.$('>script[type=text/template]');
+                    }
+
+                    template = $template.html();
                     if (!template) {
                         this.itemTemplate = _.template('<%= model %>');
                         this.itemAttributes = [];
