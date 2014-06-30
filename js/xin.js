@@ -238,51 +238,51 @@ window.xin = (function() {
         return oldCss.apply(this, arguments);
     };
 
-    // TODO reekoheek: move below lines to global or application init as single
-    // function
-    if (android) {
-        // Android's browser adds the scroll position to the innerHeight, just to
-        // make this really fucking difficult. Thus, once we are scrolled, the
-        // page height value needs to be corrected in case the page is loaded
-        // when already scrolled down. The pageYOffset is of no use, since it always
-        // returns 0 while the address bar is displayed.
-        window.onscroll = function() {
-            page.style.height = window.innerHeight + 'px';
-        };
-    }
+    // // TODO reekoheek: move below lines to global or application init as single
+    // // function
+    // if (android) {
+    //     // Android's browser adds the scroll position to the innerHeight, just to
+    //     // make this really fucking difficult. Thus, once we are scrolled, the
+    //     // page height value needs to be corrected in case the page is loaded
+    //     // when already scrolled down. The pageYOffset is of no use, since it always
+    //     // returns 0 while the address bar is displayed.
+    //     window.onscroll = function() {
+    //         page.style.height = window.innerHeight + 'px';
+    //     };
+    // }
 
 
-    var setupScroll = window.onload = function() {
-    // Start out by adding the height of the location bar to the width, so that
-    // we can scroll past it
-    if (ios) {
-        // iOS reliably returns the innerWindow size for documentElement.clientHeight
-        // but window.innerHeight is sometimes the wrong value after rotating
-        // the orientation
-        var height = document.documentElement.clientHeight;
-        // Only add extra padding to the height on iphone / ipod, since the ipad
-        // browser doesn't scroll off the location bar.
-        if (iphone && !fullscreen) height += 60;
-            page.style.height = height + 'px';
-        } else if (android) {
-            // The stock Android browser has a location bar height of 56 pixels, but
-            // this very likely could be broken in other Android browsers.
-            page.style.height = (window.innerHeight + 56) + 'px';
-        }
-        // Scroll after a timeout, since iOS will scroll to the top of the page
-        // after it fires the onload event
-        setTimeout(scrollTo, 0, 0, 1);
-    };
+    // var setupScroll = window.onload = function() {
+    // // Start out by adding the height of the location bar to the width, so that
+    // // we can scroll past it
+    // if (ios) {
+    //     // iOS reliably returns the innerWindow size for documentElement.clientHeight
+    //     // but window.innerHeight is sometimes the wrong value after rotating
+    //     // the orientation
+    //     var height = document.documentElement.clientHeight;
+    //     // Only add extra padding to the height on iphone / ipod, since the ipad
+    //     // browser doesn't scroll off the location bar.
+    //     if (iphone && !fullscreen) height += 60;
+    //         page.style.height = height + 'px';
+    //     } else if (android) {
+    //         // The stock Android browser has a location bar height of 56 pixels, but
+    //         // this very likely could be broken in other Android browsers.
+    //         page.style.height = (window.innerHeight + 56) + 'px';
+    //     }
+    //     // Scroll after a timeout, since iOS will scroll to the top of the page
+    //     // after it fires the onload event
+    //     setTimeout(scrollTo, 0, 0, 1);
+    // };
 
-    window.onresize = function() {
-        var pageWidth = page.offsetWidth;
-        // Android doesn't support orientation change, so check for when the width
-        // changes to figure out when the orientation changes
-        if (lastWidth == pageWidth) return;
-        lastWidth = pageWidth;
-        setupScroll();
-    };
-    window.onresize();
+    // window.onresize = function() {
+    //     var pageWidth = page.offsetWidth;
+    //     // Android doesn't support orientation change, so check for when the width
+    //     // changes to figure out when the orientation changes
+    //     if (lastWidth == pageWidth) return;
+    //     lastWidth = pageWidth;
+    //     setupScroll();
+    // };
+    // window.onresize();
 })(window.xin);
 
 /**
@@ -421,7 +421,9 @@ window.xin = (function() {
 
                 var href = $form.attr('href');
 
-                if (href[0] === '#') {
+                if (!href) {
+                    return;
+                } else if (href[0] === '#') {
                     return;
                 } else if (href[0] === '/') {
                     href = location.origin + href;
@@ -947,6 +949,9 @@ window.xin = (function() {
          */
         routeMissing: function(uri) {
             uri = (uri || '').trim();
+
+            var s = uri.split('?');
+            uri = s[0];
 
             var that = this,
                 args = arguments,
@@ -2304,7 +2309,12 @@ window.xin = (function() {
                         this.itemTagName = 'li';
                     }
                 } else {
-                    template = xin.htmlDecode(this.$el.html());
+                    var $template = this.$('>template');
+                    if ($template.length <= 0) {
+                        $template = this.$('>script[type=text/template]');
+                    }
+
+                    template = $template.html();
                     if (!template) {
                         this.itemTemplate = _.template('<%= model %>');
                         this.itemAttributes = [];
@@ -2499,17 +2509,23 @@ window.xin = (function() {
         initialize: function(options)  {
             this.constructor.__super__.initialize.apply(this, arguments);
 
-            this.$el.addClass('xin-drawer').css('-webkit-transform', 'translateX(-100%)');
+            this.$el.addClass('xin-drawer'); //.css('-webkit-transform', 'translateX(-100%)');
             this.$el.on('click', 'a', _.bind(this.clicked, this));
             $(document).on('mouseup', _.bind(this.mouseUp, this));
         },
 
         show: function() {
-            this.$el.css('-webkit-transform', '');
+            var $siblings = this.$el.siblings();
+            $siblings.css('-webkit-transition', 'all .3s');
+            $siblings.css('-webkit-transform', 'translateX(80%)');
+            // this.$el.css('-webkit-transform', '');
         },
 
         hide: function() {
-            this.$el.css('-webkit-transform', 'translateX(-100%)');
+            var $siblings = this.$el.siblings();
+            $siblings.css('-webkit-transition', 'all .3s');
+            $siblings.css('-webkit-transform', 'translateX(0)');
+            // this.$el.css('-webkit-transform', 'translateX(-100%)');
         },
 
         mouseUp: function(e) {
