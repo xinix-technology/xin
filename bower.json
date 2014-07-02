@@ -5,16 +5,15 @@
     "dependencies": {
         "backbone": "~1.0.0",
         "underscore": "~1.4.3",
-        "simply-deferred": "~2.2.0"
+        "jquery": "http://code.jquery.com/jquery-2.1.1.min.js"
     },
-    "version": "0.0.1",
+    "version": "0.1.0",
     "ignore": [
         "**/.*",
         "vendor",
         "test"
     ],
     "devDependencies": {
-        "naked": "ssh://git@111.221.43.117:22033/home/git/internal/naked.git",
-        "zeptojs": "~1.1.2"
+        "naked": "ssh://git@111.221.43.117:22033/home/git/internal/naked.git"
     }
 }

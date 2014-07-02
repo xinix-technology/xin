@@ -35,7 +35,17 @@
 ;(function(xin) {
     "use strict";
 
+    var firstRender = true;
+
     xin.set('xin.ui', {
+        isFirstRender: function() {
+            var f = firstRender;
+            if (f) {
+                firstRender = false;
+            }
+            return f;
+        },
+
         show: function(view) {
 
             Backbone.trigger('xin-show', view);

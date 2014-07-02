@@ -1,3 +1,51 @@
+var listData = new Backbone.Collection([
+    { username: 'anes', age: 32 },
+    { username: 'reeko', age: 17 },
+    { username: 'jafar', age: 40 }
+]);
+
+var Form = Backbone.View.extend({
+    // events: {
+    //     'click .click': 'doClick'
+    // },
+
+    doClick: function(evt) {
+        evt.preventDefault();
+        alert('telah diklik');
+    },
+    doClick2: function(evt) {
+        evt.preventDefault();
+        alert('telah diklik 2');
+    },
+    render: function() {
+        this.$el.append('<input type="text" />');
+        this.$el.append('<input type="text" />');
+        this.$el.append('<input type="text" />');
+        return this;
+    }
+});
+
+var anu = {
+    ui: {
+        Form: Form
+    }
+};
+
+var simple = {};
+
+var Anu = simple.Anu = xin.ui.Outlet.extend({
+    doAnu: function(evt) {
+        evt.preventDefault();
+        alert('xxxx');
+    }
+});
+
+simple.Anu.model = new Backbone.Model({
+    name: 'Anu',
+    alias: 'Gemes',
+    age: 99
+});
+
 ;(function() {
     "use strict";
 
@@ -44,42 +92,6 @@
         }
     });
 
-    var Satu = function() {};
-    _.extend(Satu.prototype, {
-        call: function() {
-            console.log('Satu');
-            var deferred = xin.Deferred();
-            setTimeout(function() {
-                deferred.resolve();
-            }, 1000);
-            return deferred;
-        }
-    });
-
-    var Dua = function() {};
-    _.extend(Dua.prototype, {
-        call: function() {
-            console.log('Dua');
-            var deferred = xin.Deferred();
-            setTimeout(function() {
-                deferred.resolve();
-            }, 1000);
-            return deferred;
-        }
-    });
-
-    var Tiga = function() {};
-    _.extend(Tiga.prototype, {
-        call: function() {
-            console.log('Tiga');
-            var deferred = xin.Deferred();
-            setTimeout(function() {
-                deferred.resolve();
-            }, 1000);
-            return deferred;
-        }
-    });
-
     xin.$(function() {
         var app = window.app = new xin.App({
             el: xin.$('body'),
@@ -91,9 +103,6 @@
                 '[data-value]': ValueDirective
             },
             middlewares: {
-                'satu': Satu,
-                'dua': Dua,
-                'tiga': Tiga
                 // AuthMiddleware
             },
             providers: {
@@ -108,6 +117,10 @@
         // app.set('clicked', function() {
         //     alert('ini yang dijalankan');
         // });
-        app.start();
+        app.start().done(function() {
+            setTimeout(function() {
+                $('body').show();
+            }, 100);
+        });
     });
 })();
