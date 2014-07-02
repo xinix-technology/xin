@@ -25,9 +25,9 @@
                     }
                 } else {
                     var $template = this.$('>template');
-                    if ($template.length <= 0) {
-                        $template = this.$('>script[type=text/template]');
-                    }
+                    // if ($template.length <= 0) {
+                    //     $template = this.$('>script[type=text/template]');
+                    // }
 
                     template = $template.html();
                     if (!template) {

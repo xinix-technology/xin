@@ -599,8 +599,14 @@ window.xin = (function() {
 
         get: function(key) {
             if (!key) {
-                console.error('IoC cannot get from key:', key);
-                return;
+                var data = $('.xin-show').data();
+
+                if(data.instance) return data.instance;
+                if(!data.id){
+                    console.error('IoC cannot get from key:', key);
+                    return;
+                }
+                key = data.id;
             }
 
             var keys = key.split('.'),
@@ -622,8 +628,6 @@ window.xin = (function() {
             });
 
             return (found) ? from : undefined;
-
-
         },
 
         set: function(key, value) {
@@ -868,6 +872,7 @@ window.xin = (function() {
     xin.set('xin.IoC', IoC);
 
 })(window.xin);
+
 /**
  * XIN SPA Framework
  *
@@ -2095,6 +2100,57 @@ window.xin = (function() {
     "use strict";
 
     var Outlet = Backbone.View.extend({
+
+        events : {
+            'click .showDrawer': 'showDrawer',
+            'click [data-role="navbar"] .more': 'moreMenu',
+            'click [data-role="navbar"] .search': 'showSearchBox',
+            'click [data-region="body"]': 'bodyClicked',
+            'submit form.searchForm': 'submitSearch'
+        },
+
+        submitSearch: function(evt) {
+            var form = $(evt.target).serializeObject();
+            if(form.search.trim() === '') {
+                alert("Searh is required.");
+                return false;
+            }
+
+            this.search(form.search.trim());
+            return false;
+        },
+
+        search: function(text) {
+            console.log(text);
+        },
+
+        bodyClicked: function(evt) {
+            this.$el.find('.navbar').removeClass('hide');
+            this.$el.find('.searchBox').addClass('hide');
+            this.$el.find('.moreMenu').addClass('hide');
+        },
+
+        showSearchBox: function(evt) {
+            this.$el.find('.navbar').addClass('hide');
+            this.$el.find('.searchBox').removeClass('hide');
+            this.$el.find('form.searchForm input[name="search"]').val(null);
+            this.$el.find('form.searchForm input[name="search"]').focus();
+        },
+
+        moreMenu: function(evt) {
+
+            if (this.$el.find('.moreMenu').hasClass('hide')) {
+                this.$el.find('.moreMenu').removeClass('hide');
+            } else {
+                this.$el.find('.moreMenu').addClass('hide');
+            }
+        },
+
+        showDrawer: function() {
+            xin.$('.xin-drawer').data('instance').show();
+            return false;
+        },
+
         initialize: function(options) {
             var app = options.app,
                 f,
@@ -2310,9 +2366,9 @@ window.xin = (function() {
                     }
                 } else {
                     var $template = this.$('>template');
-                    if ($template.length <= 0) {
-                        $template = this.$('>script[type=text/template]');
-                    }
+                    // if ($template.length <= 0) {
+                    //     $template = this.$('>script[type=text/template]');
+                    // }
 
                     template = $template.html();
                     if (!template) {
@@ -2324,9 +2380,11 @@ window.xin = (function() {
 
                 if (template) {
                     $fetch = xin.$(template);
+
                     this.itemAttributes = $fetch.attr();
                     this.itemTemplate = _.template(xin.htmlDecode($fetch.html()));
                     this.itemTagName = $fetch[0].tagName.toLowerCase();
+                    this.wrapperTemplate = $fetch.html(null)[0].outerHTML;
                 }
 
                 this.itemAttributes['data-role'] = this.itemAttributes['data-role'] || 'list-item';
@@ -2351,7 +2409,12 @@ window.xin = (function() {
         },
 
         add: function(model) {
-            var $item = xin.$('<' + this.itemTagName + '/>').attr(this.itemAttributes).data({
+
+            var wrapper = _.template(this.wrapperTemplate,{model : model}),
+                wrapAttr = $(wrapper).attr(),
+                attr    = _.defaults(wrapAttr,this.itemAttributes),
+
+                $item = xin.$('<' + this.itemTagName + '/>').attr(attr).data({
                 template: this.itemTemplate,
                 model: model
             }).addClass('xin-list-item');
@@ -2501,6 +2564,7 @@ window.xin = (function() {
     // xin.set('xin.ui.ListEmpty', ListEmpty);
 
 })(window.xin);
+
 ;(function(xin) {
     "use strict";
 
