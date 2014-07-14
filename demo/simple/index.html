@@ -62,13 +62,14 @@
 
 
     <div data-role="pane" data-transition="slide" class="xc-fill" data-id="pane">
+        <div data-model="anuan.model" data-id="anu.model"></div>
 
         <div data-role="view" data-uri="login" data-layout="default" data-title="Login">
         <!-- <div data-role="view" data-layout="default" data-title="Login"> -->
             <form action="">
-                <ul data-role="list">
+                <ul data-role="list" data-model="anuan.model">
                     <li>
-                        <input type="text" placeholder="Username" name="username" />
+                        <input type="text" placeholder="Username" name="username" data-bind="name" />
                     </li>
                     <li>
                         <input type="text" placeholder="Password" name="password" />

@@ -31,7 +31,8 @@ var anu = {
     }
 };
 
-var simple = {};
+var simple = {},
+    anuan = {};
 
 var Anu = simple.Anu = xin.ui.Outlet.extend({
     doAnu: function(evt) {
@@ -44,6 +45,11 @@ simple.Anu.model = new Backbone.Model({
     name: 'Anu',
     alias: 'Gemes',
     age: 99
+});
+
+anuan.model = new Backbone.Model({
+    name: 'someone',
+    age: 17
 });
 
 ;(function() {
