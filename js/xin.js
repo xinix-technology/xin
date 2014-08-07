@@ -2102,6 +2102,61 @@ window.xin = (function() {
     var Outlet = Backbone.View.extend({
 
         events : {
+            'submit form.searchForm': 'submitSearch'
+        },
+
+        initialize: function(options) {
+            var app = options.app,
+                f,
+                layout;
+
+            // if (options.show) {
+            //     f = app.get(options.show);
+            //     if (f) {
+            //         this.on('show', f);
+            //     }
+            // }
+
+            this.template = options.template || null;
+
+            // FIXME init layout to view in ioc after create view
+            if (options.layout) {
+                layout = app.get(options.layout);
+                if (layout) {
+                    layout.initTo(this);
+                }
+            }
+
+            this.$el.addClass('xin-view');
+
+            if (this.render) {
+                var render = _.debounce(_.bind(this.render, this), 100, false);
+
+                if (this.model) {
+                    this.listenTo(this.model, 'change', render);
+                    this.listenTo(this.model, 'destroy', render);
+                }
+
+                // this.app = this.options.app;
+                render();
+            }
+        },
+
+        render: function() {
+            if (this.template) {
+                this.$el.html(this.template(this));
+
+                this.app.directiveManager.scan(this.$el);
+            }
+            this.trigger('rendered');
+            return this;
+        },
+    });
+
+
+    var View = Backbone.View.extend({
+
+        events : {
             'click .showDrawer': 'showDrawer',
             'click [data-role="navbar"] .more': 'moreMenu',
             'click [data-role="navbar"] .search': 'showSearchBox',
@@ -2201,6 +2256,7 @@ window.xin = (function() {
     });
 
     xin.set('xin.ui.Outlet', Outlet);
+    xin.set('xin.ui.View', View);
 
 })(window.xin);
 ;(function(xin) {
@@ -2270,8 +2326,12 @@ window.xin = (function() {
             }
 
             this.$el.scrollTop(0);
+            // if (xin.ui.isFirstRender()) {
+            //     deferred.resolve();
+            // } else {
             xin.ui.Pane.transitions[this.transition](this, view, this.activePage, outIndex - inIndex)
                 .done(deferred.resolve);
+            // }
 
             this.activePage = view;
 
@@ -2325,7 +2385,6 @@ window.xin = (function() {
                             fx.then(afterFx);
                         }
                     }
-
                     if (outFx) outFx.play().then(afterFx);
                 }
 
