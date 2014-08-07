@@ -1446,12 +1446,83 @@ window.xin = (function() {
         }
     });
 
+    var VerticalIn = function($el, to) {
+        this.$el = $el;
+        this.to = to;
+        this.timeout = 0.3;
+    };
+
+    _.extend(VerticalIn.prototype, {
+        play: function() {
+            var that = this,
+                deferred = xin.Deferred();
+
+            this.$el.on(xin.detect.TRANSITION_END, function() {
+                that.$el.off(xin.detect.TRANSITION_END);
+                that.$el.css('transition', '');
+                that.$el.css('transform', '');
+                deferred.resolve();
+            });
+
+            var from = '100%';
+            if (this.to == 'up') {
+                from = '-' + from;
+            }
+
+            this.$el.css('transform', 'translate3d(0, ' + from + ', 0)');
+            this.$el.css('transition', 'all ' + that.timeout + 's');
+            that.$el.addClass('xin-show');
+
+            setTimeout(function() {
+                that.$el.css('transform', 'translate3d(0, 0, 0)');
+            }, xin.fx.defaultOptions.delay);
+
+            return deferred.promise();
+        }
+    });
+
+    var VerticalOut = function($el, to) {
+        this.$el = $el;
+        this.to = to;
+        this.timeout = 0.3;
+    };
+
+    _.extend(VerticalOut.prototype, {
+        play: function() {
+            var that = this,
+                deferred = xin.Deferred();
+
+            this.$el.on(xin.detect.TRANSITION_END, function() {
+                that.$el.off(xin.detect.TRANSITION_END);
+                that.$el.removeClass('xin-show');
+                that.$el.css('transition', '');
+                that.$el.css('transform', '');
+                deferred.resolve();
+            });
+
+            this.$el.css('transform', 'translate3d(0, 0, 0)');
+            this.$el.css('transition', 'all ' + that.timeout + 's');
+
+            setTimeout(function() {
+                var to = '100%';
+                if (that.to == 'down') {
+                    to = '-' + to;
+                }
+                that.$el.css('transform', 'translate3d(0, ' + to + ', 0)');
+            }, xin.fx.defaultOptions.delay);
+
+            return deferred.promise();
+        }
+    });
+
     xin.set('xin.fx', {
         defaultOptions: {
             delay: 50,
         },
         SlideIn: SlideIn,
         SlideOut: SlideOut,
+        VerticalIn: VerticalIn,
+        VerticalOut: VerticalOut
     });
 
 })(window.xin);
@@ -1506,19 +1577,24 @@ window.xin = (function() {
         show: function(view) {
 
             Backbone.trigger('xin-show', view);
+            if(xin.$('.xin-drawer').data('instance')) xin.$('.xin-drawer').data('instance').hide();
 
-            _.defer(function() {
-                if (view.parent && view.parent.showChild) {
-                    view.parent.showChild(view).done(function() {
-                        view.$el[0].scrollTop = 0;
-                        view.$el.addClass('xin-show');
-                    });
-                } else {
-                   view.$el.addClass('xin-show');
-                }
+            setTimeout(function(){
 
-                view.trigger('show', view);
-            });
+                _.defer(function() {
+                    if (view.parent && view.parent.showChild) {
+                        view.parent.showChild(view).done(function() {
+                            view.$el[0].scrollTop = 0;
+                            view.$el.addClass('xin-show');
+                        });
+                    } else {
+                       view.$el.addClass('xin-show');
+                    }
+
+                    view.trigger('show', view);
+                });
+
+            }, 300);
         }
     });
 
@@ -2374,6 +2450,46 @@ window.xin = (function() {
                     //out
                     if (outView) {
                         outFx = new xin.fx.SlideOut(outView.$el, method);
+                    }
+
+
+                    if (inFx) {
+                        var fx = inFx.play();
+                        if (!outFx) {
+                            fx.then(afterFx);
+                        }
+                    }
+
+                    if (outFx) outFx.play().then(afterFx);
+                }
+
+
+                return deferred.promise();
+            },
+
+            vertical: function(pane, inView, outView, direction) {
+                var method, inFx, outFx, deferred = xin.Deferred();
+                if (direction < 0) {
+                    method = "down";
+                } else {
+                    method = "up";
+                }
+
+                var afterFx = function() {
+                    xin.$(this).removeClass('xin-show');
+                    _.defer(deferred.resolve);
+                };
+
+                if (!outView) {
+                    afterFx();
+                } else {
+                    //in
+                    if (inView) {
+                        inFx = new xin.fx.VerticalIn(inView.$el, method);
+                    }
+                    //out
+                    if (outView) {
+                        outFx = new xin.fx.VerticalOut(outView.$el, method);
                     }
 
 
