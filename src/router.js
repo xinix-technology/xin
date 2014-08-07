@@ -80,6 +80,9 @@
         routeMissing: function(uri) {
             uri = (uri || '').trim();
 
+            var s = uri.split('?');
+            uri = s[0];
+
             var that = this,
                 args = arguments,
                 newUri = this.app.simplifyURL(uri);

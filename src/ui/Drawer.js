@@ -6,17 +6,23 @@
         initialize: function(options)  {
             this.constructor.__super__.initialize.apply(this, arguments);
 
-            this.$el.addClass('xin-drawer').css('-webkit-transform', 'translateX(-100%)');
+            this.$el.addClass('xin-drawer'); //.css('-webkit-transform', 'translateX(-100%)');
             this.$el.on('click', 'a', _.bind(this.clicked, this));
             $(document).on('mouseup', _.bind(this.mouseUp, this));
         },
 
         show: function() {
-            this.$el.css('-webkit-transform', '');
+            var $siblings = this.$el.siblings();
+            $siblings.css('-webkit-transition', 'all .3s');
+            $siblings.css('-webkit-transform', 'translateX(80%)');
+            // this.$el.css('-webkit-transform', '');
         },
 
         hide: function() {
-            this.$el.css('-webkit-transform', 'translateX(-100%)');
+            var $siblings = this.$el.siblings();
+            $siblings.css('-webkit-transition', 'all .3s');
+            $siblings.css('-webkit-transform', 'translateX(0)');
+            // this.$el.css('-webkit-transform', 'translateX(-100%)');
         },
 
         mouseUp: function(e) {

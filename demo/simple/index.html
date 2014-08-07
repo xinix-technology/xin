@@ -100,9 +100,11 @@
 
         <div data-role="view" data-uri="list" data-layout="default" data-title="List">
             <ul data-role="list" data-collection="listData">
-                <li data-name="<%= model.get('username') %>">
-                    <%= model.get('username') %> (<%= model.get('age') %>)
-                </li>
+                <template>
+                    <li data-name="<%= model.get('username') %>">
+                        <%= model.get('username') %> (<%= model.get('age') %>)
+                    </li>
+                </template>
             </ul>
         </div>
 
@@ -126,7 +128,7 @@
     <script type="text/javascript" src="../../vendor/underscore-min.js"></script>
     <script type="text/javascript" src="../../vendor/backbone-min.js"></script>
 
-    <script type="text/javascript" src="../../js/xin.min.js"></script>
+    <script type="text/javascript" src="../../js/xin.js"></script>
 
     <script type="text/javascript" src="./js/simple.js"></script>
 

@@ -134,7 +134,9 @@
 
                 var href = $form.attr('href');
 
-                if (href[0] === '#') {
+                if (!href) {
+                    return;
+                } else if (href[0] === '#') {
                     return;
                 } else if (href[0] === '/') {
                     href = location.origin + href;
