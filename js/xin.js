@@ -2745,17 +2745,23 @@ window.xin = (function() {
         },
 
         show: function() {
-            var $siblings = this.$el.siblings();
-            $siblings.css('-webkit-transition', 'all .3s');
-            $siblings.css('-webkit-transform', 'translateX(80%)');
-            // this.$el.css('-webkit-transform', '');
+
+            if(this.$el.css('-webkit-transform') !== 'matrix(1, 0, 0, 1, 0, 0)') {
+                var $siblings = this.$el.siblings();
+                $siblings.css('-webkit-transition', 'all .3s');
+                $siblings.css('-webkit-transform', 'translateX(80%)');
+                this.$el.css('-webkit-transform', '');
+            } else {
+                this.hide();
+            }
+
         },
 
         hide: function() {
             var $siblings = this.$el.siblings();
             $siblings.css('-webkit-transition', 'all .3s');
             $siblings.css('-webkit-transform', 'translateX(0)');
-            // this.$el.css('-webkit-transform', 'translateX(-100%)');
+            this.$el.css('-webkit-transform', 'translate3D(-20%,0,0)');
         },
 
         mouseUp: function(e) {
