@@ -25,9 +25,9 @@
                     }
                 } else {
                     var $template = this.$('>template');
-                    // if ($template.length <= 0) {
-                    //     $template = this.$('>script[type=text/template]');
-                    // }
+                    if ($template.length <= 0) {
+                        $template = this.$('>script[type="text/template"]');
+                    }
 
                     template = $template.html();
                     if (!template) {
@@ -39,11 +39,9 @@
 
                 if (template) {
                     $fetch = xin.$(template);
-
                     this.itemAttributes = $fetch.attr();
                     this.itemTemplate = _.template(xin.htmlDecode($fetch.html()));
                     this.itemTagName = $fetch[0].tagName.toLowerCase();
-                    this.wrapperTemplate = $fetch.html(null)[0].outerHTML;
                 }
 
                 this.itemAttributes['data-role'] = this.itemAttributes['data-role'] || 'list-item';
@@ -68,12 +66,7 @@
         },
 
         add: function(model) {
-
-            var wrapper = _.template(this.wrapperTemplate,{model : model}),
-                wrapAttr = $(wrapper).attr(),
-                attr    = _.defaults(wrapAttr,this.itemAttributes),
-
-                $item = xin.$('<' + this.itemTagName + '/>').attr(attr).data({
+            var $item = xin.$('<' + this.itemTagName + '/>').attr(this.itemAttributes).data({
                 template: this.itemTemplate,
                 model: model
             }).addClass('xin-list-item');

@@ -65,12 +65,8 @@
             }
 
             this.$el.scrollTop(0);
-            // if (xin.ui.isFirstRender()) {
-            //     deferred.resolve();
-            // } else {
             xin.ui.Pane.transitions[this.transition](this, view, this.activePage, outIndex - inIndex)
                 .done(deferred.resolve);
-            // }
 
             this.activePage = view;
 
@@ -124,6 +120,47 @@
                             fx.then(afterFx);
                         }
                     }
+
+                    if (outFx) outFx.play().then(afterFx);
+                }
+
+
+                return deferred.promise();
+            },
+
+            vertical: function(pane, inView, outView, direction) {
+                var method, inFx, outFx, deferred = xin.Deferred();
+                if (direction < 0) {
+                    method = "down";
+                } else {
+                    method = "up";
+                }
+
+                var afterFx = function() {
+                    xin.$(this).removeClass('xin-show');
+                    _.defer(deferred.resolve);
+                };
+
+                if (!outView) {
+                    afterFx();
+                } else {
+                    //in
+                    if (inView) {
+                        inFx = new xin.fx.VerticalIn(inView.$el, method);
+                    }
+                    //out
+                    if (outView) {
+                        outFx = new xin.fx.VerticalOut(outView.$el, method);
+                    }
+
+
+                    if (inFx) {
+                        var fx = inFx.play();
+                        if (!outFx) {
+                            fx.then(afterFx);
+                        }
+                    }
+
                     if (outFx) outFx.play().then(afterFx);
                 }
 

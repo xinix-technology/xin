@@ -628,6 +628,8 @@ window.xin = (function() {
             });
 
             return (found) ? from : undefined;
+
+
         },
 
         set: function(key, value) {
@@ -1444,12 +1446,83 @@ window.xin = (function() {
         }
     });
 
+    var VerticalIn = function($el, to) {
+        this.$el = $el;
+        this.to = to;
+        this.timeout = 0.3;
+    };
+
+    _.extend(VerticalIn.prototype, {
+        play: function() {
+            var that = this,
+                deferred = xin.Deferred();
+
+            this.$el.on(xin.detect.TRANSITION_END, function() {
+                that.$el.off(xin.detect.TRANSITION_END);
+                that.$el.css('transition', '');
+                that.$el.css('transform', '');
+                deferred.resolve();
+            });
+
+            var from = '100%';
+            if (this.to == 'up') {
+                from = '-' + from;
+            }
+
+            this.$el.css('transform', 'translate3d(0, ' + from + ', 0)');
+            this.$el.css('transition', 'all ' + that.timeout + 's');
+            that.$el.addClass('xin-show');
+
+            setTimeout(function() {
+                that.$el.css('transform', 'translate3d(0, 0, 0)');
+            }, xin.fx.defaultOptions.delay);
+
+            return deferred.promise();
+        }
+    });
+
+    var VerticalOut = function($el, to) {
+        this.$el = $el;
+        this.to = to;
+        this.timeout = 0.3;
+    };
+
+    _.extend(VerticalOut.prototype, {
+        play: function() {
+            var that = this,
+                deferred = xin.Deferred();
+
+            this.$el.on(xin.detect.TRANSITION_END, function() {
+                that.$el.off(xin.detect.TRANSITION_END);
+                that.$el.removeClass('xin-show');
+                that.$el.css('transition', '');
+                that.$el.css('transform', '');
+                deferred.resolve();
+            });
+
+            this.$el.css('transform', 'translate3d(0, 0, 0)');
+            this.$el.css('transition', 'all ' + that.timeout + 's');
+
+            setTimeout(function() {
+                var to = '100%';
+                if (that.to == 'down') {
+                    to = '-' + to;
+                }
+                that.$el.css('transform', 'translate3d(0, ' + to + ', 0)');
+            }, xin.fx.defaultOptions.delay);
+
+            return deferred.promise();
+        }
+    });
+
     xin.set('xin.fx', {
         defaultOptions: {
             delay: 50,
         },
         SlideIn: SlideIn,
         SlideOut: SlideOut,
+        VerticalIn: VerticalIn,
+        VerticalOut: VerticalOut
     });
 
 })(window.xin);
@@ -1504,19 +1577,24 @@ window.xin = (function() {
         show: function(view) {
 
             Backbone.trigger('xin-show', view);
+            if(xin.$('.xin-drawer').data('instance')) xin.$('.xin-drawer').data('instance').hide();
 
-            _.defer(function() {
-                if (view.parent && view.parent.showChild) {
-                    view.parent.showChild(view).done(function() {
-                        view.$el[0].scrollTop = 0;
-                        view.$el.addClass('xin-show');
-                    });
-                } else {
-                   view.$el.addClass('xin-show');
-                }
+            setTimeout(function(){
 
-                view.trigger('show', view);
-            });
+                _.defer(function() {
+                    if (view.parent && view.parent.showChild) {
+                        view.parent.showChild(view).done(function() {
+                            view.$el[0].scrollTop = 0;
+                            view.$el.addClass('xin-show');
+                        });
+                    } else {
+                       view.$el.addClass('xin-show');
+                    }
+
+                    view.trigger('show', view);
+                });
+
+            }, 300);
         }
     });
 
@@ -2326,12 +2404,8 @@ window.xin = (function() {
             }
 
             this.$el.scrollTop(0);
-            // if (xin.ui.isFirstRender()) {
-            //     deferred.resolve();
-            // } else {
             xin.ui.Pane.transitions[this.transition](this, view, this.activePage, outIndex - inIndex)
                 .done(deferred.resolve);
-            // }
 
             this.activePage = view;
 
@@ -2385,6 +2459,47 @@ window.xin = (function() {
                             fx.then(afterFx);
                         }
                     }
+
+                    if (outFx) outFx.play().then(afterFx);
+                }
+
+
+                return deferred.promise();
+            },
+
+            vertical: function(pane, inView, outView, direction) {
+                var method, inFx, outFx, deferred = xin.Deferred();
+                if (direction < 0) {
+                    method = "down";
+                } else {
+                    method = "up";
+                }
+
+                var afterFx = function() {
+                    xin.$(this).removeClass('xin-show');
+                    _.defer(deferred.resolve);
+                };
+
+                if (!outView) {
+                    afterFx();
+                } else {
+                    //in
+                    if (inView) {
+                        inFx = new xin.fx.VerticalIn(inView.$el, method);
+                    }
+                    //out
+                    if (outView) {
+                        outFx = new xin.fx.VerticalOut(outView.$el, method);
+                    }
+
+
+                    if (inFx) {
+                        var fx = inFx.play();
+                        if (!outFx) {
+                            fx.then(afterFx);
+                        }
+                    }
+
                     if (outFx) outFx.play().then(afterFx);
                 }
 
@@ -2425,9 +2540,9 @@ window.xin = (function() {
                     }
                 } else {
                     var $template = this.$('>template');
-                    // if ($template.length <= 0) {
-                    //     $template = this.$('>script[type=text/template]');
-                    // }
+                    if ($template.length <= 0) {
+                        $template = this.$('>script[type="text/template"]');
+                    }
 
                     template = $template.html();
                     if (!template) {
@@ -2439,11 +2554,9 @@ window.xin = (function() {
 
                 if (template) {
                     $fetch = xin.$(template);
-
                     this.itemAttributes = $fetch.attr();
                     this.itemTemplate = _.template(xin.htmlDecode($fetch.html()));
                     this.itemTagName = $fetch[0].tagName.toLowerCase();
-                    this.wrapperTemplate = $fetch.html(null)[0].outerHTML;
                 }
 
                 this.itemAttributes['data-role'] = this.itemAttributes['data-role'] || 'list-item';
@@ -2468,12 +2581,7 @@ window.xin = (function() {
         },
 
         add: function(model) {
-
-            var wrapper = _.template(this.wrapperTemplate,{model : model}),
-                wrapAttr = $(wrapper).attr(),
-                attr    = _.defaults(wrapAttr,this.itemAttributes),
-
-                $item = xin.$('<' + this.itemTagName + '/>').attr(attr).data({
+            var $item = xin.$('<' + this.itemTagName + '/>').attr(this.itemAttributes).data({
                 template: this.itemTemplate,
                 model: model
             }).addClass('xin-list-item');
@@ -2623,7 +2731,6 @@ window.xin = (function() {
     // xin.set('xin.ui.ListEmpty', ListEmpty);
 
 })(window.xin);
-
 ;(function(xin) {
     "use strict";
 
@@ -2638,17 +2745,23 @@ window.xin = (function() {
         },
 
         show: function() {
-            var $siblings = this.$el.siblings();
-            $siblings.css('-webkit-transition', 'all .3s');
-            $siblings.css('-webkit-transform', 'translateX(80%)');
-            // this.$el.css('-webkit-transform', '');
+
+            if(this.$el.css('-webkit-transform') !== 'matrix(1, 0, 0, 1, 0, 0)') {
+                var $siblings = this.$el.siblings();
+                $siblings.css('-webkit-transition', 'all .3s');
+                $siblings.css('-webkit-transform', 'translateX(256px)');
+                this.$el.css('-webkit-transform', '');
+            } else {
+                this.hide();
+            }
+
         },
 
         hide: function() {
             var $siblings = this.$el.siblings();
             $siblings.css('-webkit-transition', 'all .3s');
             $siblings.css('-webkit-transform', 'translateX(0)');
-            // this.$el.css('-webkit-transform', 'translateX(-100%)');
+            this.$el.css('-webkit-transform', 'translate3D(-20%,0,0)');
         },
 
         mouseUp: function(e) {

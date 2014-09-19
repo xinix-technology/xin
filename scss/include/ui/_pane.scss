@@ -1,6 +1,7 @@
 .xin-pane {
     overflow: hidden;
     position: relative;
+    z-index: 10;
 
     &>.xin-view {
         position: absolute;

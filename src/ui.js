@@ -49,19 +49,24 @@
         show: function(view) {
 
             Backbone.trigger('xin-show', view);
+            if(xin.$('.xin-drawer').data('instance')) xin.$('.xin-drawer').data('instance').hide();
 
-            _.defer(function() {
-                if (view.parent && view.parent.showChild) {
-                    view.parent.showChild(view).done(function() {
-                        view.$el[0].scrollTop = 0;
-                        view.$el.addClass('xin-show');
-                    });
-                } else {
-                   view.$el.addClass('xin-show');
-                }
+            setTimeout(function(){
 
-                view.trigger('show', view);
-            });
+                _.defer(function() {
+                    if (view.parent && view.parent.showChild) {
+                        view.parent.showChild(view).done(function() {
+                            view.$el[0].scrollTop = 0;
+                            view.$el.addClass('xin-show');
+                        });
+                    } else {
+                       view.$el.addClass('xin-show');
+                    }
+
+                    view.trigger('show', view);
+                });
+
+            }, 300);
         }
     });
 

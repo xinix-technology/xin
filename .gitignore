@@ -6,9 +6,5 @@
 /css
 /app
 /demo/mine/*
-<<<<<<< HEAD
 /demo/vanila/*
-=======
-/demo/vanila/*
-/demo/expensedia/*
->>>>>>> vanila
+/demo/demo/*

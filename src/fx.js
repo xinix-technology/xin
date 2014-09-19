@@ -103,12 +103,83 @@
         }
     });
 
+    var VerticalIn = function($el, to) {
+        this.$el = $el;
+        this.to = to;
+        this.timeout = 0.3;
+    };
+
+    _.extend(VerticalIn.prototype, {
+        play: function() {
+            var that = this,
+                deferred = xin.Deferred();
+
+            this.$el.on(xin.detect.TRANSITION_END, function() {
+                that.$el.off(xin.detect.TRANSITION_END);
+                that.$el.css('transition', '');
+                that.$el.css('transform', '');
+                deferred.resolve();
+            });
+
+            var from = '100%';
+            if (this.to == 'up') {
+                from = '-' + from;
+            }
+
+            this.$el.css('transform', 'translate3d(0, ' + from + ', 0)');
+            this.$el.css('transition', 'all ' + that.timeout + 's');
+            that.$el.addClass('xin-show');
+
+            setTimeout(function() {
+                that.$el.css('transform', 'translate3d(0, 0, 0)');
+            }, xin.fx.defaultOptions.delay);
+
+            return deferred.promise();
+        }
+    });
+
+    var VerticalOut = function($el, to) {
+        this.$el = $el;
+        this.to = to;
+        this.timeout = 0.3;
+    };
+
+    _.extend(VerticalOut.prototype, {
+        play: function() {
+            var that = this,
+                deferred = xin.Deferred();
+
+            this.$el.on(xin.detect.TRANSITION_END, function() {
+                that.$el.off(xin.detect.TRANSITION_END);
+                that.$el.removeClass('xin-show');
+                that.$el.css('transition', '');
+                that.$el.css('transform', '');
+                deferred.resolve();
+            });
+
+            this.$el.css('transform', 'translate3d(0, 0, 0)');
+            this.$el.css('transition', 'all ' + that.timeout + 's');
+
+            setTimeout(function() {
+                var to = '100%';
+                if (that.to == 'down') {
+                    to = '-' + to;
+                }
+                that.$el.css('transform', 'translate3d(0, ' + to + ', 0)');
+            }, xin.fx.defaultOptions.delay);
+
+            return deferred.promise();
+        }
+    });
+
     xin.set('xin.fx', {
         defaultOptions: {
             delay: 50,
         },
         SlideIn: SlideIn,
         SlideOut: SlideOut,
+        VerticalIn: VerticalIn,
+        VerticalOut: VerticalOut
     });
 
 })(window.xin);
