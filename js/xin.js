@@ -2749,7 +2749,7 @@ window.xin = (function() {
             if(this.$el.css('-webkit-transform') !== 'matrix(1, 0, 0, 1, 0, 0)') {
                 var $siblings = this.$el.siblings();
                 $siblings.css('-webkit-transition', 'all .3s');
-                $siblings.css('-webkit-transform', 'translateX(80%)');
+                $siblings.css('-webkit-transform', 'translateX(256px)');
                 this.$el.css('-webkit-transform', '');
             } else {
                 this.hide();
