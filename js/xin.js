@@ -2731,6 +2731,7 @@ window.xin = (function() {
     // xin.set('xin.ui.ListEmpty', ListEmpty);
 
 })(window.xin);
+
 ;(function(xin) {
     "use strict";
 
