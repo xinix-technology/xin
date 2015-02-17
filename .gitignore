@@ -3,7 +3,6 @@
 /vendor
 /project.sublime-*
 /.sass-cache
-/css
 /app
 /demo/mine/*
 /demo/vanila/*
