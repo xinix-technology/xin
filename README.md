@@ -1,4 +1,4 @@
-xin
+# Xin
 ===
 
 Xin is Single Page Application framework using javascript.
@@ -33,3 +33,11 @@ TBD
 # TODO
 
 [] Fullscreen on mobile browser
+
+#change Logs
+
+## v0.0.*-rc
+*	Theme convention using
+
+## v0.0.1
+Initial commit
