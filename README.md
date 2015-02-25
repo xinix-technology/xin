@@ -3,7 +3,7 @@ xin
 
 Xin is Single Page Application framework using javascript.
 
-![Xin](https://github.com/reekoheek/xin/raw/master/img/logo.png "SPA Framework")
+![Xin](http://xinix.co.id/storage/uploads/xin.png "SPA Framework")
 
 # Install
 
