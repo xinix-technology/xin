@@ -5,10 +5,8 @@
 
     &>.xin-view {
         position: absolute;
-        left: 0;
-        top: 0;
-        right: 0;
-        bottom: 0;
+        left: -999999999;
+        top: -999999999;
         overflow: auto;
         -webkit-overflow-scrolling: touch;
         -webkit-transform: translateZ(0px);
@@ -21,6 +19,10 @@
 
         &.xin-show {
             display: inherit;
+            left: 0;
+            top: 0;
+            right: 0;
+            bottom: 0;
         }
     }
 }

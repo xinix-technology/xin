@@ -40,10 +40,8 @@ body .xin-layout {
 /* line 6, ../scss/include/ui/_pane.scss */
 .xin-pane > .xin-view {
   position: absolute;
-  left: 0;
-  top: 0;
-  right: 0;
-  bottom: 0;
+  left: -999999999;
+  top: -999999999;
   overflow: auto;
   -webkit-overflow-scrolling: touch;
   -webkit-transform: translateZ(0px);
@@ -53,9 +51,13 @@ body .xin-layout {
   -webkit-transform: translate3d(0, 0, 0);
   display: none;
 }
-/* line 22, ../scss/include/ui/_pane.scss */
+/* line 20, ../scss/include/ui/_pane.scss */
 .xin-pane > .xin-view.xin-show {
   display: inherit;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
 }
 
 /* line 3, ../scss/include/ui/_navbar.scss */
