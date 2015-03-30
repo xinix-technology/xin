@@ -2114,7 +2114,6 @@ window.xin = (function() {
          * @return Promise
          */
         matcher: function($el) {
-            console.log('msg');
             return $el.data('background');
         },
 
