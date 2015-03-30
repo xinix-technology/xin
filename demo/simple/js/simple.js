@@ -106,7 +106,8 @@ anuan.model = new Backbone.Model({
                 '[data-role]': xin.directive.RoleDirective,
                 '[data-uri]': xin.directive.URIDirective,
                 '[data-bind]': xin.directive.BindDirective,
-                '[data-value]': ValueDirective
+                '[data-value]': ValueDirective,
+                '[data-background]': xin.directive.BackgroundDirective
             },
             middlewares: {
                 // AuthMiddleware
