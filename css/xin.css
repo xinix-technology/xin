@@ -46,9 +46,14 @@ body .xin-layout {
   bottom: 0;
   overflow: auto;
   -webkit-overflow-scrolling: touch;
+  -webkit-transform: translateZ(0px);
+  -webkit-backface-visibility: hidden;
+  -webkit-transform-style: preserve-3d;
+  -webkit-perspective: 1000;
+  -webkit-transform: translate3d(0, 0, 0);
   display: none;
 }
-/* line 17, ../scss/include/ui/_pane.scss */
+/* line 22, ../scss/include/ui/_pane.scss */
 .xin-pane > .xin-view.xin-show {
   display: inherit;
 }
