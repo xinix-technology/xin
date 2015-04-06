@@ -921,7 +921,7 @@ window.xin = (function() {
     };
 
     _.extend(Router.prototype, Backbone.Router.prototype, {
-
+        history: [],
         routes: {
             "*splats": "routeMissing"
         },
@@ -1576,25 +1576,32 @@ window.xin = (function() {
 
         show: function(view) {
 
+            if(xin.Router.prototype.history.length) {
+                var referer = xin.Router.prototype.history[xin.Router.prototype.history.length - 1];
+                view.$el.data('referer', referer);
+                xin.Router.prototype.history.push(view.$el.data('uri'));
+            } else {
+                view.$el.data('referer', view.$el.data('uri'));
+                xin.Router.prototype.history.push(view.$el.data('uri'));
+            }
+
             Backbone.trigger('xin-show', view);
             if(xin.$('.xin-drawer').data('instance')) xin.$('.xin-drawer').data('instance').hide();
 
-            setTimeout(function(){
+            // setTimeout(function(){
+            _.defer(function() {
+                if (view.parent && view.parent.showChild) {
+                    view.parent.showChild(view).done(function() {
+                        view.$el[0].scrollTop = 0;
+                        view.$el.addClass('xin-show');
+                    });
+                } else {
+                   view.$el.addClass('xin-show');
+                }
 
-                _.defer(function() {
-                    if (view.parent && view.parent.showChild) {
-                        view.parent.showChild(view).done(function() {
-                            view.$el[0].scrollTop = 0;
-                            view.$el.addClass('xin-show');
-                        });
-                    } else {
-                       view.$el.addClass('xin-show');
-                    }
-
-                    view.trigger('show', view);
-                });
-
-            }, 300);
+                view.trigger('show', view);
+            });
+            // }, 300);
         }
     });
 
@@ -2254,7 +2261,16 @@ window.xin = (function() {
     var Outlet = Backbone.View.extend({
 
         events : {
-            'submit form.searchForm': 'submitSearch'
+            'submit form.searchForm': 'submitSearch',
+            'click .back': 'back'
+        },
+
+        back: function(evt) {
+            var ref = $(evt.target).parents('[data-region="header"]').parent().data('referer');
+            if(ref) {
+                location.hash = ref;
+            }
+            return false;
         },
 
         initialize: function(options) {
@@ -2306,7 +2322,7 @@ window.xin = (function() {
     });
 
 
-    var View = Backbone.View.extend({
+    var View = Outlet.extend({
 
         events : {
             'click .showDrawer': 'showDrawer',

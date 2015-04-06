@@ -61,10 +61,36 @@
         </div>
     </div>
 
+    <div data-role="layout" data-id="back" class="xc-flex vertical">
+        <div data-region="header">
+            <div data-role="navbar" class="xc-flex horizontal">
+                <div class="no-flex" style="left:0">
+                    <a href="#" class="back">Back</a>
+                </div>
+                <div data-region="title" class="xin-title center">
+                    Simple Demo
+                </div>
+                <div class="no-flex" style="right:0">
+
+                </div>
+            </div>
+        </div>
+        <div data-region="body" class="center layout-body">
+
+        </div>
+        <div data-region="footer">
+            <div class="xin-navbar">
+                <div class="xin-title">
+                    Footer
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div data-role="pane" data-transition="slide" class="xc-fill" data-id="pane">
         <div data-model="anuan.model" data-id="anu.model"></div>
 
-        <div data-role="view" data-uri="login" data-background="red" data-layout="default" data-title="Login">
+        <div data-role="view" data-uri="login" data-id="login" data-background="red" data-layout="default" data-title="Login">
         <!-- <div data-role="view" data-layout="default" data-title="Login"> -->
             <form action="">
                 <ul data-role="list" data-model="anuan.model">
@@ -108,6 +134,16 @@
             </ul>
         </div>
 
+        <div data-role="view" data-uri="back" data-layout="back" data-title="Back">
+            <ul data-role="list" data-collection="listData">
+                <template>
+                    <li data-name="<%= model.get('username') %>">
+                        <%= model.get('username') %> (<%= model.get('age') %>)
+                    </li>
+                </template>
+            </ul>
+        </div>
+
         <!-- <script type="text/template" id="listTemplate">
             <li>
                 <%= model.get('username') %> (<%= model.get('age') %>)
@@ -121,6 +157,7 @@
             <li><a href="#">Login</a></li>
             <li><a href="#signup">Signup</a></li>
             <li><a href="#list">List</a></li>
+            <li><a href="#back">Back</a></li>
         </ul>
     </div>
 

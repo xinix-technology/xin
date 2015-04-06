@@ -4,7 +4,16 @@
     var Outlet = Backbone.View.extend({
 
         events : {
-            'submit form.searchForm': 'submitSearch'
+            'submit form.searchForm': 'submitSearch',
+            'click .back': 'back'
+        },
+
+        back: function(evt) {
+            var ref = $(evt.target).parents('[data-region="header"]').parent().data('referer');
+            if(ref) {
+                location.hash = ref;
+            }
+            return false;
         },
 
         initialize: function(options) {
@@ -56,7 +65,7 @@
     });
 
 
-    var View = Backbone.View.extend({
+    var View = Outlet.extend({
 
         events : {
             'click .showDrawer': 'showDrawer',
