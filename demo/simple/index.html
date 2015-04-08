@@ -144,6 +144,17 @@
             </ul>
         </div>
 
+
+        <div data-role="view" data-uri="parent" data-layout="default" data-title="Parent">
+            <h3>Parent</h3>
+            <a href="#child">Go to child...</a>
+        </div>
+
+        <div data-role="view" data-uri="child" data-layout="back" data-title="Child" data-parent-referer="parent">
+            Child
+        </div>
+
+
         <!-- <script type="text/template" id="listTemplate">
             <li>
                 <%= model.get('username') %> (<%= model.get('age') %>)
@@ -158,6 +169,7 @@
             <li><a href="#signup">Signup</a></li>
             <li><a href="#list">List</a></li>
             <li><a href="#back">Back</a></li>
+            <li><a href="#parent">parent</a></li>
         </ul>
     </div>
 

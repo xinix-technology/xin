@@ -2266,7 +2266,10 @@ window.xin = (function() {
         },
 
         back: function(evt) {
-            var ref = $(evt.target).parents('[data-region="header"]').parent().data('referer');
+
+            var $parent = $(evt.target).parents('[data-region="header"]').parent(),
+                ref = $parent.data('parent-referer') || $parent.data('referer');
+
             if(ref) {
                 location.hash = ref;
             }
