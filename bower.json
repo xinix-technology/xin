@@ -1,12 +1,35 @@
 {
     "name": "xin",
+    "version": "0.1.1",
     "description": "Javascript SPA framework based on Backbone and Underscore",
-    "author": "Ganesha <reekoheek@gmail.com>, Dwan <dwaan@me.com>",
-    "version": "0.1.0",
+    "author": [
+        "Ganesha <reekoheek@gmail.com>",
+        "Dwan <dwaan@me.com>"
+    ],
+    "main": "js/xin.min.js",
+    "moduleType": [
+        "globals"
+    ],
+    "keywords": [
+        "xin",
+        "SPA",
+        "Javascript",
+        "Backbone",
+        "Underscore",
+        "Naked",
+        "Framework",
+        "xinix"
+    ],
+    "license": "MIT",
+    "homepage": "http://xinix.co.id/p/product/xin",
     "ignore": [
         "**/.*",
+        "node_modules",
+        "bower_components",
         "vendor",
-        "test"
+        "test",
+        "tests",
+        "demo"
     ],
     "dependencies": {
         "backbone": "1.2.x",
