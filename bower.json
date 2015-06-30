@@ -1,45 +1,36 @@
 {
-    "name": "xin",
-    "version": "1.0.0",
-    "description": "Javascript SPA framework based on Backbone and Underscore",
-    "author": [
-        "Ganesha <reekoheek@gmail.com>",
-        "Dwan <dwaan@me.com>"
-    ],
-    "main": "js/xin.min.js",
-    "moduleType": [
-        "globals"
-    ],
-    "keywords": [
-        "xin",
-        "SPA",
-        "Javascript",
-        "Backbone",
-        "Underscore",
-        "Naked",
-        "Framework",
-        "xinix"
-    ],
-    "license": "MIT",
-    "homepage": "http://xinix.co.id/p/product/xin",
-    "ignore": [
-        "**/.*",
-        "node_modules",
-        "bower_components",
-        "vendor",
-        "test",
-        "tests",
-        "demo"
-    ],
-    "dependencies": {
-        "backbone": "1.2.x",
-        "underscore": "1.8.x",
-        "jquery": "~2.1.4",
-        "naked": "xinix-technology/naked#1.0.x",
-        "animate.css": "~3.4.x",
-        "google-code-prettify": "~1.0.x",
-        "jacket-awesome": "~2.0.x",
-        "modernizr": "~2.8.3",
-        "normalize.css": "~3.0.x"
-    }
+  "name": "xin",
+  "version": "2.0.0",
+  "description": "Javascript SPA framework with web component",
+  "author": [
+    "Ganesha <reekoheek@gmail.com>",
+    "Dwan <dwaan@me.com>"
+  ],
+  "main": "xin.html",
+  "moduleType": [
+    "globals"
+  ],
+  "keywords": [
+    "xin",
+    "SPA",
+    "Javascript",
+    "Framework",
+    "xinix"
+  ],
+  "license": "MIT",
+  "homepage": "http://xinix.co.id/p/product/xin",
+  "ignore": [
+    "**/.*",
+    "bower_components",
+    "vendor",
+    "test",
+    "demo"
+  ],
+  "dependencies": {
+
+  },
+  "devDependencies": {
+    "web-component-tester": "*",
+    "markdown-js": "evilstreak/markdown-js#*"
+  }
 }
