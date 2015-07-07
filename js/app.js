@@ -205,10 +205,20 @@
     return this.check(fragment)
       .then(function(executers) {
         if (executers.length) {
-          executers.forEach(function(executer) {
-            executer.handler.callback.apply(this, executer.args);
+          var promise = Promise.resolve();
+          this.middlewares.forEach(function(middleware) {
+            promise.then(function() {
+              return middleware.apply(this);
+            }.bind(this));
           }.bind(this));
-          return executers;
+
+          return promise.then(function() {
+            executers.forEach(function(executer) {
+              executer.handler.callback.apply(this, executer.args);
+            }.bind(this));
+
+            return executers;
+          }.bind(this));
         } else {
           this.emit('not-found', fragment);
           return [];
