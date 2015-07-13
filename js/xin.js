@@ -24,12 +24,21 @@
   'use strict';
 
   root.xin = root.xin || {};
-  factory(root.xin);
+  factory(root, root.xin);
 
-})(this, function(root) {
+})(this, function(root, xin) {
   'use strict';
 
-  root.get = function(url, options) {
+  xin.params = function(obj) {
+    var str = [];
+    for(var p in obj)
+      if (obj.hasOwnProperty(p)) {
+        str.push(encodeURIComponent(p) + "=" + encodeURIComponent(obj[p]));
+      }
+    return str.join("&");
+  };
+
+  xin.get = function(url, options) {
     switch(arguments.length) {
       case 0:
         options = null;
@@ -52,17 +61,49 @@
       options.method = 'get';
     }
 
-    return root.xhr(options);
+    return xin.xhr(options);
   };
 
-  root.xhr = function(options) {
+  xin.post = function(url, options) {
+    switch(arguments.length) {
+      case 0:
+        options = null;
+        break;
+      case 1:
+        options = url;
+        if (typeof url === 'string') {
+          options = {
+            url: url
+          };
+        } else {
+          options = url;
+        }
+        break;
+      default:
+        options.url = url;
+    }
+
+    if (options) {
+      options.method = 'post';
+    }
+
+    return xin.xhr(options);
+  };
+
+  xin.xhr = function(options) {
     if (!options) {
-      throw new Error('No options')
+      throw new Error('No options');
     } else if (typeof options === 'string') {
       options = {url: options};
     }
 
     options.method = options.method || 'GET';
+    var headers = {};
+    if (options.headers) {
+      for(var i in options.headers) {
+        headers[i.toLowerCase()] = options.headers[i];
+      }
+    }
 
     var request = new XMLHttpRequest();
     var promise = new Promise(function(resolve, reject) {
@@ -70,7 +111,13 @@
 
       request.onload = function() {
         if (request.status >= 200 && request.status < 400) {
-          resolve(request.responseText);
+          var response = request.responseText;
+          switch(headers['content-type']) {
+            case 'application/json':
+              response = JSON.parse(response);
+              break;
+          }
+          resolve(response);
         } else {
           reject(new Error('HTTP fail with status ' + request.status));
         }
@@ -78,11 +125,56 @@
 
       request.onerror = reject;
 
-      request.send();
+      var params;
+
+      if (options.method.toUpperCase() === 'POST') {
+        headers['content-type'] = headers['content-type'] || 'application/x-www-form-urlencoded';
+        switch(headers['content-type']) {
+          case 'application/json':
+            params = JSON.stringify(options.data);
+            break;
+          default:
+            params = xin.params(options.data);
+            break;
+        }
+
+        // FIXME vulnerable?
+        // headers['content-length'] = headers['content-length'] || params.length;
+        // headers['connection'] = 'close';
+      }
+
+      for(var i in headers) {
+        request.setRequestHeader(i, headers[i]);
+      }
+
+      if (options.method.toUpperCase() === 'GET') {
+        request.send();
+      } else {
+        request.send(params);
+      }
     });
 
     promise.xhr = request;
 
     return promise;
   };
+
+  xin.import = function(url) {
+    return new Promise(function(resolve, reject) {
+      var $link = document.createElement('link');
+      $link.setAttribute('href', url);
+      $link.setAttribute('rel', 'import');
+
+      $link.addEventListener('load', function(evt) {
+        resolve($link);
+      });
+
+      $link.addEventListener('error', function(evt) {
+        reject($link);
+      });
+
+      document.head.appendChild($link);
+    });
+  };
+
 });

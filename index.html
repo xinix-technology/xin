@@ -29,6 +29,7 @@
 
   <script type="text/javascript" src="./js/xin.js"></script>
   <script type="text/javascript" src="./js/event-emitter.js"></script>
+  <script type="text/javascript" src="./js/dom.js"></script>
   <script type="text/javascript" src="./js/app.js"></script>
   <script type="text/javascript" src="./markdown.js"></script>
 </head>
@@ -46,8 +47,6 @@
   <script type="text/javascript">
   (function(root) {
     'use strict';
-    var paneEl = document.querySelector('#pane');
-
     var app = xin.App();
 
     app.route('/', function() {
@@ -58,12 +57,12 @@
       xin.get(file)
         .then(function(data) {
           var html = markdown.toHTML( data );
-          document.querySelector('#pane').innerHTML = html;
+          pane.innerHTML = html;
         }, function(err) {
           alert(err.message);
           app.navigate('/');
           console.error(err);
-        })
+        });
     });
 
     app.start();
