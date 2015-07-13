@@ -67,12 +67,12 @@
     this.middlewares = [];
 
     options = options || {
-      el: document.body
+      element: document.body
     };
 
     if (options instanceof HTMLElement) {
       options = {
-        el: options
+        element: options
       };
     }
 
@@ -141,14 +141,12 @@
       window.addEventListener('hashchange', this.checkAndExecute.bind(this), false);
     }
 
-    this.el.addEventListener('click', function(evt) {
+    this.element.addEventListener('click', function(evt) {
       var target = evt.target;
-      var realTarget = target;
-      while(realTarget.nodeName !== 'A' && realTarget !== this.el) {
-        realTarget = realTarget.parentElement;
-      }
 
-      if (realTarget.nodeName !== 'A') {
+      var realTarget = (target === this.element) ? target : xin.dom(target).parent('a');
+
+      if (!realTarget) {
         return;
       }
 
@@ -207,7 +205,7 @@
         if (executers.length) {
           var promise = Promise.resolve();
           this.middlewares.forEach(function(middleware) {
-            promise.then(function() {
+            promise = promise.then(function() {
               return middleware.apply(this);
             }.bind(this));
           }.bind(this));
@@ -223,7 +221,10 @@
           this.emit('not-found', fragment);
           return [];
         }
-      }.bind(this));
+      }.bind(this))
+      .catch(function(err) {
+        console.error(err.message);
+      });
   };
 
   App.prototype.navigate = function(path, options) {
@@ -245,6 +246,14 @@
 
   App.prototype.use = function(middleware) {
     this.middlewares.push(middleware);
+  };
+
+  App.prototype.getURI = function() {
+    if (this.mode === 'hash') {
+      return location.hash.replace(this.hashSeparator, '') || '/';
+    } else {
+      throw new Error('Unimplemented getURI from history mode');
+    }
   };
 
   return App;
