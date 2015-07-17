@@ -45,27 +45,31 @@
   };
 
   Dom.prototype.parent = function(selector) {
-    var $parent = this.element.parentElement;
+    var parent$ = this.element.parentElement;
 
-    while($parent && !matches($parent, selector)) {
-      $parent = $parent.parentElement;
+    if (!selector) {
+      return parent$;
     }
 
-    return $parent;
+    while(parent$ && !matches(parent$, selector)) {
+      parent$ = parent$.parentElement;
+    }
+
+    return parent$;
   };
 
   Dom.prototype.parents = function(selector) {
-    var $parents = [];
-    var $parent = this.element.parentElement;
+    var parents$ = [];
+    var parent$ = this.element.parentElement;
 
-    while($parent) {
-      if (matches($parent, selector)) {
-        $parents.push($parent);
+    while(parent$) {
+      if (!selector || matches(parent$, selector)) {
+        parents$.push(parent$);
       }
-      $parent = $parent.parentElement;
+      parent$ = parent$.parentElement;
     }
 
-    return $parents;
+    return parents$;
   };
 
   return Dom;
