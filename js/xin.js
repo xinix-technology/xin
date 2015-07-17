@@ -110,16 +110,26 @@
       request.open(options.method.toUpperCase(), options.url, true);
 
       request.onload = function() {
-        if (request.status >= 200 && request.status < 400) {
-          var response = request.responseText;
+        var response = request.responseText;
+        try {
           switch(headers['content-type']) {
             case 'application/json':
               response = JSON.parse(response);
               break;
           }
+        } catch(e) {}
+
+        if (request.status >= 200 && request.status < 400) {
           resolve(response);
         } else {
-          reject(new Error('HTTP fail with status ' + request.status));
+          var err;
+          if (response.error) {
+            err = new Error(response.error.message);
+            err.response = response;
+          } else {
+            err = new Error('HTTP fail with status ' + request.status);
+          }
+          reject(err);
         }
       };
 
@@ -144,7 +154,10 @@
       }
 
       for(var i in headers) {
-        request.setRequestHeader(i, headers[i]);
+        var key = i.split('-').map(function(token) {
+          return token[0].toUpperCase() + token.substr(1).toLowerCase();
+        }).join('-');
+        request.setRequestHeader(key, headers[i]);
       }
 
       if (options.method.toUpperCase() === 'GET') {
