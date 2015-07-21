@@ -29,12 +29,18 @@
 })(this, function(root, xin) {
   'use strict';
 
-  xin.params = function(obj) {
+  xin.params = function(obj, options) {
     var str = [];
-    for(var p in obj)
+    for(var p in obj) {
       if (obj.hasOwnProperty(p)) {
         str.push(encodeURIComponent(p) + "=" + encodeURIComponent(obj[p]));
       }
+    }
+    for(p in options) {
+      if (options.hasOwnProperty(p)) {
+        str.push(encodeURIComponent(p) + "=" + encodeURIComponent(options[p]));
+      }
+    }
     return str.join("&");
   };
 
@@ -172,21 +178,29 @@
     return promise;
   };
 
+  xin.getPrototypeOf = Object.getPrototypeOf || function(object) {
+    return object.__proto__;
+  };
+
+  xin.setPrototypeOf = Object.setPrototypeOf || function(object, proto) {
+    object.__proto__ = proto;
+  };
+
   xin.import = function(url) {
     return new Promise(function(resolve, reject) {
-      var $link = document.createElement('link');
-      $link.setAttribute('href', url);
-      $link.setAttribute('rel', 'import');
+      var link$ = document.createElement('link');
+      link$.setAttribute('href', url);
+      link$.setAttribute('rel', 'import');
 
-      $link.addEventListener('load', function(evt) {
-        resolve($link);
+      link$.addEventListener('load', function(evt) {
+        resolve(link$);
       });
 
-      $link.addEventListener('error', function(evt) {
-        reject($link);
+      link$.addEventListener('error', function(evt) {
+        reject(link$);
       });
 
-      document.head.appendChild($link);
+      document.head.appendChild(link$);
     });
   };
 
