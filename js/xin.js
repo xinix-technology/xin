@@ -113,7 +113,11 @@
 
     var request = new XMLHttpRequest();
     var promise = new Promise(function(resolve, reject) {
-      request.open(options.method.toUpperCase(), options.url, true);
+      var url = options.url;
+      if (options.data && options.method.toUpperCase() === 'GET') {
+        url = url + '?' + xin.params(options.data);
+      }
+      request.open(options.method.toUpperCase(), url, true);
 
       request.onload = function() {
         var response = request.responseText;
@@ -143,7 +147,8 @@
 
       var params;
 
-      if (options.method.toUpperCase() === 'POST') {
+      var method = options.method.toUpperCase();
+      if (method === 'POST' || method === 'PUT') {
         headers['content-type'] = headers['content-type'] || 'application/x-www-form-urlencoded';
         switch(headers['content-type']) {
           case 'application/json':
@@ -166,7 +171,7 @@
         request.setRequestHeader(key, headers[i]);
       }
 
-      if (options.method.toUpperCase() === 'GET') {
+      if (method === 'GET') {
         request.send();
       } else {
         request.send(params);
