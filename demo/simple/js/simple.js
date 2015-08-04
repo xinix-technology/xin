@@ -41,6 +41,19 @@ var Anu = simple.Anu = xin.ui.Outlet.extend({
     }
 });
 
+var Anuku = xin.ui.Outlet.extend({
+
+    events: {
+        'click .anuku': 'anuku'
+    },
+
+    anuku: function(evt) {
+        evt.preventDefault();
+        alert('xxxx');
+    }
+
+});
+
 simple.Anu.model = new Backbone.Model({
     name: 'Anu',
     alias: 'Gemes',
