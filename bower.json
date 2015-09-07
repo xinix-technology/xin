@@ -34,6 +34,7 @@
     "dependencies": {
         "backbone": "1.2.x",
         "underscore": "1.8.x",
+        "jquery": "2.1.1",
         "naked": "xinix-technology/naked#1.0.x"
     }
 }

@@ -67,8 +67,14 @@
 
         get: function(key) {
             if (!key) {
-                console.error('IoC cannot get from key:', key);
-                return;
+                var data = $('.xin-show').data();
+
+                if(data.instance) return data.instance;
+                if(!data.id){
+                    console.error('IoC cannot get from key:', key);
+                    return;
+                }
+                key = data.id;
             }
 
             var keys = key.split('.'),

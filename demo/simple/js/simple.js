@@ -31,7 +31,8 @@ var anu = {
     }
 };
 
-var simple = {};
+var simple = {},
+    anuan = {};
 
 var Anu = simple.Anu = xin.ui.Outlet.extend({
     doAnu: function(evt) {
@@ -40,10 +41,28 @@ var Anu = simple.Anu = xin.ui.Outlet.extend({
     }
 });
 
+var Anuku = xin.ui.Outlet.extend({
+
+    events: {
+        'click .anuku': 'anuku'
+    },
+
+    anuku: function(evt) {
+        evt.preventDefault();
+        alert('xxxx');
+    }
+
+});
+
 simple.Anu.model = new Backbone.Model({
     name: 'Anu',
     alias: 'Gemes',
     age: 99
+});
+
+anuan.model = new Backbone.Model({
+    name: 'someone',
+    age: 17
 });
 
 ;(function() {
@@ -100,7 +119,8 @@ simple.Anu.model = new Backbone.Model({
                 '[data-role]': xin.directive.RoleDirective,
                 '[data-uri]': xin.directive.URIDirective,
                 '[data-bind]': xin.directive.BindDirective,
-                '[data-value]': ValueDirective
+                '[data-value]': ValueDirective,
+                '[data-background]': xin.directive.BackgroundDirective
             },
             middlewares: {
                 // AuthMiddleware

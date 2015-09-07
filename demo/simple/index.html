@@ -15,6 +15,7 @@
 
 </head>
 <body data-role="app" style="display: none">
+
     <div data-role="layout" data-id="drawer" class="xc-flex vertical">
         <div data-region="header">
             <div class="xin-navbar xc-flex horizontal">
@@ -60,15 +61,41 @@
         </div>
     </div>
 
+    <div data-role="layout" data-id="back" class="xc-flex vertical">
+        <div data-region="header">
+            <div data-role="navbar" class="xc-flex horizontal">
+                <div class="no-flex" style="left:0">
+                    <a href="#" class="back">Back</a>
+                </div>
+                <div data-region="title" class="xin-title center">
+                    Simple Demo
+                </div>
+                <div class="no-flex" style="right:0">
+
+                </div>
+            </div>
+        </div>
+        <div data-region="body" class="center layout-body">
+
+        </div>
+        <div data-region="footer">
+            <div class="xin-navbar">
+                <div class="xin-title">
+                    Footer
+                </div>
+            </div>
+        </div>
+    </div>
 
     <div data-role="pane" data-transition="slide" class="xc-fill" data-id="pane">
+        <div data-model="anuan.model" data-id="anu.model"></div>
 
-        <div data-role="view" data-uri="login" data-layout="default" data-title="Login">
+        <div data-role="view" data-uri="login" data-id="login" data-background="red" data-layout="default" data-title="Login">
         <!-- <div data-role="view" data-layout="default" data-title="Login"> -->
             <form action="">
-                <ul data-role="list">
+                <ul data-role="list" data-model="anuan.model">
                     <li>
-                        <input type="text" placeholder="Username" name="username" />
+                        <input type="text" placeholder="Username" name="username" data-bind="name" />
                     </li>
                     <li>
                         <input type="text" placeholder="Password" name="password" />
@@ -99,11 +126,35 @@
 
         <div data-role="view" data-uri="list" data-layout="default" data-title="List">
             <ul data-role="list" data-collection="listData">
-                <li>
-                    <%= model.get('username') %> (<%= model.get('age') %>)
-                </li>
+                <template>
+                    <li data-name="<%= model.get('username') %>">
+                        <%= model.get('username') %> (<%= model.get('age') %>)
+                    </li>
+                </template>
             </ul>
         </div>
+
+        <div data-role="view" data-uri="back" data-layout="back" data-title="Back">
+            <ul data-role="list" data-collection="listData">
+                <template>
+                    <li data-name="<%= model.get('username') %>">
+                        <%= model.get('username') %> (<%= model.get('age') %>)
+                    </li>
+                </template>
+            </ul>
+        </div>
+
+
+        <div data-role="view" data-uri="parent" data-layout="default" data-title="Parent">
+            <h3>Parent</h3>
+            <a href="#child">Go to child...</a>
+        </div>
+
+
+        <div data-role="view" data-uri="child" data-layout="back" data-title="Child" data-parent-referer="parent">
+            Child
+        </div>
+
 
         <!-- <script type="text/template" id="listTemplate">
             <li>
@@ -118,6 +169,8 @@
             <li><a href="#">Login</a></li>
             <li><a href="#signup">Signup</a></li>
             <li><a href="#list">List</a></li>
+            <li><a href="#back">Back</a></li>
+            <li><a href="#parent">parent</a></li>
         </ul>
     </div>
 
@@ -125,7 +178,7 @@
     <script type="text/javascript" src="../../vendor/underscore/underscore-min.js"></script>
     <script type="text/javascript" src="../../vendor/backbone/backbone-min.js"></script>
 
-    <script type="text/javascript" src="../../js/xin.min.js"></script>
+    <script type="text/javascript" src="../../js/xin.js"></script>
 
     <script type="text/javascript" src="./js/simple.js"></script>
 
