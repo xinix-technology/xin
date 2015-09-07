@@ -1,19 +1,39 @@
 {
     "name": "xin",
-    "description": "SPA framework",
-    "author": "Ganesha <reekoheek@gmail.com>",
-    "dependencies": {
-        "backbone": "~1.0.0",
-        "underscore": "~1.4.3",
-        "jquery": "http://code.jquery.com/jquery-2.1.1.min.js"
-    },
-    "version": "0.1.0",
+    "version": "0.1.1",
+    "description": "Javascript SPA framework based on Backbone and Underscore",
+    "author": [
+        "Ganesha <reekoheek@gmail.com>",
+        "Dwan <dwaan@me.com>"
+    ],
+    "main": "js/xin.min.js",
+    "moduleType": [
+        "globals"
+    ],
+    "keywords": [
+        "xin",
+        "SPA",
+        "Javascript",
+        "Backbone",
+        "Underscore",
+        "Naked",
+        "Framework",
+        "xinix"
+    ],
+    "license": "MIT",
+    "homepage": "http://xinix.co.id/p/product/xin",
     "ignore": [
         "**/.*",
+        "node_modules",
+        "bower_components",
         "vendor",
-        "test"
+        "test",
+        "tests",
+        "demo"
     ],
-    "devDependencies": {
-        "naked": "ssh://git@111.221.43.117:22033/home/git/internal/naked.git"
+    "dependencies": {
+        "backbone": "1.2.x",
+        "underscore": "1.8.x",
+        "naked": "xinix-technology/naked#1.0.x"
     }
 }

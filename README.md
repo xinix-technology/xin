@@ -1,9 +1,9 @@
-# Xin
+xin
 ===
 
 Xin is Single Page Application framework using javascript.
 
-![Xin](https://raw.githubusercontent.com/faridlab/xin/master/graphics/logo.png "xin framework")
+![Xin](http://xinix.co.id/storage/uploads/xin.png "SPA Framework")
 
 # Install
 
