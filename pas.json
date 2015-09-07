@@ -1,0 +1,11 @@
+{
+    "name": "xin",
+    "version": "0.1.1",
+    "profile": "web",
+    "dependencies": {
+        "backbone": "1.2.x",
+        "jquery": "2.1.1",
+        "underscore": "1.8.x",
+        "naked": "xinix-technology/naked#1.0.x"
+    }
+}
