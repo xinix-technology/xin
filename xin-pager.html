@@ -21,11 +21,35 @@
   DEALINGS IN THE SOFTWARE.
 -->
 
-<script type="text/javascript" src="./js/xin.js"></script>
-<script type="text/javascript" src="./js/dom.js"></script>
-<script type="text/javascript" src="./js/inflector.js"></script>
-<script type="text/javascript" src="./js/component.js"></script>
+<style>
+  xin-pager {
+    box-sizing: border-box;
+    display: block;
+    position: relative;
+  }
 
-<script type="text/javascript" src="./js/xin-template.js"></script>
-<script type="text/javascript" src="./js/xin-repeat.js"></script>
-<script type="text/javascript" src="./js/xin-if.js"></script>
+  /*xin-pager /deep/ .xin-view-behavior,*/
+  xin-pager .xin-view-behavior {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    transform: translateX(-100%);
+    -webkit-transform: translateX(-100%);
+    -moz-transform: translateX(-100%);
+    -o-transform: translateX(-100%);
+    -ms-transform: translateX(-100%);
+  }
+
+  /*xin-pager /deep/ .xin-view-behavior.animate,*/
+  xin-pager .xin-view-behavior.animate {
+    transition: .3s transform;
+    -webkit-transition: .3s -webkit-transform;
+    -moz-transition: .3s -moz-transform;
+    -o-transition: .3s -o-transform;
+    -ms-transition: .3s -ms-transform;
+  }
+</style>
+
+<script type="text/javascript" src="./js/xin-pager.js"></script>
