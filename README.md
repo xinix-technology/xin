@@ -73,7 +73,60 @@ __HTML implementation__
 ```
 
 ## [data-role="layout"]
-TBD
+A mobile site/mobile app layout is very important to give better look. It takes considerable time to design a mobile site/mobile app layout with great look and feel.
+
+By default xin's layout has three important parts:
+1.  Header
+    Used to put the title of the current page, logo and button to perform the action.
+2.  Body
+    Used to display main content of the page
+3.  Footer
+    Used to display credit and etc
+
+![Layout](./graphics/layout.png "Layout")
+
+```html
+
+<div data-role="layout" data-id="default" class="xc-flex vertical">
+    <div data-region="header">
+        <div data-role="navbar" class="xc-flex horizontal">
+            <div class="no-flex" style="left:0">
+                <a href="#" onclick="xin.$('.xin-drawer').data('instance').show(); return false">menu</a>
+            </div>
+            <div data-region="title" class="xin-title center">
+                Simple Demo
+            </div>
+            <div class="no-flex" style="right:0">
+
+            </div>
+        </div>
+    </div>
+    <div data-region="body" class="center layout-body">
+
+    </div>
+    <div data-region="footer">
+        <div class="xin-navbar">
+            <div class="xin-title">
+                Footer
+            </div>
+        </div>
+    </div>
+</div>
+
+<div data-role="view" data-uri="login" data-id="login" data-layout="default" data-title="Login">
+    <form action="">
+        <ul data-role="list" data-model="anuan.model">
+            <li>
+                <input type="text" placeholder="Username" name="username" data-bind="name" />
+            </li>
+            <li>
+                <input type="text" placeholder="Password" name="password" />
+            </li>
+        </ul>
+    </form>
+</div>
+```
+
 ## [data-role="drawer"]
 TBD
 ## [data-parent-referer="your_uri"]
