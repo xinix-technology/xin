@@ -93,13 +93,12 @@ By default xin's layout has three important parts:
 ![Layout](./graphics/layout.png "Layout")
 
 ```html
-
 <div data-role="layout" data-id="default" class="xc-flex vertical">
     <div data-region="header">
         <div data-role="navbar" class="xc-flex horizontal">
-            <div class="no-flex" style="left:0">
-                <a href="#" onclick="xin.$('.xin-drawer').data('instance').show(); return false">menu</a>
-            </div>
+
+            <div class="no-flex" style="left:0"></div>
+
             <div data-region="title" class="xin-title center">
                 Simple Demo
             </div>
@@ -120,9 +119,9 @@ By default xin's layout has three important parts:
     </div>
 </div>
 
-<div data-role="view" data-uri="login" data-id="login" data-layout="default" data-title="Login">
+<div data-role="view" data-uri="login" data-id="login" data-layout="default" data-title="Login Title Here">
     <form action="">
-        <ul data-role="list" data-model="anuan.model">
+        <ul data-role="list" data-model="user.model">
             <li>
                 <input type="text" placeholder="Username" name="username" data-bind="name" />
             </li>
@@ -133,6 +132,9 @@ By default xin's layout has three important parts:
     </form>
 </div>
 ```
+
+Result:
+![Login](./graphics/login.png "Login")
 
 ## [data-role="drawer"]
 TBD
