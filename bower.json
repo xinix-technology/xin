@@ -1,6 +1,6 @@
 {
   "name": "xin",
-  "version": "2.0.5",
+  "version": "2.1.0",
   "description": "Javascript SPA framework with web component",
   "author": [
     "Ganesha <reekoheek@gmail.com>",
@@ -28,9 +28,5 @@
   ],
   "dependencies": {
 
-  },
-  "devDependencies": {
-    "web-component-tester": "*",
-    "markdown-js": "evilstreak/markdown-js#*"
   }
 }

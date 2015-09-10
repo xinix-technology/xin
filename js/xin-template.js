@@ -23,32 +23,23 @@
 (function(root) {
   'use strict';
 
-  root.xin = function(id) {
-    return xin.__components[id];
-  };
+  var xin = root.xin;
 
-  xin.__components = {};
+  xin.templates = {};
+  xin.Component({
+    is: 'xin-template',
 
-  xin.eob = {};
-  xin.ear = [];
+    extends: 'template',
 
-  /**
-   * Default application instance
-   * @type {object}
-   */
-  xin.app = null;
+    properties: {
+      for: String,
+    },
 
-  xin.clone = function(obj) {
-    var newObj = {};
-    for(var i in obj) {
-      if (obj.hasOwnProperty(i)) {
-        newObj = obj;
+    ready: function() {
+      // if it is native template wo polyfill
+      if (this.content) {
+        xin.templates[this.for] = this;
       }
     }
-    return newObj;
-  };
-
-  xin.$$ = function(selector) {
-    return document.querySelector(selector);
-  };
+  });
 })(this);

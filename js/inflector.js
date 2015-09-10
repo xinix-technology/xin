@@ -23,32 +23,40 @@
 (function(root) {
   'use strict';
 
-  root.xin = function(id) {
-    return xin.__components[id];
-  };
+  var Inflector = root.xin.Inflector = {};
 
-  xin.__components = {};
+  var dashified = {};
+  var camelized = {};
 
-  xin.eob = {};
-  xin.ear = [];
-
-  /**
-   * Default application instance
-   * @type {object}
-   */
-  xin.app = null;
-
-  xin.clone = function(obj) {
-    var newObj = {};
-    for(var i in obj) {
-      if (obj.hasOwnProperty(i)) {
-        newObj = obj;
-      }
+  Inflector.camelize = function(dash) {
+    var mapped = camelized[dash];
+    if (mapped) {
+      return mapped;
     }
-    return newObj;
+    if (dash.indexOf('-') < 0) {
+      camelized[dash] = dash;
+    } else {
+      camelized[dash] = dash.replace(/-([a-z])/g,
+        function(m) {
+          return m[1].toUpperCase();
+        }
+      );
+    }
+
+    return camelized[dash];
   };
 
-  xin.$$ = function(selector) {
-    return document.querySelector(selector);
+  Inflector.dashify = function(camel) {
+    var mapped = dashified[camel];
+    if (mapped) {
+      return mapped;
+    }
+    dashified[camel] = camel.replace(/([a-z][A-Z])/g,
+      function (g) {
+        return g[0] + '-' + g[1].toLowerCase();
+      }
+    );
+
+    return  dashified[camel];
   };
 })(this);

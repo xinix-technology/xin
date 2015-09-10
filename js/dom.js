@@ -20,28 +20,49 @@
  * DEALINGS IN THE SOFTWARE.
  */
 
-(function(root, factory) {
+(function(root) {
   'use strict';
 
-  root.xin = root.xin || {};
-  root.xin.dom = factory(root, root.xin);
+  var xin = root.xin;
 
-})(this, function(root, xin) {
-  'use strict';
+  var matches = HTMLElement.prototype.matches || HTMLElement.prototype.matchesSelector || HTMLElement.prototype.webkitMatchesSelector || HTMLElement.prototype.mozMatchesSelector || HTMLElement.prototype.msMatchesSelector;
 
-  var matches = function(element, selector) {
-    return (element.matches ||
-      element.matchesSelector ||
-      element.msMatchesSelector ||
-      element.mozMatchesSelector ||
-      element.webkitMatchesSelector ||
-      element.oMatchesSelector).call(element, selector);
-  };
+  // var matches = function(element, selector) {
+  //   return (element.matches ||
+  //     element.matchesSelector ||
+  //     element.msMatchesSelector ||
+  //     element.mozMatchesSelector ||
+  //     element.webkitMatchesSelector ||
+  //     element.oMatchesSelector).call(element, selector);
+  // };
 
-  var Dom = function(element) {
-    if (!(this instanceof Dom)) return new Dom(element);
+  var Dom = xin.Dom = function(element) {
+    if (!(this instanceof Dom)) {
+      return new Dom(element);
+    }
 
     this.element = element;
+
+    Object.defineProperties(this, {
+      childNodes: {
+        get: function() {
+          return Array.prototype.slice.call(this.element.childNodes);
+        }
+      },
+      children: {
+        get: function() {
+          return Array.prototype.slice.call(this.element.children);
+        }
+      }
+    });
+  };
+
+  Dom.prototype.querySelector = function(selector) {
+    return this.element.querySelector(selector);
+  };
+
+  Dom.prototype.querySelectorAll = function(selector) {
+    return Array.prototype.slice.call(this.element.querySelectorAll(selector));
   };
 
   Dom.prototype.parent = function(selector) {
@@ -51,7 +72,10 @@
       return parent$;
     }
 
-    while(parent$ && !matches(parent$, selector)) {
+    while(parent$) {
+      if (!selector || matches.call(parent$, selector)) {
+        break;
+      }
       parent$ = parent$.parentElement;
     }
 
@@ -63,7 +87,7 @@
     var parent$ = this.element.parentElement;
 
     while(parent$) {
-      if (!selector || matches(parent$, selector)) {
+      if (!selector || matches.call(parent$, selector)) {
         parents$.push(parent$);
       }
       parent$ = parent$.parentElement;
@@ -72,5 +96,26 @@
     return parents$;
   };
 
-  return Dom;
-});
+  Dom.prototype.matches = function(selector) {
+    return matches.call(this.element, selector);
+  };
+
+  Dom.prototype.is = function(selector) {
+    return matches.call(this.element, selector);
+  };
+
+  Dom.prototype.appendChild = function(node) {
+    this.element.appendChild(node);
+    return node;
+  };
+
+  Dom.prototype.insertBefore = function(node, refNode) {
+    if (!refNode) {
+      return this.appendChild(node);
+    }
+
+    this.element.insertBefore(node, refNode);
+
+    return node;
+  };
+})(this);

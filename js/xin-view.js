@@ -23,32 +23,12 @@
 (function(root) {
   'use strict';
 
-  root.xin = function(id) {
-    return xin.__components[id];
-  };
+  var xin = root.xin;
 
-  xin.__components = {};
+  xin.Component({
+    is: 'xin-view',
 
-  xin.eob = {};
-  xin.ear = [];
+    behaviors: [xin.ViewBehavior],
 
-  /**
-   * Default application instance
-   * @type {object}
-   */
-  xin.app = null;
-
-  xin.clone = function(obj) {
-    var newObj = {};
-    for(var i in obj) {
-      if (obj.hasOwnProperty(i)) {
-        newObj = obj;
-      }
-    }
-    return newObj;
-  };
-
-  xin.$$ = function(selector) {
-    return document.querySelector(selector);
-  };
+  });
 })(this);

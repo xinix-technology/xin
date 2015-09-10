@@ -21,6 +21,7 @@
   FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
   DEALINGS IN THE SOFTWARE.
 -->
+
 <html>
 <head>
 
@@ -34,40 +35,6 @@
   <script type="text/javascript" src="./markdown.js"></script>
 </head>
 <body>
-  <div id="menu">
-    <ul>
-      <li><a href="#!/">Home</a></li>
-      <li><a href="#!/docs/utils.md">Utils</a></li>
-      <li><a href="#!/docs/event-emitter.md">EventEmitter</a></li>
-      <li><a href="#!/docs/app.md">App</a></li>
-    </ul>
-  </div>
-  <div id="pane"></div>
-
-  <script type="text/javascript">
-  (function(root) {
-    'use strict';
-    var app = xin.App();
-
-    app.route('/', function() {
-      app.navigate('/README.md');
-    });
-
-    app.route('/*splat', function(file) {
-      xin.get(file)
-        .then(function(data) {
-          var html = markdown.toHTML( data );
-          pane.innerHTML = html;
-        }, function(err) {
-          alert(err.message);
-          app.navigate('/');
-          console.error(err);
-        });
-    });
-
-    app.start();
-    console.log(app);
-  })(this);
-  </script>
+  <h1>XIN2</h1>
 </body>
 </html>

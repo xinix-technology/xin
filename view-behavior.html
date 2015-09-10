@@ -21,11 +21,16 @@
   DEALINGS IN THE SOFTWARE.
 -->
 
-<script type="text/javascript" src="./js/xin.js"></script>
-<script type="text/javascript" src="./js/dom.js"></script>
-<script type="text/javascript" src="./js/inflector.js"></script>
-<script type="text/javascript" src="./js/component.js"></script>
+<style type="text/css">
+  .xin-view-behavior {
+    box-sizing: border-box;
+    display: none!important;
+  }
 
-<script type="text/javascript" src="./js/xin-template.js"></script>
-<script type="text/javascript" src="./js/xin-repeat.js"></script>
-<script type="text/javascript" src="./js/xin-if.js"></script>
+  .xin-view-behavior.xin-view-visible {
+    display: block!important;
+  }
+</style>
+
+<script type="text/javascript" src="./js/container-behavior.js"></script>
+<script type="text/javascript" src="./js/view-behavior.js"></script>
