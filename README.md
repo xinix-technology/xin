@@ -76,12 +76,19 @@ __HTML implementation__
 A mobile site/mobile app layout is very important to give better look. It takes considerable time to design a mobile site/mobile app layout with great look and feel.
 
 By default xin's layout has three important parts:
+
 1.  Header
+
     Used to put the title of the current page, logo and button to perform the action.
+
 2.  Body
+
     Used to display main content of the page
+
 3.  Footer
+
     Used to display credit and etc
+
 
 ![Layout](./graphics/layout.png "Layout")
 
