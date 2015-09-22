@@ -87,6 +87,28 @@
         </div>
     </div>
 
+    <div data-role="layout" data-id="layout.search" class="xc-flex vertical">
+        <div data-region="header">
+            <nav class="navbar navbar-default searchBar searching" role="navigation">
+                <div class="row">
+                    <div class="span-1">
+                        <a class="back-button icon-menu" onclick="xin.$('.xin-drawer').data('instance').show(); return false"><i class="xn xn-bars"></i>
+                        </a>
+                    </div>
+                    <div class="span-11">
+                        <h6 class="label pull-left">Search</h6>
+                        <form class="formSearch">
+                            <input type="search" name="search" placeholder="Enter your keywords" />
+                        </form>
+                    </div>
+                </div>
+            </nav>
+        </div>
+        <hr class="progressBar" />
+        <div data-region="body" class="center layout-body"></div>
+    </div>
+
+
     <div data-role="pane" data-transition="slide" class="xc-fill" data-id="pane">
         <div data-model="anuan.model" data-id="anu.model"></div>
 
@@ -116,6 +138,26 @@
 
             </div>
         </div>
+
+
+        <!--SearchView-->
+        <div data-role="SearchView" data-uri="search" data-id="home" data-title="SearchView" data-layout="layout.search">
+            <ul class="listing content searchResult" data-role="list" data-collection="Collections.Search">
+                <template>
+                    <li>
+                        <div class="data">
+                            <span class="title"><%= model.get('name') %></span>
+                            <p class="sub-title noWrap">
+                                <span class="descrip noWrap"><%= model.get('job') %></span>
+                            </p>
+                        </div>
+                    </li>
+
+                </template>
+            </ul>
+        </div>
+
+
 
         <div data-role="view" data-uri="signup" data-layout="default" data-title="Signup">
             <div data-role="anu.ui.Form">
@@ -171,6 +213,7 @@
             <li><a href="#list">List</a></li>
             <li><a href="#back">Back</a></li>
             <li><a href="#parent">parent</a></li>
+            <li><a href="#search">Search</a></li>
         </ul>
     </div>
 
