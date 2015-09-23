@@ -34,7 +34,12 @@
     "dependencies": {
         "backbone": "1.2.x",
         "underscore": "1.8.x",
-        "jquery": "2.1.1",
-        "naked": "xinix-technology/naked#1.0.x"
+        "jquery": "~2.1.4",
+        "naked": "xinix-technology/naked#1.0.x",
+        "animate.css": "~3.4.x",
+        "google-code-prettify": "~1.0.x",
+        "jacket-awesome": "~2.0.x",
+        "modernizr": "~2.8.3",
+        "normalize.css": "~3.0.x"
     }
 }
