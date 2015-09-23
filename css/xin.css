@@ -1,7 +1,7 @@
 /* line 1, ../scss/include/_global.scss */
 * {
   box-sizing: border-box;
-  -webkit-tap-highlight-color: transparent;
+  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
   /* make transparent link selection, adjust last value opacity 0 to 1.0 */
 }
 
@@ -18,6 +18,7 @@ body {
   padding: 0;
   width: 100%;
   height: 100%;
+  overflow-x: hidden;
 }
 
 /* line 1, ../scss/include/ui/_layout.scss */
@@ -28,30 +29,39 @@ body .xin-layout {
 /* line 1, ../scss/include/ui/_outlet.scss */
 .xin-view {
   background-color: #fff;
+  z-index: 999;
 }
 
 /* line 1, ../scss/include/ui/_pane.scss */
 .xin-pane {
   overflow: hidden;
   position: relative;
+  z-index: 10;
 }
-/* line 5, ../scss/include/ui/_pane.scss */
+/* line 6, ../scss/include/ui/_pane.scss */
 .xin-pane > .xin-view {
   position: absolute;
+  left: -999999999;
+  top: -999999999;
+  overflow: auto;
+  -webkit-overflow-scrolling: touch;
+  -webkit-transform: translateZ(0px);
+  -webkit-backface-visibility: hidden;
+  -webkit-transform-style: preserve-3d;
+  -webkit-perspective: 1000;
+  -webkit-transform: translate3d(0, 0, 0);
+  display: none;
+}
+/* line 20, ../scss/include/ui/_pane.scss */
+.xin-pane > .xin-view.xin-show {
+  display: inherit;
   left: 0;
   top: 0;
   right: 0;
   bottom: 0;
-  overflow: auto;
-  -webkit-overflow-scrolling: touch;
-  display: none;
-}
-/* line 16, ../scss/include/ui/_pane.scss */
-.xin-pane > .xin-view.xin-show {
-  display: inherit;
 }
 
-/* line 2, ../scss/include/ui/_navbar.scss */
+/* line 3, ../scss/include/ui/_navbar.scss */
 .xin-navbar,
 .xin-tabstrip {
   border: 1px solid rgba(180, 180, 180, 0.5);
@@ -62,13 +72,13 @@ body .xin-layout {
   text-align: center;
 }
 
-/* line 13, ../scss/include/ui/_navbar.scss */
+/* line 14, ../scss/include/ui/_navbar.scss */
 .xin-region-header .xin-navbar,
 .xin-region-header .xin-tabstrip {
   border-top: 0;
 }
 
-/* line 20, ../scss/include/ui/_navbar.scss */
+/* line 21, ../scss/include/ui/_navbar.scss */
 .xin-region-footer .xin-navbar,
 .xin-region-footer .xin-tabstrip {
   border-bottom: 0;
@@ -96,7 +106,7 @@ body .xin-layout {
   right: 0;
   left: 0;
   bottom: 0;
-  z-index: -1;
+  z-index: 1;
   border: 1px solid rgba(180, 180, 180, 0.5);
   border-top: 0;
   border-bottom: 0;

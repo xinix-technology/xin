@@ -22,6 +22,7 @@ gulp.task('js', function() {
         "./src/directive/RoleDirective.js",
         "./src/directive/URIDirective.js",
         "./src/directive/BindDirective.js",
+        "./src/directive/BackgroundDirective.js",
         "./src/ui/Layout.js",
         "./src/ui/Outlet.js",
         "./src/ui/Pane.js",

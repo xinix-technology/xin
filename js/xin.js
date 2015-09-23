@@ -599,8 +599,14 @@ window.xin = (function() {
 
         get: function(key) {
             if (!key) {
-                console.error('IoC cannot get from key:', key);
-                return;
+                var data = $('.xin-show').data();
+
+                if(data.instance) return data.instance;
+                if(!data.id){
+                    console.error('IoC cannot get from key:', key);
+                    return;
+                }
+                key = data.id;
             }
 
             var keys = key.split('.'),
@@ -868,6 +874,7 @@ window.xin = (function() {
     xin.set('xin.IoC', IoC);
 
 })(window.xin);
+
 /**
  * XIN SPA Framework
  *
@@ -914,7 +921,7 @@ window.xin = (function() {
     };
 
     _.extend(Router.prototype, Backbone.Router.prototype, {
-
+        history: [],
         routes: {
             "*splats": "routeMissing"
         },
@@ -1439,12 +1446,83 @@ window.xin = (function() {
         }
     });
 
+    var VerticalIn = function($el, to) {
+        this.$el = $el;
+        this.to = to;
+        this.timeout = 0.3;
+    };
+
+    _.extend(VerticalIn.prototype, {
+        play: function() {
+            var that = this,
+                deferred = xin.Deferred();
+
+            this.$el.on(xin.detect.TRANSITION_END, function() {
+                that.$el.off(xin.detect.TRANSITION_END);
+                that.$el.css('transition', '');
+                that.$el.css('transform', '');
+                deferred.resolve();
+            });
+
+            var from = '100%';
+            if (this.to == 'up') {
+                from = '-' + from;
+            }
+
+            this.$el.css('transform', 'translate3d(0, ' + from + ', 0)');
+            this.$el.css('transition', 'all ' + that.timeout + 's');
+            that.$el.addClass('xin-show');
+
+            setTimeout(function() {
+                that.$el.css('transform', 'translate3d(0, 0, 0)');
+            }, xin.fx.defaultOptions.delay);
+
+            return deferred.promise();
+        }
+    });
+
+    var VerticalOut = function($el, to) {
+        this.$el = $el;
+        this.to = to;
+        this.timeout = 0.3;
+    };
+
+    _.extend(VerticalOut.prototype, {
+        play: function() {
+            var that = this,
+                deferred = xin.Deferred();
+
+            this.$el.on(xin.detect.TRANSITION_END, function() {
+                that.$el.off(xin.detect.TRANSITION_END);
+                that.$el.removeClass('xin-show');
+                that.$el.css('transition', '');
+                that.$el.css('transform', '');
+                deferred.resolve();
+            });
+
+            this.$el.css('transform', 'translate3d(0, 0, 0)');
+            this.$el.css('transition', 'all ' + that.timeout + 's');
+
+            setTimeout(function() {
+                var to = '100%';
+                if (that.to == 'down') {
+                    to = '-' + to;
+                }
+                that.$el.css('transform', 'translate3d(0, ' + to + ', 0)');
+            }, xin.fx.defaultOptions.delay);
+
+            return deferred.promise();
+        }
+    });
+
     xin.set('xin.fx', {
         defaultOptions: {
             delay: 50,
         },
         SlideIn: SlideIn,
         SlideOut: SlideOut,
+        VerticalIn: VerticalIn,
+        VerticalOut: VerticalOut
     });
 
 })(window.xin);
@@ -1498,8 +1576,19 @@ window.xin = (function() {
 
         show: function(view) {
 
-            Backbone.trigger('xin-show', view);
+            if(xin.Router.prototype.history.length) {
+                var referer = xin.Router.prototype.history[xin.Router.prototype.history.length - 1];
+                view.$el.data('referer', referer);
+                xin.Router.prototype.history.push(view.$el.data('uri'));
+            } else {
+                view.$el.data('referer', view.$el.data('uri'));
+                xin.Router.prototype.history.push(view.$el.data('uri'));
+            }
 
+            Backbone.trigger('xin-show', view);
+            if(xin.$('.xin-drawer').data('instance')) xin.$('.xin-drawer').data('instance').hide();
+
+            // setTimeout(function(){
             _.defer(function() {
                 if (view.parent && view.parent.showChild) {
                     view.parent.showChild(view).done(function() {
@@ -1512,6 +1601,7 @@ window.xin = (function() {
 
                 view.trigger('show', view);
             });
+            // }, 300);
         }
     });
 
@@ -1979,6 +2069,80 @@ window.xin = (function() {
     xin.set('xin.directive.BindDirective', BindDirective);
 })(window.xin);
 
+/**
+* Background Directive
+*
+* MIT LICENSE
+*
+* Copyright (c) 2015 PT Sagara Xinix Solusitama - Xinix Technology
+*
+* Permission is hereby granted, free of charge, to any person obtaining
+* a copy of this software and associated documentation files (the
+* "Software"), to deal in the Software without restriction, including
+* without limitation the rights to use, copy, modify, merge, publish,
+* distribute, sublicense, and/or sell copies of the Software, and to
+* permit persons to whom the Software is furnished to do so, subject to
+* the following conditions:
+*
+* The above copyright notice and this permission notice shall be
+* included in all copies or substantial portions of the Software.
+*
+* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+* EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+* MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+* NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+* LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+* OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+* WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+*
+* @author Farid Hidayat <e.faridhidayat@gmail.com>
+* @copyright 2015 PT Sagara Xinix Solusitama
+*/
+
+;(function(xin) {
+    "use strict";
+
+    /**
+     * xin.directive.BackgroundDirective
+     *
+     * Directive to initialize xin application context
+     *
+     */
+    var BackgroundDirective = function(app) {
+        this.app = app;
+    };
+
+    _.extend(BackgroundDirective.prototype, {
+
+        /**
+         * Matching to [data-role=app]
+         *
+         * @param  $DOM     $el Dom node(s) representation (jQuery|Zepto)
+         * @return Promise
+         */
+        matcher: function($el) {
+            return $el.data('background');
+        },
+
+        /**
+         * If match instantiating xin application context
+         *
+         * @param  $DOM $el Dom node(s) representation
+         * @return Promise
+         */
+        run: function($el) {
+            var deferred = xin.Deferred();
+            $el.css('background', $el.data('background'));
+            // $el.attr('data-instantiated', true).addClass('xin-role').data('instance', this.app);
+            deferred.resolve();
+
+            return deferred.promise();
+        }
+    });
+
+    xin.set('xin.directive.BackgroundDirective', BackgroundDirective);
+
+})(window.xin);
 ;(function(xin) {
     "use strict";
 
@@ -2095,6 +2259,124 @@ window.xin = (function() {
     "use strict";
 
     var Outlet = Backbone.View.extend({
+
+        events : {
+            'submit form.searchForm': 'submitSearch',
+            'click .back': 'back'
+        },
+
+        back: function(evt) {
+
+            var $parent = $(evt.target).parents('[data-region="header"]').parent(),
+                ref = $parent.data('parent-referer') || $parent.data('referer');
+
+            if(ref) {
+                location.hash = ref;
+            }
+            return false;
+        },
+
+        initialize: function(options) {
+            var app = options.app,
+                f,
+                layout;
+
+            // if (options.show) {
+            //     f = app.get(options.show);
+            //     if (f) {
+            //         this.on('show', f);
+            //     }
+            // }
+
+            this.template = options.template || null;
+
+            // FIXME init layout to view in ioc after create view
+            if (options.layout) {
+                layout = app.get(options.layout);
+                if (layout) {
+                    layout.initTo(this);
+                }
+            }
+
+            this.$el.addClass('xin-view');
+
+            if (this.render) {
+                var render = _.debounce(_.bind(this.render, this), 100, false);
+
+                if (this.model) {
+                    this.listenTo(this.model, 'change', render);
+                    this.listenTo(this.model, 'destroy', render);
+                }
+
+                // this.app = this.options.app;
+                render();
+            }
+        },
+
+        render: function() {
+            if (this.template) {
+                this.$el.html(this.template(this));
+
+                this.app.directiveManager.scan(this.$el);
+            }
+            this.trigger('rendered');
+            return this;
+        },
+    });
+
+
+    var View = Outlet.extend({
+
+        events : {
+            'click .showDrawer': 'showDrawer',
+            'click [data-role="navbar"] .more': 'moreMenu',
+            'click [data-role="navbar"] .search': 'showSearchBox',
+            'click [data-region="body"]': 'bodyClicked',
+            'submit form.searchForm': 'submitSearch'
+        },
+
+        submitSearch: function(evt) {
+            var form = $(evt.target).serializeObject();
+            if(form.search.trim() === '') {
+                alert("Searh is required.");
+                return false;
+            }
+
+            this.search(form.search.trim());
+            return false;
+        },
+
+        search: function(text) {
+            console.log(text);
+        },
+
+        bodyClicked: function(evt) {
+            this.$el.find('.navbar').removeClass('hide');
+            this.$el.find('.searchBox').addClass('hide');
+            this.$el.find('.moreMenu').addClass('hide');
+        },
+
+        showSearchBox: function(evt) {
+            this.$el.find('.navbar').addClass('hide');
+            this.$el.find('.searchBox').removeClass('hide');
+            this.$el.find('form.searchForm input[name="search"]').val(null);
+            this.$el.find('form.searchForm input[name="search"]').focus();
+        },
+
+        moreMenu: function(evt) {
+
+            if (this.$el.find('.moreMenu').hasClass('hide')) {
+                this.$el.find('.moreMenu').removeClass('hide');
+            } else {
+                this.$el.find('.moreMenu').addClass('hide');
+            }
+        },
+
+        showDrawer: function() {
+            xin.$('.xin-drawer').data('instance').show();
+            return false;
+        },
+
         initialize: function(options) {
             var app = options.app,
                 f,
@@ -2145,6 +2427,7 @@ window.xin = (function() {
     });
 
     xin.set('xin.ui.Outlet', Outlet);
+    xin.set('xin.ui.View', View);
 
 })(window.xin);
 ;(function(xin) {
@@ -2275,6 +2558,46 @@ window.xin = (function() {
 
 
                 return deferred.promise();
+            },
+
+            vertical: function(pane, inView, outView, direction) {
+                var method, inFx, outFx, deferred = xin.Deferred();
+                if (direction < 0) {
+                    method = "down";
+                } else {
+                    method = "up";
+                }
+
+                var afterFx = function() {
+                    xin.$(this).removeClass('xin-show');
+                    _.defer(deferred.resolve);
+                };
+
+                if (!outView) {
+                    afterFx();
+                } else {
+                    //in
+                    if (inView) {
+                        inFx = new xin.fx.VerticalIn(inView.$el, method);
+                    }
+                    //out
+                    if (outView) {
+                        outFx = new xin.fx.VerticalOut(outView.$el, method);
+                    }
+
+
+                    if (inFx) {
+                        var fx = inFx.play();
+                        if (!outFx) {
+                            fx.then(afterFx);
+                        }
+                    }
+
+                    if (outFx) outFx.play().then(afterFx);
+                }
+
+
+                return deferred.promise();
             }
         }
     });
@@ -2311,7 +2634,7 @@ window.xin = (function() {
                 } else {
                     var $template = this.$('>template');
                     if ($template.length <= 0) {
-                        $template = this.$('>script[type=text/template]');
+                        $template = this.$('>script[type="text/template"]');
                     }
 
                     template = $template.html();
@@ -2501,6 +2824,7 @@ window.xin = (function() {
     // xin.set('xin.ui.ListEmpty', ListEmpty);
 
 })(window.xin);
+
 ;(function(xin) {
     "use strict";
 
@@ -2515,17 +2839,23 @@ window.xin = (function() {
         },
 
         show: function() {
-            var $siblings = this.$el.siblings();
-            $siblings.css('-webkit-transition', 'all .3s');
-            $siblings.css('-webkit-transform', 'translateX(80%)');
-            // this.$el.css('-webkit-transform', '');
+
+            if(this.$el.css('-webkit-transform') !== 'matrix(1, 0, 0, 1, 0, 0)') {
+                var $siblings = this.$el.siblings();
+                $siblings.css('-webkit-transition', 'all .3s');
+                $siblings.css('-webkit-transform', 'translateX(256px)');
+                this.$el.css('-webkit-transform', '');
+            } else {
+                this.hide();
+            }
+
         },
 
         hide: function() {
             var $siblings = this.$el.siblings();
             $siblings.css('-webkit-transition', 'all .3s');
             $siblings.css('-webkit-transform', 'translateX(0)');
-            // this.$el.css('-webkit-transform', 'translateX(-100%)');
+            this.$el.css('-webkit-transform', 'translate3D(-20%,0,0)');
         },
 
         mouseUp: function(e) {

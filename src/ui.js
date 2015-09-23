@@ -48,8 +48,19 @@
 
         show: function(view) {
 
-            Backbone.trigger('xin-show', view);
+            if(xin.Router.prototype.history.length) {
+                var referer = xin.Router.prototype.history[xin.Router.prototype.history.length - 1];
+                view.$el.data('referer', referer);
+                xin.Router.prototype.history.push(view.$el.data('uri'));
+            } else {
+                view.$el.data('referer', view.$el.data('uri'));
+                xin.Router.prototype.history.push(view.$el.data('uri'));
+            }
 
+            Backbone.trigger('xin-show', view);
+            if(xin.$('.xin-drawer').data('instance')) xin.$('.xin-drawer').data('instance').hide();
+
+            // setTimeout(function(){
             _.defer(function() {
                 if (view.parent && view.parent.showChild) {
                     view.parent.showChild(view).done(function() {
@@ -62,6 +73,7 @@
 
                 view.trigger('show', view);
             });
+            // }, 300);
         }
     });
 

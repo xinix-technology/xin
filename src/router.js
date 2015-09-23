@@ -44,7 +44,7 @@
     };
 
     _.extend(Router.prototype, Backbone.Router.prototype, {
-
+        history: [],
         routes: {
             "*splats": "routeMissing"
         },
