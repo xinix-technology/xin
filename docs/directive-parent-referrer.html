@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Xin | Referrer</title>
+    <link rel="stylesheet" href="../vendor/jacket-awesome/dist/css/jacket-awesome.css">
+    <link rel="stylesheet" href="../vendor/google-code-prettify/bin/prettify.min.css">
+    <link rel="stylesheet" href="../vendor/animate.css/animate.min.css">
+    <link rel="stylesheet" href="../vendor/naked/css/naked.min.css">
+    <link rel="stylesheet" href="../vendor/naked/css/docs.min.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+</head>
+<body>
+
+    <!-- NAVBAR -->
+    <nav class="nav-menu">
+        <div class="pull-left">
+            <h1 class="brand">
+                <a href="index.html">
+                    <span class="logo">
+                        <img src="../graphics/logo.png" alt="Xin" />
+                    </span>
+                    <span>Xin</span>
+                </a>
+            </h1>
+        </div>
+    </nav>
+    <!-- END OF NAVBAR -->
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+        <script type="text/javascript">
+            $("aside.sidebar").load("aside.html", function() {
+                var docname = window.location.href;
+                docname = docname.split("/");
+            });
+        </script>
+    </aside>
+    <!-- END OF SIDEBAR -->
+
+    <!-- CONTENT -->
+    <main class="content">
+        <div class="wrapper">
+            <h1 class="title">Directive Referrer</h1>
+            <h2 class="title">[data-parent-referer="uri"]</h2>
+
+            <p>Parent Referrer directive use to special cases, because you don't need use Parent Referer to direct you to some uri, you just need to use <code>&lt;a href="#uri"&gt;...&lt;/a&gt;</code> tag to direct you to some uri.</p>
+            <p>The special case is when you create layout and the layout will be used by more than one view, you need to use Parent referer or some trick to make it.</p>
+
+            <hr />
+            <h4 class="sub-title">Example Layout</h4>
+            <p><code>&lt;a href="#" <strong>class="back"</strong>&gt;Back&lt;/a&gt;</code>, <code>[class="back"]</code> will be the key to make it running.</p>
+
+            <div class="html">
+                <div class="highlight">
+<pre class="prettyprint lang-html">
+<div data-role="layout" data-id="layout.demo" class="xc-flex vertical">
+    <div data-region="header">
+        <div data-role="navbar" class="xc-flex horizontal">
+            <div class="no-flex" style="left:0">
+                <a href="#" class="back">Back</a>
+            </div>
+            <div data-region="title" class="xin-title center">
+                Demo layout
+            </div>
+            <div class="no-flex" style="right:0">
+
+            </div>
+        </div>
+    </div>
+    <div data-region="body" class="center layout-body">
+
+    </div>
+    <div data-region="footer">
+        <div class="xin-navbar">
+            <div class="xin-title">
+                Footer
+            </div>
+        </div>
+    </div>
+</div>
+</pre>
+                </div>
+            </div>
+
+
+            <hr />
+            <h4 class="sub-title">Example two views used the same layout</h4>
+            <div class="html">
+                <div class="highlight">
+<pre class="prettyprint lang-html">
+
+<div data-role="view" data-uri="parent" data-layout="layout.demo" data-title="Parent" data-parent-referer="login">
+    <h3>Parent</h3>
+    <a href="#child">Go to child...</a>
+</div>
+<div data-role="view" data-uri="child" data-layout="layout.demo" data-title="Child" data-parent-referer="parent">
+    Child
+</div>
+</pre>
+                </div>
+            </div>
+        </div>
+    </main>
+    <!-- END OF CONTENT -->
+
+    <!-- FOOTER CONTENT -->
+    <footer>
+        <p>Copyright &copy; 2015 <a href="http://xinix.co.id" target="_BLANK">Xinix Technology</a>. Some right(s) reserved.</p>
+    </footer>
+    <!-- END OF FOOTER -->
+
+    <!-- PAGE LEVEL SCRIPT -->
+    <script type="text/javascript" charset="utf-8" src="../vendor/naked/js/tshirt.min.js"></script>
+    <script type="text/javascript" charset="utf-8" src="../vendor/naked/js/docs.js"></script>
+    <script type="text/javascript" charset="utf-8" src="../vendor/google-code-prettify/bin/prettify.min.js"></script>
+    <script type="text/javascript" charset="utf-8">
+        $.each($('.content pre.prettyprint'), function(index, dom) {
+            $(dom).html($('<div/>').text($(dom).html()).html());
+        });
+        prettyPrint();
+    </script>
+    <!-- END OF PAGE LEVEL SCRIPT -->
+</body>
+</html>
