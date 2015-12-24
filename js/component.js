@@ -877,18 +877,36 @@
           this.appendChild(node);
         }.bind(this));
 
-        xin.Dom(this).querySelectorAll('content').forEach(function(element) {
-          var parent = element.parentElement;
-          if (element.getAttribute('select')) {
-            throw new Error('Unimplemented!');
-            // this._lightDoms.forEach(function(node) {
-            // });
-          } else {
-            this._lightDoms.forEach(function(node) {
-              parent.insertBefore(node, element);
-            });
-          }
-        }.bind(this));
+        try {
+
+          xin.Dom(this).querySelectorAll('content').forEach(function(element) {
+            var parent = element.parentElement;
+            if (element.getAttribute('select')) {
+              var selector = element.getAttribute('select');
+              // console.log(this, xin.Dom(this._lightDoms).querySelector(selector));
+              // console.log(this._lightDoms, element, parent);
+              // throw new Error('Unimplemented!');
+              this._lightDoms.forEach(function(node) {
+                if (node.nodeType === 1 && xin.Dom(node).is(selector)) {
+                  var fragment = document.createDocumentFragment();
+                  xin.Dom(node).childNodes.forEach(function(childNode) {
+                    fragment.appendChild(childNode);
+                  });
+                  parent.insertBefore(fragment, element);
+                }
+              });
+            } else {
+              this._lightDoms.forEach(function(node) {
+                parent.insertBefore(node, element);
+              });
+            }
+            // remove leaked content insertion to above ancestors component
+            element.remove();
+          }.bind(this));
+        } catch(e) {
+          console.error(e.stack);
+          throw e;
+        }
       }.bind(this);
 
       doRender();

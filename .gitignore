@@ -2,6 +2,6 @@
 /bower_components
 /node_modules
 /vendor
-/project.sublime-*
+/*.sublime-*
 /.sass-cache
 /app
