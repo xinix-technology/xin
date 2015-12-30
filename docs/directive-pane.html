@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Xin | Directives</title>
+    <link rel="stylesheet" href="../vendor/jacket-awesome/dist/css/jacket-awesome.css">
+    <link rel="stylesheet" href="../vendor/google-code-prettify/bin/prettify.min.css">
+    <link rel="stylesheet" href="../vendor/animate.css/animate.min.css">
+    <link rel="stylesheet" href="../vendor/naked/css/naked.min.css">
+    <link rel="stylesheet" href="../vendor/naked/css/docs.min.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+</head>
+<body>
+
+    <!-- NAVBAR -->
+    <nav class="nav-menu">
+        <div class="pull-left">
+            <h1 class="brand">
+                <a href="index.html">
+                    <span class="logo">
+                        <img src="../graphics/logo.png" alt="Xin" />
+                    </span>
+                    <span>Xin</span>
+                </a>
+            </h1>
+        </div>
+    </nav>
+    <!-- END OF NAVBAR -->
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+        <script type="text/javascript">
+            $("aside.sidebar").load("aside.html", function() {
+                var docname = window.location.href;
+                docname = docname.split("/");
+            });
+        </script>
+    </aside>
+    <!-- END OF SIDEBAR -->
+
+    <!-- CONTENT -->
+    <main class="content">
+        <div class="wrapper">
+            <h1 class="title">Directives Pane</h1>
+            <h2 class="title">[data-role="pane"]</h2>
+            <p><code>[data-role="pane"]</code> such as a viewport.</p>
+            <p>The viewport is the user's visible area of a web page. The viewport varies with the device, and will be smaller on a mobile phone than on a computer screen. Before tablets and mobile phones, web pages were designed only for computer screens, and it was common for web pages to have a static design and a fixed size.</p>
+        </div>
+    </main>
+    <!-- END OF CONTENT -->
+
+    <!-- FOOTER CONTENT -->
+    <footer>
+        <p>Copyright &copy; 2015 <a href="http://xinix.co.id" target="_BLANK">Xinix Technology</a>. Some right(s) reserved.</p>
+    </footer>
+    <!-- END OF FOOTER -->
+
+    <!-- PAGE LEVEL SCRIPT -->
+    <script type="text/javascript" charset="utf-8" src="../vendor/naked/js/tshirt.min.js"></script>
+    <script type="text/javascript" charset="utf-8" src="../vendor/naked/js/docs.js"></script>
+    <script type="text/javascript" charset="utf-8" src="../vendor/google-code-prettify/bin/prettify.min.js"></script>
+    <script type="text/javascript" charset="utf-8">
+        $.each($('.content pre.prettyprint'), function(index, dom) {
+            $(dom).html($('<div/>').text($(dom).html()).html());
+        });
+        prettyPrint();
+    </script>
+    <!-- END OF PAGE LEVEL SCRIPT -->
+</body>
+</html>
