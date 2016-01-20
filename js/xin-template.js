@@ -25,21 +25,44 @@
 
   var xin = root.xin;
 
+  var SEQUENCE_ID = 0;
+
   xin.templates = {};
+  xin.instanceTemplates = {};
+
+  xin._fixNestedTemplate = function(template) {
+    // dont have to fix if not polyfilled
+    if (!HTMLTemplateElement.decorate) {
+      return template;
+    }
+    Array.prototype.forEach.call(template.content.querySelectorAll('template'), function(t) {
+      var parent$ = t.parentNode;
+      if (parent$.children.length === 1) {
+        var id = SEQUENCE_ID++ + '';
+        parent$.setAttribute('template', id);
+        xin.instanceTemplates[id] = t;
+        parent$.removeChild(t);
+      }
+    });
+    return template;
+  };
+
+  xin.templateFor = function(element) {
+    return xin.instanceTemplates[element.getAttribute('template')] || xin.templates[element.is];
+  };
+
   xin.Component({
     is: 'xin-template',
 
     extends: 'template',
 
     properties: {
-      for: String,
+      for: String
     },
 
-    ready: function() {
-      // if it is native template wo polyfill
-      if (this.content) {
-        xin.templates[this.for] = this;
-      }
+    created: function() {
+      this.for = this.getAttribute('for');
+      xin.templates[this.for] = this;
     }
   });
 })(this);
