@@ -461,7 +461,7 @@
     };
 
     this._prepareTemplate = function() {
-      if (this.children.length === 1 && this.children[0].tagName === 'template') {
+      if (this.children.length === 1 && this.children[0].tagName === 'TEMPLATE') {
         this._template = this.children[0];
         // dont have to decorate, wont be here in old browser, already populated with xin._fixNestedTemplate
         // if (HTMLTemplateElement.decorate) {
