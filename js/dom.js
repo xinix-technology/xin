@@ -118,4 +118,8 @@
 
     return node;
   };
+
+  Dom.prototype.remove = function() {
+    this.element.parentNode.removeChild(this.element);
+  };
 })(this);
