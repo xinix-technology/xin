@@ -447,25 +447,28 @@
       }.bind(this));
     };
 
+    /**
+     * Import root element members from template
+     * @return {void}
+     */
     this._prepareRoot = function() {
       if (this._template) {
+        // fix nested templates
+        xin._fixNestedTemplate(this._template);
+
         this._root = xin.Dom(document.importNode(this._template.content, true)).childNodes;
       }
     };
 
     this._prepareTemplate = function() {
-      if (this.children.length === 1 && xin.Dom(this.children[0]).matches('template')) {
+      if (this.children.length === 1 && this.children[0].tagName === 'template') {
         this._template = this.children[0];
+        // dont have to decorate, wont be here in old browser, already populated with xin._fixNestedTemplate
+        // if (HTMLTemplateElement.decorate) {
+        //  HTMLTemplateElement.decorate(this._template);
+        //}
       } else {
-        if (xin.templates && xin.templates[this.is]) {
-          this._template = xin.templates[this.is];
-        } else {
-          this._template = document.querySelector('template[for="' + this.is + '"]');
-        }
-      }
-
-      if (this._template && !this._template.content && HTMLTemplateElement.decorate) {
-        HTMLTemplateElement.decorate(this._template);
+        this._template = xin.templateFor(this);
       }
     };
 
@@ -486,7 +489,10 @@
           node.addEventListener(attr.name.substr(3), function(evt) {
             var method = this._host.get(attr.value);
             if (!method) {
-              return console.warn('Cannot bind event ' + attr.name + ', method ' + this._host.__getId() + '.' + attr.value + ' not found!');
+              return console.warn(
+                'Cannot bind event ' + attr.name + ', method ' +
+                this._host.__getId() + '.' + attr.value + ' not found!'
+              );
             }
             method.call(this._host, evt, evt.detail);
           }.bind(this));
@@ -808,18 +814,19 @@
     };
 
     this.createdCallback = function() {
-      // avoid unnecessary template xin-repeat render on scoped template instance
+      // TODO this is to avoid unnecessary template xin-repeat render on
+      // scoped template instance, do we still need this?
       if (xin.Dom(this).parent('template')) return;
 
       this.__id = Component.getId();
       xin.__components[this.__id] = this;
       this.setAttribute('xin-id', this.__id);
 
+      this._initData();
+
       if (XIN_DEBUG) {
         console.info('Created    ' + this.__getId());
       }
-
-      this._initData();
 
       this.behave('created');
 
@@ -835,8 +842,6 @@
 
       this._notifyProperties();
 
-      this._populateLightDoms();
-
       this._isReady()
         .then(function() {
           this._ready = true;
@@ -844,6 +849,9 @@
           if (XIN_DEBUG) {
             console.info('Ready      ' + this.__getId());
           }
+
+          // populate light dom after ready, before it was before ready
+          this._populateLightDoms();
 
           this._prepareListeners();
 
@@ -878,7 +886,6 @@
         }.bind(this));
 
         try {
-
           xin.Dom(this).querySelectorAll('content').forEach(function(element) {
             var parent = element.parentElement;
             if (element.getAttribute('select')) {
@@ -901,7 +908,7 @@
               });
             }
             // remove leaked content insertion to above ancestors component
-            element.remove();
+            xin.Dom(element).remove();
           }.bind(this));
         } catch(e) {
           console.error(e.stack);
