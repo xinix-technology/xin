@@ -122,4 +122,36 @@
   Dom.prototype.remove = function() {
     this.element.parentNode.removeChild(this.element);
   };
+
+  Dom.prototype.fire = function(type, detail, options) {
+    options = options || {};
+    detail = detail || {};
+
+    var event;
+    var node = options.node || this.element;
+    var bubbles = options.bubbles === undefined ? true : options.bubbles;
+    var cancelable = Boolean(options.cancelable);
+
+    switch(type) {
+      case 'click':
+        event = new Event(type, {
+          bubbles: bubbles,
+          cancelable: cancelable
+        });
+        // event = document.createEvent('HTMLEvents');
+        // event.initEvent(type, true, false);
+        node.dispatchEvent(event);
+        break;
+      default:
+        event = new CustomEvent(type, {
+          bubbles: Boolean(bubbles),
+          cancelable: cancelable,
+          detail: detail
+        });
+        node.dispatchEvent(event);
+        break;
+    }
+
+    return event;
+  };
 })(this);
