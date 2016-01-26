@@ -184,18 +184,7 @@
     };
 
     this.fire = function(type, detail, options) {
-      options = options || {};
-      var node = options.node || this;
-      detail = detail || {};
-      var bubbles = options.bubbles === undefined ? true : options.bubbles;
-      var cancelable = Boolean(options.cancelable);
-      var event = new CustomEvent(type, {
-        bubbles: Boolean(bubbles),
-        cancelable: cancelable,
-        detail: detail
-      });
-      node.dispatchEvent(event);
-      return event;
+      return xin.Dom(this).fire(type, detail, options);
     };
 
     this.get = function(path) {
@@ -734,6 +723,14 @@
           });
         }
 
+        if (prop.computed) {
+          this._bind({
+            target: this,
+            attribute: name,
+            property: name,
+            value: prop.computed,
+          });
+        }
 
         var attrName = xin.Inflector.dashify(name);
         var annot = this.getAttribute(attrName);
