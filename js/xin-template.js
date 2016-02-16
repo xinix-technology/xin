@@ -35,6 +35,11 @@
     if (!HTMLTemplateElement.decorate) {
       return template;
     }
+
+    if (!template.content) {
+      HTMLTemplateElement.decorate(template);
+    }
+
     Array.prototype.forEach.call(template.content.querySelectorAll('template'), function(t) {
       var parent$ = t.parentNode;
       if (parent$.children.length === 1) {

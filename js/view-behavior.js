@@ -99,12 +99,16 @@
         this.parentElement.setFocus(this);
       } else {
         xin.Dom(this.parentElement).children.forEach(function(element) {
-          element.setFocus(false);
-          element.setVisible(false);
+          if (element.setFocus) {
+            element.setFocus(false);
+            element.setVisible(false);
+          }
         });
 
-        this.setFocus(true);
-        this.setVisible(true);
+        if (this.setFocus) {
+          this.setFocus(true);
+          this.setVisible(true);
+        }
       }
     },
 
