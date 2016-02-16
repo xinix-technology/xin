@@ -53,6 +53,8 @@
       this.handlers = [];
       this.middlewares = [];
 
+      this._started = false;
+
       this.addEventListener('route-not-found', function(evt) {
         console.error('Route not found: ' + evt.detail);
       });
@@ -131,7 +133,12 @@
           console.info('Started    ' + this.__getId());
         }
         this.fire('started');
+        this._started = true;
       }.bind(this));
+    },
+
+    isStarted: function() {
+      return this._started || false;
     },
 
     check: function(fragment) {
