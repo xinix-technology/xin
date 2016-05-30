@@ -108,7 +108,7 @@
         configurable: false,
         value: options.extends,
       },
-      'properties': {
+      '__properties': {
         enumerable: true,
         writable: false,
         configurable: false,
@@ -177,8 +177,8 @@
       });
 
       for(var pKey in properties) {
-        if (!this.properties[pKey]) {
-          this.properties[pKey] = properties[pKey];
+        if (!this.__properties[pKey]) {
+          this.__properties[pKey] = properties[pKey];
         }
       }
     };
@@ -371,7 +371,8 @@
           break;
 
         case Boolean:
-          value = (value !== null);
+          if (value === 'true' || value == 1 || value === 'on') value = true;
+          else value = false;
           break;
 
         case Object:
@@ -403,33 +404,33 @@
     };
 
     this._populateProperties = function() {
-      Object.getOwnPropertyNames(this.properties).forEach(function(name) {
+      Object.getOwnPropertyNames(this.__properties).forEach(function(name) {
         var attrName = xin.Inflector.dashify(name);
         var val;
         var attrVal = this.getAttribute(attrName);
 
         if (typeof attrVal === 'string') {
           var prefix = attrVal.substr(0, 2);
-          val = (prefix === '{{' || prefix === '[[') ? null : this._deserialize(attrVal, this.properties[name].type);
+          val = (prefix === '{{' || prefix === '[[') ? null : this._deserialize(attrVal, this.__properties[name].type);
           this[name] = val;
         }
       }.bind(this));
 
 
       // validate properties requirements
-      for(var key in this.properties) {
-        if (this.properties.hasOwnProperty(key) && !this[key]) {
-          if (this.properties[key].required) {
+      for(var key in this.__properties) {
+        if (this.__properties.hasOwnProperty(key) && typeof this[key] === 'undefined') {
+          if (this.__properties[key].required) {
             console.error('"' + this.__getId() + '" missing required "' + key + '"');
-          } else if (this.properties[key].hasOwnProperty('value')) {
-            this[key] = v(this.properties[key].value);
+          } else if (this.__properties[key].hasOwnProperty('value')) {
+            this[key] = v(this.__properties[key].value);
           }
         }
       }
     };
 
     this._notifyProperties = function() {
-      Object.getOwnPropertyNames(this.properties).forEach(function(name) {
+      Object.getOwnPropertyNames(this.__properties).forEach(function(name) {
         if (this[name]) {
           this._notify(name, this[name]);
         }
@@ -442,7 +443,7 @@
      */
     this._prepareRoot = function() {
       if (this._template) {
-        // fix nested templates
+        // fix nested templates for older browser
         xin._fixNestedTemplate(this._template);
 
         this._root = xin.Dom(document.importNode(this._template.content, true)).childNodes;
@@ -514,7 +515,7 @@
           break;
         default:
           if (annotation.value.indexOf('(') === -1) {
-            if (annotation.target.properties && annotation.target.properties[annotation.attribute] && annotation.target.properties[annotation.attribute].readOnly) {
+            if (annotation.target.__properties && annotation.target.__properties[annotation.attribute] && annotation.target.__properties[annotation.attribute].readOnly) {
               return;
             }
 
@@ -584,8 +585,8 @@
                 }
               }.bind(this);
             } else {
-              if (annotation.mode === '{' && annotation.target.properties) {
-                var prop = annotation.target.properties[annotation.attribute];
+              if (annotation.mode === '{' && annotation.target.__properties) {
+                var prop = annotation.target.__properties[annotation.attribute];
                 if (prop && prop.notify) {
                   // console.log('host', this, this._host);
                   // console.log(annotation.target, 'listening', annotation.value + '-changed');
@@ -706,8 +707,8 @@
     };
 
     this._parsePropertyAnnotations = function() {
-      Object.getOwnPropertyNames(this.properties).forEach(function(name) {
-        var prop = this.properties[name];
+      Object.getOwnPropertyNames(this.__properties).forEach(function(name) {
+        var prop = this.__properties[name];
         if (prop.observer) {
           this._bind({
             kind: 'observer',
