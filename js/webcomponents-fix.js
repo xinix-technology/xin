@@ -13,6 +13,7 @@
 
       var n = original.apply(this, arguments);
       Array.prototype.forEach.call(n.querySelectorAll('template'), function(t, index) {
+        // HTMLTemplateElement.decorate(t);
         t.content = document.importNode(populatedTemplates[index].content, deep);
       });
       return n;

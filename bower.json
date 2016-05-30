@@ -27,6 +27,6 @@
     "demo"
   ],
   "dependencies": {
-
+    "webcomponentsjs": "^0.7.22"
   }
 }

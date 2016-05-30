@@ -104,6 +104,7 @@
     },
 
     _insertRow: function(item, index) {
+      // console.log(this.content.childNodes.length);
       var fragment = document.importNode(this.content, true);
       var row = {
         _root: xin.Dom(fragment).childNodes
@@ -126,7 +127,17 @@
 
       row.set(this.as, item);
 
-      xin.Dom(this.parentElement).insertBefore(fragment, this);
+
+      if (this.parentElement) {
+        xin.Dom(this.parentElement).insertBefore(fragment, this);
+      // } else {
+      //   console.log('inserting ' + item);
+      //   // setTimeout(function() {
+      //   //   if (this.parentElement) {
+      //   //     xin.Dom(this.parentElement).insertBefore(fragment, this);
+      //   //   }
+      //   // }.bind(this), 100);
+      }
 
       return row;
     },

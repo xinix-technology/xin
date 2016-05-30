@@ -41,14 +41,20 @@
     }
 
     Array.prototype.forEach.call(template.content.querySelectorAll('template'), function(t) {
-      var parent$ = t.parentNode;
-      if (parent$.children.length === 1) {
-        var id = SEQUENCE_ID++ + '';
-        parent$.setAttribute('template', id);
-        xin.instanceTemplates[id] = t;
-        parent$.removeChild(t);
+      var isA = t.getAttribute('is');
+      if (!isA) {
+        var parent$ = t.parentNode;
+        if (parent$.children && parent$.children.length === 1) {
+          var id = SEQUENCE_ID++ + '';
+          parent$.setAttribute('template', id);
+          xin.instanceTemplates[id] = t;
+          parent$.removeChild(t);
+        }
+      // } else {
+      //   console.log(xin.Dom(t.content).childNodes);
       }
     });
+
     return template;
   };
 
