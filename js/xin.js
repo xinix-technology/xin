@@ -23,7 +23,7 @@
 (function(root) {
   'use strict';
 
-  root.xin = function(id) {
+  var xin = root.xin = function(id) {
     return xin.__components[id];
   };
 
@@ -46,6 +46,27 @@
       }
     }
     return newObj;
+  };
+
+  var options = {};
+  xin.setup = function(key, value) {
+    switch (arguments.length) {
+      case 0:
+        return options;
+      case 1:
+        return options[key] || undefined;
+      default:
+        options[key] = value;
+    }
+  };
+
+  xin.defaults = function(values, defaultValues) {
+    for(var i in defaultValues) {
+      if ('undefined' === typeof values[i]) {
+        values[i] = defaultValues[i];
+      }
+    }
+    return values;
   };
 
   xin.$$ = function(selector) {

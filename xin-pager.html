@@ -29,28 +29,175 @@
     overflow: hidden;
   }
 
-  /*xin-pager /deep/ .xin-view-behavior,*/
   xin-pager .xin-view-behavior {
     position: absolute;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    transform: translateX(-100%);
-    -webkit-transform: translateX(-100%);
-    -moz-transform: translateX(-100%);
-    -o-transform: translateX(-100%);
-    -ms-transform: translateX(-100%);
+    /*transform: translateX(-100%);*/
+    /*-webkit-transform: translateX(-100%);*/
+    /*-moz-transform: translateX(-100%);*/
+    /*-o-transform: translateX(-100%);*/
+    /*-ms-transform: translateX(-100%);*/
   }
 
-  /*xin-pager /deep/ .xin-view-behavior.animate,*/
-  xin-pager .xin-view-behavior.animate {
+  /*xin-pager .xin-view-behavior.xin-view-behavior.transition-slide.animate {
     transition: .3s transform;
     -webkit-transition: .3s -webkit-transform;
     -moz-transition: .3s -moz-transform;
     -o-transition: .3s -o-transform;
     -ms-transition: .3s -ms-transform;
-  }
+  }*/
 </style>
 
-<script type="text/javascript" src="./js/xin-pager.js"></script>
+<script>
+(function(root) {
+
+  var xin = root.xin;
+
+  xin.Component({
+    is: 'xin-pager',
+
+    add: function(element) {
+      this.views = this.views || [];
+      this.views.push(element);
+
+      // if (!element.transitionFx) {
+      //   element.transitionFx = new xin.Fx(element, 'none');
+      // }
+    },
+
+    setFocus: function(element) {
+      var index = this.views.indexOf(element);
+      var oldIndex = -1;
+      if (this.focused$) {
+        oldIndex = this.views.indexOf(this.focused$);
+      }
+
+      var focused$ = this.focused$;
+
+      if (oldIndex < index) {
+        this._transitionForward(focused$, element);
+      } else if (oldIndex > index) {
+        this._transitionBackward(focused$, element);
+      }
+
+      this.focused$ = element;
+    },
+
+    _transitionBackward: function(prevEl, nextEl) {
+      Promise.all([
+        prevEl.transitionFx.play('out', -1),
+        nextEl.transitionFx.play('in', -1),
+      ]).then(function() {
+        prevEl.setVisible(false);
+        prevEl.setFocus(false);
+        nextEl.setVisible(true);
+        nextEl.setFocus(true);
+        this.$focused = nextEl;
+      }.bind(this));
+      // this.transform('translateX(-100%)', element);
+
+      //   element.setVisible(true);
+
+      //   setTimeout(function() {
+      //     focused$.classList.add('animate');
+      //     element.classList.add('animate');
+
+      //     // console.log('animate to right');
+
+      //     this.transform('translateX(100%)', focused$);
+      //     this.transform('translateX(0)', element);
+
+      //     var toRightTransitionEnd = function() {
+      //       // console.log('toRightTransitionEnd');
+
+      //       element.removeEventListener('transitionend', toRightTransitionEnd);
+      //       element.removeEventListener('webkitTransitionEnd', toRightTransitionEnd);
+      //       element.removeEventListener('mozTransitionEnd', toRightTransitionEnd);
+      //       element.removeEventListener('msTransitionEnd', toRightTransitionEnd);
+      //       element.removeEventListener('oTransitionEnd', toRightTransitionEnd);
+
+      //       focused$.classList.remove('animate');
+      //       element.classList.remove('animate');
+
+      //       focused$.setFocus(false);
+      //       focused$.setVisible(false);
+
+      //       element.setFocus(true);
+      //     }.bind(this);
+
+      //     element.addEventListener('transitionend', toRightTransitionEnd, false);
+      //     element.addEventListener('webkitTransitionEnd', toRightTransitionEnd, false);
+      //     element.addEventListener('mozTransitionEnd', toRightTransitionEnd, false);
+      //     element.addEventListener('msTransitionEnd', toRightTransitionEnd, false);
+      //     element.addEventListener('oTransitionEnd', toRightTransitionEnd, false);
+      //   }.bind(this), 50);
+    },
+
+    _transitionForward: function(prevEl, nextEl) {
+      if (!prevEl) {
+        (new xin.Fx(nextEl, 'none')).play('in', 1).then(function() {
+          nextEl.setVisible(true);
+          nextEl.setFocus(true);
+          this.$focused = nextEl;
+        }.bind(this));
+      } else {
+        Promise.all([
+          prevEl.transitionFx.play('out', 1),
+          nextEl.transitionFx.play('in', 1)
+        ]).then(function() {
+          prevEl.setVisible(false);
+          prevEl.setFocus(false);
+          nextEl.setVisible(true);
+          nextEl.setFocus(true);
+          this.$focused = nextEl;
+        }.bind(this));
+
+        // this.transform('translateX(100%)', element);
+
+        // element.setVisible(true);
+
+        // setTimeout(function() {
+
+        //   focused$.classList.add('animate');
+        //   element.classList.add('animate');
+
+        //   // console.log('animate to left');
+
+        //   this.transform('translateX(-100%)', focused$);
+        //   this.transform('translateX(0)', element);
+
+        //   var toLeftTransitionEnd = function() {
+        //     // console.log('toLeftTransitionEnd');
+
+        //     element.removeEventListener('transitionend', toLeftTransitionEnd);
+        //     element.removeEventListener('webkitTransitionEnd', toLeftTransitionEnd);
+        //     element.removeEventListener('mozTransitionEnd', toLeftTransitionEnd);
+        //     element.removeEventListener('msTransitionEnd', toLeftTransitionEnd);
+        //     element.removeEventListener('oTransitionEnd', toLeftTransitionEnd);
+
+        //     focused$.classList.remove('animate');
+        //     element.classList.remove('animate');
+
+        //     focused$.setFocus(false);
+        //     focused$.setVisible(false);
+
+        //     element.setFocus(true);
+        //   }.bind(this);
+
+        //   element.addEventListener('transitionend', toLeftTransitionEnd, false);
+        //   element.addEventListener('webkitTransitionEnd', toLeftTransitionEnd, false);
+        //   element.addEventListener('mozTransitionEnd', toLeftTransitionEnd, false);
+        //   element.addEventListener('msTransitionEnd', toLeftTransitionEnd, false);
+        //   element.addEventListener('oTransitionEnd', toLeftTransitionEnd, false);
+
+        // }.bind(this), 50);
+        // xin.Fx.
+        // throw Error('Unimplemented yet');
+      }
+    }
+  });
+})(this);
+</script>

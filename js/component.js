@@ -25,7 +25,7 @@
 
   var xin = root.xin;
 
-  var XIN_DEBUG = root.XIN_DEBUG || false;
+  var XIN_DEBUG = xin.setup('debug') || false;
 
   var WrappedElement = function(ext) {
     switch(ext || '') {
@@ -611,7 +611,7 @@
                   if (annotation.target.set) {
                     annotation.target.set(attribute, value);
                   } else {
-                    annotation.target[attribute] = value;
+                    annotation.target[attribute] = value || null;
                   }
                 } else {
                   annotation.target.textContent = value || '';
