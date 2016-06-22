@@ -154,4 +154,13 @@
 
     return event;
   };
+
+  Dom.prototype.transform = function(transform) {
+    node = this;
+    node.style.webkitTransform = transform;
+    node.style.mozTransform = transform;
+    node.style.msTransform = transform;
+    node.style.oTransform = transform;
+    node.style.transform = transform;
+  };
 })(this);

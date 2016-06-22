@@ -23,4 +23,16 @@
 
 <link rel="import" href="./view-behavior.html">
 
-<script type="text/javascript" src="./js/xin-view.js"></script>
+<script>
+(function(root) {
+  'use strict';
+
+  var xin = root.xin;
+
+  xin.Component({
+    is: 'xin-view',
+
+    behaviors: [xin.ViewBehavior],
+  });
+})(this);
+</script>

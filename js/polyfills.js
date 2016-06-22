@@ -1012,7 +1012,12 @@ if (!Object.setPrototypeOf) {
         // through setPrototypeOf in a reliable way
         // which means here a **Sham** is needed instead
       ) {
-        return;
+        // reekoheek hacked!
+        // return;
+        return function(O, proto) {
+          O.__proto__ = proto;
+          return O;
+        }
       }
       // nodejs 0.8 and 0.10 are (buggy and..) fine here
       // probably Chrome or some old Mobile stock browser

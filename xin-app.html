@@ -23,4 +23,16 @@
 
 <link rel="import" href="./app-behavior.html">
 
-<script type="text/javascript" src="./js/xin-app.js"></script>
+<script>
+(function(root) {
+  'use strict';
+
+  var xin = root.xin;
+
+  xin.Component({
+    is: 'xin-app',
+
+    behaviors: [xin.AppBehavior]
+  });
+})(this);
+</script>
