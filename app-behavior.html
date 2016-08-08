@@ -35,6 +35,12 @@
   var escapeRegExp  = /[\-{}\[\]+?.,\\\^$|#\s]/g;
 
   var AppBehavior = xin.AppBehavior = {
+    properties: {
+      mode: {
+        type: String,
+        value: 'hash',
+      },
+    },
 
     created: function() {
       // console.log('created on app-behavior');
@@ -98,6 +104,15 @@
 
       if (this.mode === 'history') {
         window.addEventListener('popstate', this.checkAndExecute.bind(this), false);
+        document.addEventListener('click', function(evt) {
+          if (evt.target.nodeName === 'A') {
+            evt.preventDefault();
+            history.pushState({
+              url: event.target.getAttribute('href')
+            }, evt.target.innerHTML, evt.target.href);
+            this.checkAndExecute();
+          }
+        }.bind(this));
       } else {
         window.addEventListener('hashchange', this.checkAndExecute.bind(this), false);
       }
