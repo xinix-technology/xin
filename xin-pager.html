@@ -97,43 +97,6 @@
         nextEl.setFocus(true);
         this.$focused = nextEl;
       }.bind(this));
-      // this.transform('translateX(-100%)', element);
-
-      //   element.setVisible(true);
-
-      //   setTimeout(function() {
-      //     focused$.classList.add('animate');
-      //     element.classList.add('animate');
-
-      //     // console.log('animate to right');
-
-      //     this.transform('translateX(100%)', focused$);
-      //     this.transform('translateX(0)', element);
-
-      //     var toRightTransitionEnd = function() {
-      //       // console.log('toRightTransitionEnd');
-
-      //       element.removeEventListener('transitionend', toRightTransitionEnd);
-      //       element.removeEventListener('webkitTransitionEnd', toRightTransitionEnd);
-      //       element.removeEventListener('mozTransitionEnd', toRightTransitionEnd);
-      //       element.removeEventListener('msTransitionEnd', toRightTransitionEnd);
-      //       element.removeEventListener('oTransitionEnd', toRightTransitionEnd);
-
-      //       focused$.classList.remove('animate');
-      //       element.classList.remove('animate');
-
-      //       focused$.setFocus(false);
-      //       focused$.setVisible(false);
-
-      //       element.setFocus(true);
-      //     }.bind(this);
-
-      //     element.addEventListener('transitionend', toRightTransitionEnd, false);
-      //     element.addEventListener('webkitTransitionEnd', toRightTransitionEnd, false);
-      //     element.addEventListener('mozTransitionEnd', toRightTransitionEnd, false);
-      //     element.addEventListener('msTransitionEnd', toRightTransitionEnd, false);
-      //     element.addEventListener('oTransitionEnd', toRightTransitionEnd, false);
-      //   }.bind(this), 50);
     },
 
     _transitionForward: function(prevEl, nextEl) {
@@ -154,48 +117,6 @@
           nextEl.setFocus(true);
           this.$focused = nextEl;
         }.bind(this));
-
-        // this.transform('translateX(100%)', element);
-
-        // element.setVisible(true);
-
-        // setTimeout(function() {
-
-        //   focused$.classList.add('animate');
-        //   element.classList.add('animate');
-
-        //   // console.log('animate to left');
-
-        //   this.transform('translateX(-100%)', focused$);
-        //   this.transform('translateX(0)', element);
-
-        //   var toLeftTransitionEnd = function() {
-        //     // console.log('toLeftTransitionEnd');
-
-        //     element.removeEventListener('transitionend', toLeftTransitionEnd);
-        //     element.removeEventListener('webkitTransitionEnd', toLeftTransitionEnd);
-        //     element.removeEventListener('mozTransitionEnd', toLeftTransitionEnd);
-        //     element.removeEventListener('msTransitionEnd', toLeftTransitionEnd);
-        //     element.removeEventListener('oTransitionEnd', toLeftTransitionEnd);
-
-        //     focused$.classList.remove('animate');
-        //     element.classList.remove('animate');
-
-        //     focused$.setFocus(false);
-        //     focused$.setVisible(false);
-
-        //     element.setFocus(true);
-        //   }.bind(this);
-
-        //   element.addEventListener('transitionend', toLeftTransitionEnd, false);
-        //   element.addEventListener('webkitTransitionEnd', toLeftTransitionEnd, false);
-        //   element.addEventListener('mozTransitionEnd', toLeftTransitionEnd, false);
-        //   element.addEventListener('msTransitionEnd', toLeftTransitionEnd, false);
-        //   element.addEventListener('oTransitionEnd', toLeftTransitionEnd, false);
-
-        // }.bind(this), 50);
-        // xin.Fx.
-        // throw Error('Unimplemented yet');
       }
     }
   });
