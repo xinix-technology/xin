@@ -50,8 +50,6 @@
           xin.instanceTemplates[id] = t;
           parent$.removeChild(t);
         }
-      // } else {
-      //   console.log(xin.Dom(t.content).childNodes);
       }
     });
 
