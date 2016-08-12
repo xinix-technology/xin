@@ -276,7 +276,7 @@
 
           walkingSegments.push(segment);
           if (!binding) {
-            throw new Error('Stale path "' + walkingSegments.join('.') + '" for ' + this.__getId());
+            throw new Error('Stale path "' + walkingSegments.join('.') + '" for component: ' + this.__getId());
           }
           return oldBinding ? oldBinding.paths[segment] : this._bindings[segment];
         }.bind(this), null);
@@ -290,7 +290,14 @@
             try {
               annotation.effect(value, oldValue);
             } catch(e) {
-              console.error(this.__getId() + '._notify.walkEffect => ' + e.message);
+              var annotDescriptor = 'host:' + annotation.target._parent.is + ' kind:' + annotation.kind;
+              if (annotation.kind === 'method') {
+                annotDescriptor += ' method:' + annotation.method;
+              } else {
+                annotDescriptor += ' property:' + annotation.property;
+              }
+              console.error(this.__getId() + '._notify.walkEffect => ' + e.message +
+                  '\nwhile processing annotation: ' + annotDescriptor);
               if (XIN_DEBUG) {
                 console.error(e.stack);
               }
@@ -303,10 +310,9 @@
         }.bind(this);
         walkEffect(binding, value);
       } catch(e) {
-        // if (XIN_DEBUG) {
-        //   console.warn(this.__getId() + '._notify => ' + e.message);
-        // }
-        // return;
+        if (XIN_DEBUG) {
+          console.warn(this.__getId() + '._notify caught error: ' + e.message);
+        }
       }
     };
 
@@ -396,7 +402,8 @@
           value = new Date(value);
           break;
 
-        // case String:
+        case String:
+          // behave like default for now
         default:
           break;
       }
@@ -453,6 +460,7 @@
     this._prepareTemplate = function() {
       if (this.children.length === 1 && this.children[0].tagName === 'TEMPLATE') {
         this._template = this.children[0];
+        // TODO reinspect this if bugs occured on template polyfill
         // dont have to decorate, wont be here in old browser, already populated with xin._fixNestedTemplate
         // if (HTMLTemplateElement.decorate) {
         //  HTMLTemplateElement.decorate(this._template);
@@ -546,11 +554,12 @@
 
             if (annotation.method) {
               annotation.kind = 'method';
+
               annotation.effect = function(value) {
-                // console.log(this);
                 if (!this._host[annotation.method]) {
-                  return console.warn('Annotation method ' + annotation.method + ' not found!');
+                  return console.warn('Annotation method: ' + annotation.method + ' of component: ' + annotation.target._parent.is + ' not found!');
                 }
+
                 var args = annotation.args.map(function(arg) {
                   try {
                     var parsed;
@@ -570,6 +579,7 @@
 
                 if (annotation.attribute) {
                   var attribute = annotation.attribute;
+
                   if (attribute.substr(-1) === '$') {
                     attribute = attribute.substr(0, attribute.length - 1);
                     annotation.target.setAttribute(attribute, value);
@@ -587,12 +597,9 @@
             } else {
               if (annotation.mode === '{' && annotation.target.__properties) {
                 var prop = annotation.target.__properties[annotation.attribute];
+
                 if (prop && prop.notify) {
-                  // console.log('host', this, this._host);
-                  // console.log(annotation.target, 'listening', annotation.value + '-changed');
                   annotation.target.addEventListener(annotation.value + '-changed', function(evt) {
-                    // console.log('<- got notified from ' + annotation.target.__getId() + '.' + annotation.attribute + ' -> ' + this.__getId() + '.' + annotation.value);
-                    // console.log('<- o:', evt.detail);
                     this.set(annotation.value, evt.detail.value);
                   }.bind(this));
                 }
@@ -603,6 +610,7 @@
               annotation.effect = function(value) {
                 if (annotation.attribute) {
                   var attribute = annotation.attribute;
+
                   if (attribute.substr(-1) === '$') {
                     attribute = attribute.substr(0, attribute.length - 1);
                     annotation.target.setAttribute(attribute, value);
@@ -622,6 +630,11 @@
             binding.annotations.push(annotation);
           } else {
             var matches = annotation.value.match(/^(\w+)\(([^)]+)\)$/);
+
+            if (matches === null) {
+              throw new Error('Invalid computed annotation: ' + annotation.value + ' for component: ' + annotation.target._parent.is);
+            }
+
             var method = matches[1];
             var args = matches[2].split(/\s*,\s*/);
             args.forEach(function(arg) {
@@ -753,8 +766,7 @@
                 value: value,
                 oldValue: oldValue
               };
-              // console.log('-> notify: ' + this.__getId() + '.' + name + ' -> {parent}.' + property);
-              // console.log('-> o:', detail);
+
               this.fire(property + '-changed', detail);
             }.bind(this)
           });
@@ -888,9 +900,7 @@
             var parent = element.parentElement;
             if (element.getAttribute('select')) {
               var selector = element.getAttribute('select');
-              // console.log(this, xin.Dom(this._lightDoms).querySelector(selector));
-              // console.log(this._lightDoms, element, parent);
-              // throw new Error('Unimplemented!');
+
               this._lightDoms.forEach(function(node) {
                 if (node.nodeType === 1 && xin.Dom(node).is(selector)) {
                   var fragment = document.createDocumentFragment();

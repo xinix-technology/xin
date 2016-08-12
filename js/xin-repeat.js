@@ -48,6 +48,7 @@
     },
 
     created: function() {
+      // TODO do we still need this chunk?
       // avoid unnecessary template xin-repeat render on scoped template instance
       // if (xin.Dom(this).parent('template')) return;
 
@@ -104,7 +105,6 @@
     },
 
     _insertRow: function(item, index) {
-      // console.log(this.content.childNodes.length);
       var fragment = document.importNode(this.content, true);
       var row = {
         _root: xin.Dom(fragment).childNodes
@@ -130,13 +130,6 @@
 
       if (this.parentElement) {
         xin.Dom(this.parentElement).insertBefore(fragment, this);
-      // } else {
-      //   console.log('inserting ' + item);
-      //   // setTimeout(function() {
-      //   //   if (this.parentElement) {
-      //   //     xin.Dom(this.parentElement).insertBefore(fragment, this);
-      //   //   }
-      //   // }.bind(this), 100);
       }
 
       return row;

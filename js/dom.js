@@ -27,15 +27,6 @@
 
   var matches = HTMLElement.prototype.matches || HTMLElement.prototype.matchesSelector || HTMLElement.prototype.webkitMatchesSelector || HTMLElement.prototype.mozMatchesSelector || HTMLElement.prototype.msMatchesSelector;
 
-  // var matches = function(element, selector) {
-  //   return (element.matches ||
-  //     element.matchesSelector ||
-  //     element.msMatchesSelector ||
-  //     element.mozMatchesSelector ||
-  //     element.webkitMatchesSelector ||
-  //     element.oMatchesSelector).call(element, selector);
-  // };
-
   var Dom = xin.Dom = function(element) {
     if (!(this instanceof Dom)) {
       return new Dom(element);
@@ -138,9 +129,13 @@
           bubbles: bubbles,
           cancelable: cancelable
         });
+
+        // TODO check if without this works on every browsers
         // event = document.createEvent('HTMLEvents');
         // event.initEvent(type, true, false);
+
         node.dispatchEvent(event);
+
         break;
       default:
         event = new CustomEvent(type, {

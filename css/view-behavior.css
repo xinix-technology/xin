@@ -1,0 +1,8 @@
+.xin-view-behavior {
+  box-sizing: border-box;
+  display: none;
+}
+
+.xin-view-behavior.xin-view-visible {
+  display: block;
+}
