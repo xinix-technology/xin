@@ -511,6 +511,14 @@
       }.bind(this));
     };
 
+    this._getConcreteHost = function() {
+      var host = this._host;
+      while (host && !host.is) {
+        host = host._host;
+      }
+      return host;
+    },
+
     this._bind = function(annotation) {
       var binding;
 
@@ -556,8 +564,9 @@
               annotation.kind = 'method';
 
               annotation.effect = function(value) {
-                if (!this._host[annotation.method]) {
-                  return console.warn('Annotation method: ' + annotation.method + ' of component: ' + annotation.target._parent.is + ' not found!');
+                var concreteHost = this._getConcreteHost();
+                if (!concreteHost[annotation.method]) {
+                  return console.warn('Annotation method: ' + annotation.method + ' of component: ' + concreteHost.is + ' not found!');
                 }
 
                 var args = annotation.args.map(function(arg) {
@@ -575,7 +584,7 @@
                   }
                 }.bind(this));
 
-                value = this._host[annotation.method].apply(this._host, args);
+                value = concreteHost[annotation.method].apply(concreteHost, args);
 
                 if (annotation.attribute) {
                   var attribute = annotation.attribute;
