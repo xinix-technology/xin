@@ -115,6 +115,7 @@
         node.__index = index;
         node.__item = item;
       });
+
       Object.setPrototypeOf(row, this.rowProto);
 
       row._initData();
@@ -145,12 +146,18 @@
       }
 
       this.rows = [];
+
+      // when no items rows must be empty
+      if (!items) {
+        return;
+      }
+
       items.forEach(function(item, index) {
         try {
           var row = this._insertRow(item, index);
           this.rows.push(row);
         } catch(e) {
-          console.error(e.message + ':::' + e.stack);
+          console.error(e.message + '\n' + e.stack);
         }
       }.bind(this));
     }

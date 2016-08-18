@@ -15,18 +15,20 @@
     },
 
     setFocus: function(element) {
-      var index = this.views.indexOf(element);
-      var oldIndex = -1;
-      if (this.focused$) {
-        oldIndex = this.views.indexOf(this.focused$);
-      }
+      if (element) {
+        var index = this.views.indexOf(element);
+        var oldIndex = -1;
+        if (this.focused$) {
+          oldIndex = this.views.indexOf(this.focused$);
+        }
 
-      var focused$ = this.focused$;
-
-      if (oldIndex < index) {
-        this._transitionForward(focused$, element);
-      } else if (oldIndex > index) {
-        this._transitionBackward(focused$, element);
+        if (oldIndex < index) {
+          this._transitionForward(this.focused$, element);
+        } else if (oldIndex > index) {
+          this._transitionBackward(this.focused$, element);
+        }
+      } else {
+        this.focused$.setFocus(false);
       }
 
       this.focused$ = element;
