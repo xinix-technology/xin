@@ -38,14 +38,15 @@
   };
 
   var __basePopulateProperties = function(properties) {
-    if (!properties) return {};
-
-    var result = {};
-    for(var key in properties) {
-      result[key] = __baseTranslatePropertyDef(properties[key]);
+    var baseProperties = {
+      //parameters: Object,
+    };
+    if (properties) {
+      for(var key in properties) {
+        baseProperties[key] = __baseTranslatePropertyDef(properties[key]);
+      }
     }
-
-    return result;
+    return baseProperties;
   };
 
   var __baseTranslatePropertyDef = function(prop) {
@@ -145,7 +146,7 @@
     };
 
     this.__getId = function() {
-      return this.is + '#' + this.__id;
+      return this.is + ':' + this.__id;
     };
 
     this._parseListenerMetadata = function(key) {
@@ -266,22 +267,28 @@
       var segments = path.split('.');
       try {
         var walkingSegments = [];
-        var binding = segments.reduce(function(oldBinding, segment) {
-          var binding;
-          if (oldBinding) {
-            binding = oldBinding.paths[segment];
-          } else {
-            binding = this._bindings[segment];
-          }
+        var binding;
+        try {
+          var found = segments.every(function(segment) {
+            var currentBinding = binding ? binding.paths[segment] : this._bindings[segment];
+            if (!currentBinding) {
+              return false;
+            }
 
-          walkingSegments.push(segment);
-          if (!binding) {
-            throw new Error('Stale path "' + walkingSegments.join('.') + '" for component: ' + this.__getId());
-          }
-          return oldBinding ? oldBinding.paths[segment] : this._bindings[segment];
-        }.bind(this), null);
+            walkingSegments.push(segment);
+            binding = currentBinding;
+            return true;
+          }.bind(this), null);
 
-        var walkEffect = function(binding, value) {
+          if (!found) {
+            return;
+          }
+        } catch(e) {
+          console.trace(e.message);
+          return;
+        }
+
+        var walkEffect = function(binding, value, oldValue) {
           binding.annotations.forEach(function(annotation) {
             // TODO why do we need this, because we cant force notify if this one active
             // if (value === oldValue) {
@@ -290,17 +297,17 @@
             try {
               annotation.effect(value, oldValue);
             } catch(e) {
-              var annotDescriptor = 'host:' + annotation.target._parent.is + ' kind:' + annotation.kind;
+              var annotDescriptor = '(host:' + annotation.target._parent.is + ' kind:' + annotation.kind;
               if (annotation.kind === 'method') {
                 annotDescriptor += ' method:' + annotation.method;
               } else {
                 annotDescriptor += ' property:' + annotation.property;
               }
-              console.error(this.__getId() + '._notify.walkEffect => ' + e.message +
-                  '\nwhile processing annotation: ' + annotDescriptor);
-              if (XIN_DEBUG) {
-                console.error(e.stack);
-              }
+              annotDescriptor += ')';
+              console.error('Error caught on ' +
+                  this.__getId() +
+                  '#_notify#walkEffect annotation: ' +
+                  annotDescriptor + '\n'  + e.stack);
             }
           }.bind(this));
 
@@ -308,11 +315,13 @@
             walkEffect(binding.paths[i], value? value[i] : undefined);
           }
         }.bind(this);
-        walkEffect(binding, value);
+
+        walkEffect(binding, value, oldValue);
       } catch(e) {
-        if (XIN_DEBUG) {
-          console.warn(this.__getId() + '._notify caught error: ' + e.message);
-        }
+        //if (XIN_DEBUG) {
+          console.warn(this.__getId() + '#_notify caught error: ' + e.message +
+              '\n Stack trace: ' + e.stack);
+        //}
       }
     };
 
@@ -413,20 +422,26 @@
     this._populateProperties = function() {
       Object.getOwnPropertyNames(this.__properties).forEach(function(name) {
         var attrName = xin.Inflector.dashify(name);
-        var val;
+        var val = null;
         var attrVal = this.getAttribute(attrName);
 
+        // set property value when attr set and the value specified is static
         if (typeof attrVal === 'string') {
           var prefix = attrVal.substr(0, 2);
-          val = (prefix === '{{' || prefix === '[[') ? null : this._deserialize(attrVal, this.__properties[name].type);
+          if (prefix !== '{{' && prefix !== '[[') {
+            val = this._deserialize(attrVal, this.__properties[name].type);
+          }
           this[name] = val;
         }
       }.bind(this));
 
 
-      // validate properties requirements
+      // validate each property requirements
       for(var key in this.__properties) {
+        // only validate own property
         if (this.__properties.hasOwnProperty(key) && typeof this[key] === 'undefined') {
+          // if property is required and empty show error
+          // otherwise put the default value
           if (this.__properties[key].required) {
             console.error('"' + this.__getId() + '" missing required "' + key + '"');
           } else if (this.__properties[key].hasOwnProperty('value')) {
@@ -483,17 +498,19 @@
 
     this._parseAttributeAnnotations = function(node) {
       Array.prototype.forEach.call(node.attributes, function(attr) {
+        // bind event annotation
         if (attr.name.indexOf('on-') === 0) {
           node.addEventListener(attr.name.substr(3), function(evt) {
             var method = this._host.get(attr.value);
             if (!method) {
               return console.warn(
                 'Cannot bind event ' + attr.name + ', method ' +
-                this._host.__getId() + '.' + attr.value + ' not found!'
+                this._host.__getId() + '#' + attr.value + ' not found!'
               );
             }
             method.call(this._host, evt, evt.detail);
           }.bind(this));
+        // bind property annotation
         } else {
           var mode = attr.value.substr(0, 2);
           if (mode === '[[' || mode === '{{') {
@@ -530,8 +547,11 @@
           binding.annotations.push(annotation);
           break;
         default:
+          // when annotation value does not have to be computed by method
           if (annotation.value.indexOf('(') === -1) {
-            if (annotation.target.__properties && annotation.target.__properties[annotation.attribute] && annotation.target.__properties[annotation.attribute].readOnly) {
+            if (annotation.target.__properties &&
+                annotation.target.__properties[annotation.attribute] &&
+                annotation.target.__properties[annotation.attribute].readOnly) {
               return;
             }
 
@@ -626,7 +646,7 @@
                   }
 
                   if (annotation.target.set) {
-                    annotation.target.set(attribute, value);
+                    annotation.target.set(xin.Inflector.camelize(attribute), value || null);
                   } else {
                     annotation.target[attribute] = value || null;
                   }
@@ -637,9 +657,9 @@
             }
 
             binding.annotations.push(annotation);
-          } else {
+          } else { // when annotation value must be computed by method
+            // computed annotation must have arguments
             var matches = annotation.value.match(/^(\w+)\(([^)]+)\)$/);
-
             if (matches === null) {
               throw new Error('Invalid computed annotation: ' + annotation.value + ' for component: ' + annotation.target._parent.is);
             }
@@ -648,13 +668,12 @@
             var args = matches[2].split(/\s*,\s*/);
             args.forEach(function(arg) {
               try {
-                var parsed;
+                // FIXME check if arg parsable
                 if (arg[0] === '"' || arg[0] === "'") {
-                  parsed = arg.substr(1, -1);
+                  // noop
                 } else {
-                  parsed = JSON.parse(arg);
+                  JSON.parse(arg);
                 }
-                // what for parsed? just to make sure it is not scalar?
               } catch(e) {
                 var newAnnotation = {
                   mode: annotation.mode,
@@ -666,6 +685,23 @@
                 };
                 this._bind(newAnnotation);
               }
+              // TODO below cannot detect arg with type object or array value
+              //if (
+              //    arg !== 'true' && arg !== 'false' &&
+              //    arg !== 'null' && arg !== 'undefined' &&
+              //    arg[0] !== '"' && arg[0] !== "'" &&
+              //    !isNaN(parseFloat(arg)))
+              //{
+              //  var newAnnotation = {
+              //    mode: annotation.mode,
+              //    method: method,
+              //    args: args,
+              //    value: arg,
+              //    target: annotation.target,
+              //    attribute: annotation.attribute
+              //  };
+              //  this._bind(newAnnotation);
+              //}
             }.bind(this));
           }
       }
@@ -759,9 +795,9 @@
         var annot = this.getAttribute(attrName);
         if (prop.notify && annot) {
           if (annot[0] !== '{' || annot[1] !== '{') {
-            return console.warn('Cannot attach notification to host for one-way binding as ' + annot);
+            console.warn('Cannot attach notification to host for one-way binding as ' + annot);
+            return;
           }
-
 
           var property = annot.slice(2, -2).trim();
           this._bind({

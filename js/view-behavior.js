@@ -109,12 +109,28 @@
       this.classList[visible ? 'add' : 'remove']('xin-view-visible');
 
       this.fire(visible ? 'show' : 'hide');
+
+      if (!visible) {
+        xin.Dom(this).querySelectorAll('.xin-view-behavior.xin-view-visible').forEach(function(el) {
+          el.setVisible(visible);
+        });
+      }
     },
 
     setFocus: function(focus) {
       this.classList[focus ? 'add' : 'remove']('xin-view-focus');
 
       this.fire(focus ? 'focus' : 'blur');
+
+      if (!focus) {
+        xin.Dom(this).querySelectorAll('.xin-view-behavior.xin-view-focus').forEach(function(el) {
+          if (el.parentElement.setFocus) {
+            el.parentElement.setFocus(null);
+          } else {
+            el.setFocus(focus);
+          }
+        });
+      }
     },
   };
 
