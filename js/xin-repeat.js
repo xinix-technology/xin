@@ -57,7 +57,8 @@
       var templateHost = this;
       var _set = this.rowProto.set;
       this.rowProto.set = function(name, value) {
-        switch(name) {
+        var nameSegments = name.split('.');
+        switch(nameSegments[0]) {
           case templateHost.as:
           case templateHost.indexAs:
             return _set.apply(this, arguments);
@@ -69,7 +70,8 @@
 
       var _get = this.rowProto.get;
       this.rowProto.get = function(name) {
-        switch(name) {
+        var nameSegments = name.split('.');
+        switch(nameSegments[0]) {
           case templateHost.as:
           case templateHost.indexAs:
             return _get.apply(this, arguments);
