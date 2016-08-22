@@ -591,6 +591,7 @@
             if (annotation.mode === '{' && annotation.target.nodeType === Node.ELEMENT_NODE) {
               switch(annotation.target.nodeName) {
                 case 'INPUT':
+                case 'TEXTAREA':
                   // FIXME kalau unbind harus distate waktu apa?
                   annotation.target.addEventListener('input', function(evt) {
                     this.set(annotation.value, annotation.target.value);
@@ -681,7 +682,16 @@
                   if (annotation.target.set) {
                     annotation.target.set(xin.Inflector.camelize(attribute), value || null);
                   } else {
+                    var selectable = document.activeElement === annotation.target && annotation.target.tagName === 'INPUT';
+                    var selStart;
+                    if (selectable) {
+                      selStart = annotation.target.selectionStart;
+                    }
                     annotation.target[attribute] = value || null;
+                    if (selectable) {
+                      annotation.target.selectionStart = selStart;
+                      annotation.target.selectionEnd = selStart;
+                    }
                   }
                 } else {
                   annotation.target.textContent = value || '';
@@ -748,6 +758,10 @@
           value: node.textContent.slice(2, -2).trim(),
           target: node
         };
+
+        if (node.parentElement.tagName === 'TEXTAREA') {
+          annotation.target = node.parentElement;
+        }
 
         node.textContent = ' ';
 
