@@ -182,6 +182,7 @@
                 executer.handler.callback(executer.args);
               }.bind(this));
 
+              this.fire('navigated', {uri:fragment});
               return executers;
             }.bind(this));
           } else {
