@@ -37,6 +37,16 @@
     }
   };
 
+  var __basePopulateListeners = function(listeners) {
+    // FIXME review this, pass through listeners
+    return listeners || {};
+  };
+
+  var __baseTranslateListenerDef = function(listener) {
+    // FIXME review this, pass through listener value only
+    return listener;
+  };
+
   var __basePopulateProperties = function(properties) {
     var baseProperties = {
       //parameters: Object,
@@ -115,6 +125,12 @@
         configurable: false,
         value: __basePopulateProperties(options.properties)
       },
+      '__listeners': {
+        enumerable: true,
+        writable: false,
+        configurable: false,
+        value: __basePopulateListeners(options.listeners)
+      },
       'behaviors': {
         enumerable: true,
         writable: false,
@@ -162,6 +178,7 @@
       var proto = Object.getPrototypeOf(this);
 
       var properties = {};
+      var listeners = {};
 
       this.behaviors.forEach(function(behavior) {
         // mixin behavior functions
@@ -175,11 +192,23 @@
         for(var propKey in behavior.properties) {
           properties[propKey] = __baseTranslatePropertyDef(behavior.properties[propKey]);
         }
+
+        for(var listenerKey in behavior.listeners) {
+          listeners[listenerKey] = __baseTranslateListenerDef(behavior.listeners[listenerKey]);
+        }
       });
 
+      // populate properties from behaviors
       for(var pKey in properties) {
         if (!this.__properties[pKey]) {
           this.__properties[pKey] = properties[pKey];
+        }
+      }
+
+      // populate listeners from behaviors
+      for(var lKey in listeners) {
+        if (!this.__listeners[lKey]) {
+          this.__listeners[lKey] = listeners[lKey];
         }
       }
     };
@@ -194,7 +223,7 @@
       var segments = path.split('.');
 
       segments.some(function(segment) {
-        if (typeof object === 'undefined') {
+        if (typeof object === 'undefined' || object === null) {
           return object;
         }
         object = object[segment];
@@ -220,6 +249,9 @@
       segments.slice(0, -1).forEach(function(segment) {
         if (!object) {
           return;
+        }
+        if (object[segment] === undefined || object[segment] === null) {
+          object[segment] = {};
         }
         object = object[segment];
       });
@@ -257,7 +289,7 @@
       var newValue = destination.slice();
       var oldValue = destination;
 
-      newValue.splice(start, deleteCount);
+      newValue.splice.apply(newValue, Array.prototype.slice.call(arguments, 1));
       this.set(path, newValue);
 
       this._notify(path, newValue, oldValue);
@@ -501,14 +533,15 @@
         // bind event annotation
         if (attr.name.indexOf('on-') === 0) {
           node.addEventListener(attr.name.substr(3), function(evt) {
-            var method = this._host.get(attr.value);
+            var concreteHost = this._getConcreteHost();
+            var method = concreteHost[attr.value];
             if (!method) {
               return console.warn(
                 'Cannot bind event ' + attr.name + ', method ' +
-                this._host.__getId() + '#' + attr.value + ' not found!'
+                concreteHost.__getId() + '#' + attr.value + ' not found!'
               );
             }
-            method.call(this._host, evt, evt.detail);
+            method.call(concreteHost, evt, evt.detail);
           }.bind(this));
         // bind property annotation
         } else {
@@ -823,7 +856,8 @@
       this._host = this;
       this._bindings = {};
       this._children = [];
-      this._listeners = [];
+      // listener should be populated from created options
+      //this._listeners = [];
       this.$ = {};
     };
 
@@ -852,20 +886,30 @@
     };
 
     this._prepareListeners = function() {
-      // apply behavior listeners
-      this.behaviors.forEach(function(behavior) {
-        if (!behavior.listeners) return;
-
-        Object.keys(behavior.listeners).forEach(function(key) {
-          var listenerMetadata = this._parseListenerMetadata(key);
-          this.addEventListener(listenerMetadata.eventName, function(evt) {
-            if (listenerMetadata.selector && !xin.Dom(evt.target).matches(listenerMetadata.selector)) {
-              return;
-            }
-            return behavior[behavior.listeners[key]].apply(this, arguments);
-          }.bind(this));
+      Object.keys(this.__listeners).forEach(function(key) {
+        var listenerMetadata = this._parseListenerMetadata(key);
+        var listenerHandler = this[this.__listeners[key]];
+        this.addEventListener(listenerMetadata.eventName, function(evt) {
+          if (listenerMetadata.selector && !xin.Dom(evt.target).matches(listenerMetadata.selector)) {
+            return;
+          }
+          return listenerHandler.apply(this, arguments);
         }.bind(this));
       }.bind(this));
+      // apply behavior listeners
+      //this.behaviors.forEach(function(behavior) {
+      //  if (!behavior.listeners) return;
+
+      //  Object.keys(behavior.listeners).forEach(function(key) {
+      //    var listenerMetadata = this._parseListenerMetadata(key);
+      //    this.addEventListener(listenerMetadata.eventName, function(evt) {
+      //      if (listenerMetadata.selector && !xin.Dom(evt.target).matches(listenerMetadata.selector)) {
+      //        return;
+      //      }
+      //      return behavior[behavior.listeners[key]].apply(this, arguments);
+      //    }.bind(this));
+      //  }.bind(this));
+      //}.bind(this));
     };
 
     this.createdCallback = function() {
