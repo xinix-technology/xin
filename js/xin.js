@@ -72,4 +72,10 @@
   xin.$$ = function(selector) {
     return document.querySelector(selector);
   };
+
+  if (root.xinOptions) {
+    for(var i in root.xinOptions) {
+      xin.setup(i, root.xinOptions[i]);
+    }
+  }
 })(this);
