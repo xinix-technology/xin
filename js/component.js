@@ -679,7 +679,10 @@
                     annotation.target.setAttribute(attribute, value);
                   }
 
-                  if (annotation.target.set) {
+                  // attribute name html is special
+                  if (attribute === 'html') {
+                    annotation.target.innerHTML = value || '';
+                  } else if (annotation.target.set) {
                     annotation.target.set(xin.Inflector.camelize(attribute), value || null);
                   } else {
                     var selectable = document.activeElement === annotation.target && annotation.target.tagName === 'INPUT';

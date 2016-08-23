@@ -130,7 +130,6 @@
 
       row.set(this.as, item);
 
-
       if (this.parentElement) {
         xin.Dom(this.parentElement).insertBefore(fragment, this);
       }
