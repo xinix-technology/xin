@@ -99,7 +99,7 @@
           if (!evt.defaultPrevented && evt.target.nodeName === 'A') {
             evt.preventDefault();
             history.pushState({
-              url: event.target.getAttribute('href')
+              url: evt.target.getAttribute('href')
             }, evt.target.innerHTML, evt.target.href);
             this.checkAndExecute();
           }

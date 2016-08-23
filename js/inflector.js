@@ -59,4 +59,10 @@
 
     return  dashified[camel];
   };
+
+  if (root.xinOptions) {
+    for(var i in root.xinOptions) {
+      xin.setup(i, root.xinOptions[i]);
+    }
+  }
 })(this);

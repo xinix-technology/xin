@@ -685,15 +685,19 @@
                   } else if (annotation.target.set) {
                     annotation.target.set(xin.Inflector.camelize(attribute), value || null);
                   } else {
-                    var selectable = document.activeElement === annotation.target && annotation.target.tagName === 'INPUT';
-                    var selStart;
+                    var selectable = document.activeElement === annotation.target &&
+                      annotation.target.tagName === 'INPUT';
+
+                    var selStart, selEnd;
                     if (selectable) {
                       selStart = annotation.target.selectionStart;
+                      selEnd = annotation.target.selectionEnd;
                     }
                     annotation.target[attribute] = value || null;
                     if (selectable) {
-                      annotation.target.selectionStart = selStart;
-                      annotation.target.selectionEnd = selStart;
+                      annotation.target.setSelectionRange(selStart, selEnd);
+                      //annotation.target.selectionStart = selStart;
+                      //annotation.target.selectionEnd = selStart;
                     }
                   }
                 } else {
