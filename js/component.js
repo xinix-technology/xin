@@ -91,6 +91,10 @@
 
       var i;
 
+      if (typeof behavior === 'string') {
+        behavior = xin.get(behavior);
+      }
+
       if (Array.isArray(behavior)) {
         __basePopulateBehaviors(behavior, arr);
       } else {
@@ -142,6 +146,12 @@
         writable: false,
         configurable: false,
         value: options,
+      },
+      '__debouncers': {
+        enumerable: false,
+        writable: false,
+        configurable: false,
+        value: {},
       },
     });
 
@@ -329,7 +339,8 @@
             try {
               annotation.effect(value, oldValue);
             } catch(e) {
-              var annotDescriptor = '(host:' + annotation.target._parent.is + ' kind:' + annotation.kind;
+              var host = annotation.target._parent ? annotation.target._parent.is : 'null';
+              var annotDescriptor = '(host:' + host + ' kind:' + annotation.kind;
               if (annotation.kind === 'method') {
                 annotDescriptor += ' method:' + annotation.method;
               } else {
@@ -358,23 +369,37 @@
     };
 
     this.async = function(callback, waitTime) {
-      return ~setTimeout(callback.bind(this), waitTime || 0);
+      var async = new xin.Async(this);
+      async.start(callback, waitTime);
+      return async;
+
+      //return ~setTimeout(callback.bind(this), waitTime || 0);
     };
 
-    this.debounce = function(callback, wait, immediate) {
-      var timeout;
-      var context = this;
-      return function() {
-        var args = arguments;
-        var later = function() {
-          timeout = null;
-          if (!immediate) callback.apply(context, args);
-        };
-        var callNow = immediate && !timeout;
-        clearTimeout(timeout);
-        timeout = setTimeout(later, wait);
-        if (callNow) callback.apply(context, args);
-      };
+    this.debounce = function(job, callback, wait, immediate) {
+      var debouncer = this.__debouncers[job];
+      if (debouncer && debouncer.running) {
+        debouncer.cancel();
+      } else {
+        debouncer = this.__debouncers[job] = new xin.Debounce(this, immediate);
+      }
+      debouncer.start(callback, wait);
+
+      return debouncer;
+
+      //var timeout;
+      //var context = this;
+      //return function() {
+      //  var args = arguments;
+      //  var later = function() {
+      //    timeout = null;
+      //    if (!immediate) callback.apply(context, args);
+      //  };
+      //  var callNow = immediate && !timeout;
+      //  clearTimeout(timeout);
+      //  timeout = setTimeout(later, wait);
+      //  if (callNow) callback.apply(context, args);
+      //};
     };
 
     this.behave = function(method) {
@@ -532,7 +557,11 @@
       Array.prototype.forEach.call(node.attributes, function(attr) {
         // bind event annotation
         if (attr.name.indexOf('on-') === 0) {
-          node.addEventListener(attr.name.substr(3), function(evt) {
+          var eventName = attr.name.substr(3);
+          if (eventName === 'tap') {
+            eventName = 'click';
+          }
+          node.addEventListener(eventName, function(evt) {
             var concreteHost = this._getConcreteHost();
             var method = concreteHost[attr.value];
             if (!method) {

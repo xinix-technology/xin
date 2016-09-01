@@ -5,11 +5,15 @@
 
   var XIN_DEBUG = xin.setup('debug') || false;
 
-  var AppBehavior = xin.AppBehavior = {
+  var AppBehavior = {
     properties: {
       mode: {
         type: String,
         value: 'hash',
+      },
+      rootUri: {
+        type: String,
+        value: '/',
       },
     },
 
@@ -27,7 +31,7 @@
       // default values
       this.mode = 'hash';
       this.hashSeparator = '#!';
-      this.rootUri = '/';
+      //this.rootUri = '/';
       this.handlers = [];
       this.middlewares = [];
 
@@ -96,7 +100,7 @@
       if (this.mode === 'history') {
         window.addEventListener('popstate', this.checkAndExecute.bind(this), false);
         document.addEventListener('click', function(evt) {
-          if (!evt.defaultPrevented && evt.target.nodeName === 'A') {
+          if (!evt.defaultPrevented && evt.target.nodeName === 'A' && evt.target.target === '') {
             evt.preventDefault();
             history.pushState({
               url: evt.target.getAttribute('href')
@@ -139,7 +143,7 @@
               var matches = [];
               var result = fragment.match(handler.pattern);
               if (result) {
-                matches = result.slice(1)
+                matches = result.slice(1);
               }
 
               if (result) {
@@ -241,4 +245,6 @@
       history.back();
     },
   };
+
+  xin.AppBehavior = xin.Behavior('xin.AppBehavior', AppBehavior);
 })(this);

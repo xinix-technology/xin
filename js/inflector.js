@@ -60,6 +60,88 @@
     return  dashified[camel];
   };
 
+  var repository = {};
+  xin.get = function(name) {
+    if (repository[name]) {
+      return repository[name];
+    }
+
+    var nameSplitted = name.split('.');
+    var scope = root;
+    nameSplitted.find(function(token) {
+      scope = scope[token];
+      if (!scope) {
+        return true;
+      }
+    });
+    return scope;
+  };
+
+  xin.put = function(name, value) {
+    repository[name] = value
+  };
+
+  /**
+   * Async
+   **/
+  var Async = xin.Async = function(context) {
+    this.context = context;
+    this.handle = null;
+  };
+
+  Async.prototype = {
+    start: function(callback, wait) {
+      wait = wait || 0;
+
+      var context = this.context;
+      var boundCallback = function() {
+        callback.call(context);
+      };
+      this.handle = setTimeout(boundCallback, wait);
+    },
+
+    cancel: function() {
+      clearTimeout(~~this.handle);
+    },
+  };
+
+  /**
+   * Debounce
+   **/
+  var Debounce = xin.Debounce = function(context, immediate) {
+    this.context = context;
+    this.immediate = immediate ? true : false;
+    this.async = null;
+    this.running = false;
+  };
+
+  Debounce.prototype = {
+    start: function(callback, wait) {
+      if (this.immediate) {
+        throw new Error('Unimplemented yet!');
+      }
+
+      this.running = true;
+      this.async = new Async(this.context);
+      this.async.start(function() {
+        callback.call(this.context);
+        this.running = false;
+        this.async = null;
+      }.bind(this), wait);
+    },
+
+    cancel: function() {
+      this.running = false;
+      this.async.cancel();
+      this.async = null;
+    },
+  };
+
+  xin.Behavior = function(name, behavior) {
+    behavior.__name = name;
+    return behavior;
+  };
+
   if (root.xinOptions) {
     for(var i in root.xinOptions) {
       xin.setup(i, root.xinOptions[i]);

@@ -6,6 +6,6 @@
   xin.Component({
     is: 'xin-view',
 
-    behaviors: [xin.ViewBehavior],
+    behaviors: ['xin.ViewBehavior'],
   });
 })(this);

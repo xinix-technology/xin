@@ -1,0 +1,127 @@
+<link rel="import" href="./xin.html">
+
+<script>
+(function(){
+  'use strict';
+
+  xin.Component({
+    is: 'xin-ajax',
+
+    properties: {
+      method: {
+        type: String,
+        value: 'get',
+      },
+
+      url: {
+        type: String,
+        observer: '_urlChanged',
+      },
+
+      as: {
+        type: String,
+        value: 'intelligent',
+        observer: '_asChanged',
+      },
+
+      debounceDuration: {
+        type: Number,
+        value: 0,
+      },
+    },
+
+    _urlChanged: function() {
+      this.debounce('_request', this._request, this.debounceDuration);
+    },
+
+    _asChanged: function() {
+      this.debounce('_request', this._request, this.debounceDuration);
+    },
+
+    _request: function() {
+      var promise = this.request({
+        method: this.method,
+        url: this.generateUrl(),
+        as: this.as,
+      }).then(function(xhr) {
+        this.fire('response', {
+          body: xhr.body,
+          xhr: xhr,
+        });
+      }.bind(this), function(err) {
+        this.fire('error', {
+          error: err,
+          xhr: err.xhr,
+        });
+      }.bind(this));
+    },
+
+    generateUrl: function() {
+      return this.url;
+    },
+
+    _prepareOptions: function(options) {
+      options = options || {};
+      options.method = (options.method || 'get').toUpperCase();
+      return options;
+    },
+
+    request: function(options) {
+      options = this._prepareOptions(options);
+      return new Promise(function(resolve, reject) {
+        var xhr = new XMLHttpRequest();
+        try {
+          xhr.open(options.method, options.url, options.async || true);
+          xhr.onload = function() {
+            var handleAs = options.as;
+            if (handleAs === 'intelligent') {
+              var contentType = xhr.getResponseHeader('Content-Type');
+              if (contentType.indexOf('json') !== -1) {
+                handleAs = 'json';
+              } else if (contentType.indexOf('html') !== -1) {
+                handleAs = 'html';
+              } else if (contentType.indexOf('xml') !== -1) {
+                handleAs = 'xml';
+              } else {
+                handleAs = 'text';
+              }
+            }
+            if (xhr.status >= 200 && xhr.status < 400) {
+              switch (handleAs) {
+                case 'json':
+                  try {
+                    xhr.body = JSON.parse(xhr.responseText);
+                    resolve(xhr);
+                  } catch(e) {
+                    e.xhr = xhr;
+                    reject(e);
+                  }
+                  break;
+                case 'xml':
+                  xhr.body = xhr.responseXML;
+                  resolve(xhr);
+                  break;
+                default:
+                  xhr.body = xhr.response;
+                  resolve(xhr);
+              }
+            } else {
+              var err = new Error('Http status ' + xhr.status);
+              err.xhr = xhr;
+              reject(err);
+            }
+          };
+          xhr.onerror = function(err) {
+            err.xhr = xhr;
+            reject(err);
+          };
+          xhr.send(options.body);
+        } catch(e) {
+          e.xhr = xhr;
+          reject(e);
+        }
+      });
+    },
+  });
+})();
+</script>

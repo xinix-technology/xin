@@ -1,4 +1,5 @@
 (function(root) {
+  'use strict';
 
   var xin = root.xin;
 
@@ -8,10 +9,6 @@
     add: function(element) {
       this.views = this.views || [];
       this.views.push(element);
-
-      // if (!element.transitionFx) {
-      //   element.transitionFx = new xin.Fx(element, 'none');
-      // }
     },
 
     setFocus: function(element) {
@@ -28,7 +25,9 @@
           this._transitionBackward(this.focused$, element);
         }
       } else {
-        this.focused$.setFocus(false);
+        if (this.focused$) {
+          this.focused$.setFocus(false);
+        }
       }
 
       this.focused$ = element;

@@ -134,5 +134,5 @@
     },
   };
 
-  xin.ViewBehavior = [xin.ContainerBehavior, ViewBehaviorImpl];
+  xin.ViewBehavior = xin.Behavior('xin.ViewBehavior', ['xin.ContainerBehavior', ViewBehaviorImpl]);
 })(this);
