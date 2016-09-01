@@ -6,6 +6,6 @@
   xin.Component({
     is: 'xin-app',
 
-    behaviors: [xin.AppBehavior]
+    behaviors: ['xin.AppBehavior']
   });
 })(this);

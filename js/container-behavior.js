@@ -4,7 +4,7 @@
   var xin = root.xin;
 
   // TODO please write global notify after writing basic notify
-  var ContainerBehavior = xin.ContainerBehavior = {
+  var ContainerBehavior = {
     properties: {
       ref: {
         type: Object,
@@ -92,4 +92,6 @@
       this.set(evt.detail.property, evt.detail.value);
     }
   };
+
+  xin.ContainerBehavior = xin.Behavior('xin.ContainerBehavior', ContainerBehavior);
 })(this);
