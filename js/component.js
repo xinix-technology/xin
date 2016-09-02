@@ -479,13 +479,20 @@
     this._populateProperties = function() {
       Object.getOwnPropertyNames(this.__properties).forEach(function(name) {
         var attrName = xin.Inflector.dashify(name);
+
+        // TODO this is fix of title attribute of element
+        //if (attrName === 'title') {
+        //  return;
+        //}
         var val = null;
         var attrVal = this.getAttribute(attrName);
 
         // set property value when attr set and the value specified is static
         if (typeof attrVal === 'string') {
           var prefix = attrVal.substr(0, 2);
-          if (prefix !== '{{' && prefix !== '[[') {
+          if (prefix === '{{' || prefix === '[[') {
+            this.setAttribute('xin-value:' + attrName, attrVal);
+          } else {
             val = this._deserialize(attrVal, this.__properties[name].type);
           }
           this[name] = val;
@@ -576,11 +583,15 @@
         } else {
           var mode = attr.value.substr(0, 2);
           if (mode === '[[' || mode === '{{') {
+            var name = attr.name;
+            if (name.startsWith('xin-value:')) {
+              name = name.substr('xin-value:'.length);
+            }
             var annotation = {
               mode: mode[0],
               value: attr.value.slice(2, -2).trim(),
               target: node,
-              attribute: attr.name
+              attribute: name,
             };
 
             attr.value = '';
@@ -850,6 +861,7 @@
     this._parsePropertyAnnotations = function() {
       Object.getOwnPropertyNames(this.__properties).forEach(function(name) {
         var prop = this.__properties[name];
+
         if (prop.observer) {
           this._bind({
             kind: 'observer',
