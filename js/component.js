@@ -92,7 +92,11 @@
       var i;
 
       if (typeof behavior === 'string') {
-        behavior = xin.get(behavior);
+        var resolvedBehavior = xin.get(behavior);
+        if (!resolvedBehavior) {
+          throw new Error('Cannot found named behavior: ' + behavior);
+        }
+        behavior = resolvedBehavior;
       }
 
       if (Array.isArray(behavior)) {

@@ -139,6 +139,7 @@
 
   xin.Behavior = function(name, behavior) {
     behavior.__name = name;
+    xin.put(name, behavior);
     return behavior;
   };
 
