@@ -730,7 +730,9 @@
                     annotation.target.set(xin.Inflector.camelize(attribute), value || null);
                   } else {
                     var selectable = document.activeElement === annotation.target &&
-                      annotation.target.tagName === 'INPUT';
+                      annotation.target.tagName === 'INPUT' && (
+                          annotation.target.type !== 'range'
+                          );
 
                     var selStart, selEnd;
                     if (selectable) {
