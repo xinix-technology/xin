@@ -11,10 +11,21 @@
         type: String,
         value: 'hash',
       },
+
       rootUri: {
         type: String,
         value: '/',
       },
+
+      hashSeparator: {
+        type: String,
+        value: '#!',
+        observer: '__hashSeparatorChanged',
+      },
+    },
+
+    __hashSeparatorChanged: function(hashSeparator) {
+      this.reHashSeparator = new RegExp(hashSeparator + '(.*)$');
     },
 
     created: function() {
@@ -29,30 +40,37 @@
       this.history = root.history;
 
       // default values
-      this.mode = 'hash';
-      this.hashSeparator = '#!';
-      //this.rootUri = '/';
       this.handlers = [];
       this.middlewares = [];
 
-      this._started = false;
+      this.__started = false;
 
       this.addEventListener('route-not-found', function(evt) {
         console.error('Route not found: ' + evt.detail);
       });
+
+      var originalNotify = this.__notify;
+      this.__notify = function(path, value, oldValue) {
+        originalNotify.apply(this, arguments);
+        if (path[0] === '$') {
+          this.fire('property-sync', {
+            property: path,
+            value: value,
+            oldValue: oldValue,
+          });
+        }
+      };
     },
 
     attached: function() {
-      this.async(function() {
-        this.start();
-      });
+      this.start();
     },
 
-    _isStatic: function(pattern) {
+    __isStatic: function(pattern) {
       return pattern.match(/[[{]/) ? false: true;
     },
 
-    _routeRegExp: function(str) {
+    __routeRegExp: function(str) {
       var chunks = str.split('[');
 
       if(chunks.length > 2) {
@@ -84,25 +102,40 @@
         args: [],
         callback: callback,
       };
-      if (!this._isStatic(route)) {
+
+      if (!this.__isStatic(route)) {
         routeHandler.type = 'v';
-        var result = this._routeRegExp(route);
+        var result = this.__routeRegExp(route);
         routeHandler.pattern = result[0];
         routeHandler.args = result[1];
       }
 
       this.handlers.push(routeHandler);
+
+      // when app already on starting state but not accomplished yet will try start when one handler pushed
+      if (this.__starting) {
+        this.__starting = false;
+        this.async(this.__tryStart);
+      }
     },
 
     start: function() {
-      this.reHashSeparator = new RegExp(this.hashSeparator + '(.*)$');
+      this.__starting = true;
+      this.check().then(function(executors) {
+        if (executors.length > 0) {
+          this.__starting = false;
+          this.__tryStart();
+        }
+      }.bind(this));
+    },
 
+    __tryStart: function() {
       if (this.mode === 'history') {
         window.addEventListener('popstate', this.checkAndExecute.bind(this), false);
         document.addEventListener('click', function(evt) {
           if (!evt.defaultPrevented && evt.target.nodeName === 'A' && evt.target.target === '') {
             evt.preventDefault();
-            history.pushState({
+            this.history.pushState({
               url: evt.target.getAttribute('href')
             }, evt.target.innerHTML, evt.target.href);
             this.checkAndExecute();
@@ -112,17 +145,18 @@
         window.addEventListener('hashchange', this.checkAndExecute.bind(this), false);
       }
 
-      this.checkAndExecute().then(function() {
-        if (XIN_DEBUG) {
-          console.info('Started    ' + this.__getId());
-        }
-        this.fire('started');
-        this._started = true;
-      }.bind(this));
+      this.checkAndExecute()
+        .then(function() {
+          if (XIN_DEBUG) {
+            console.info('Started    ' + this.__getId());
+          }
+          this.fire('started');
+          this.__started = true;
+        }.bind(this));
     },
 
     isStarted: function() {
-      return this._started || false;
+      return this.__started || false;
     },
 
     check: function(fragment) {
@@ -220,29 +254,32 @@
       this.middlewares.push(middleware);
     },
 
-    getURI: function() {
-      if (this.mode === 'hash') {
-        return location.hash.replace(this.hashSeparator, '') || '/';
-      } else {
-        throw new Error('Unimplemented getURI from history mode');
-      }
-    },
+    // REMOVED, you can use getFragment()
+    //getURI: function() {
+    //  if (this.mode === 'hash') {
+    //    return this.location.hash.replace(this.hashSeparator, '') || '/';
+    //  } else {
+    //    throw new Error('Unimplemented getURI from history mode');
+    //  }
+    //},
 
     getFragment: function() {
       var fragment;
       if(this.mode === 'history') {
-          fragment = decodeURI(this.location.pathname + this.location.search);
-          fragment = fragment.replace(/\?(.*)$/, '');
-          fragment = this.rootUri != '/' ? fragment.replace(this.rootUri, '') : fragment;
+        fragment = decodeURI(this.location.pathname + this.location.search);
+        fragment = fragment.replace(/\?(.*)$/, '');
+        fragment = this.rootUri != '/' ? fragment.replace(this.rootUri, '') : fragment;
       } else {
-          var match = this.location.href.match(this.reHashSeparator);
-          fragment = match ? match[1] : '';
+        var match = this.location.href.match(this.reHashSeparator);
+        fragment = match ? match[1] : '';
       }
+
       return '/' + fragment.toString().replace(/\/$/, '').replace(/^\//, '');
     },
 
     $back: function(evt) {
-      history.back();
+      evt.preventDefault();
+      this.history.back();
     },
   };
 

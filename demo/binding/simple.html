@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+</head>
+<body>
+  <script src="/bower_components/webcomponentsjs/webcomponents-lite.js"></script>
+  <link rel="import" href="/bower_components/xin/xin.html">
+  <script>
+  (function() {
+    'use strict';
+
+    xin.Component({
+      is: 'x-scoped',
+    });
+
+    xin.Component({
+      is: 'x-attrbind',
+      properties: {
+        foo: String,
+      },
+    });
+
+    xin.Component({
+      is: 'x-attrval',
+      properties: {
+        fooBar: String,
+      }
+    });
+
+    xin.Component({
+      is: 'x-objectbind',
+      properties: {
+        foo: Object,
+      },
+    });
+
+    xin.Component({
+      is: 'x-computedbind',
+
+      properties: {
+        full: {
+          type: String,
+          computed: '_compute(first, last)',
+        },
+      },
+
+      _compute: function(first, last) {
+        return ((first || '') + ' ' + (last || '')).trim();
+      },
+    });
+
+    xin.Component({
+      is: 'x-notify',
+
+      properties: {
+        value: {
+          type:String,
+          notify: true,
+        },
+      },
+    });
+
+    xin.Component({
+      is: 'x-observe',
+
+      properties: {
+        password: {
+          type: String,
+          observer: 'passwordChanged',
+        }
+      },
+
+      passwordChanged: function(pass) {
+        if (pass === 'goodpassword') {
+          alert('Good password!');
+        }
+      },
+    });
+  })();
+  </script>
+
+  <x-attrbind foo="bar">
+    <template>
+      <h3>Text Binding</h3>
+
+      <p>This value below is bound to x-attrbind#foo</p>
+      <p>foo: <span>[[foo]]</span></p>
+    </template>
+  </x-attrbind>
+
+  <x-attrbind foo="javascript:alert('foo clicked')">
+    <template>
+      <h3>Attribute Binding</h3>
+
+      <p>a#href is bound to x-attrbind#foo</p>
+      <p>foo: <a href="[[foo]]">click foo</a></p>
+      <p>bind to custom attribute <x-attrval foo-bar="[[foo]]">
+        <template>
+          <span>[[fooBar]]</span>
+        </template>
+      </x-attrval></p>
+    </template>
+  </x-attrbind>
+
+  <x-objectbind foo='{"bar":"baz"}'>
+    <template>
+      <h3>Bind Object</h3>
+
+      <p>This value below is bound to x-objectbind#foo.bar</p>
+      <p>foo.bar <span>[[foo.bar]]</span></p>
+    </template>
+  </x-objectbind>
+
+  <x-scoped>
+    <template>
+      <h3>One and Two Way Binding</h3>
+
+      <p>
+        One-way binding:
+        <input type="text" value="[[foo]]">
+      </p>
+
+      <p>
+        Two-way binding:
+        <input type="text" value="{{foo}}">
+      </p>
+    </template>
+  </x-scoped>
+
+  <x-computedbind>
+    <template>
+      <h3>Computed Binding</h3>
+
+      <p>
+        First name:
+        <input type="text" value="{{first}}">
+      </p>
+
+      <p>
+        Last name:
+        <input type="text" value="{{last}}">
+      </p>
+
+      <p>
+        Full name:
+        <input type="text" value="[[full]]">
+      </p>
+
+      <p>
+        Inline computed binding:
+        <span>[[_compute(first, last)]]</span>
+      </p>
+    </template>
+  </x-computedbind>
+
+  <x-scoped>
+    <template>
+      <p>This component below will notify host scope</p>
+      <x-notify value="{{bar}}">
+        <template>
+          <input type="text" value="{{value}}">
+        </template>
+      </x-notify>
+      <div>[[bar]]</div>
+    </template>
+  </x-scoped>
+
+  <x-observe>
+    <template>
+      <input type="text" value="{{password}}">
+    </template>
+  </x-observe>
+
+  <x-scoped>
+    <template>
+      <p>Will bind to attribute</p>
+      <input type="text" value="{{foo}}">
+      <div foo-bar$="[[foo]]">inspect me and see foo-bar attribute</div>
+    </template>
+  </x-scoped>
+
+  <x-scoped>
+    <template>
+      <div>
+        <textarea>{{foo}}</textarea>
+      </div>
+      <div>
+        <input type="text" value="{{foo}}">
+      </div>
+      <p>Will bind to innerHTML</p>
+      <div html="[[foo]]"></div>
+    </template>
+  </x-scoped>
+</body>
+</html>

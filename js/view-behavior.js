@@ -22,9 +22,9 @@
     },
 
     listeners: {
-      'focusing': '_focusing',
-      'focus': '_focused',
-      'blur': '_blurred',
+      'focusing': '__focusing',
+      'focus': '__focused',
+      'blur': '__blurred',
     },
 
     created: function() {
@@ -49,15 +49,16 @@
         this.parentElement.add(this);
       }
 
-      this._parameterNames = (this.uri.match(/((\(\?)?:\w+|\*\w+)/g) || []).map(function(param) {
-        return param.substr(1);
-      });
+      // deprecated in order of new uri parser
+      // this._parameterNames = (this.uri.match(/((\(\?)?:\w+|\*\w+)/g) || []).map(function(param) {
+      //   return param.substr(1);
+      // });
 
-      this._app.route(this.uri, this.focus.bind(this));
+      this.__getApp().route(this.uri, this.focus.bind(this));
       this.fire('routed');
     },
 
-    _focusing: function() {
+    __focusing: function() {
       if (XIN_DEBUG) {
         console.info('Focusing   ' + this.__getId());
       }
@@ -67,7 +68,7 @@
       }
     },
 
-    _focused: function() {
+    __focused: function() {
       if (XIN_DEBUG) {
         console.info('Focused    ' + this.__getId());
       }
@@ -99,7 +100,7 @@
       }
     },
 
-    _blurred: function() {
+    __blurred: function() {
       if (typeof this.blurred === 'function') {
         return this.blurred.apply(this, arguments);
       }

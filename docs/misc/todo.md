@@ -1,5 +1,7 @@
 # TODO
 
+- [ ] pindahin method2 Base ke prototypenya, bikin beberapa prototype sesuai extendnya
+
 - [ ] properties validation
 - [ ] app.navigate or url changed must calculate whether navigation is push or pop history
 - [ ] xin-pager, will change doc title when view visible changed
