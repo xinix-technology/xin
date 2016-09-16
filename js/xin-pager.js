@@ -20,9 +20,9 @@
         }
 
         if (oldIndex < index) {
-          this._transitionForward(this.focused$, element);
+          this.__transitionForward(this.focused$, element);
         } else if (oldIndex > index) {
-          this._transitionBackward(this.focused$, element);
+          this.__transitionBackward(this.focused$, element);
         }
       } else {
         if (this.focused$) {
@@ -33,7 +33,7 @@
       this.focused$ = element;
     },
 
-    _transitionBackward: function(prevEl, nextEl) {
+    __transitionBackward: function(prevEl, nextEl) {
       Promise.all([
         prevEl.transitionFx.play('out', -1),
         nextEl.transitionFx.play('in', -1),
@@ -46,7 +46,7 @@
       }.bind(this));
     },
 
-    _transitionForward: function(prevEl, nextEl) {
+    __transitionForward: function(prevEl, nextEl) {
       if (!prevEl) {
         (new xin.Fx(nextEl, 'none')).play('in', 1).then(function() {
           nextEl.setVisible(true);

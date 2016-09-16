@@ -33,7 +33,7 @@
     properties: {
       items: {
         type: Array,
-        observer: '_itemsChanged'
+        observer: '__itemsChanged'
       },
 
       as: {
@@ -55,34 +55,60 @@
       this.rowProto = new xin.Base();
 
       var templateHost = this;
-      var _set = this.rowProto.set;
+      var __set = this.rowProto.set;
       this.rowProto.set = function(name, value) {
         var nameSegments = name.split('.');
         switch(nameSegments[0]) {
           case templateHost.as:
           case templateHost.indexAs:
-            return _set.apply(this, arguments);
+            return __set.apply(this, arguments);
           default:
-            var oldValue = this._host.get(name);
-            return this._host.set(name, value);
+            // var oldValue = this.__host.get(name);
+            return this.__host.set(name, value);
         }
       };
 
-      var _get = this.rowProto.get;
+      var __get = this.rowProto.get;
       this.rowProto.get = function(name) {
         var nameSegments = name.split('.');
         switch(nameSegments[0]) {
           case templateHost.as:
           case templateHost.indexAs:
-            return _get.apply(this, arguments);
+            return __get.apply(this, arguments);
           default:
-            return this._host.get(name, value);
+            return this.__host.get(name, value);
         }
       };
 
       if (!this.content && HTMLTemplateElement.decorate) {
         HTMLTemplateElement.decorate(this);
       }
+
+      // Row is class to create new row
+      var self = this;
+      this.Row = function(item, index) {
+        var row = this;
+        var fragment = document.importNode(self.content, true);
+        this.__root = xin.Dom(fragment).childNodes.map(function(node) {
+          node.__model = row;
+          node.__index = index;
+          node.__item = item;
+          return node;
+        });
+
+        this.__initialize();
+
+        this.__host = self.__parent;
+
+        this.__parseAnnotations();
+
+        this.set(self.as, item);
+
+        if (self.parentElement) {
+          xin.Dom(self.parentElement).insertBefore(fragment, self);
+        }
+      };
+      this.Row.prototype = this.rowProto;
     },
 
     itemForElement: function(element) {
@@ -106,41 +132,41 @@
       return element.__model;
     },
 
-    _insertRow: function(item, index) {
-      var fragment = document.importNode(this.content, true);
-      var row = {
-        _root: xin.Dom(fragment).childNodes
-      };
+    __insertRow: function(item, index) {
+      //var fragment = document.importNode(this.content, true);
+      //var row = {
+      //  __root: xin.Dom(fragment).childNodes
+      //};
 
-      row._root.forEach(function(node) {
-        node.__model = row;
-        node.__index = index;
-        node.__item = item;
-      });
+      //row.__root.forEach(function(node) {
+      //  node.__model = row;
+      //  node.__index = index;
+      //  node.__item = item;
+      //});
 
-      Object.setPrototypeOf(row, this.rowProto);
+      //Object.setPrototypeOf(row, this.rowProto);
 
-      row._initData();
+      //row.__initialize();
 
-      row._host = this._parent;
+      //row.__host = this.__parent;
 
-      row._parseAnnotations();
+      //row.__parseAnnotations();
 
-      row._parsePropertyAnnotations();
+      //row.set(this.as, item);
 
-      row.set(this.as, item);
+      //if (this.parentElement) {
+      //  xin.Dom(this.parentElement).insertBefore(fragment, this);
+      //}
 
-      if (this.parentElement) {
-        xin.Dom(this.parentElement).insertBefore(fragment, this);
-      }
+      var row = new this.Row(item, index);
 
       return row;
     },
 
-    _itemsChanged: function(items, oldItems) {
+    __itemsChanged: function(items /*, oldItems */) {
       if (this.rows && this.rows.length) {
         this.rows.forEach(function(row) {
-          row._children.forEach(function(node) {
+          row.__children.forEach(function(node) {
             node.parentElement.removeChild(node);
           });
         }.bind(this));
@@ -155,7 +181,7 @@
 
       items.forEach(function(item, index) {
         try {
-          var row = this._insertRow(item, index);
+          var row = this.__insertRow(item, index);
           this.rows.push(row);
         } catch(e) {
           console.error(e.message + '\n' + e.stack);

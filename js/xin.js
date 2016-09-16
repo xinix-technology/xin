@@ -23,6 +23,11 @@
 (function(root) {
   'use strict';
 
+  if (undefined !== root.xin) {
+    console.warn('xin already exists, please check your script order.');
+    return;
+  }
+
   var xin = root.xin = function(id) {
     return xin.__components[id];
   };
@@ -91,7 +96,15 @@
   };
 
   xin.put = function(name, value) {
-    repository[name] = value
+    repository[name] = value;
+  };
+
+  xin.v = function(value) {
+    if (typeof value === 'function') {
+      return value();
+    } else {
+      return value;
+    }
   };
 
   /**

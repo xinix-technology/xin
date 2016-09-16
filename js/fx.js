@@ -22,10 +22,10 @@
 
   var adapters = {
     none: {
-      in: function(direction) {
+      in: function(/*direction*/) {
         return Promise.resolve();
       },
-      out: function(direction) {
+      out: function(/*direction*/) {
         return Promise.resolve();
       }
     },
@@ -33,7 +33,7 @@
       in: function(direction) {
         var directionClass = direction > 0 ? 'transition-slide-in-right' : 'transition-slide-in-left';
 
-        return new Promise(function(resolve, reject) {
+        return new Promise(function(resolve/*, reject*/) {
           var onEnd = function () {
             this.element.removeEventListener('webkitTransitionEnd', onEnd);
             this.element.removeEventListener('transitionend', onEnd);
@@ -63,7 +63,7 @@
       },
       out: function(direction) {
         var directionClass = direction > 0 ? 'transition-slide-out-left' : 'transition-slide-out-right';
-        return new Promise(function(resolve, reject) {
+        return new Promise(function(resolve/*, reject*/) {
           var onEnd = function () {
             this.element.removeEventListener('webkitTransitionEnd', onEnd);
             this.element.removeEventListener('transitionend', onEnd);

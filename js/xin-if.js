@@ -33,7 +33,7 @@
     properties: {
       'if': {
         type: Array,
-        observer: '_ifChanged'
+        observer: '__ifChanged'
       },
     },
 
@@ -44,26 +44,26 @@
       this.modelProto = new xin.Base();
 
       // var templateHost = this;
-      // var _set = this.rowProto.set;
+      // var __set = this.rowProto.set;
       // this.rowProto.set = function(name, value) {
       //   switch(name) {
       //     case templateHost.as:
       //     case templateHost.indexAs:
-      //       return _set.apply(this, arguments);
+      //       return __set.apply(this, arguments);
       //     default:
-      //       var oldValue = this._host.get(name);
-      //       return this._host.set(name, value);
+      //       var oldValue = this.__host.get(name);
+      //       return this.__host.set(name, value);
       //   }
       // };
 
-      // var _get = this.rowProto.get;
+      // var __get = this.rowProto.get;
       // this.rowProto.get = function(name) {
       //   switch(name) {
       //     case templateHost.as:
       //     case templateHost.indexAs:
-      //       return _get.apply(this, arguments);
+      //       return __get.apply(this, arguments);
       //     default:
-      //       return this._host.get(name, value);
+      //       return this.__host.get(name, value);
       //   }
       // };
 
@@ -72,39 +72,39 @@
       }
     },
 
-    _insert: function() {
+    __insert: function() {
       var fragment = document.importNode(this.content, true);
       var model = {
-        _root: xin.Dom(fragment).childNodes
+        __root: xin.Dom(fragment).childNodes
       };
 
-      model._root.forEach(function(node) {
+      model.__root.forEach(function(node) {
         node.__model = model;
       });
       Object.setPrototypeOf(model, this.modelProto);
 
-      model._initData();
+      model.__initialize();
 
-      model._host = this._parent;
+      model.__host = this.__parent;
 
-      model._parseAnnotations();
+      model.__parseAnnotations();
 
-      model._parsePropertyAnnotations();
+      //model.__parsePropertyAnnotations();
 
       xin.Dom(this.parentElement).insertBefore(fragment, this);
 
       return model;
     },
 
-    _ifChanged: function(iff, oldIff) {
+    __ifChanged: function(iff/*, oldIff*/) {
       if (this.model) {
-        this.model._children.forEach(function(node) {
+        this.model.__children.forEach(function(node) {
           node.parentElement.removeChild(node);
         });
       }
 
       if (iff) {
-        this.model = this._insert();
+        this.model = this.__insert();
       }
     }
   });

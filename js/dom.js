@@ -34,18 +34,28 @@
 
     this.element = element;
 
-    Object.defineProperties(this, {
-      childNodes: {
-        get: function() {
-          return Array.prototype.slice.call(this.element.childNodes);
-        }
-      },
-      children: {
-        get: function() {
-          return Array.prototype.slice.call(this.element.children);
-        }
-      }
-    });
+    //Object.defineProperties(this, {
+    //  childNodes: {
+    //    get: function() {
+    //      return Array.prototype.slice.call(this.element.childNodes);
+    //    }
+    //  },
+    //  children: {
+    //    get: function() {
+    //      return Array.prototype.slice.call(this.element.children);
+    //    }
+    //  }
+    //});
+  };
+
+  Dom.prototype = {
+    get childNodes() {
+      return Array.prototype.slice.call(this.element.childNodes);
+    },
+
+    get children() {
+      return Array.prototype.slice.call(this.element.children);
+    },
   };
 
   Dom.prototype.querySelector = function(selector) {

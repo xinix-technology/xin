@@ -30,7 +30,7 @@
   xin.templates = {};
   xin.instanceTemplates = {};
 
-  xin._fixNestedTemplate = function(template) {
+  xin.__fixNestedTemplate = function(template) {
     // dont have to fix if not polyfilled
     if (!HTMLTemplateElement.decorate) {
       return template;
