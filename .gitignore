@@ -4,4 +4,4 @@
 /vendor
 /*.sublime-*
 /.sass-cache
-/app
+/coverage

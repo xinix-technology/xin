@@ -25,28 +25,23 @@
 
   var xin = root.xin;
 
-  var matches = HTMLElement.prototype.matches || HTMLElement.prototype.matchesSelector || HTMLElement.prototype.webkitMatchesSelector || HTMLElement.prototype.mozMatchesSelector || HTMLElement.prototype.msMatchesSelector;
+  var matches = HTMLElement.prototype.matches ||
+    HTMLElement.prototype.matchesSelector ||
+    HTMLElement.prototype.webkitMatchesSelector ||
+    HTMLElement.prototype.mozMatchesSelector ||
+    HTMLElement.prototype.msMatchesSelector;
 
-  var Dom = xin.Dom = function(element) {
+  function dom(element) {
+    return new Dom(element);
+  }
+
+  function Dom(element) {
     if (!(this instanceof Dom)) {
-      return new Dom(element);
+      return dom(element);
     }
 
     this.element = element;
-
-    //Object.defineProperties(this, {
-    //  childNodes: {
-    //    get: function() {
-    //      return Array.prototype.slice.call(this.element.childNodes);
-    //    }
-    //  },
-    //  children: {
-    //    get: function() {
-    //      return Array.prototype.slice.call(this.element.children);
-    //    }
-    //  }
-    //});
-  };
+  }
 
   Dom.prototype = {
     get childNodes() {
@@ -56,116 +51,118 @@
     get children() {
       return Array.prototype.slice.call(this.element.children);
     },
-  };
 
-  Dom.prototype.querySelector = function(selector) {
-    return this.element.querySelector(selector);
-  };
+    querySelector: function(selector) {
+      return this.element.querySelector(selector);
+    },
 
-  Dom.prototype.querySelectorAll = function(selector) {
-    return Array.prototype.slice.call(this.element.querySelectorAll(selector));
-  };
+    querySelectorAll: function(selector) {
+      return Array.prototype.slice.call(this.element.querySelectorAll(selector));
+    },
 
-  Dom.prototype.parent = function(selector) {
-    var parent$ = this.element.parentElement;
+    parent: function(selector) {
+      var parent$ = this.element.parentElement;
 
-    if (!selector) {
+      if (!selector) {
+        return parent$;
+      }
+
+      while (parent$) {
+        if (!selector || matches.call(parent$, selector)) {
+          break;
+        }
+        parent$ = parent$.parentElement;
+      }
+
       return parent$;
-    }
+    },
 
-    while(parent$) {
-      if (!selector || matches.call(parent$, selector)) {
-        break;
+    parents: function(selector) {
+      var parents$ = [];
+      var parent$ = this.element.parentElement;
+
+      while (parent$) {
+        if (!selector || matches.call(parent$, selector)) {
+          parents$.push(parent$);
+        }
+        parent$ = parent$.parentElement;
       }
-      parent$ = parent$.parentElement;
-    }
 
-    return parent$;
-  };
+      return parents$;
+    },
 
-  Dom.prototype.parents = function(selector) {
-    var parents$ = [];
-    var parent$ = this.element.parentElement;
+    matches: function(selector) {
+      return matches.call(this.element, selector);
+    },
 
-    while(parent$) {
-      if (!selector || matches.call(parent$, selector)) {
-        parents$.push(parent$);
+    is: function(selector) {
+      return matches.call(this.element, selector);
+    },
+
+    appendChild: function(node) {
+      this.element.appendChild(node);
+      return node;
+    },
+
+    insertBefore: function(node, refNode) {
+      if (!refNode) {
+        return this.appendChild(node);
       }
-      parent$ = parent$.parentElement;
-    }
 
-    return parents$;
+      this.element.insertBefore(node, refNode);
+
+      return node;
+    },
+
+    remove: function() {
+      this.element.parentNode.removeChild(this.element);
+    },
+
+    fire: function(type, detail, options) {
+      options = options || {};
+      detail = detail || {};
+
+      var event;
+      var node = options.node || this.element;
+      var bubbles = options.bubbles === undefined ? true : options.bubbles;
+      var cancelable = Boolean(options.cancelable);
+
+      switch (type) {
+        case 'click':
+          event = new Event(type, {
+            bubbles: bubbles,
+            cancelable: cancelable,
+          });
+
+          // TODO check if without this works on every browsers
+          // event = document.createEvent('HTMLEvents');
+          // event.initEvent(type, true, false);
+
+          node.dispatchEvent(event);
+
+          break;
+        default:
+          event = new CustomEvent(type, {
+            bubbles: Boolean(bubbles),
+            cancelable: cancelable,
+            detail: detail,
+          });
+          node.dispatchEvent(event);
+          break;
+      }
+
+      return event;
+    },
+
+    transform: function(transform) {
+      this.style.webkitTransform = transform;
+      this.style.mozTransform = transform;
+      this.style.msTransform = transform;
+      this.style.oTransform = transform;
+      this.style.transform = transform;
+    },
   };
 
-  Dom.prototype.matches = function(selector) {
-    return matches.call(this.element, selector);
-  };
-
-  Dom.prototype.is = function(selector) {
-    return matches.call(this.element, selector);
-  };
-
-  Dom.prototype.appendChild = function(node) {
-    this.element.appendChild(node);
-    return node;
-  };
-
-  Dom.prototype.insertBefore = function(node, refNode) {
-    if (!refNode) {
-      return this.appendChild(node);
-    }
-
-    this.element.insertBefore(node, refNode);
-
-    return node;
-  };
-
-  Dom.prototype.remove = function() {
-    this.element.parentNode.removeChild(this.element);
-  };
-
-  Dom.prototype.fire = function(type, detail, options) {
-    options = options || {};
-    detail = detail || {};
-
-    var event;
-    var node = options.node || this.element;
-    var bubbles = options.bubbles === undefined ? true : options.bubbles;
-    var cancelable = Boolean(options.cancelable);
-
-    switch(type) {
-      case 'click':
-        event = new Event(type, {
-          bubbles: bubbles,
-          cancelable: cancelable
-        });
-
-        // TODO check if without this works on every browsers
-        // event = document.createEvent('HTMLEvents');
-        // event.initEvent(type, true, false);
-
-        node.dispatchEvent(event);
-
-        break;
-      default:
-        event = new CustomEvent(type, {
-          bubbles: Boolean(bubbles),
-          cancelable: cancelable,
-          detail: detail
-        });
-        node.dispatchEvent(event);
-        break;
-    }
-
-    return event;
-  };
-
-  Dom.prototype.transform = function(transform) {
-    node = this;
-    node.style.webkitTransform = transform;
-    node.style.mozTransform = transform;
-    node.style.msTransform = transform;
-    node.style.oTransform = transform;
-    node.style.transform = transform;
-  };
+  xin.dom = dom;
+  xin.Dom = Dom;
 })(this);

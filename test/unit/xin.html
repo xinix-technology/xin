@@ -1,0 +1,35 @@
+<script src="/bower_components/web-component-tester/browser.js"></script>
+
+<link rel="import" href="../../xin.html">
+
+<script>
+(function() {
+  'use strict';
+
+  suite('xin', function() {
+    var fooComponent = {};
+    window.foo = {
+      bar: 'bar',
+      baz: {
+        foo: 'foo',
+      },
+    };
+
+    test('is function', function() {
+      xin.put('foo', fooComponent);
+
+      assert.isFunction(xin);
+    });
+
+    test('return putted data', function() {
+      assert.equal(xin('foo'), fooComponent);
+      assert.equal(xin('foo.bar'), 'bar');
+      assert.equal(xin('foo.baz.foo'), 'foo');
+
+      xin.clean();
+
+      assert.equal(xin('foo'), window.foo);
+    });
+  });
+})();
+</script>

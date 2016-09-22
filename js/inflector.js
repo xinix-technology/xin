@@ -23,40 +23,47 @@
 (function(root) {
   'use strict';
 
-  var Inflector = root.xin.Inflector = {};
+  var xin = root.xin;
 
   var dashified = {};
   var camelized = {};
 
-  Inflector.camelize = function(dash) {
-    var mapped = camelized[dash];
-    if (mapped) {
-      return mapped;
-    }
-    if (dash.indexOf('-') < 0) {
-      camelized[dash] = dash;
-    } else {
-      camelized[dash] = dash.replace(/-([a-z])/g,
-        function(m) {
-          return m[1].toUpperCase();
+  var inflector = {
+    camelize: function(dash) {
+      var mapped = camelized[dash];
+      if (mapped) {
+        return mapped;
+      }
+      if (dash.indexOf('-') < 0) {
+        camelized[dash] = dash;
+      } else {
+        camelized[dash] = dash.replace(/-([a-z])/g,
+          function(m) {
+            return m[1].toUpperCase();
+          }
+        );
+      }
+
+      return camelized[dash];
+    },
+
+    dashify: function(camel) {
+      var mapped = dashified[camel];
+      if (mapped) {
+        return mapped;
+      }
+      dashified[camel] = camel.replace(/([a-z][A-Z])/g,
+        function(g) {
+          return g[0] + '-' + g[1].toLowerCase();
         }
       );
-    }
 
-    return camelized[dash];
+      return dashified[camel];
+    },
   };
 
-  Inflector.dashify = function(camel) {
-    var mapped = dashified[camel];
-    if (mapped) {
-      return mapped;
-    }
-    dashified[camel] = camel.replace(/([a-z][A-Z])/g,
-      function (g) {
-        return g[0] + '-' + g[1].toLowerCase();
-      }
-    );
+  xin.inflector = inflector;
 
-    return  dashified[camel];
-  };
+  // DEPRECATED
+  xin.Inflector = inflector;
 })(this);

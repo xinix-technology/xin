@@ -1,5 +1,6 @@
 (function() {
   'use strict';
+
   if (!HTMLTemplateElement.decorate) {
     return;
   }
@@ -17,8 +18,7 @@
         t.content = document.importNode(populatedTemplates[index].content, deep);
       });
       return n;
-    } else {
-      return original.apply(this, arguments);
     }
+    return original.apply(this, arguments);
   };
 })();

@@ -23,37 +23,87 @@
 (function(root) {
   'use strict';
 
+  // when xin already defined stop there to avoid multiple xin object declaration
+  /* istanbul ignore if  */
   if (undefined !== root.xin) {
     console.warn('xin already exists, please check your script order.');
     return;
   }
 
-  var xin = root.xin = function(id) {
-    return xin.__components[id];
-  };
-
-  xin.__components = {};
-
-  xin.eob = {};
-  xin.ear = [];
+  /**
+   * Repository to put xin elements or data
+   * @type {Object}
+   */
+  const repository = {};
 
   /**
-   * Default application instance
-   * @type {object}
+   * Global options
+   * @type {Object}
    */
-  xin.app = null;
+  const options = {};
 
-  xin.clone = function(obj) {
-    var newObj = {};
-    for(var i in obj) {
-      if (obj.hasOwnProperty(i)) {
-        newObj = obj;
-      }
+  /**
+   * Get xin element by its id or data from repository by its name
+   * @param  {mixed} id When id is number get xin element otherwise get data from repository
+   * @return {mixed} object
+   */
+  function xin(id) {
+    if (!isNaN(id)) {
+      return repository[id];
     }
-    return newObj;
+
+    if (repository[id]) {
+      return repository[id];
+    }
+
+    var idSplitted = id.split('.');
+    var scope = root;
+    idSplitted.find(function(token) {
+      scope = scope[token];
+      return !scope;
+    });
+
+    return scope;
+  }
+
+  /**
+   * Clean repository from already putted data
+   * @return {void} void
+   */
+  xin.clean = function() {
+    for (var i in repository) {
+      repository[i] = null;
+    }
   };
 
-  var options = {};
+  /**
+   * Put data to repository with specified id
+   * @param  {mixed} id     id
+   * @param  {mixed} value  value to put
+   * @return {void} void
+   */
+  xin.put = function(id, value) {
+    repository[id] = value;
+  };
+
+  // i dont thing we need to set app to xin.app
+  // /**
+  // * Default application instance
+  // * @type {object}
+  // */
+  // xin.app = null;
+
+  // REMOVED
+  // xin.clone = function(obj) {
+  //   var newObj = {};
+  //   for (var i in obj) {
+  //     if ({}.hasOwnProperty.call(obj, i)) {
+  //       newObj = obj;
+  //     }
+  //   }
+  //   return newObj;
+  // };
+
   xin.setup = function(key, value) {
     switch (arguments.length) {
       case 0:
@@ -66,8 +116,8 @@
   };
 
   xin.defaults = function(values, defaultValues) {
-    for(var i in defaultValues) {
-      if ('undefined' === typeof values[i]) {
+    for (var i in defaultValues) {
+      if (typeof values[i] === 'undefined') {
         values[i] = defaultValues[i];
       }
     }
@@ -78,33 +128,8 @@
     return document.querySelector(selector);
   };
 
-  var repository = {};
-  xin.get = function(name) {
-    if (repository[name]) {
-      return repository[name];
-    }
-
-    var nameSplitted = name.split('.');
-    var scope = root;
-    nameSplitted.find(function(token) {
-      scope = scope[token];
-      if (!scope) {
-        return true;
-      }
-    });
-    return scope;
-  };
-
-  xin.put = function(name, value) {
-    repository[name] = value;
-  };
-
   xin.v = function(value) {
-    if (typeof value === 'function') {
-      return value();
-    } else {
-      return value;
-    }
+    return typeof value === 'function' ? value() : value;
   };
 
   /**
@@ -117,6 +142,10 @@
 
   Async.prototype = {
     start: function(callback, wait) {
+      if (typeof callback !== 'function') {
+        throw new Error('Async should specify function');
+      }
+
       wait = wait || 0;
 
       var context = this.context;
@@ -136,7 +165,7 @@
    **/
   var Debounce = xin.Debounce = function(context, immediate) {
     this.context = context;
-    this.immediate = immediate ? true : false;
+    this.immediate = Boolean(immediate);
     this.async = null;
     this.running = false;
   };
@@ -163,15 +192,26 @@
     },
   };
 
-  xin.Behavior = function(name, behavior) {
+  xin.createBehavior = function(name, behavior) {
     behavior.__name = name;
     xin.put(name, behavior);
     return behavior;
   };
 
+  // DEPRECATED xin.Behavior
+  xin.Behavior = xin.createBehavior;
+
   if (root.xinOptions) {
-    for(var i in root.xinOptions) {
-      xin.setup(i, root.xinOptions[i]);
+    for (var i in root.xinOptions) {
+      if ({}.hasOwnProperty.call(root.xinOptions, i)) {
+        xin.setup(i, root.xinOptions[i]);
+      }
     }
   }
+
+  /**
+   * published xin
+   * @type {object}
+   */
+  root.xin = xin;
 })(this);

@@ -25,7 +25,9 @@
 
   var xin = root.xin;
 
-  xin.Component({
+  var FILTER_ALL = function() { return true; };
+
+  xin.createComponent({
     is: 'xin-repeat',
 
     extends: 'template',
@@ -33,7 +35,7 @@
     properties: {
       items: {
         type: Array,
-        observer: '__itemsChanged'
+        observer: '__itemsChanged',
       },
 
       as: {
@@ -45,20 +47,23 @@
         type: String,
         value: 'index',
       },
+
+      filter: {
+        type: Object,
+        observer: '_filterChanged',
+      },
     },
 
     created: function() {
-      // TODO do we still need this chunk?
-      // avoid unnecessary template xin-repeat render on scoped template instance
-      // if (xin.Dom(this).parent('template')) return;
-
-      this.rowProto = new xin.Base();
+      this.rowProto = xin.base({
+        is: '$xin-repeat-row'
+      });
 
       var templateHost = this;
       var __set = this.rowProto.set;
       this.rowProto.set = function(name, value) {
         var nameSegments = name.split('.');
-        switch(nameSegments[0]) {
+        switch (nameSegments[0]) {
           case templateHost.as:
           case templateHost.indexAs:
             return __set.apply(this, arguments);
@@ -71,12 +76,12 @@
       var __get = this.rowProto.get;
       this.rowProto.get = function(name) {
         var nameSegments = name.split('.');
-        switch(nameSegments[0]) {
+        switch (nameSegments[0]) {
           case templateHost.as:
           case templateHost.indexAs:
             return __get.apply(this, arguments);
           default:
-            return this.__host.get(name, value);
+            return this.__host.get(name);
         }
       };
 
@@ -88,8 +93,8 @@
       var self = this;
       this.Row = function(item, index) {
         var row = this;
-        var fragment = document.importNode(self.content, true);
-        this.__root = xin.Dom(fragment).childNodes.map(function(node) {
+        var fragment = this.fragment = document.importNode(self.content, true);
+        this.__root = xin.dom(fragment).childNodes.map(function(node) {
           node.__model = row;
           node.__index = index;
           node.__item = item;
@@ -104,9 +109,9 @@
 
         this.set(self.as, item);
 
-        if (self.parentElement) {
-          xin.Dom(self.parentElement).insertBefore(fragment, self);
-        }
+        // if (self.parentElement) {
+        //  xin.dom(self.parentElement).insertBefore(fragment, self);
+        // }
       };
       this.Row.prototype = this.rowProto;
     },
@@ -132,44 +137,52 @@
       return element.__model;
     },
 
-    __insertRow: function(item, index) {
-      //var fragment = document.importNode(this.content, true);
-      //var row = {
-      //  __root: xin.Dom(fragment).childNodes
-      //};
+    _filterChanged: function(filter) {
+      if (typeof filter !== 'function') {
+        return;
+      }
 
-      //row.__root.forEach(function(node) {
+      this.__itemsChanged(this.items);
+    },
+
+    __insertRow: function(item, index) {
+      // var fragment = document.importNode(this.content, true);
+      // var row = {
+      //  __root: xin.dom(fragment).childNodes
+      // };
+
+      // row.__root.forEach(function(node) {
       //  node.__model = row;
       //  node.__index = index;
       //  node.__item = item;
-      //});
+      // });
 
-      //Object.setPrototypeOf(row, this.rowProto);
+      // Object.setPrototypeOf(row, this.rowProto);
 
-      //row.__initialize();
+      // row.__initialize();
 
-      //row.__host = this.__parent;
+      // row.__host = this.__parent;
 
-      //row.__parseAnnotations();
+      // row.__parseAnnotations();
 
-      //row.set(this.as, item);
+      // row.set(this.as, item);
 
-      //if (this.parentElement) {
-      //  xin.Dom(this.parentElement).insertBefore(fragment, this);
-      //}
+      // if (this.parentElement) {
+      //  xin.dom(this.parentElement).insertBefore(fragment, this);
+      // }
 
       var row = new this.Row(item, index);
 
       return row;
     },
 
-    __itemsChanged: function(items /*, oldItems */) {
+    __itemsChanged: function(items /* , oldItems */) {
       if (this.rows && this.rows.length) {
         this.rows.forEach(function(row) {
           row.__children.forEach(function(node) {
             node.parentElement.removeChild(node);
           });
-        }.bind(this));
+        });
       }
 
       this.rows = [];
@@ -179,14 +192,22 @@
         return;
       }
 
-      items.forEach(function(item, index) {
+      var filter = this.filter || FILTER_ALL;
+
+      var fragment = document.createDocumentFragment();
+      items.filter(filter).forEach(function(item, index) {
         try {
           var row = this.__insertRow(item, index);
+          fragment.appendChild(row.fragment);
           this.rows.push(row);
-        } catch(e) {
-          console.error(e.message + '\n' + e.stack);
+        } catch (err) {
+          console.error(err.stack);
         }
       }.bind(this));
-    }
+
+      if (this.parentElement) {
+        xin.dom(this.parentElement).insertBefore(fragment, this);
+      }
+    },
   });
 })(this);

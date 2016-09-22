@@ -29,7 +29,8 @@
     },
 
     created: function() {
-      xin.app = this;
+      // i dont thing we need to set app to xin.app
+      // xin.app = this;
 
       this.classList.add('xin-app-behavior');
 
@@ -46,7 +47,7 @@
       this.__started = false;
 
       this.addEventListener('route-not-found', function(evt) {
-        console.error('Route not found: ' + evt.detail);
+        root.console.error('Route not found: ' + evt.detail);
       });
 
       var originalNotify = this.__notify;
@@ -67,28 +68,28 @@
     },
 
     __isStatic: function(pattern) {
-      return pattern.match(/[[{]/) ? false: true;
+      return !pattern.match(/[[{]/);
     },
 
     __routeRegExp: function(str) {
       var chunks = str.split('[');
 
-      if(chunks.length > 2) {
+      if (chunks.length > 2) {
         throw new Error('Invalid use of optional params');
       }
 
       var tokens = [];
       var re = chunks[0].replace(/{([^}]+)}/g, function(g, token) {
         tokens.push(token);
-        return '([^\/]+)';
+        return '([^/]+)';
       }).replace(/\//g, '\\/');
 
       var optRe = '';
 
-			if (chunks[1]) {
+      if (chunks[1]) {
         optRe = '(?:' + chunks[1].slice(0, -1).replace(/{([^}]+)}/g, function(g, token) {
           tokens.push(token);
-          return '([^\/]+)';
+          return '([^/]+)';
         }).replace(/\//g, '\\/') + ')?';
       }
       return [new RegExp('^' + re + optRe + '$'), tokens];
@@ -136,7 +137,7 @@
           if (!evt.defaultPrevented && evt.target.nodeName === 'A' && evt.target.target === '') {
             evt.preventDefault();
             this.history.pushState({
-              url: evt.target.getAttribute('href')
+              url: evt.target.getAttribute('href'),
             }, evt.target.innerHTML, evt.target.href);
             this.checkAndExecute();
           }
@@ -148,7 +149,7 @@
       this.checkAndExecute()
         .then(function() {
           if (XIN_DEBUG) {
-            console.info('Started    ' + this.__getId());
+            root.console.info('Started    ' + this.__getId());
           }
           this.fire('started');
           this.__started = true;
@@ -174,11 +175,12 @@
                 return;
               }
             } else if (handler.type === 'v') {
-              var matches = [];
+              // matches is unused
+              // var matches = [];
               var result = fragment.match(handler.pattern);
-              if (result) {
-                matches = result.slice(1);
-              }
+              // if (result) {
+              //   matches = result.slice(1);
+              // }
 
               if (result) {
                 var args = {};
@@ -196,8 +198,8 @@
           });
 
           resolve(running);
-        } catch(e) {
-          reject(e);
+        } catch (err) {
+          reject(err);
         }
       }.bind(this));
     },
@@ -218,18 +220,18 @@
             return promise.then(function() {
               executers.forEach(function(executer) {
                 executer.handler.callback(executer.args);
-              }.bind(this));
+              });
 
-              this.fire('navigated', {uri:fragment});
+              this.fire('navigated', {uri: fragment});
               return executers;
             }.bind(this));
-          } else {
-            this.fire('route-not-found', fragment);
-            return [];
           }
+
+          this.fire('route-not-found', fragment);
+          return [];
         }.bind(this))
         .catch(function(err) {
-          console.error('app-behavior> ' + err.message);
+          root.console.error('Uncaught checkAndExecute error, ' + err.message);
         });
     },
 
@@ -237,10 +239,10 @@
       path = path || '/';
       options = options || {};
 
-      if(this.mode === 'history') {
+      if (this.mode === 'history') {
         var url = this.rootUri + path.toString().replace(/\/$/, '').replace(/^\//, '');
         if (this.location.href.replace(this.location.origin, '') !== url) {
-          this.history[options.replace ? 'replaceState': 'pushState']({}, document.title, url);
+          this.history[options.replace ? 'replaceState' : 'pushState']({}, document.title, url);
           this.checkAndExecute();
         }
       } else {
@@ -255,20 +257,20 @@
     },
 
     // REMOVED, you can use getFragment()
-    //getURI: function() {
-    //  if (this.mode === 'hash') {
-    //    return this.location.hash.replace(this.hashSeparator, '') || '/';
-    //  } else {
-    //    throw new Error('Unimplemented getURI from history mode');
-    //  }
-    //},
+    // getURI: function () {
+    //   if (this.mode === 'hash') {
+    //     return this.location.hash.replace(this.hashSeparator, '') || '/';
+    //   } else {
+    //     throw new Error('Unimplemented getURI from history mode');
+    //   }
+    // },
 
     getFragment: function() {
       var fragment;
-      if(this.mode === 'history') {
+      if (this.mode === 'history') {
         fragment = decodeURI(this.location.pathname + this.location.search);
         fragment = fragment.replace(/\?(.*)$/, '');
-        fragment = this.rootUri != '/' ? fragment.replace(this.rootUri, '') : fragment;
+        fragment = this.rootUri === '/' ? fragment : fragment.replace(this.rootUri, '');
       } else {
         var match = this.location.href.match(this.reHashSeparator);
         fragment = match ? match[1] : '';
@@ -283,5 +285,5 @@
     },
   };
 
-  xin.AppBehavior = xin.Behavior('xin.AppBehavior', AppBehavior);
-})(this);
+  xin.AppBehavior = xin.createBehavior('xin.AppBehavior', AppBehavior);
+}(this));
