@@ -1,7 +1,9 @@
-(function(){
+(function(root) {
   'use strict';
 
-  xin.Component({
+  var xin = root.xin;
+
+  xin.createComponent({
     is: 'xin-ajax',
 
     properties: {
@@ -36,9 +38,14 @@
     },
 
     __request: function() {
+      var url = this.generateUrl();
+      if (!url) {
+        return;
+      }
+
       return this.request({
         method: this.method,
-        url: this.generateUrl(),
+        url: url,
         as: this.as,
       }).then(function(xhr) {
         this.fire('response', {
@@ -73,11 +80,11 @@
             var handleAs = options.as;
             if (handleAs === 'intelligent') {
               var contentType = xhr.getResponseHeader('Content-Type');
-              if (contentType.indexOf('json') !== -1) {
+              if (contentType.indexOf('json') >= 0) {
                 handleAs = 'json';
-              } else if (contentType.indexOf('html') !== -1) {
+              } else if (contentType.indexOf('html') >= 0) {
                 handleAs = 'html';
-              } else if (contentType.indexOf('xml') !== -1) {
+              } else if (contentType.indexOf('xml') >= 0) {
                 handleAs = 'xml';
               } else {
                 handleAs = 'text';
@@ -89,9 +96,9 @@
                   try {
                     xhr.body = JSON.parse(xhr.responseText);
                     resolve(xhr);
-                  } catch(e) {
-                    e.xhr = xhr;
-                    reject(e);
+                  } catch (err) {
+                    err.xhr = xhr;
+                    reject(err);
                   }
                   break;
                 case 'xml':
@@ -113,11 +120,11 @@
             reject(err);
           };
           xhr.send(options.body);
-        } catch(e) {
-          e.xhr = xhr;
-          reject(e);
+        } catch (err) {
+          err.xhr = xhr;
+          reject(err);
         }
       });
     },
   });
-})();
+})(this);

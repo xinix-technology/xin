@@ -45,7 +45,7 @@
       if (!isA) {
         var parent$ = t.parentNode;
         if (parent$.children && parent$.children.length === 1) {
-          var id = SEQUENCE_ID++ + '';
+          var id = String(SEQUENCE_ID++);
           parent$.setAttribute('template', id);
           xin.instanceTemplates[id] = t;
           parent$.removeChild(t);
@@ -60,18 +60,18 @@
     return xin.instanceTemplates[element.getAttribute('template')] || xin.templates[element.is];
   };
 
-  xin.Component({
+  xin.createComponent({
     is: 'xin-template',
 
     extends: 'template',
 
     properties: {
-      for: String
+      for: String,
     },
 
     created: function() {
       this.for = this.getAttribute('for');
       xin.templates[this.for] = this;
-    }
+    },
   });
 })(this);

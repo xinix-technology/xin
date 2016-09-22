@@ -1,0 +1,14 @@
+{
+  "scripts": {
+    "test": "eslint --ext .js,.html . && wct"
+  },
+  "devDependencies": {
+    "eslint": "^3.5.0",
+    "eslint-config-standard": "^6.0.1",
+    "eslint-plugin-html": "^1.5.2",
+    "eslint-plugin-promise": "^2.0.1",
+    "eslint-plugin-standard": "^2.0.0",
+    "web-component-tester": "4.3.1",
+    "web-component-tester-istanbul": "^0.10.0"
+  }
+}

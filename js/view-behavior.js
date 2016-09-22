@@ -13,18 +13,18 @@
     properties: {
       uri: {
         type: String,
-        required: true
+        required: true,
       },
       transition: {
         type: String,
-        value: setupOptions.transition
-      }
+        value: setupOptions.transition,
+      },
     },
 
     listeners: {
-      'focusing': '__focusing',
-      'focus': '__focused',
-      'blur': '__blurred',
+      focusing: '__focusing',
+      focus: '__focused',
+      blur: '__blurred',
     },
 
     created: function() {
@@ -86,7 +86,7 @@
       if (this.parentElement.setFocus) {
         this.parentElement.setFocus(this);
       } else {
-        xin.Dom(this.parentElement).children.forEach(function(element) {
+        xin.dom(this.parentElement).children.forEach(function(element) {
           if (element.setFocus) {
             element.setFocus(false);
             element.setVisible(false);
@@ -112,7 +112,7 @@
       this.fire(visible ? 'show' : 'hide');
 
       if (!visible) {
-        xin.Dom(this).querySelectorAll('.xin-view-behavior.xin-view-visible').forEach(function(el) {
+        xin.dom(this).querySelectorAll('.xin-view-behavior.xin-view-visible').forEach(function(el) {
           el.setVisible(visible);
         });
       }
@@ -124,7 +124,7 @@
       this.fire(focus ? 'focus' : 'blur');
 
       if (!focus) {
-        xin.Dom(this).querySelectorAll('.xin-view-behavior.xin-view-focus').forEach(function(el) {
+        xin.dom(this).querySelectorAll('.xin-view-behavior.xin-view-focus').forEach(function(el) {
           if (el.parentElement.setFocus) {
             el.parentElement.setFocus(null);
           } else {
@@ -135,5 +135,5 @@
     },
   };
 
-  xin.ViewBehavior = xin.Behavior('xin.ViewBehavior', ['xin.ContainerBehavior', ViewBehaviorImpl]);
+  xin.ViewBehavior = xin.createBehavior('xin.ViewBehavior', ['xin.ContainerBehavior', ViewBehaviorImpl]);
 })(this);

@@ -28,7 +28,7 @@
       is: 'x-attrval',
       properties: {
         fooBar: String,
-      }
+      },
     });
 
     xin.Component({
@@ -58,7 +58,7 @@
 
       properties: {
         value: {
-          type:String,
+          type: String,
           notify: true,
         },
       },
@@ -71,7 +71,7 @@
         password: {
           type: String,
           observer: 'passwordChanged',
-        }
+        },
       },
 
       passwordChanged: function(pass) {

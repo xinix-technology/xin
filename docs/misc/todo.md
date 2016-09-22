@@ -1,7 +1,6 @@
 # TODO
 
-- [ ] pindahin method2 Base ke prototypenya, bikin beberapa prototype sesuai extendnya
-
+- [ ] liat bagaimana attach dan detach apakah merusak?
 - [ ] properties validation
 - [ ] app.navigate or url changed must calculate whether navigation is push or pop history
 - [ ] xin-pager, will change doc title when view visible changed
@@ -13,3 +12,4 @@
 
 ## DONE
 - [x] bug, benerin biar komponen bisa terima atribut dengan dash dibind ke camelcase proper, ex, <x-x video-id="foo"> sama #videoId
+- [x] pindahin method2 Base ke prototypenya, bikin beberapa prototype sesuai extendnya

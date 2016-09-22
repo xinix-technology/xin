@@ -1,0 +1,10 @@
+{
+  "globals": {
+    "WCT": true,
+    "assert": true,
+    "suite": true,
+    "test": true,
+    "sinon": true,
+    "fixture": true
+  }
+}

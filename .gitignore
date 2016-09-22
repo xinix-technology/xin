@@ -4,6 +4,7 @@
 /vendor
 /*.sublime-*
 /.sass-cache
+/coverage
 /app
 /demo/mine/*
 /demo/vanila/*

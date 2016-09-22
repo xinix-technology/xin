@@ -25,21 +25,23 @@
 
   var xin = root.xin;
 
-  xin.Component({
+  xin.createComponent({
     is: 'xin-if',
 
     extends: 'template',
 
     properties: {
-      'if': {
+      if: {
         type: Array,
-        observer: '__ifChanged'
+        observer: '__ifChanged',
       },
     },
 
     created: function() {
       // avoid unnecessary template xin-if render on scoped template instance
-      if (xin.Dom(this).parent('template')) return;
+      if (xin.dom(this).parent('template')) {
+        return;
+      }
 
       this.modelProto = new xin.Base();
 
@@ -75,7 +77,7 @@
     __insert: function() {
       var fragment = document.importNode(this.content, true);
       var model = {
-        __root: xin.Dom(fragment).childNodes
+        __root: xin.dom(fragment).childNodes,
       };
 
       model.__root.forEach(function(node) {
@@ -89,14 +91,14 @@
 
       model.__parseAnnotations();
 
-      //model.__parsePropertyAnnotations();
+      // model.__parsePropertyAnnotations();
 
-      xin.Dom(this.parentElement).insertBefore(fragment, this);
+      xin.dom(this.parentElement).insertBefore(fragment, this);
 
       return model;
     },
 
-    __ifChanged: function(iff/*, oldIff*/) {
+    __ifChanged: function(iff/* , oldIff */) {
       if (this.model) {
         this.model.__children.forEach(function(node) {
           node.parentElement.removeChild(node);
@@ -106,6 +108,6 @@
       if (iff) {
         this.model = this.__insert();
       }
-    }
+    },
   });
 })(this);

@@ -28,5 +28,8 @@
   ],
   "dependencies": {
     "webcomponentsjs": "^0.7.22"
+  },
+  "devDependencies": {
+    "web-component-tester": "^4.3.5"
   }
 }

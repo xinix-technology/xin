@@ -3,9 +3,9 @@
 
   var xin = root.xin;
 
-  xin.Component({
+  xin.createComponent({
     is: 'xin-app',
 
-    behaviors: ['xin.AppBehavior']
+    behaviors: ['xin.AppBehavior'],
   });
 })(this);

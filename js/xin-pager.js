@@ -3,7 +3,7 @@
 
   var xin = root.xin;
 
-  xin.Component({
+  xin.createComponent({
     is: 'xin-pager',
 
     add: function(element) {
@@ -24,10 +24,8 @@
         } else if (oldIndex > index) {
           this.__transitionBackward(this.focused$, element);
         }
-      } else {
-        if (this.focused$) {
-          this.focused$.setFocus(false);
-        }
+      } else if (this.focused$) {
+        this.focused$.setFocus(false);
       }
 
       this.focused$ = element;
@@ -47,16 +45,10 @@
     },
 
     __transitionForward: function(prevEl, nextEl) {
-      if (!prevEl) {
-        (new xin.Fx(nextEl, 'none')).play('in', 1).then(function() {
-          nextEl.setVisible(true);
-          nextEl.setFocus(true);
-          this.$focused = nextEl;
-        }.bind(this));
-      } else {
+      if (prevEl) {
         Promise.all([
           prevEl.transitionFx.play('out', 1),
-          nextEl.transitionFx.play('in', 1)
+          nextEl.transitionFx.play('in', 1),
         ]).then(function() {
           prevEl.setVisible(false);
           prevEl.setFocus(false);
@@ -64,7 +56,13 @@
           nextEl.setFocus(true);
           this.$focused = nextEl;
         }.bind(this));
+      } else {
+        (new xin.Fx(nextEl, 'none')).play('in', 1).then(function() {
+          nextEl.setVisible(true);
+          nextEl.setFocus(true);
+          this.$focused = nextEl;
+        }.bind(this));
       }
-    }
+    },
   });
 })(this);

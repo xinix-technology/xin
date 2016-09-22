@@ -1,0 +1,52 @@
+<script src="/bower_components/web-component-tester/browser.js"></script>
+
+<link rel="import" href="../../xin.html">
+
+<script>
+xin.createComponent({
+  is: 't-scope',
+});
+</script>
+
+<!-- text annotation binding -->
+<t-scope id="binding1">
+  <template>
+    <span>[[foo]]</span>
+  </template>
+</t-scope>
+
+<!-- attribute binding -->
+<t-scope id="binding2">
+  <template>
+    <span foo$="[[foo]]"></span>
+  </template>
+</t-scope>
+
+<script>
+(function() {
+  'use strict';
+
+  var binding1 = document.getElementById('binding1');
+  var binding2 = document.getElementById('binding2');
+
+  suite('component: bind text annotation', function() {
+    test('has correct data', function() {
+      assert.equal(binding1.querySelector('span').textContent.trim(), '');
+      binding1.set('foo', 'bar');
+      assert.equal(binding1.querySelector('span').textContent.trim(), 'bar');
+    });
+
+    test('can be acquired by xin()', function() {
+      assert.equal(xin(binding1.getAttribute('xin-id')), binding1);
+    });
+  });
+
+  suite('component: bind attribute annotation', function() {
+    test('has correct data', function() {
+      assert.equal(binding2.querySelector('span').getAttribute('foo'), null);
+      binding2.set('foo', 'bar');
+      assert.equal(binding2.querySelector('span').getAttribute('foo'), 'bar');
+    });
+  });
+})();
+</script>

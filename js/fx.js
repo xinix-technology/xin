@@ -9,8 +9,8 @@
     this.transition = transition || element.transition || 'none';
 
     var merged = Fx.get(this.transition);
-    for(var i in merged) {
-      if ('function' === typeof merged[i]) {
+    for (var i in merged) {
+      if (typeof merged[i] === 'function') {
         this[i] = merged[i];
       }
     }
@@ -21,20 +21,20 @@
   };
 
   var adapters = {
-    none: {
-      in: function(/*direction*/) {
+    'none': {
+      in: function(/* direction */) {
         return Promise.resolve();
       },
-      out: function(/*direction*/) {
+      out: function(/* direction */) {
         return Promise.resolve();
-      }
+      },
     },
     'transition-slide': {
       in: function(direction) {
         var directionClass = direction > 0 ? 'transition-slide-in-right' : 'transition-slide-in-left';
 
-        return new Promise(function(resolve/*, reject*/) {
-          var onEnd = function () {
+        return new Promise(function(resolve/* , reject */) {
+          var onEnd = function() {
             this.element.removeEventListener('webkitTransitionEnd', onEnd);
             this.element.removeEventListener('transitionend', onEnd);
 
@@ -63,8 +63,8 @@
       },
       out: function(direction) {
         var directionClass = direction > 0 ? 'transition-slide-out-left' : 'transition-slide-out-right';
-        return new Promise(function(resolve/*, reject*/) {
-          var onEnd = function () {
+        return new Promise(function(resolve/* , reject */) {
+          var onEnd = function() {
             this.element.removeEventListener('webkitTransitionEnd', onEnd);
             this.element.removeEventListener('transitionend', onEnd);
 
@@ -90,7 +90,7 @@
             }.bind(this), 50);
           }.bind(this), 50);
         }.bind(this));
-      }
+      },
     },
   };
 

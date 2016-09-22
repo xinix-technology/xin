@@ -3,7 +3,7 @@
 
   var xin = root.xin;
 
-  xin.Component({
+  xin.createComponent({
     is: 'xin-view',
 
     behaviors: ['xin.ViewBehavior'],

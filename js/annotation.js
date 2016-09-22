@@ -10,25 +10,29 @@
   var MODE_RW = '{';
   // var MODE_RO = '[';
 
-  var Expr = xin.Expr = function(expression) {
+  function __expr(expression) {
+    if (!Expr.cache[expression]) {
+      Expr.cache[expression] = new Expr(expression);
+    }
+    return Expr.cache[expression];
+  }
+
+  function Expr(expression) {
     expression = (expression || '').trim();
 
     if (!(this instanceof Expr)) {
-      if (!Expr.cache[expression]) {
-        Expr.cache[expression] = new Expr(expression);
-      }
-      return Expr.cache[expression];
+      return __expr(expression);
     }
 
     this.expression = expression;
     // this.mode = undefined;
     // this.type = undefined;
     // this.token = undefined;
-  };
+  }
 
   Expr.prototype = {
     isValid: function() {
-      return '' !== this.getMode();
+      return this.getMode() !== '';
     },
 
     getMode: function() {
@@ -43,12 +47,12 @@
     },
 
     writable: function() {
-      return '{' === this.getMode();
+      return this.getMode() === '{';
     },
 
     getToken: function() {
       if (undefined === this.token) {
-        this.token = this.expression.slice(2,-2).trim();
+        this.token = this.expression.slice(2, -2).trim();
       }
       return this.token;
     },
@@ -72,19 +76,28 @@
         var contextProperty = this.getToken();
 
         // fix for special element textarea
-        if (Node.TEXT_NODE === subject.nodeType && 'TEXTAREA' === subject.parentElement.nodeName) {
+        if (Node.TEXT_NODE === subject.nodeType && subject.parentElement.nodeName === 'TEXTAREA') {
           subject = subject.parentElement;
           property = 'value';
         }
 
         annotations.push(new PropertyAnnotation(context, contextProperty, subject, property));
 
+        // TODO change this implementation to bind event to context instead of subject
+        // TODO this implementation has potential memory leak with xin-repeat
         // when mode is rw make it happens
         if (MODE_RW === this.getMode() && subject.nodeType === Node.ELEMENT_NODE) {
-          switch(subject.nodeName) {
+          switch (subject.nodeName) {
             case 'INPUT':
+              if (subject.type === 'checkbox') {
+                subject.addEventListener('change', function() {
+                  context.set(contextProperty, subject.checked);
+                });
+                break;
+              }
+              // fallsthrough
             case 'TEXTAREA':
-              // FIXME kalau unbind harus distate waktu apa?
+              // TODO kalau unbind harus distate waktu apa?
               subject.addEventListener('input', function() {
                 context.set(contextProperty, subject.value);
               });
@@ -94,6 +107,8 @@
                 context.set(contextProperty, subject.value);
               });
               break;
+            default:
+              // noop
           }
         }
       } else {
@@ -121,7 +136,7 @@
   Binding.prototype = {
     annotate: function(annotation) {
       if (!annotation.kind) {
-        throw new Error('Cannot annotate unknown annotation: ' +  annotation.constructor.name);
+        throw new Error('Cannot annotate unknown annotation: ' + annotation.constructor.name);
       }
 
       this.annotations.push(annotation);
@@ -150,7 +165,7 @@
         try {
           var parsed = JSON.parse(arg);
           args.push(new BoundConstant(parsed));
-        } catch(e) {
+        } catch (err) {
           args.push(new BoundVariable(arg));
         }
       });
@@ -167,7 +182,7 @@
         throw new Error('Method not eligible');
       }
 
-      return this.context[this.name].apply(this.context, arguments);
+      return this.context.__host[this.name].apply(this.context, arguments);
     },
 
     invokeWithArgs: function() {
@@ -179,18 +194,18 @@
       return this.args.map(function(arg) {
         if (arg instanceof BoundVariable) {
           return this.context[arg.name];
-        } else {
-          return arg.value;
         }
+
+        return arg.value;
       }.bind(this));
     },
 
     isEligible: function() {
-      return 'function' === typeof this.context[this.name];
+      return typeof this.context.__host[this.name] === 'function';
     },
 
     inspect: function() {
-      return this.context.is + '#' + this.name + '()';
+      return this.context.__getId() + '#' + this.name + '()';
     },
   };
 
@@ -199,7 +214,7 @@
     this.name = name;
 
     if (this.name && this.name.endsWith('$')) {
-      this.attributeName =  this.name.substr(0, this.name.length - 1);
+      this.attributeName = this.name.substr(0, this.name.length - 1);
     }
   };
 
@@ -209,15 +224,17 @@
         this.context.setAttribute(this.attributeName, value);
       } else if (this.context.set) {
         this.context.set(this.name, value);
-      } else if ('html' === this.name) {
+      } else if (this.name === 'html') {
         this.context.innerHTML = value;
       } else {
         var selectable = document.activeElement === this.context &&
           this.context.nodeName === 'INPUT' && (
-              this.context.type !== 'range'
+              this.context.type !== 'range' &&
+              this.context.type !== 'checkbox'
               );
 
-        var selStart, selEnd;
+        var selStart;
+        var selEnd;
         if (selectable) {
           selStart = this.context.selectionStart;
           selEnd = this.context.selectionEnd;
@@ -229,32 +246,30 @@
           this.context.setSelectionRange(selStart, selEnd);
 
           // does not work well with below
-          //this.context.selectionStart = selStart;
-          //this.context.selectionEnd = selStart;
+          // this.context.selectionStart = selStart;
+          // this.context.selectionEnd = selStart;
         }
-
       }
     },
 
     inspect: function() {
       if (this.context.is) {
-        return this.context.is + '#' + this.name;
-      } else {
-        return this.context.nodeName.toLowerCase() + '#' + this.name;
+        return this.context.__getId() + '#' + this.name;
       }
+
+      return this.context.nodeName.toLowerCase() + '#' + this.name;
     },
   };
 
-  var PropertyAnnotation = xin.PropertyAnnotation = function(context, contextProperty, subject, subjectProperty) {
+  function PropertyAnnotation(context, contextProperty, subject, subjectProperty) {
     this.property = new BoundProperty(context, contextProperty);
     this.subject = new BoundProperty(subject, subjectProperty);
-
-  };
+  }
 
   PropertyAnnotation.prototype = {
     kind: 'property',
 
-    effect: function(value/*, oldValue */) {
+    effect: function(value/* , oldValue */) {
       this.subject.set(value);
     },
 
@@ -262,14 +277,14 @@
       return '#' + this.kind + ' ' +
         this.property.inspect() + ' ' +
         this.subject.inspect();
-    }
+    },
   };
 
-  var ComputedAnnotation = xin.ComputedAnnotation = function(context, contextProperty, subject, subjectProperty, method) {
+  function ComputedAnnotation(context, contextProperty, subject, subjectProperty, method) {
     this.property = new BoundProperty(context, contextProperty);
     this.subject = new BoundProperty(subject, subjectProperty);
     this.method = method;
-  };
+  }
 
   ComputedAnnotation.prototype = {
     kind: 'computed',
@@ -282,7 +297,7 @@
 
     effect: function() {
       this.subject.set(this.method.invokeWithArgs());
-    }
+    },
   };
 
   ComputedAnnotation.all = function(context, subject, property, token) {
@@ -291,7 +306,7 @@
     var method = new BoundMethod(context, token);
 
     var len = method.args.length;
-    for (var i = 0;  i < len; i++) {
+    for (var i = 0; i < len; i++) {
       var arg = method.args[i];
       if (arg instanceof BoundVariable) {
         annotations.push(new ComputedAnnotation(context, arg.name, subject, property, method));
@@ -312,16 +327,15 @@
     effect: function(value, oldValue) {
       try {
         return this.method.invoke(value, oldValue);
-      } catch(e) {
-        if (e.message === 'Method not eligible') {
-          return console.warn('Cannot observe property of ' + this.method.context.__getId() + ', method ' + this.method.name + ' not found!');
+      } catch (err) {
+        if (err.message === 'Method not eligible') {
+          return root.console.warn('Cannot observe property of ' + this.method.context.__getId() + ', method ' + this.method.name + ' not found!');
         }
-        throw e;
+        throw err;
       }
-    }
+    },
   };
 
-  // FIXME revisit this later
   var NotifyAnnotation = xin.NotifyAnnotation = function(context, property, token) {
     this.property = new BoundProperty(context, property);
     this.subject = undefined;
@@ -344,12 +358,16 @@
       return this.subject;
     },
 
-    effect: function(value/*, oldValue*/) {
+    effect: function(value/* , oldValue */) {
       var subject = this.getSubject();
       if (subject) {
         this.getSubject().set(value);
       }
-    }
+    },
   };
 
+  xin.expr = __expr;
+  xin.Expr = Expr;
+  xin.ComputedAnnotation = ComputedAnnotation;
+  xin.PropertyAnnotation = PropertyAnnotation;
 })(this);
