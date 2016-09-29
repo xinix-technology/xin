@@ -302,6 +302,8 @@
               parent.insertBefore(node, element);
             });
           }
+
+          // FIXME ancestors component MUST NOT see this.
           // remove leaked content insertion to above ancestors component
           xin.dom(element).remove();
         }.bind(this));
@@ -534,6 +536,10 @@
       }
     },
 
+    /**
+     * Populate light doms (content doms before rendering)
+     * @return {[type]} [description]
+     */
     __populateLightDoms: function() {
       this.__lightDoms = [];
 
