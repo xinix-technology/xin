@@ -1,5 +1,9 @@
 # TODO
 
+# vnext
+- [ ] check platform harus dipisah dan hanya 1 instance, atau di component app
+
+# v2
 - [ ] liat bagaimana attach dan detach apakah merusak?
 - [ ] properties validation
 - [ ] app.navigate or url changed must calculate whether navigation is push or pop history

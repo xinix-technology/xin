@@ -1,24 +1,12 @@
 {
     "extends": "eslint-config-standard",
     "installedESLint": true,
-    "env": {
-      "browser": true
-    },
     "plugins": [
-      "html",
       "promise",
       "standard"
     ],
-    "globals": {
-      "xin": true
-    },
-    "parserOptions": {
-      "sourceType": "script"
-    },
     "rules": {
       "semi": ["error", "always"],
-      "strict": ["error", "function"],
-      "space-before-function-paren": ["error", "never"],
       "comma-dangle": ["error", "always-multiline"]
     }
 }
