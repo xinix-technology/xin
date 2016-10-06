@@ -1,35 +1,38 @@
-<script src="/bower_components/web-component-tester/browser.js"></script>
+<script src="../../node_modules/web-component-tester/browser.js"></script>
+<script src="../../dist/xin.js"></script>
 
-<link rel="import" href="../../xin.html">
+<foo-1 id="foo1">baz</foo-1>
+<foo-2 id="foo2">
+  <span slot="first">first</span>
+  <span slot="last">last</span>
+</foo-2>
 
 <script>
-(function() {
-  'use strict';
+suite('xin', function() {
+  test('defined in window', function() {
+    assert('xin' in window);
+  });
 
-  suite('xin', function() {
-    var fooComponent = {};
-    window.foo = {
-      bar: 'bar',
-      baz: {
-        foo: 'foo',
-      },
-    };
+  suite('new component', () => {
+    test('new component with full slot', () => {
+      xin.define('foo-1', class extends xin.Component {
+        get template() {
+          return 'foo <slot></slot> bar';
+        }
+      });
 
-    test('is function', function() {
-      xin.put('foo', fooComponent);
-
-      assert.isFunction(xin);
+      assert.equal(foo1.textContent, 'foo baz bar');
     });
 
-    test('return putted data', function() {
-      assert.equal(xin('foo'), fooComponent);
-      assert.equal(xin('foo.bar'), 'bar');
-      assert.equal(xin('foo.baz.foo'), 'foo');
+    test('new component with name slot', () => {
+      xin.define('foo-2', class extends xin.Component {
+        get template() {
+          return '<slot name="first"></slot> <slot name="last"></slot>';
+        }
+      });
 
-      xin.clean();
-
-      assert.equal(xin('foo'), window.foo);
+      assert.equal(foo2.textContent, 'first last');
     });
   });
-})();
+});
 </script>

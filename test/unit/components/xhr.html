@@ -1,0 +1,20 @@
+<script src="../../../node_modules/web-component-tester/browser.js"></script>
+<script src="../../../dist/xin.js"></script>
+<script src="../../../dist/components/xhr.js"></script>
+
+<template id="tpl">
+  <xin-xhr url="../mock/people.json"></xin-xhr>
+</template>
+
+<script>
+suite('XHR', function() {
+  test('defined', function() {
+    assert.isDefined(xin('xin-xhr'));
+    assert.isDefined(xin.XHR);
+  });
+
+  test('run', () => {
+
+  })
+});
+</script>
