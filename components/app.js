@@ -3,6 +3,12 @@ const xin = require('../index');
 class App extends xin.Component {
   get props () {
     return {
+      title: {
+        type: String,
+        value: 'Application',
+        observer: '_titleChanged',
+      },
+
       mode: {
         type: String,
         value: 'hash',
@@ -19,6 +25,10 @@ class App extends xin.Component {
         observer: '__hashSeparatorChanged',
       },
     };
+  }
+
+  _titleChanged (title) {
+    document.title = title;
   }
 
   created () {
