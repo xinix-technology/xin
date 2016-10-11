@@ -1,8 +1,8 @@
 /* globals HTMLElement */
+/* eslint no-proto: 0 */
 
-import assert from 'assert';
 import T from 'template-binding';
-import { put, v, define } from './repository';
+import { put, v } from './repository';
 import inflector from './inflector';
 import dom from './dom';
 import { Async, Debounce } from './async';
@@ -16,69 +16,6 @@ function nextId () {
 }
 
 class Component {
-  static add (meta) {
-    assert.equal(typeof meta, 'object');
-    assert(meta.is);
-
-    let SuperClass = Component;
-    let ext = '';
-    let is = '';
-
-    let protoOptions = {};
-
-    Object.keys(meta).forEach(key => {
-      let val = meta[key];
-      switch (key) {
-        case 'is':
-          is = val;
-          break;
-        case 'extends':
-          switch (typeof val) {
-            case 'function':
-              SuperClass = val;
-              break;
-            case 'string':
-              ext = val;
-              break;
-            case 'object':
-              SuperClass = val[0];
-              ext = val[1];
-              break;
-          }
-          break;
-        case 'props':
-          protoOptions[key] = {
-            get () {
-              var props = SuperClass.prototype.props;
-              for (var i in val) {
-                props[i] = val[i];
-              }
-              return props;
-            },
-          };
-          break;
-        default:
-          protoOptions[key] = {
-            value: val,
-          };
-      }
-    });
-
-    let proto = Object.create(SuperClass.prototype, protoOptions);
-
-    function ComponentClass () {}
-
-    ComponentClass.prototype = proto;
-
-    if (ext) {
-      define(is, ComponentClass, { extends: ext });
-    } else {
-      define(is, ComponentClass);
-    }
-
-    return ComponentClass;
-  }
-
   get props () {
     return {};
   }
@@ -101,6 +38,8 @@ class Component {
     this.__initTemplate();
 
     this.__initProps();
+
+    this.__initListeners();
 
     this.readyCallback();
   }
@@ -147,21 +86,21 @@ class Component {
   }
 
   __initProps () {
-    for (var propName in this.props) {
+    for (let propName in this.props) {
       // exclude prototype properties
       if (!{}.hasOwnProperty.call(this.props, propName)) {
         continue;
       }
 
-      var property = this.props[propName];
-      var attrName = inflector.dashify(propName);
-      var attrVal = this.getAttribute(attrName);
+      let property = this.props[propName];
+      let attrName = inflector.dashify(propName);
+      let attrVal = this.getAttribute(attrName);
 
-      var expr = T.Expr.get(attrVal);
+      let expr = T.Expr.get(attrVal);
 
       // copy value from attribute to property
       if (typeof attrVal === 'string') {
-        var val;
+        let val;
         // set property value when attr set and the value specified is static
         // otherwise set it to #__unprocessedProperties tobe processed later
         if (expr.type !== 's') {
@@ -238,18 +177,35 @@ class Component {
     this.render(this.__content);
   }
 
+  __initListeners () {
+    if (!this.listeners) {
+      return;
+    }
+
+    Object.keys(this.listeners).forEach(key => {
+      let listenerMetadata = parseListenerMetadata(key);
+      let listenerHandler = this[this.listeners[key]];
+      this.addEventListener(listenerMetadata.eventName, function (evt) {
+        if (listenerMetadata.selector && !dom(evt.target).matches(listenerMetadata.selector) && !dom(evt.target).matches(listenerMetadata.selector + ' *')) {
+          return;
+        }
+        return listenerHandler.apply(this, arguments);
+      }.bind(this));
+    });
+  }
+
   fire (type, detail, options) {
     return dom(this).fire(type, detail, options);
   }
 
   async (callback, waitTime) {
-    var asyncO = new Async(this);
+    let asyncO = new Async(this);
     asyncO.start(callback, waitTime);
     return asyncO;
   }
 
   debounce (job, callback, wait, immediate) {
-    var debouncer = this.__debouncers[job];
+    let debouncer = this.__debouncers[job];
     if (debouncer && debouncer.running) {
       debouncer.cancel();
     } else {
@@ -261,12 +217,25 @@ class Component {
   }
 }
 
-for (var key in T.prototype) {
+function parseListenerMetadata (key) {
+  let splitted = key.split(' ');
+  let metadata = {
+    eventName: splitted[0],
+    selector: splitted[1] ? splitted.slice(1).join(' ') : null,
+  };
+  return metadata;
+}
+
+for (let key in T.prototype) {
   if (T.prototype.hasOwnProperty(key)) {
     Component.prototype[key] = T.prototype[key];
   }
 }
 
-Object.setPrototypeOf(Component.prototype, HTMLElement.prototype);
+if ('setPrototypeOf' in Object) {
+  Object.setPrototypeOf(Component.prototype, HTMLElement.prototype);
+} else {
+  Component.prototype.__proto__ = HTMLElement.prototype;
+}
 
 module.exports = Component;
