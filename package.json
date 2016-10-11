@@ -39,6 +39,6 @@
   },
   "dependencies": {
     "template-binding": "xinix-technology/template-binding#master",
-    "webcomponents.js": "webcomponents/webcomponentsjs"
+    "webcomponentsjs": "^1.0.2"
   }
 }
