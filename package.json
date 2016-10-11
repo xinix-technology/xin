@@ -38,7 +38,7 @@
     "webpack": "^1.13.2"
   },
   "dependencies": {
-    "template-binding": "github:xinix-technology/template-binding",
-    "webcomponents.js": "github:webcomponents/webcomponentsjs"
+    "template-binding": "xinix-technology/template-binding#master",
+    "webcomponents.js": "webcomponents/webcomponentsjs"
   }
 }
