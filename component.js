@@ -83,6 +83,7 @@ class Component {
   __initData () {
     this.__content = [];
     this.__debouncers = {};
+    this.__notifiers = {};
   }
 
   __initProps () {
@@ -100,17 +101,10 @@ class Component {
 
       // copy value from attribute to property
       if (typeof attrVal === 'string') {
-        let val;
-        // set property value when attr set and the value specified is static
-        // otherwise set it to #__unprocessedProperties tobe processed later
-        if (expr.type !== 's') {
-          this.__unprocessedProperties[propName] = expr;
-        } else {
-          val = T.Serializer.deserialize(attrVal, property.type);
+        if (expr.type === 's') {
+          this[propName] = T.Serializer.deserialize(attrVal, property.type);
         }
-
-        // this.removeAttribute(attrName);
-        this[propName] = val;
+        // if expr not static do nothing
       }
 
       // when property is undefined, log error when property is required otherwise assign to default value
@@ -123,28 +117,26 @@ class Component {
       }
 
       if (property.observer) {
-        this.addObserver(propName, property.observer);
+        let expr = T.Expr.getFn(property.observer, [ propName ], true);
+        this.__templateAnnotate(expr);
+
+        // invoke first time for observer annotation
+        expr.invoke(this);
       }
+
+      let accessor = T.Accessor.get(this, propName);
 
       if (property.computed) {
-        this.addComputedProperty(propName, property.computed);
+        let expr = T.Expr.getFn(property.computed, [], true);
+        this.__templateAnnotate(expr, accessor);
+
+        // invoke first time;
+        this.set(propName, expr.invoke(this));
       }
 
-      // FIXME define observe, computed and notify annotation
-      //
-      // if (property.notify && attrVal) {
-      //   if (!expr.writable()) {
-      //     root.console.warn('Cannot attach notification to host for one-way binding expr: ' + attrVal);
-      //     return;
-      //   }
-      //
-      //   if (!expr.isPropertyExpression()) {
-      //     root.console.warn('Cannot attach notification to host for non-property expr: ' + attrVal);
-      //     return;
-      //   }
-      //
-      //   this.__bind(new xin.NotifyAnnotation(this, propName, expr.getToken()));
-      // }
+      if (property.notify) {
+        this.__templateGetBinding(propName).annotations.push(new NotifyAnnotation(this, propName));
+      }
     }
   }
 
@@ -177,6 +169,68 @@ class Component {
     this.render(this.__content);
   }
 
+  __templateAnnotate (expr, accessor) {
+    if (!T.prototype.__templateAnnotate.call(this, expr, accessor)) {
+      return false;
+    }
+
+    // register event notifier
+    if (expr.mode === '{' && expr.type === 'p' && accessor.node instanceof HTMLElement) {
+      switch (accessor.node.nodeName) {
+        case 'INPUT':
+        case 'TEXTAREA':
+          if (accessor.name === 'value') {
+            accessor.node.__templateNotifyKey = expr.name;
+            this.__addNotifier('input');
+          }
+          break;
+        default:
+          // register event for custom notifier
+          this.__addNotifier('-notify');
+          break;
+      }
+    }
+
+    return true;
+  }
+
+  __addNotifier (eventName) {
+    if (this.__notifiers[eventName]) {
+      return;
+    }
+
+    this.__notifiers[eventName] = (evt) => {
+      let element = evt.target;
+
+      if (element.__templateModel !== this) {
+        return;
+      }
+
+      evt.stopImmediatePropagation();
+      switch (eventName) {
+        case 'input':
+          element.__templateModel.set(element.__templateNotifyKey, element.value);
+          break;
+        case '-notify':
+          element.__templateModel.set(evt.detail.name, evt.detail.value);
+          break;
+        default:
+          throw new Error('Unimplemented');
+      }
+    };
+
+    this.__templateHost.addEventListener(eventName, this.__notifiers[eventName]);
+  }
+
+  __removeNotifier (eventName) {
+    if (!this.__notifiers[eventName]) {
+      return;
+    }
+
+    this.__templateHost.removeEventListener(eventName, this.__notifiers[eventName], true);
+    this.__notifiers[eventName] = null;
+  }
+
   __initListeners () {
     if (!this.listeners) {
       return;
@@ -190,7 +244,7 @@ class Component {
           return;
         }
         return listenerHandler.apply(this, arguments);
-      }.bind(this));
+      }.bind(this), true);
     });
   }
 
@@ -217,6 +271,21 @@ class Component {
   }
 }
 
+class NotifyAnnotation {
+  constructor (model, name) {
+    let expr = T.Expr.get(model.getAttribute(name));
+    this.model = model;
+    this.name = expr.name;
+  }
+
+  effect (value) {
+    this.model.fire('-notify', {
+      name: this.name,
+      value: value,
+    });
+  }
+}
+
 function parseListenerMetadata (key) {
   let splitted = key.split(' ');
   let metadata = {
@@ -227,7 +296,8 @@ function parseListenerMetadata (key) {
 }
 
 for (let key in T.prototype) {
-  if (T.prototype.hasOwnProperty(key)) {
+  // exclude __templateAnnotate because will be override
+  if (key !== '__templateAnnotate' && T.prototype.hasOwnProperty(key)) {
     Component.prototype[key] = T.prototype[key];
   }
 }
