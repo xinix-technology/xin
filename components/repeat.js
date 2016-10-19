@@ -33,30 +33,33 @@ class Repeat extends xin.base('HTMLTemplateElement') {
   }
 
   _itemsChanged (items) {
-    if (this.rows && this.rows.length) {
-      this.rows.forEach(function (row) {
-        row.__children.forEach(function (node) {
-          node.parentElement.removeChild(node);
-        });
+    this.rows = this.rows || [];
+
+    let len = 0;
+
+    if (items && items.length) {
+      let filter = this.filter || FILTER_ALL;
+      items.forEach((item, index) => {
+        if (filter(item)) {
+          if (this.rows[index]) {
+            this.rows[index].set(this.as, item);
+            this.rows[index].set(this.indexAs, index);
+          } else {
+            let row = new T(this, this.__templateModel, this);
+            row.set(this.as, item);
+            row.set(this.indexAs, index);
+
+            row.render();
+            this.rows.push(row);
+          }
+
+          len++;
+        }
       });
     }
 
-    if (!items) {
-      return;
-    }
-
-    this.rows = [];
-    items.filter(this.filter || FILTER_ALL).forEach((item, index) => {
-      try {
-        let row = new T(this, this.__templateModel, this);
-        row.set(this.as, item);
-        row.set(this.indexAs, index);
-
-        row.render();
-        this.rows.push(row);
-      } catch (err) {
-        console.error(err.stack);
-      }
+    this.rows.splice(len).forEach(row => {
+      row.__templateUninitialize();
     });
   }
 
