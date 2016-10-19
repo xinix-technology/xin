@@ -1,10 +1,8 @@
-const xin = require('../');
-const setup = require('../setup');
-const Fx = require('../fx');
+const xin = require('../src');
 
 require('./view.css');
 
-const SETUP = setup.withDefault('xin.View', {
+const SETUP = xin.setup.withDefault('xin.View', {
   transition: 'transition-slide',
 });
 
@@ -38,7 +36,7 @@ class View extends xin.Component {
     this.classList.remove('xin-view--focus');
     this.classList.remove('xin-view--visible');
 
-    this.transitionFx = new Fx(this);
+    this.transitionFx = new xin.Fx(this);
 
     if (this.parentElement.add) {
       this.parentElement.add(this);

@@ -14,12 +14,10 @@ webpackJsonp([3],{
 	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 	
 	var xin = __webpack_require__(1);
-	var setup = __webpack_require__(13);
-	var Fx = __webpack_require__(14);
 	
 	__webpack_require__(21);
 	
-	var SETUP = setup.withDefault('xin.View', {
+	var SETUP = xin.setup.withDefault('xin.View', {
 	  transition: 'transition-slide'
 	});
 	
@@ -43,7 +41,7 @@ webpackJsonp([3],{
 	      this.classList.remove('xin-view--focus');
 	      this.classList.remove('xin-view--visible');
 	
-	      this.transitionFx = new Fx(this);
+	      this.transitionFx = new xin.Fx(this);
 	
 	      if (this.parentElement.add) {
 	        this.parentElement.add(this);

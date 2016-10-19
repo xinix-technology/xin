@@ -16,17 +16,4 @@ module.exports = {
       ],
     },
   },
-  // registerHooks: function(wct) {
-  //   wct.hook('prepare', function(done) {
-  //     // var proxy = require('express-http-proxy');
-  //     // app.use('/api',
-  //     //   proxy('pas.dev', {
-  //     //     forwardPath: function(req, res) {
-  //     //       return require('url').parse(req.url).path;
-  //     //     }
-  //     //   })
-  //     // );
-  //     done();
-  //   });
-  // },
 };
