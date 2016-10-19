@@ -15,260 +15,281 @@ function nextId () {
   return componentId++;
 }
 
-class Component {
-  get props () {
-    return {};
+let baseComponents = {};
+
+function base (base) {
+  if (baseComponents[base]) {
+    return baseComponents[base];
   }
 
-  createdCallback () {
-    if (DEBUG) console.info('CREATED ' + this.is);
-
-    this.__id = nextId();
-    put(this.__id, this);
-    this.setAttribute('xin-id', this.__id);
-
-    this.classList.add(this.is);
-
-    if (this.created) {
-      this.created();
+  class Component extends window[base] {
+    get props () {
+      return {};
     }
 
-    this.__initData();
+    createdCallback () {
+      if (DEBUG) console.info('CREATED ' + this.is);
 
-    this.__initTemplate();
+      this.__id = nextId();
+      put(this.__id, this);
+      this.setAttribute('xin-id', this.__id);
 
-    this.__initProps();
+      this.classList.add(this.is);
 
-    this.__initListeners();
+      if (this.created) {
+        this.created();
+      }
 
-    this.readyCallback();
-  }
+      this.__initData();
 
-  readyCallback () {
-    if (DEBUG) console.info('READY ' + this.is);
+      this.__initTemplate();
 
-    if (this.ready) {
-      this.ready();
+      this.__initProps();
+
+      this.__initListeners();
+
+      this.readyCallback();
     }
-  }
 
-  attachedCallback () {
-    if (DEBUG) console.info('ATTACHED ' + this.is);
+    readyCallback () {
+      if (DEBUG) console.info('READY ' + this.is);
 
-    if (this.attached) {
-      this.attached();
-    }
-  }
-
-  __getId () {
-    return this.is + (this.__id ? (':' + this.__id) : '');
-  }
-
-  get __app () {
-    if (!this.__app$) {
-      if (this.__appSignature) {
-        this.__app$ = this;
-      } else {
-        let app = this.parentElement;
-        while (app && !app.__appSignature) {
-          app = app.parentElement;
-        }
-        this.__app$ = app;
+      if (this.ready) {
+        this.ready();
       }
     }
 
-    return this.__app$;
-  }
+    attachedCallback () {
+      if (DEBUG) console.info('ATTACHED ' + this.is);
 
-  __initData () {
-    this.__content = [];
-    this.__debouncers = {};
-    this.__notifiers = {};
-  }
-
-  __initProps () {
-    for (let propName in this.props) {
-      // exclude prototype properties
-      if (!{}.hasOwnProperty.call(this.props, propName)) {
-        continue;
+      if (this.attached) {
+        this.attached();
       }
+    }
 
-      let property = this.props[propName];
-      let attrName = inflector.dashify(propName);
-      let attrVal = this.getAttribute(attrName);
+    __getId () {
+      return this.is + (this.__id ? (':' + this.__id) : '');
+    }
 
-      let expr = T.Expr.get(attrVal);
-
-      // copy value from attribute to property
-      if (typeof attrVal === 'string') {
-        if (expr.type === 's') {
-          this[propName] = T.Serializer.deserialize(attrVal, property.type);
-        }
-        // if expr not static do nothing
-      }
-
-      // when property is undefined, log error when property is required otherwise assign to default value
-      if (undefined === this[propName]) {
-        if (property.required) {
-          throw new Error('"' + this.__getId() + '" missing required "' + propName + '"');
+    get __app () {
+      if (!this.__app$) {
+        if (this.__appSignature) {
+          this.__app$ = this;
         } else {
-          this[propName] = v(property.value);
+          let app = this.parentElement;
+          while (app && !app.__appSignature) {
+            app = app.parentElement;
+          }
+          this.__app$ = app;
         }
       }
 
-      if (property.observer) {
-        let expr = T.Expr.getFn(property.observer, [ propName ], true);
-        this.__templateAnnotate(expr);
-
-        // invoke first time for observer annotation
-        expr.invoke(this);
-      }
-
-      let accessor = T.Accessor.get(this, propName);
-
-      if (property.computed) {
-        let expr = T.Expr.getFn(property.computed, [], true);
-        this.__templateAnnotate(expr, accessor);
-
-        // invoke first time;
-        this.set(propName, expr.invoke(this));
-      }
-
-      if (property.notify) {
-        this.__templateGetBinding(propName).annotations.push(new NotifyAnnotation(this, propName));
-      }
-    }
-  }
-
-  __initTemplate () {
-    let template;
-
-    if (this.childElementCount === 1 && this.firstElementChild.nodeName === 'TEMPLATE' && !this.firstElementChild.hasAttribute('is')) {
-      // when instance template exist detach from component content
-      template = this.firstElementChild;
-      this.removeChild(template);
-    } else if (this.template) {
-      // create new template based on template property
-      template = document.createElement('template');
-      template.innerHTML = this.template;
+      return this.__app$;
     }
 
-    // when template does not exist just initialize template to get binding but do not render
-    if (!template) {
-      T.prototype.__initialize.call(this, template, this);
-      return;
+    __initData () {
+      this.__content = [];
+      this.__debouncers = {};
+      this.__notifiers = {};
     }
 
-    dom(this).childNodes.forEach(node => {
-      this.__content.push(node);
-      this.removeChild(node);
-    });
+    __initProps () {
+      for (let propName in this.props) {
+        // exclude prototype properties
+        if (!{}.hasOwnProperty.call(this.props, propName)) {
+          continue;
+        }
 
-    T.prototype.__initialize.call(this, template, this);
+        let property = this.props[propName];
+        let attrName = inflector.dashify(propName);
+        let attrVal = this.getAttribute(attrName);
 
-    this.render(this.__content);
-  }
+        let expr = T.Expr.get(attrVal);
 
-  __templateAnnotate (expr, accessor) {
-    if (!T.prototype.__templateAnnotate.call(this, expr, accessor)) {
-      return false;
-    }
-
-    // register event notifier
-    if (expr.mode === '{' && expr.type === 'p' && accessor.node instanceof HTMLElement) {
-      switch (accessor.node.nodeName) {
-        case 'INPUT':
-        case 'TEXTAREA':
-          if (accessor.name === 'value') {
-            accessor.node.__templateNotifyKey = expr.name;
-            this.__addNotifier('input');
+        // copy value from attribute to property
+        if (typeof attrVal === 'string') {
+          if (expr.type === 's') {
+            this[propName] = T.Serializer.deserialize(attrVal, property.type);
+            this.notify(propName, this[propName]);
           }
-          break;
-        default:
-          // register event for custom notifier
-          this.__addNotifier('-notify');
-          break;
+          // if expr not static do nothing
+        }
+
+        // when property is undefined, log error when property is required otherwise assign to default value
+        if (undefined === this[propName]) {
+          if (property.required) {
+            throw new Error('"' + this.__getId() + '" missing required "' + propName + '"');
+          } else {
+            this[propName] = v(property.value);
+          }
+        }
+
+        if (property.observer) {
+          let expr = T.Expr.getFn(property.observer, [ propName ], true);
+          this.__templateAnnotate(expr);
+
+          // invoke first time for observer annotation
+          expr.invoke(this);
+        }
+
+        let accessor = T.Accessor.get(this, propName);
+
+        if (property.computed) {
+          let expr = T.Expr.getFn(property.computed, [], true);
+          this.__templateAnnotate(expr, accessor);
+
+          // invoke first time;
+          this.set(propName, expr.invoke(this));
+        }
+
+        if (property.notify) {
+          this.__templateGetBinding(propName).annotations.push(new NotifyAnnotation(this, propName));
+        }
       }
     }
 
-    return true;
-  }
+    __initTemplate () {
+      let template;
 
-  __addNotifier (eventName) {
-    if (this.__notifiers[eventName]) {
-      return;
-    }
+      if (this.childElementCount === 1 && this.firstElementChild.nodeName === 'TEMPLATE' && !this.firstElementChild.hasAttribute('is')) {
+        // when instance template exist detach from component content
+        template = this.firstElementChild;
+        this.removeChild(template);
+      } else if (this.template) {
+        // create new template based on template property
+        template = document.createElement('template');
+        template.innerHTML = this.template;
+      }
 
-    this.__notifiers[eventName] = (evt) => {
-      let element = evt.target;
-
-      if (element.__templateModel !== this) {
+      // when template does not exist just initialize template to get binding but do not render
+      if (!template) {
+        T.prototype.__initialize.call(this, template, this);
         return;
       }
 
-      evt.stopImmediatePropagation();
-      switch (eventName) {
-        case 'input':
-          element.__templateModel.set(element.__templateNotifyKey, element.value);
-          break;
-        case '-notify':
-          element.__templateModel.set(evt.detail.name, evt.detail.value);
-          break;
-        default:
-          throw new Error('Unimplemented');
+      dom(this).childNodes.forEach(node => {
+        this.__content.push(node);
+        this.removeChild(node);
+      });
+
+      T.prototype.__initialize.call(this, template, this);
+
+      this.render(this.__content);
+    }
+
+    __templateAnnotate (expr, accessor) {
+      if (!T.prototype.__templateAnnotate.call(this, expr, accessor)) {
+        return false;
       }
-    };
 
-    this.__templateHost.addEventListener(eventName, this.__notifiers[eventName]);
-  }
+      // register event notifier
+      if (expr.mode === '{' && expr.type === 'p' && accessor.node instanceof HTMLElement) {
+        switch (accessor.node.nodeName) {
+          case 'INPUT':
+          case 'TEXTAREA':
+            if (accessor.name === 'value') {
+              accessor.node.__templateNotifyKey = expr.name;
+              this.__addNotifier('input');
+            }
+            break;
+          default:
+            // register event for custom notifier
+            this.__addNotifier('-notify');
+            break;
+        }
+      }
 
-  __removeNotifier (eventName) {
-    if (!this.__notifiers[eventName]) {
-      return;
+      return true;
     }
 
-    this.__templateHost.removeEventListener(eventName, this.__notifiers[eventName], true);
-    this.__notifiers[eventName] = null;
-  }
+    __addNotifier (eventName) {
+      if (this.__notifiers[eventName]) {
+        return;
+      }
 
-  __initListeners () {
-    if (!this.listeners) {
-      return;
-    }
+      this.__notifiers[eventName] = (evt) => {
+        let element = evt.target;
 
-    Object.keys(this.listeners).forEach(key => {
-      let listenerMetadata = parseListenerMetadata(key);
-      let listenerHandler = this[this.listeners[key]];
-      this.addEventListener(listenerMetadata.eventName, function (evt) {
-        if (listenerMetadata.selector && !dom(evt.target).matches(listenerMetadata.selector) && !dom(evt.target).matches(listenerMetadata.selector + ' *')) {
+        if (element.__templateModel !== this) {
           return;
         }
-        return listenerHandler.apply(this, arguments);
-      }.bind(this), true);
-    });
-  }
 
-  fire (type, detail, options) {
-    return dom(this).fire(type, detail, options);
-  }
+        evt.stopImmediatePropagation();
+        switch (eventName) {
+          case 'input':
+            element.__templateModel.set(element.__templateNotifyKey, element.value);
+            break;
+          case '-notify':
+            element.__templateModel.set(evt.detail.name, evt.detail.value);
+            break;
+          default:
+            throw new Error('Unimplemented');
+        }
+      };
 
-  async (callback, waitTime) {
-    let asyncO = new Async(this);
-    asyncO.start(callback, waitTime);
-    return asyncO;
-  }
-
-  debounce (job, callback, wait, immediate) {
-    let debouncer = this.__debouncers[job];
-    if (debouncer && debouncer.running) {
-      debouncer.cancel();
-    } else {
-      debouncer = this.__debouncers[job] = new Debounce(this, immediate);
+      this.__templateHost.addEventListener(eventName, this.__notifiers[eventName]);
     }
-    debouncer.start(callback, wait);
 
-    return debouncer;
+    __removeNotifier (eventName) {
+      if (!this.__notifiers[eventName]) {
+        return;
+      }
+
+      this.__templateHost.removeEventListener(eventName, this.__notifiers[eventName], true);
+      this.__notifiers[eventName] = null;
+    }
+
+    __initListeners () {
+      if (!this.listeners) {
+        return;
+      }
+
+      Object.keys(this.listeners).forEach(key => {
+        let listenerMetadata = parseListenerMetadata(key);
+        let listenerHandler = this[this.listeners[key]];
+        this.addEventListener(listenerMetadata.eventName, function (evt) {
+          if (listenerMetadata.selector && !dom(evt.target).matches(listenerMetadata.selector) && !dom(evt.target).matches(listenerMetadata.selector + ' *')) {
+            return;
+          }
+          return listenerHandler.apply(this, arguments);
+        }.bind(this), true);
+      });
+    }
+
+    fire (type, detail, options) {
+      return dom(this).fire(type, detail, options);
+    }
+
+    async (callback, waitTime) {
+      let asyncO = new Async(this);
+      asyncO.start(callback, waitTime);
+      return asyncO;
+    }
+
+    debounce (job, callback, wait, immediate) {
+      let debouncer = this.__debouncers[job];
+      if (debouncer && debouncer.running) {
+        debouncer.cancel();
+      } else {
+        debouncer = this.__debouncers[job] = new Debounce(this, immediate);
+      }
+      debouncer.start(callback, wait);
+
+      return debouncer;
+    }
   }
+
+
+  for (let key in T.prototype) {
+    // exclude __templateAnnotate because will be override
+    if (key !== '__templateAnnotate' && T.prototype.hasOwnProperty(key)) {
+      Component.prototype[key] = T.prototype[key];
+    }
+  }
+
+  baseComponents[base] = Component;
+
+  return Component;
 }
 
 class NotifyAnnotation {
@@ -295,17 +316,5 @@ function parseListenerMetadata (key) {
   return metadata;
 }
 
-for (let key in T.prototype) {
-  // exclude __templateAnnotate because will be override
-  if (key !== '__templateAnnotate' && T.prototype.hasOwnProperty(key)) {
-    Component.prototype[key] = T.prototype[key];
-  }
-}
-
-if ('setPrototypeOf' in Object) {
-  Object.setPrototypeOf(Component.prototype, HTMLElement.prototype);
-} else {
-  Component.prototype.__proto__ = HTMLElement.prototype;
-}
-
-module.exports = Component;
+module.exports.Component = base('HTMLElement');
+module.exports.base = base;

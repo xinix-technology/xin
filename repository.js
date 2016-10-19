@@ -30,6 +30,8 @@ function v (value) {
 function define (name, Comp, options) {
   if (window.customElements) {
     throw new Error('Unimplemented webcomponents v1');
+    // window.customElements.define(name, Comp, options);
+    // return Comp;
   }
 
   let Proto = {
