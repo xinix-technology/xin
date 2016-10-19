@@ -5,6 +5,11 @@ const xin = require('../src/');
 class XHR extends xin.Component {
   get props () {
     return {
+      auto: {
+        type: Boolean,
+        value: false,
+      },
+
       method: {
         type: String,
         value: 'get',
@@ -44,14 +49,18 @@ class XHR extends xin.Component {
   }
 
   _urlChanged () {
-    this.debounce('__request', this.__request, this.debounceDuration);
+    if (this.auto) {
+      this.generateRequest();
+    }
   }
 
   _asChanged () {
-    this.debounce('__request', this.__request, this.debounceDuration);
+    if (this.auto) {
+      this.generateRequest();
+    }
   }
 
-  __request () {
+  _request () {
     var url = this.generateUrl();
     if (!url) {
       return;
@@ -72,6 +81,10 @@ class XHR extends xin.Component {
         xhr: err.xhr,
       });
     }.bind(this));
+  }
+
+  generateRequest () {
+    this.debounce('_request', this._request, this.debounceDuration);
   }
 
   generateUrl () {
