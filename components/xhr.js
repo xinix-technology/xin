@@ -12,27 +12,42 @@ class XHR extends xin.Component {
 
       url: {
         type: String,
-        observer: '__urlChanged',
+        observer: '_urlChanged',
       },
 
       as: {
         type: String,
         value: 'intelligent',
-        observer: '__asChanged',
+        observer: '_asChanged',
       },
 
       debounceDuration: {
         type: Number,
         value: 0,
       },
+
+      request: {
+        type: Object,
+        notify: true,
+      },
+
+      response: {
+        type: Object,
+        notify: true,
+      },
+
+      error: {
+        type: Object,
+        notify: true,
+      },
     };
   }
 
-  __urlChanged () {
+  _urlChanged () {
     this.debounce('__request', this.__request, this.debounceDuration);
   }
 
-  __asChanged () {
+  _asChanged () {
     this.debounce('__request', this.__request, this.debounceDuration);
   }
 
@@ -71,11 +86,21 @@ class XHR extends xin.Component {
 
   request (options) {
     options = this.__prepareOptions(options);
-    return new Promise(function (resolve, reject) {
-      var xhr = new XMLHttpRequest();
+
+    return new Promise((resolve, reject) => {
+      let xhr = new XMLHttpRequest();
+      let doResolve = () => {
+        this.set('response', xhr.responseBody);
+        resolve(xhr);
+      };
+      let doReject = err => {
+        this.set('error', err);
+        reject(err);
+      };
+
       try {
         xhr.open(options.method, options.url, options.async || true);
-        xhr.onload = function () {
+        xhr.onload = () => {
           var handleAs = options.as;
           if (handleAs === 'intelligent') {
             var contentType = xhr.getResponseHeader('Content-Type');
@@ -93,35 +118,27 @@ class XHR extends xin.Component {
             switch (handleAs) {
               case 'json':
                 try {
-                  xhr.body = JSON.parse(xhr.responseText);
-                  resolve(xhr);
+                  xhr.responseBody = JSON.parse(xhr.responseText);
                 } catch (err) {
-                  err.xhr = xhr;
-                  reject(err);
+                  return doReject(err);
                 }
                 break;
               case 'xml':
-                xhr.body = xhr.responseXML;
-                resolve(xhr);
+                xhr.responseBody = xhr.responseXML;
                 break;
               default:
-                xhr.body = xhr.response;
-                resolve(xhr);
+                xhr.responseBody = xhr.response;
+                break;
             }
+            doResolve();
           } else {
-            var err = new Error('Http status ' + xhr.status);
-            err.xhr = xhr;
-            reject(err);
+            doReject(new Error('Http status ' + xhr.status));
           }
         };
-        xhr.onerror = function (err) {
-          err.xhr = xhr;
-          reject(err);
-        };
+        xhr.onerror = doReject;
         xhr.send(options.body);
       } catch (err) {
-        err.xhr = xhr;
-        reject(err);
+        doReject(err);
       }
     });
   }

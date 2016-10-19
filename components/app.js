@@ -22,7 +22,7 @@ class App extends xin.Component {
       hashSeparator: {
         type: String,
         value: '#!',
-        observer: '__hashSeparatorChanged',
+        observer: '_hashSeparatorChanged',
       },
     };
   }
@@ -59,7 +59,7 @@ class App extends xin.Component {
     // };
   }
 
-  __hashSeparatorChanged (hashSeparator) {
+  _hashSeparatorChanged (hashSeparator) {
     this.reHashSeparator = new RegExp(hashSeparator + '(.*)$');
   }
 
