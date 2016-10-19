@@ -1,6 +1,5 @@
 const xin = require('../');
 const setup = require('../setup');
-const dom = require('../dom');
 const Fx = require('../fx');
 
 require('./view.css');
@@ -74,7 +73,7 @@ class View extends xin.Component {
     if (this.parentElement.setFocus) {
       this.parentElement.setFocus(this);
     } else {
-      dom(this.parentElement).children.forEach(element => {
+      [].forEach.call(this.parentElement.children, element => {
         if (element.setFocus) {
           element.setFocus(false);
           element.setVisible(false);
@@ -100,7 +99,7 @@ class View extends xin.Component {
     this.fire(visible ? 'show' : 'hide');
 
     if (!visible) {
-      dom(this).querySelectorAll('.xin-view-behavior.xin-view--visible').forEach(el => el.setVisible(visible));
+      [].forEach.call(this.querySelectorAll('.xin-view-behavior.xin-view--visible'), el => el.setVisible(visible));
     }
   }
 
@@ -110,7 +109,7 @@ class View extends xin.Component {
     this.fire(focus ? 'focus' : 'blur');
 
     if (!focus) {
-      dom(this).querySelectorAll('.xin-view-behavior.xin-view--focus').forEach(el => {
+      [].forEach.call(this.querySelectorAll('.xin-view-behavior.xin-view--focus'), el => {
         if (el.parentElement.setFocus) {
           el.parentElement.setFocus(null);
         } else {

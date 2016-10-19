@@ -26,13 +26,13 @@ webpackJsonp([4],[
 	  }
 	
 	  _createClass(XHR, [{
-	    key: '__urlChanged',
-	    value: function __urlChanged() {
+	    key: '_urlChanged',
+	    value: function _urlChanged() {
 	      this.debounce('__request', this.__request, this.debounceDuration);
 	    }
 	  }, {
-	    key: '__asChanged',
-	    value: function __asChanged() {
+	    key: '_asChanged',
+	    value: function _asChanged() {
 	      this.debounce('__request', this.__request, this.debounceDuration);
 	    }
 	  }, {
@@ -74,9 +74,21 @@ webpackJsonp([4],[
 	  }, {
 	    key: 'request',
 	    value: function request(options) {
+	      var _this2 = this;
+	
 	      options = this.__prepareOptions(options);
+	
 	      return new Promise(function (resolve, reject) {
 	        var xhr = new XMLHttpRequest();
+	        var doResolve = function doResolve() {
+	          _this2.set('response', xhr.responseBody);
+	          resolve(xhr);
+	        };
+	        var doReject = function doReject(err) {
+	          _this2.set('error', err);
+	          reject(err);
+	        };
+	
 	        try {
 	          xhr.open(options.method, options.url, options.async || true);
 	          xhr.onload = function () {
@@ -97,35 +109,27 @@ webpackJsonp([4],[
 	              switch (handleAs) {
 	                case 'json':
 	                  try {
-	                    xhr.body = JSON.parse(xhr.responseText);
-	                    resolve(xhr);
+	                    xhr.responseBody = JSON.parse(xhr.responseText);
 	                  } catch (err) {
-	                    err.xhr = xhr;
-	                    reject(err);
+	                    return doReject(err);
 	                  }
 	                  break;
 	                case 'xml':
-	                  xhr.body = xhr.responseXML;
-	                  resolve(xhr);
+	                  xhr.responseBody = xhr.responseXML;
 	                  break;
 	                default:
-	                  xhr.body = xhr.response;
-	                  resolve(xhr);
+	                  xhr.responseBody = xhr.response;
+	                  break;
 	              }
+	              doResolve();
 	            } else {
-	              var err = new Error('Http status ' + xhr.status);
-	              err.xhr = xhr;
-	              reject(err);
+	              doReject(new Error('Http status ' + xhr.status));
 	            }
 	          };
-	          xhr.onerror = function (err) {
-	            err.xhr = xhr;
-	            reject(err);
-	          };
+	          xhr.onerror = doReject;
 	          xhr.send(options.body);
 	        } catch (err) {
-	          err.xhr = xhr;
-	          reject(err);
+	          doReject(err);
 	        }
 	      });
 	    }
@@ -140,18 +144,33 @@ webpackJsonp([4],[
 	
 	        url: {
 	          type: String,
-	          observer: '__urlChanged'
+	          observer: '_urlChanged'
 	        },
 	
 	        as: {
 	          type: String,
 	          value: 'intelligent',
-	          observer: '__asChanged'
+	          observer: '_asChanged'
 	        },
 	
 	        debounceDuration: {
 	          type: Number,
 	          value: 0
+	        },
+	
+	        request: {
+	          type: Object,
+	          notify: true
+	        },
+	
+	        response: {
+	          type: Object,
+	          notify: true
+	        },
+	
+	        error: {
+	          type: Object,
+	          notify: true
 	        }
 	      };
 	    }
