@@ -52,7 +52,16 @@ function define (name, Comp, options) {
   return ElementClass;
 }
 
+function mix () {
+  let data = {};
+  [].forEach.call(arguments, collection => {
+    for (let i in collection) data[i] = collection[i];
+  });
+  return data;
+}
+
 module.exports.get = get;
 module.exports.put = put;
 module.exports.define = define;
 module.exports.v = v;
+module.exports.mix = mix;
