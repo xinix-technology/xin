@@ -8,6 +8,7 @@ const setup = require('./setup');
 module.exports = window.xin = repository.get;
 module.exports.put = repository.put;
 module.exports.define = repository.define;
+module.exports.mix = repository.mix;
 module.exports.Component = component.Component;
 module.exports.base = component.base;
 module.exports.Fx = Fx;
