@@ -20,6 +20,7 @@
 .transition-slide-animate {
   -webkit-transition: -webkit-transform 300ms;
   transition: transform 300ms, -webkit-transform 300ms;
+  will-change: transform, -webkit-transform;
 }
 
 .transition-slide-out.transition-slide-out-left {
