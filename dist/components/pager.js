@@ -13,7 +13,6 @@ webpackJsonp([1],{
 	
 	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 	
-	var Fx = __webpack_require__(14);
 	var xin = __webpack_require__(1);
 	
 	__webpack_require__(19);
@@ -77,7 +76,7 @@ webpackJsonp([1],{
 	          this.$focused = nextEl;
 	        }.bind(this));
 	      } else {
-	        new Fx(nextEl, 'none').play('in', 1).then(function () {
+	        new xin.Fx(nextEl, 'none').play('in', 1).then(function () {
 	          nextEl.setVisible(true);
 	          nextEl.setFocus(true);
 	          this.$focused = nextEl;

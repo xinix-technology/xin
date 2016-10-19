@@ -6,7 +6,7 @@ console.info('ENV', process.env.NODE_ENV);
 
 function getEntry () {
   let entry = {
-    'xin': ['./index.js'],
+    'xin': ['./src/index.js'],
   };
 
   let result = fs.readdirSync('./components').reduce((result, file) => {

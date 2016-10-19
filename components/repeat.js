@@ -1,4 +1,4 @@
-const xin = require('../');
+const xin = require('../src');
 const T = require('template-binding');
 
 const FILTER_ALL = () => true;

@@ -1,4 +1,4 @@
-const xin = require('../index');
+const xin = require('../src');
 
 class App extends xin.Component {
   get props () {

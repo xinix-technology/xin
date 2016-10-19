@@ -1,6 +1,6 @@
 /* globals XMLHttpRequest */
 
-const xin = require('../');
+const xin = require('../src/');
 
 class XHR extends xin.Component {
   get props () {

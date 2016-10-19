@@ -1,4 +1,4 @@
-require('./css/transition-animate.css');
+require('../css/transition-animate.css');
 
 class Fx {
   constructor (element, transition) {

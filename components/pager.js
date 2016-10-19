@@ -1,5 +1,4 @@
-const Fx = require('../fx');
-const xin = require('../');
+const xin = require('../src');
 
 require('./pager.css');
 
@@ -55,7 +54,7 @@ class Pager extends xin.Component {
         this.$focused = nextEl;
       }.bind(this));
     } else {
-      (new Fx(nextEl, 'none')).play('in', 1).then(function () {
+      (new xin.Fx(nextEl, 'none')).play('in', 1).then(function () {
         nextEl.setVisible(true);
         nextEl.setFocus(true);
         this.$focused = nextEl;
