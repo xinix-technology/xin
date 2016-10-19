@@ -24,6 +24,11 @@ webpackJsonp([0],[
 	  }
 	
 	  _createClass(App, [{
+	    key: '_titleChanged',
+	    value: function _titleChanged(title) {
+	      document.title = title;
+	    }
+	  }, {
 	    key: 'created',
 	    value: function created() {
 	      this.__appSignature = true;
@@ -53,8 +58,8 @@ webpackJsonp([0],[
 	      // };
 	    }
 	  }, {
-	    key: '__hashSeparatorChanged',
-	    value: function __hashSeparatorChanged(hashSeparator) {
+	    key: '_hashSeparatorChanged',
+	    value: function _hashSeparatorChanged(hashSeparator) {
 	      this.reHashSeparator = new RegExp(hashSeparator + '(.*)$');
 	    }
 	  }, {
@@ -293,6 +298,12 @@ webpackJsonp([0],[
 	    key: 'props',
 	    get: function get() {
 	      return {
+	        title: {
+	          type: String,
+	          value: 'Application',
+	          observer: '_titleChanged'
+	        },
+	
 	        mode: {
 	          type: String,
 	          value: 'hash'
@@ -306,7 +317,7 @@ webpackJsonp([0],[
 	        hashSeparator: {
 	          type: String,
 	          value: '#!',
-	          observer: '__hashSeparatorChanged'
+	          observer: '_hashSeparatorChanged'
 	        }
 	      };
 	    }

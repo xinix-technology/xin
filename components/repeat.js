@@ -1,5 +1,3 @@
-/* globals HTMLTemplateElement  */
-
 const xin = require('../');
 const T = require('template-binding');
 
@@ -31,7 +29,7 @@ class Repeat extends xin.base('HTMLTemplateElement') {
   }
 
   __initTemplate () {
-    T.prototype.__initialize.call(this, null, this);
+    T.prototype.__templateInitialize.call(this, null, this);
   }
 
   _itemsChanged (items) {
@@ -60,6 +58,35 @@ class Repeat extends xin.base('HTMLTemplateElement') {
         console.error(err.stack);
       }
     });
+  }
+
+  itemForElement (element) {
+    while (element && !element.__model) {
+      element = element.parentElement;
+    }
+    return element.__item;
+  }
+
+  indexForElement (element) {
+    while (element && !element.__model) {
+      element = element.parentElement;
+    }
+    return element.__index;
+  }
+
+  modelForElement (element) {
+    while (element && !element.__model) {
+      element = element.parentElement;
+    }
+    return element.__model;
+  }
+
+  _filterChanged (filter) {
+    if (typeof filter !== 'function') {
+      return;
+    }
+
+    this._itemsChanged(this.items);
   }
 
   // created () {
@@ -125,35 +152,6 @@ class Repeat extends xin.base('HTMLTemplateElement') {
   //   // };
   //   // this.Row.prototype = this.rowProto;
   // }
-
-  itemForElement (element) {
-    while (element && !element.__model) {
-      element = element.parentElement;
-    }
-    return element.__item;
-  }
-
-  indexForElement (element) {
-    while (element && !element.__model) {
-      element = element.parentElement;
-    }
-    return element.__index;
-  }
-
-  modelForElement (element) {
-    while (element && !element.__model) {
-      element = element.parentElement;
-    }
-    return element.__model;
-  }
-
-  _filterChanged (filter) {
-    if (typeof filter !== 'function') {
-      return;
-    }
-
-    this._itemsChanged(this.items);
-  }
 
   // __insertRow (item, index) {
   //   console.log(item, index);

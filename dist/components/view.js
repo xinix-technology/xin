@@ -14,11 +14,10 @@ webpackJsonp([3],{
 	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 	
 	var xin = __webpack_require__(1);
-	var setup = __webpack_require__(19);
-	var dom = __webpack_require__(17);
-	var Fx = __webpack_require__(20);
+	var setup = __webpack_require__(13);
+	var Fx = __webpack_require__(14);
 	
-	__webpack_require__(27);
+	__webpack_require__(21);
 	
 	var SETUP = setup.withDefault('xin.View', {
 	  transition: 'transition-slide'
@@ -82,7 +81,7 @@ webpackJsonp([3],{
 	      if (this.parentElement.setFocus) {
 	        this.parentElement.setFocus(this);
 	      } else {
-	        dom(this.parentElement).children.forEach(function (element) {
+	        [].forEach.call(this.parentElement.children, function (element) {
 	          if (element.setFocus) {
 	            element.setFocus(false);
 	            element.setVisible(false);
@@ -110,7 +109,7 @@ webpackJsonp([3],{
 	      this.fire(visible ? 'show' : 'hide');
 	
 	      if (!visible) {
-	        dom(this).querySelectorAll('.xin-view-behavior.xin-view--visible').forEach(function (el) {
+	        [].forEach.call(this.querySelectorAll('.xin-view-behavior.xin-view--visible'), function (el) {
 	          return el.setVisible(visible);
 	        });
 	      }
@@ -123,7 +122,7 @@ webpackJsonp([3],{
 	      this.fire(focus ? 'focus' : 'blur');
 	
 	      if (!focus) {
-	        dom(this).querySelectorAll('.xin-view-behavior.xin-view--focus').forEach(function (el) {
+	        [].forEach.call(this.querySelectorAll('.xin-view-behavior.xin-view--focus'), function (el) {
 	          if (el.parentElement.setFocus) {
 	            el.parentElement.setFocus(null);
 	          } else {
@@ -167,16 +166,16 @@ webpackJsonp([3],{
 
 /***/ },
 
-/***/ 27:
+/***/ 21:
 /***/ function(module, exports, __webpack_require__) {
 
 	// style-loader: Adds some css to the DOM by adding a <style> tag
 	
 	// load the styles
-	var content = __webpack_require__(28);
+	var content = __webpack_require__(22);
 	if(typeof content === 'string') content = [[module.id, content, '']];
 	// add the styles to the DOM
-	var update = __webpack_require__(24)(content, {});
+	var update = __webpack_require__(18)(content, {});
 	if(content.locals) module.exports = content.locals;
 	// Hot Module Replacement
 	if(false) {
@@ -194,10 +193,10 @@ webpackJsonp([3],{
 
 /***/ },
 
-/***/ 28:
+/***/ 22:
 /***/ function(module, exports, __webpack_require__) {
 
-	exports = module.exports = __webpack_require__(23)();
+	exports = module.exports = __webpack_require__(17)();
 	// imports
 	
 	

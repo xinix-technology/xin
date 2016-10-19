@@ -4,7 +4,6 @@
 import T from 'template-binding';
 import { put, v } from './repository';
 import inflector from './inflector';
-import dom from './dom';
 import { Async, Debounce } from './async';
 import setup from './setup';
 
@@ -57,6 +56,8 @@ function base (base) {
       if (this.ready) {
         this.ready();
       }
+
+      this.render(this.__content);
     }
 
     attachedCallback () {
@@ -161,20 +162,15 @@ function base (base) {
         template.innerHTML = this.template;
       }
 
-      // when template does not exist just initialize template to get binding but do not render
-      if (!template) {
-        T.prototype.__initialize.call(this, template, this);
-        return;
+      // when template does not exist do not populate content
+      if (template) {
+        [].slice.call(this.childNodes).forEach(node => {
+          this.__content.push(node);
+          this.removeChild(node);
+        });
       }
 
-      dom(this).childNodes.forEach(node => {
-        this.__content.push(node);
-        this.removeChild(node);
-      });
-
-      T.prototype.__initialize.call(this, template, this);
-
-      this.render(this.__content);
+      T.prototype.__templateInitialize.call(this, template, this);
     }
 
     __templateAnnotate (expr, accessor) {
@@ -248,7 +244,7 @@ function base (base) {
         let listenerMetadata = parseListenerMetadata(key);
         let listenerHandler = this[this.listeners[key]];
         this.addEventListener(listenerMetadata.eventName, function (evt) {
-          if (listenerMetadata.selector && !dom(evt.target).matches(listenerMetadata.selector) && !dom(evt.target).matches(listenerMetadata.selector + ' *')) {
+          if (listenerMetadata.selector && !evt.target.matches(listenerMetadata.selector) && !evt.target.matches(listenerMetadata.selector + ' *')) {
             return;
           }
           return listenerHandler.apply(this, arguments);
@@ -257,7 +253,36 @@ function base (base) {
     }
 
     fire (type, detail, options) {
-      return dom(this).fire(type, detail, options);
+      options = options || {};
+      detail = detail || {};
+
+      let evt;
+      let bubbles = options.bubbles === undefined ? true : options.bubbles;
+      let cancelable = Boolean(options.cancelable);
+
+      switch (type) {
+        case 'click':
+          evt = new window.Event(type, {
+            bubbles: bubbles,
+            cancelable: cancelable,
+          });
+
+          // TODO check if without this works on every browsers
+          // evt = document.createEvent('HTMLEvents');
+          // evt.initEvent(type, true, false);
+          break;
+        default:
+          evt = new window.CustomEvent(type, {
+            bubbles: Boolean(bubbles),
+            cancelable: cancelable,
+            detail: detail,
+          });
+          break;
+      }
+
+      this.dispatchEvent(evt);
+
+      return evt;
     }
 
     async (callback, waitTime) {
@@ -278,7 +303,6 @@ function base (base) {
       return debouncer;
     }
   }
-
 
   for (let key in T.prototype) {
     // exclude __templateAnnotate because will be override
