@@ -242,13 +242,15 @@ function base (base) {
 
       Object.keys(this.listeners).forEach(key => {
         let listenerMetadata = parseListenerMetadata(key);
-        let listenerHandler = this[this.listeners[key]];
-        this.addEventListener(listenerMetadata.eventName, function (evt) {
+        let expr = T.Expr.getFn(this.listeners[key], [], true);
+
+        this.addEventListener(listenerMetadata.eventName, evt => {
           if (listenerMetadata.selector && !evt.target.matches(listenerMetadata.selector) && !evt.target.matches(listenerMetadata.selector + ' *')) {
             return;
           }
-          return listenerHandler.apply(this, arguments);
-        }.bind(this), true);
+
+          return expr.invoke(this, { evt });
+        }, true);
       });
     }
 
