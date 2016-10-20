@@ -46,6 +46,11 @@ class Repeat extends xin.base('HTMLTemplateElement') {
             this.rows[index].set(this.indexAs, index);
           } else {
             let row = new T(this, this.__templateModel, this);
+            row.__templateChildNodes.forEach(node => {
+              if (node.nodeType === window.Node.ELEMENT_NODE) {
+                node.__repeatModel = row;
+              }
+            });
             row.set(this.as, item);
             row.set(this.indexAs, index);
 
@@ -64,24 +69,24 @@ class Repeat extends xin.base('HTMLTemplateElement') {
   }
 
   itemForElement (element) {
-    while (element && !element.__model) {
+    while (element && !element.__repeatModel) {
       element = element.parentElement;
     }
-    return element.__item;
+    return element.__repeatModel.get(this.as);
   }
 
   indexForElement (element) {
-    while (element && !element.__model) {
+    while (element && !element.__repeatModel) {
       element = element.parentElement;
     }
-    return element.__index;
+    return element.__repeatModel.get(this.indexAs);
   }
 
   modelForElement (element) {
-    while (element && !element.__model) {
+    while (element && !element.__repeatModel) {
       element = element.parentElement;
     }
-    return element.__model;
+    return element.__repeatModel;
   }
 
   _filterChanged (filter) {
@@ -135,9 +140,9 @@ class Repeat extends xin.base('HTMLTemplateElement') {
   //   //   var row = this;
   //   //   var fragment = this.fragment = document.importNode(self.content, true);
   //   //   this.__root = xin.dom(fragment).childNodes.map(function (node) {
-  //   //     node.__model = row;
-  //   //     node.__index = index;
-  //   //     node.__item = item;
+  //   //     node.__repeatModel = row;
+  //   //     node.__repeatIndex = index;
+  //   //     node.__repeatItem = item;
   //   //     return node;
   //   //   });
   //   //
@@ -164,9 +169,9 @@ class Repeat extends xin.base('HTMLTemplateElement') {
   //   // };
   //
   //   // row.__root.forEach(function(node) {
-  //   //  node.__model = row;
-  //   //  node.__index = index;
-  //   //  node.__item = item;
+  //   //  node.__repeatModel = row;
+  //   //  node.__repeatIndex = index;
+  //   //  node.__repeatItem = item;
   //   // });
   //
   //   // Object.setPrototypeOf(row, this.rowProto);
