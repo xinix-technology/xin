@@ -32,7 +32,9 @@ class App extends xin.Component {
   }
 
   created () {
-    this.classList.add('xin-app');
+    xin.put('app', this);
+
+    // this.classList.add('xin-app');
 
     this.__appSignature = true;
     this.location = window.location;
