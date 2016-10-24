@@ -22,20 +22,25 @@ function base (base) {
   }
 
   class Component extends window[base] {
+    get $ () {
+      // return this.getElementsByTagName('*');
+      return this.__templateHost.getElementsByTagName('*');
+    }
+
     get props () {
       return {};
     }
 
     createdCallback () {
-      if (DEBUG) console.info('CREATED ' + this.is);
+      if (DEBUG) console.info(`CREATED ${this.is}`);
 
       this.__id = nextId();
       put(this.__id, this);
       this.setAttribute('xin-id', this.__id);
 
-      this.classList.add(this.is);
+      // this.classList.add(this.is);
 
-      if (this.created) {
+      if (typeof this.created === 'function') {
         this.created();
       }
 
@@ -51,19 +56,17 @@ function base (base) {
     }
 
     readyCallback () {
-      if (DEBUG) console.info('READY ' + this.is);
+      if (DEBUG) console.info(`READY ${this.is}`);
 
-      if (this.ready) {
+      if (typeof this.ready === 'function') {
         this.ready();
       }
-
-      this.render(this.__content);
     }
 
     attachedCallback () {
-      if (DEBUG) console.info('ATTACHED ' + this.is);
+      if (DEBUG) console.info(`ATTACHED ${this.is}`);
 
-      if (this.attached) {
+      if (typeof this.attached === 'function') {
         this.attached();
       }
     }
@@ -89,7 +92,7 @@ function base (base) {
     }
 
     __initData () {
-      this.__content = [];
+      this.__componentContent = [];
       this.__debouncers = {};
       this.__notifiers = {};
     }
@@ -165,12 +168,14 @@ function base (base) {
       // when template does not exist do not populate content
       if (template) {
         [].slice.call(this.childNodes).forEach(node => {
-          this.__content.push(node);
+          this.__componentContent.push(node);
           this.removeChild(node);
         });
       }
 
       T.prototype.__templateInitialize.call(this, template, this);
+
+      this.render(this.__componentContent);
     }
 
     __templateAnnotate (expr, accessor) {
@@ -308,7 +313,7 @@ function base (base) {
 
   for (let key in T.prototype) {
     // exclude __templateAnnotate because will be override
-    if (key !== '__templateAnnotate' && T.prototype.hasOwnProperty(key)) {
+    if (T.prototype.hasOwnProperty(key) && key !== '__templateAnnotate' && key !== '$') {
       Component.prototype[key] = T.prototype[key];
     }
   }
