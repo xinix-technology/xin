@@ -60,31 +60,34 @@ class XHR extends xin.Component {
     }
   }
 
-  _request () {
-    var url = this.generateUrl();
+  _requestFlight () {
+    let url = this.generateUrl();
     if (!url) {
       return;
     }
 
-    return this.request({
+    return this.req({
       method: this.method,
       url: url,
       as: this.as,
-    }).then(function (xhr) {
+    }).then(xhr => {
+      let body = xhr.body;
       this.fire('response', {
-        body: xhr.body,
+        body: body,
         xhr: xhr,
       });
-    }.bind(this), function (err) {
+      return body;
+    }, err => {
       this.fire('error', {
         error: err,
         xhr: err.xhr,
       });
-    }.bind(this));
+      throw err;
+    });
   }
 
   generateRequest () {
-    this.debounce('_request', this._request, this.debounceDuration);
+    this.debounce('_requestFlight', this._requestFlight, this.debounceDuration);
   }
 
   generateUrl () {
@@ -97,7 +100,7 @@ class XHR extends xin.Component {
     return options;
   }
 
-  request (options) {
+  req (options) {
     options = this.__prepareOptions(options);
 
     return new Promise((resolve, reject) => {

@@ -57,7 +57,7 @@ module.exports = {
         exclude: /(node_modules|bower_components)/,
         loader: require.resolve('babel-loader'),
         query: {
-          presets: ['babel-preset-es2015', 'babel-preset-es2016', 'babel-preset-es2017'].map(require.resolve),
+          presets: ['babel-preset-es2015', 'babel-preset-es2016', 'babel-preset-es2017', 'babel-preset-stage-0'].map(require.resolve),
         },
       },
     ],

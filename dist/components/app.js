@@ -6,6 +6,8 @@ webpackJsonp([0],[
 	
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 	
+	function _asyncToGenerator(fn) { return function () { var gen = fn.apply(this, arguments); return new Promise(function (resolve, reject) { function step(key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { return Promise.resolve(value).then(function (value) { step("next", value); }, function (err) { step("throw", err); }); } } return step("next"); }); }; }
+	
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 	
 	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
@@ -24,6 +26,11 @@ webpackJsonp([0],[
 	  }
 	
 	  _createClass(App, [{
+	    key: 'handleRouteNotFound',
+	    value: function handleRouteNotFound(evt) {
+	      console.error('Route not found: ' + evt.detail);
+	    }
+	  }, {
 	    key: '_titleChanged',
 	    value: function _titleChanged(title) {
 	      document.title = title;
@@ -31,6 +38,10 @@ webpackJsonp([0],[
 	  }, {
 	    key: 'created',
 	    value: function created() {
+	      xin.put('app', this);
+	
+	      // this.classList.add('xin-app');
+	
 	      this.__appSignature = true;
 	      this.location = window.location;
 	      this.history = window.history;
@@ -40,22 +51,6 @@ webpackJsonp([0],[
 	      this.middlewares = [];
 	
 	      this.__started = false;
-	
-	      this.addEventListener('route-not-found', function (evt) {
-	        console.error('Route not found: ' + evt.detail);
-	      });
-	
-	      // var originalNotify = this.__notify;
-	      // this.__notify = function (path, value, oldValue) {
-	      //   originalNotify.apply(this, arguments);
-	      //   if (path[0] === '$') {
-	      //     this.fire('property-sync', {
-	      //       property: path,
-	      //       value: value,
-	      //       oldValue: oldValue,
-	      //     });
-	      //   }
-	      // };
 	    }
 	  }, {
 	    key: '_hashSeparatorChanged',
@@ -65,7 +60,9 @@ webpackJsonp([0],[
 	  }, {
 	    key: 'attached',
 	    value: function attached() {
-	      this.start();
+	      if (!this.manual) {
+	        this.async(this.start);
+	      }
 	    }
 	  }, {
 	    key: '__isStatic',
@@ -109,137 +106,176 @@ webpackJsonp([0],[
 	      };
 	
 	      if (!this.__isStatic(_route)) {
-	        routeHandler.type = 'v';
 	        var result = this.__routeRegExp(_route);
+	
+	        routeHandler.type = 'v';
 	        routeHandler.pattern = result[0];
 	        routeHandler.args = result[1];
 	      }
 	
 	      this.handlers.push(routeHandler);
-	
-	      // when app already on starting state but not accomplished yet will try start when one handler pushed
-	      if (this.__starting) {
-	        this.__starting = false;
-	        this.async(this.__tryStart);
-	      }
 	    }
 	  }, {
 	    key: 'start',
-	    value: function start() {
+	    value: function () {
+	      var _ref = _asyncToGenerator(regeneratorRuntime.mark(function _callee() {
+	        var executed;
+	        return regeneratorRuntime.wrap(function _callee$(_context) {
+	          while (1) {
+	            switch (_context.prev = _context.next) {
+	              case 0:
+	                if (!this.__started) {
+	                  _context.next = 2;
+	                  break;
+	                }
+	
+	                return _context.abrupt('return');
+	
+	              case 2:
+	
+	                this.__middlewareChainRun = compose(this.middlewares);
+	
+	                // this.__starting = true;
+	                _context.next = 5;
+	                return this.__execute();
+	
+	              case 5:
+	                executed = _context.sent;
+	
+	                // this.__starting = false;
+	
+	                if (executed) {
+	                  console.info('Started    ' + this.__getId());
+	
+	                  this.__started = true;
+	
+	                  this.__listenNavigation();
+	
+	                  this.fire('started');
+	                }
+	
+	              case 7:
+	              case 'end':
+	                return _context.stop();
+	            }
+	          }
+	        }, _callee, this);
+	      }));
+	
+	      function start() {
+	        return _ref.apply(this, arguments);
+	      }
+	
+	      return start;
+	    }()
+	  }, {
+	    key: '__listenNavigation',
+	    value: function __listenNavigation() {
 	      var _this2 = this;
 	
-	      this.__starting = true;
-	      this.check().then(function (executors) {
-	        if (executors.length > 0) {
-	          _this2.__starting = false;
-	          _this2.__tryStart();
-	        }
-	      });
-	    }
-	  }, {
-	    key: '__tryStart',
-	    value: function __tryStart() {
+	      var callback = this.__executeCallback = function () {
+	        _this2.__execute();
+	      };
+	
 	      if (this.mode === 'history') {
-	        window.addEventListener('popstate', this.checkAndExecute.bind(this), false);
+	        window.addEventListener('popstate', callback, false);
 	        document.addEventListener('click', function (evt) {
 	          if (!evt.defaultPrevented && evt.target.nodeName === 'A' && evt.target.target === '') {
 	            evt.preventDefault();
-	            this.history.pushState({
-	              url: evt.target.getAttribute('href')
-	            }, evt.target.innerHTML, evt.target.href);
-	            this.checkAndExecute();
+	
+	            var state = { url: evt.target.getAttribute('href') };
+	            this.history.pushState(state, evt.target.innerHTML, evt.target.href);
+	
+	            callback();
 	          }
 	        }.bind(this));
 	      } else {
-	        window.addEventListener('hashchange', this.checkAndExecute.bind(this), false);
+	        window.addEventListener('hashchange', callback, false);
 	      }
-	
-	      this.checkAndExecute().then(function () {
-	        console.info('Started    ' + this.__getId());
-	        this.fire('started');
-	        this.__started = true;
-	      }.bind(this));
 	    }
 	  }, {
-	    key: 'isStarted',
-	    value: function isStarted() {
-	      return this.__started || false;
-	    }
-	  }, {
-	    key: 'check',
-	    value: function check(fragment) {
-	      return new Promise(function (resolve, reject) {
-	        try {
-	          fragment = fragment || this.getFragment();
-	          var running = [];
-	          this.handlers.forEach(function (handler) {
-	            if (handler.type === 's') {
-	              if (fragment === handler.route) {
-	                running.push({
-	                  handler: handler,
-	                  args: {}
-	                });
-	                return;
-	              }
-	            } else if (handler.type === 'v') {
-	              // matches is unused
-	              // var matches = [];
-	              var result = fragment.match(handler.pattern);
-	              // if (result) {
-	              //   matches = result.slice(1);
-	              // }
+	    key: 'getFragmentExecutors',
+	    value: function getFragmentExecutors(fragment) {
+	      fragment = fragment || this.getFragment();
 	
-	              if (result) {
+	      return this.handlers.reduce(function (executors, handler) {
+	        if (handler.type === 's') {
+	          if (fragment === handler.route) {
+	            executors.push({ handler: handler, args: {} });
+	          }
+	        } else if (handler.type === 'v') {
+	          (function () {
+	            var result = fragment.match(handler.pattern);
+	            if (result) {
+	              (function () {
 	                var args = {};
 	
 	                handler.args.forEach(function (name, index) {
 	                  args[name] = result[index + 1];
 	                });
 	
-	                running.push({
+	                executors.push({
 	                  handler: handler,
 	                  args: args
 	                });
-	              }
+	              })();
 	            }
-	          });
-	
-	          resolve(running);
-	        } catch (err) {
-	          reject(err);
+	          })();
 	        }
-	      }.bind(this));
+	        return executors;
+	      }, []);
 	    }
 	  }, {
-	    key: 'checkAndExecute',
-	    value: function checkAndExecute() {
-	      var fragment = this.getFragment();
+	    key: '__execute',
+	    value: function () {
+	      var _ref2 = _asyncToGenerator(regeneratorRuntime.mark(function _callee2() {
+	        var fragment, executors, context;
+	        return regeneratorRuntime.wrap(function _callee2$(_context2) {
+	          while (1) {
+	            switch (_context2.prev = _context2.next) {
+	              case 0:
+	                fragment = this.getFragment();
+	                executors = this.getFragmentExecutors(fragment);
 	
-	      return this.check(fragment).then(function (executers) {
-	        if (executers.length) {
-	          var promise = Promise.resolve();
-	          this.middlewares.forEach(function (middleware) {
-	            promise = promise.then(function () {
-	              return middleware.apply(this);
-	            }.bind(this));
-	          }.bind(this));
+	                if (!(executors.length === 0)) {
+	                  _context2.next = 5;
+	                  break;
+	                }
 	
-	          return promise.then(function () {
-	            executers.forEach(function (executer) {
-	              executer.handler.callback(executer.args);
-	            });
+	                this.fire('route-not-found', fragment);
+	                return _context2.abrupt('return', false);
 	
-	            this.fire('navigated', { uri: fragment });
-	            return executers;
-	          }.bind(this));
-	        }
+	              case 5:
+	                context = { uri: fragment };
 	
-	        this.fire('route-not-found', fragment);
-	        return [];
-	      }.bind(this)).catch(function (err) {
-	        console.error('Uncaught checkAndExecute error, ' + err.stack);
-	      });
-	    }
+	
+	                this.fire('navigated', context);
+	
+	                // run middleware chain then execute all executors
+	                _context2.next = 9;
+	                return this.__middlewareChainRun(context, function () {
+	                  executors.forEach(function (executor) {
+	                    return executor.handler.callback(executor.args, context);
+	                  });
+	                });
+	
+	              case 9:
+	                return _context2.abrupt('return', true);
+	
+	              case 10:
+	              case 'end':
+	                return _context2.stop();
+	            }
+	          }
+	        }, _callee2, this);
+	      }));
+	
+	      function __execute() {
+	        return _ref2.apply(this, arguments);
+	      }
+	
+	      return __execute;
+	    }()
 	  }, {
 	    key: 'navigate',
 	    value: function navigate(path, options) {
@@ -250,7 +286,7 @@ webpackJsonp([0],[
 	        var url = this.rootUri + path.toString().replace(/\/$/, '').replace(/^\//, '');
 	        if (this.location.href.replace(this.location.origin, '') !== url) {
 	          this.history[options.replace ? 'replaceState' : 'pushState']({}, document.title, url);
-	          this.checkAndExecute();
+	          this.__execute();
 	        }
 	      } else {
 	        this.location.href.match(this.reHashSeparator);
@@ -263,20 +299,10 @@ webpackJsonp([0],[
 	    value: function use(middleware) {
 	      this.middlewares.push(middleware);
 	    }
-	
-	    // REMOVED, you can use getFragment()
-	    // getURI () {
-	    //   if (this.mode === 'hash') {
-	    //     return this.location.hash.replace(this.hashSeparator, '') || '/';
-	    //   } else {
-	    //     throw new Error('Unimplemented getURI from history mode');
-	    //   }
-	    // },
-	
 	  }, {
 	    key: 'getFragment',
 	    value: function getFragment() {
-	      var fragment;
+	      var fragment = void 0;
 	      if (this.mode === 'history') {
 	        fragment = decodeURI(this.location.pathname + this.location.search);
 	        fragment = fragment.replace(/\?(.*)$/, '');
@@ -288,20 +314,24 @@ webpackJsonp([0],[
 	
 	      return '/' + fragment.toString().replace(/\/$/, '').replace(/^\//, '');
 	    }
-	  }, {
-	    key: '$back',
-	    value: function $back(evt) {
-	      evt.preventDefault();
-	      this.history.back();
-	    }
+	
+	    // $back (evt) {
+	    //   evt.preventDefault();
+	    //   this.history.back();
+	    // }
+	
 	  }, {
 	    key: 'props',
 	    get: function get() {
 	      return {
-	        title: {
+	        docTitle: {
 	          type: String,
 	          value: 'Application',
 	          observer: '_titleChanged'
+	        },
+	
+	        manual: {
+	          type: Boolean
 	        },
 	
 	        mode: {
@@ -321,12 +351,131 @@ webpackJsonp([0],[
 	        }
 	      };
 	    }
+	  }, {
+	    key: 'listeners',
+	    get: function get() {
+	      return {
+	        'route-not-found': 'handleRouteNotFound(evt)'
+	      };
+	    }
+	  }, {
+	    key: 'started',
+	    get: function get() {
+	      return this.__started || false;
+	    }
 	  }]);
 	
 	  return App;
 	}(xin.Component);
 	
 	xin.define('xin-app', App);
+	
+	function compose(middlewares) {
+	  var _this3 = this;
+	
+	  var _iteratorNormalCompletion = true;
+	  var _didIteratorError = false;
+	  var _iteratorError = undefined;
+	
+	  try {
+	    for (var _iterator = middlewares[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+	      var fn = _step.value;
+	
+	      if (typeof fn !== 'function') {
+	        throw new TypeError('Middleware must be composed of functions!');
+	      }
+	    }
+	  } catch (err) {
+	    _didIteratorError = true;
+	    _iteratorError = err;
+	  } finally {
+	    try {
+	      if (!_iteratorNormalCompletion && _iterator.return) {
+	        _iterator.return();
+	      }
+	    } finally {
+	      if (_didIteratorError) {
+	        throw _iteratorError;
+	      }
+	    }
+	  }
+	
+	  return function () {
+	    var _ref3 = _asyncToGenerator(regeneratorRuntime.mark(function _callee4(context, next) {
+	      var dispatch = function () {
+	        var _ref4 = _asyncToGenerator(regeneratorRuntime.mark(function _callee3(i) {
+	          var fn;
+	          return regeneratorRuntime.wrap(function _callee3$(_context3) {
+	            while (1) {
+	              switch (_context3.prev = _context3.next) {
+	                case 0:
+	                  if (!(i <= index)) {
+	                    _context3.next = 2;
+	                    break;
+	                  }
+	
+	                  throw new Error('next() called multiple times');
+	
+	                case 2:
+	
+	                  index = i;
+	                  fn = middlewares[i];
+	
+	                  if (i === middlewares.length) {
+	                    fn = next;
+	                  }
+	
+	                  if (fn) {
+	                    _context3.next = 7;
+	                    break;
+	                  }
+	
+	                  return _context3.abrupt('return');
+	
+	                case 7:
+	                  _context3.next = 9;
+	                  return fn(context, function () {
+	                    return dispatch(i + 1);
+	                  });
+	
+	                case 9:
+	                  return _context3.abrupt('return', _context3.sent);
+	
+	                case 10:
+	                case 'end':
+	                  return _context3.stop();
+	              }
+	            }
+	          }, _callee3, this);
+	        }));
+	
+	        return function dispatch(_x3) {
+	          return _ref4.apply(this, arguments);
+	        };
+	      }();
+	
+	      var index;
+	      return regeneratorRuntime.wrap(function _callee4$(_context4) {
+	        while (1) {
+	          switch (_context4.prev = _context4.next) {
+	            case 0:
+	              // last called middlewares #
+	              index = -1;
+	              return _context4.abrupt('return', dispatch(0));
+	
+	            case 2:
+	            case 'end':
+	              return _context4.stop();
+	          }
+	        }
+	      }, _callee4, _this3);
+	    }));
+	
+	    return function (_x, _x2) {
+	      return _ref3.apply(this, arguments);
+	    };
+	  }();
+	}
 	
 	xin.App = App;
 	

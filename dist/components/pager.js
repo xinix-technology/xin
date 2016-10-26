@@ -15,7 +15,7 @@ webpackJsonp([1],{
 	
 	var xin = __webpack_require__(1);
 	
-	__webpack_require__(19);
+	__webpack_require__(20);
 	
 	var Pager = function (_xin$Component) {
 	  _inherits(Pager, _xin$Component);
@@ -95,16 +95,16 @@ webpackJsonp([1],{
 
 /***/ },
 
-/***/ 19:
+/***/ 20:
 /***/ function(module, exports, __webpack_require__) {
 
 	// style-loader: Adds some css to the DOM by adding a <style> tag
 	
 	// load the styles
-	var content = __webpack_require__(20);
+	var content = __webpack_require__(21);
 	if(typeof content === 'string') content = [[module.id, content, '']];
 	// add the styles to the DOM
-	var update = __webpack_require__(18)(content, {});
+	var update = __webpack_require__(19)(content, {});
 	if(content.locals) module.exports = content.locals;
 	// Hot Module Replacement
 	if(false) {
@@ -122,10 +122,10 @@ webpackJsonp([1],{
 
 /***/ },
 
-/***/ 20:
+/***/ 21:
 /***/ function(module, exports, __webpack_require__) {
 
-	exports = module.exports = __webpack_require__(17)();
+	exports = module.exports = __webpack_require__(18)();
 	// imports
 	
 	

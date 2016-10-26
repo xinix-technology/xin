@@ -22,11 +22,6 @@ function base (base) {
   }
 
   class Component extends window[base] {
-    get $ () {
-      // return this.getElementsByTagName('*');
-      return this.__templateHost.getElementsByTagName('*');
-    }
-
     get props () {
       return {};
     }
@@ -95,37 +90,37 @@ function base (base) {
       this.__componentContent = [];
       this.__debouncers = {};
       this.__notifiers = {};
+      // this.__componentFilters = {};
     }
 
     __initProps () {
       for (let propName in this.props) {
         // exclude prototype properties
-        if (!{}.hasOwnProperty.call(this.props, propName)) {
+        if (!Object.prototype.hasOwnProperty.call(this.props, propName)) {
           continue;
         }
 
         let property = this.props[propName];
         let attrName = inflector.dashify(propName);
-        let attrVal = this.getAttribute(attrName);
 
-        let expr = T.Expr.get(attrVal);
+        let defaultValue;
+        if (this.hasAttribute(attrName)) {
+          let attrVal = this.getAttribute(attrName);
 
-        // copy value from attribute to property
-        if (typeof attrVal === 'string') {
+          // copy value from attribute to property
+          // fallback to property.value
+          let expr = T.Expr.get(attrVal);
           if (expr.type === 's') {
-            this[propName] = T.Serializer.deserialize(attrVal, property.type);
-            this.notify(propName, this[propName]);
+            defaultValue = T.Serializer.deserialize(attrVal, property.type);
           }
-          // if expr not static do nothing
         }
 
+        // force notify first
+        this.set(propName, defaultValue === undefined ? v(property.value) : defaultValue);
+
         // when property is undefined, log error when property is required otherwise assign to default value
-        if (undefined === this[propName]) {
-          if (property.required) {
-            throw new Error('"' + this.__getId() + '" missing required "' + propName + '"');
-          } else {
-            this[propName] = v(property.value);
-          }
+        if (property.required && (this[propName] === undefined || this[propName] === null)) {
+          throw new Error('"' + this.__getId() + '" missing required "' + propName + '"');
         }
 
         if (property.observer) {
@@ -176,31 +171,6 @@ function base (base) {
       T.prototype.__templateInitialize.call(this, template, this);
 
       this.render(this.__componentContent);
-    }
-
-    __templateAnnotate (expr, accessor) {
-      if (!T.prototype.__templateAnnotate.call(this, expr, accessor)) {
-        return false;
-      }
-
-      // register event notifier
-      if (expr.mode === '{' && expr.type === 'p' && accessor.node instanceof HTMLElement) {
-        switch (accessor.node.nodeName) {
-          case 'INPUT':
-          case 'TEXTAREA':
-            if (accessor.name === 'value') {
-              accessor.node.__templateNotifyKey = expr.name;
-              this.__addNotifier('input');
-            }
-            break;
-          default:
-            // register event for custom notifier
-            this.__addNotifier('-notify');
-            break;
-        }
-      }
-
-      return true;
     }
 
     __addNotifier (eventName) {
@@ -309,13 +279,104 @@ function base (base) {
 
       return debouncer;
     }
+
+    // __componentGetFilters (path) {
+    //   let propName = path[0];
+    //   let propFilters = this.__componentFilters[propName];
+    //   if (!propFilters) {
+    //     let prop = this.props[propName];
+    //     propFilters = {};
+    //     if (prop && prop.filters) {
+    //       propFilters = {};
+    //       for (let key in prop.filters) {
+    //         let pathFilters = prop.filters[key];
+    //         propFilters[key] = pathFilters.split('|').map(filter => {
+    //           return T.Filter.get(filter.trim());
+    //         });
+    //       }
+    //     }
+    //     this.__componentFilters[propName] = propFilters;
+    //   }
+    //
+    //   return propFilters[path.slice(1).join('.')];
+    // }
+
+    // T overriden
+    // -------------------------------------------------------------------------
+    //
+
+    get $ () {
+      // return this.getElementsByTagName('*');
+      return this.__templateHost.getElementsByTagName('*');
+    }
+
+    // set (path, value) {
+    //   path = this.__templateGetPathAsArray(path);
+    //
+    //   if (path[0] === 'modelErrors') {
+    //     return T.prototype.set.call(this, path, value);
+    //   }
+    //
+    //   let modelErrorsPath = path.slice(0);
+    //   modelErrorsPath.unshift('modelErrors');
+    //
+    //   try {
+    //     let filters = this.__componentGetFilters(path);
+    //     if (filters) {
+    //       value = filters.reduce((val, filter) => filter.invoke(val), value);
+    //     }
+    //
+    //     this.set(modelErrorsPath, undefined);
+    //
+    //     return T.prototype.set.call(this, path, value);
+    //   } catch (err) {
+    //     err.path = modelErrorsPath.join('.');
+    //     this.set(modelErrorsPath, err);
+    //   }
+    // }
+
+    __templateAnnotate (expr, accessor) {
+      if (!T.prototype.__templateAnnotate.call(this, expr, accessor)) {
+        return false;
+      }
+
+      // register event notifier
+      if (expr.mode === '{' && expr.type === 'p' && accessor.node instanceof HTMLElement) {
+        switch (accessor.node.nodeName) {
+          case 'INPUT':
+          case 'TEXTAREA':
+            if (accessor.name === 'value') {
+              accessor.node.__templateNotifyKey = expr.name;
+              this.__addNotifier('input');
+            }
+            break;
+          default:
+            // register event for custom notifier
+            this.__addNotifier('-notify');
+            break;
+        }
+      }
+
+      return true;
+    }
+
   }
 
-  for (let key in T.prototype) {
+  let tproto = T.prototype;
+  for (let key in tproto) {
     // exclude __templateAnnotate because will be override
-    if (T.prototype.hasOwnProperty(key) && key !== '__templateAnnotate' && key !== '$') {
-      Component.prototype[key] = T.prototype[key];
+    if (!tproto.hasOwnProperty(key)) {
+      continue;
     }
+
+    switch (key) {
+      // case 'set':
+      case '$':
+      case '__templateAnnotate':
+        continue;
+    }
+
+    Component.prototype[key] = tproto[key];
   }
 
   baseComponents[base] = Component;

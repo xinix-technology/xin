@@ -24,15 +24,16 @@ function put (id, value) {
 }
 
 function v (value) {
-  return typeof value === 'function' ? value() : value;
+  return typeof value === 'function' ? value.apply(null, [].slice.call(arguments, 1)) : value;
 }
 
 function define (name, Comp, options) {
-  if (window.customElements) {
-    throw new Error('Unimplemented webcomponents v1');
-    // window.customElements.define(name, Comp, options);
-    // return Comp;
-  }
+  // TODO please make it happen for v1
+  // if (window.customElements) {
+  //   throw new Error('Unimplemented webcomponents v1');
+  //   // window.customElements.define(name, Comp, options);
+  //   // return Comp;
+  // }
 
   let Proto = {
     prototype: Object.create(Comp.prototype, {
