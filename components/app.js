@@ -3,10 +3,14 @@ const xin = require('../src');
 class App extends xin.Component {
   get props () {
     return {
-      title: {
+      docTitle: {
         type: String,
         value: 'Application',
         observer: '_titleChanged',
+      },
+
+      manual: {
+        type: Boolean,
       },
 
       mode: {
@@ -27,6 +31,16 @@ class App extends xin.Component {
     };
   }
 
+  get listeners () {
+    return {
+      'route-not-found': 'handleRouteNotFound(evt)',
+    };
+  }
+
+  handleRouteNotFound (evt) {
+    console.error('Route not found: ' + evt.detail);
+  }
+
   _titleChanged (title) {
     document.title = title;
   }
@@ -45,22 +59,6 @@ class App extends xin.Component {
     this.middlewares = [];
 
     this.__started = false;
-
-    this.addEventListener('route-not-found', function (evt) {
-      console.error('Route not found: ' + evt.detail);
-    });
-
-    // var originalNotify = this.__notify;
-    // this.__notify = function (path, value, oldValue) {
-    //   originalNotify.apply(this, arguments);
-    //   if (path[0] === '$') {
-    //     this.fire('property-sync', {
-    //       property: path,
-    //       value: value,
-    //       oldValue: oldValue,
-    //     });
-    //   }
-    // };
   }
 
   _hashSeparatorChanged (hashSeparator) {
@@ -68,7 +66,9 @@ class App extends xin.Component {
   }
 
   attached () {
-    this.start();
+    if (!this.manual) {
+      this.async(this.start);
+    }
   }
 
   __isStatic (pattern) {
@@ -76,19 +76,19 @@ class App extends xin.Component {
   }
 
   __routeRegExp (str) {
-    var chunks = str.split('[');
+    let chunks = str.split('[');
 
     if (chunks.length > 2) {
       throw new Error('Invalid use of optional params');
     }
 
-    var tokens = [];
-    var re = chunks[0].replace(/{([^}]+)}/g, function (g, token) {
+    let tokens = [];
+    let re = chunks[0].replace(/{([^}]+)}/g, function (g, token) {
       tokens.push(token);
       return '([^/]+)';
     }).replace(/\//g, '\\/');
 
-    var optRe = '';
+    let optRe = '';
 
     if (chunks[1]) {
       optRe = '(?:' + chunks[1].slice(0, -1).replace(/{([^}]+)}/g, function (g, token) {
@@ -96,11 +96,11 @@ class App extends xin.Component {
         return '([^/]+)';
       }).replace(/\//g, '\\/') + ')?';
     }
-    return [new RegExp('^' + re + optRe + '$'), tokens];
+    return [ new RegExp('^' + re + optRe + '$'), tokens ];
   }
 
   route (route, callback) {
-    var routeHandler = {
+    let routeHandler = {
       route: route,
       type: 's',
       pattern: null,
@@ -109,132 +109,110 @@ class App extends xin.Component {
     };
 
     if (!this.__isStatic(route)) {
+      let result = this.__routeRegExp(route);
+
       routeHandler.type = 'v';
-      var result = this.__routeRegExp(route);
       routeHandler.pattern = result[0];
       routeHandler.args = result[1];
     }
 
     this.handlers.push(routeHandler);
+  }
 
-    // when app already on starting state but not accomplished yet will try start when one handler pushed
-    if (this.__starting) {
-      this.__starting = false;
-      this.async(this.__tryStart);
+  async start () {
+    if (this.__started) {
+      return;
+    }
+
+    this.__middlewareChainRun = compose(this.middlewares);
+
+    // this.__starting = true;
+    let executed = await this.__execute();
+    // this.__starting = false;
+
+    if (executed) {
+      console.info(`Started    ${this.__getId()}`);
+
+      this.__started = true;
+
+      this.__listenNavigation();
+
+      this.fire('started');
     }
   }
 
-  start () {
-    this.__starting = true;
-    this.check().then(executors => {
-      if (executors.length > 0) {
-        this.__starting = false;
-        this.__tryStart();
-      }
-    });
-  }
+  __listenNavigation () {
+    let callback = this.__executeCallback = () => {
+      this.__execute();
+    };
 
-  __tryStart () {
     if (this.mode === 'history') {
-      window.addEventListener('popstate', this.checkAndExecute.bind(this), false);
+      window.addEventListener('popstate', callback, false);
       document.addEventListener('click', function (evt) {
         if (!evt.defaultPrevented && evt.target.nodeName === 'A' && evt.target.target === '') {
           evt.preventDefault();
-          this.history.pushState({
-            url: evt.target.getAttribute('href'),
-          }, evt.target.innerHTML, evt.target.href);
-          this.checkAndExecute();
+
+          let state = { url: evt.target.getAttribute('href') };
+          this.history.pushState(state, evt.target.innerHTML, evt.target.href);
+
+          callback();
         }
       }.bind(this));
     } else {
-      window.addEventListener('hashchange', this.checkAndExecute.bind(this), false);
+      window.addEventListener('hashchange', callback, false);
     }
-
-    this.checkAndExecute()
-      .then(function () {
-        console.info('Started    ' + this.__getId());
-        this.fire('started');
-        this.__started = true;
-      }.bind(this));
   }
 
-  isStarted () {
+  get started () {
     return this.__started || false;
   }
 
-  check (fragment) {
-    return new Promise(function (resolve, reject) {
-      try {
-        fragment = fragment || this.getFragment();
-        var running = [];
-        this.handlers.forEach(function (handler) {
-          if (handler.type === 's') {
-            if (fragment === handler.route) {
-              running.push({
-                handler: handler,
-                args: {},
-              });
-              return;
-            }
-          } else if (handler.type === 'v') {
-            // matches is unused
-            // var matches = [];
-            var result = fragment.match(handler.pattern);
-            // if (result) {
-            //   matches = result.slice(1);
-            // }
+  getFragmentExecutors (fragment) {
+    fragment = fragment || this.getFragment();
 
-            if (result) {
-              var args = {};
+    return this.handlers.reduce((executors, handler) => {
+      if (handler.type === 's') {
+        if (fragment === handler.route) {
+          executors.push({ handler: handler, args: {} });
+        }
+      } else if (handler.type === 'v') {
+        let result = fragment.match(handler.pattern);
+        if (result) {
+          let args = {};
 
-              handler.args.forEach(function (name, index) {
-                args[name] = result[index + 1];
-              });
+          handler.args.forEach(function (name, index) {
+            args[name] = result[index + 1];
+          });
 
-              running.push({
-                handler: handler,
-                args: args,
-              });
-            }
-          }
-        });
-
-        resolve(running);
-      } catch (err) {
-        reject(err);
+          executors.push({
+            handler: handler,
+            args: args,
+          });
+        }
       }
-    }.bind(this));
+      return executors;
+    }, []);
   }
 
-  checkAndExecute () {
-    var fragment = this.getFragment();
+  async __execute () {
+    let fragment = this.getFragment();
 
-    return this.check(fragment)
-      .then(function (executers) {
-        if (executers.length) {
-          var promise = Promise.resolve();
-          this.middlewares.forEach(function (middleware) {
-            promise = promise.then(function () {
-              return middleware.apply(this);
-            }.bind(this));
-          }.bind(this));
+    let executors = this.getFragmentExecutors(fragment);
+    if (executors.length === 0) {
+      this.fire('route-not-found', fragment);
+      return false;
+    }
 
-          return promise.then(function () {
-            executers.forEach(function (executer) {
-              executer.handler.callback(executer.args);
-            });
+    let context = { uri: fragment };
 
-            this.fire('navigated', {uri: fragment});
-            return executers;
-          }.bind(this));
-        }
+    this.fire('navigated', context);
 
-        this.fire('route-not-found', fragment);
-        return [];
-      }.bind(this))
-      .catch(function (err) {
-        console.error('Uncaught checkAndExecute error, ' + err.stack);
-      });
+    // run middleware chain then execute all executors
+    await this.__middlewareChainRun(context, () => {
+      executors.forEach(executor => executor.handler.callback(executor.args, context));
+    });
+
+    return true;
   }
 
   navigate (path, options) {
@@ -242,10 +220,10 @@ class App extends xin.Component {
     options = options || {};
 
     if (this.mode === 'history') {
-      var url = this.rootUri + path.toString().replace(/\/$/, '').replace(/^\//, '');
+      let url = this.rootUri + path.toString().replace(/\/$/, '').replace(/^\//, '');
       if (this.location.href.replace(this.location.origin, '') !== url) {
         this.history[options.replace ? 'replaceState' : 'pushState']({}, document.title, url);
-        this.checkAndExecute();
+        this.__execute();
       }
     } else {
       this.location.href.match(this.reHashSeparator);
@@ -258,36 +236,59 @@ class App extends xin.Component {
     this.middlewares.push(middleware);
   }
 
-  // REMOVED, you can use getFragment()
-  // getURI () {
-  //   if (this.mode === 'hash') {
-  //     return this.location.hash.replace(this.hashSeparator, '') || '/';
-  //   } else {
-  //     throw new Error('Unimplemented getURI from history mode');
-  //   }
-  // },
-
   getFragment () {
-    var fragment;
+    let fragment;
     if (this.mode === 'history') {
       fragment = decodeURI(this.location.pathname + this.location.search);
       fragment = fragment.replace(/\?(.*)$/, '');
       fragment = this.rootUri === '/' ? fragment : fragment.replace(this.rootUri, '');
     } else {
-      var match = this.location.href.match(this.reHashSeparator);
+      let match = this.location.href.match(this.reHashSeparator);
       fragment = match ? match[1] : '';
     }
 
     return '/' + fragment.toString().replace(/\/$/, '').replace(/^\//, '');
   }
 
-  $back (evt) {
-    evt.preventDefault();
-    this.history.back();
-  }
+  // $back (evt) {
+  //   evt.preventDefault();
+  //   this.history.back();
+  // }
 }
 
 xin.define('xin-app', App);
+
+function compose (middlewares) {
+  for (const fn of middlewares) {
+    if (typeof fn !== 'function') {
+      throw new TypeError('Middleware must be composed of functions!');
+    }
+  }
+
+  return async (context, next) => {
+    // last called middlewares #
+    let index = -1;
+
+    async function dispatch (i) {
+      if (i <= index) {
+        throw new Error('next() called multiple times');
+      }
+
+      index = i;
+      let fn = middlewares[i];
+      if (i === middlewares.length) {
+        fn = next;
+      }
+      if (!fn) {
+        return;
+      }
+
+      return await fn(context, () => dispatch(i + 1));
+    }
+
+    return dispatch(0);
+  };
+}
 
 xin.App = App;
 

@@ -15,7 +15,7 @@ webpackJsonp([3],{
 	
 	var xin = __webpack_require__(1);
 	
-	__webpack_require__(21);
+	__webpack_require__(22);
 	
 	var SETUP = xin.setup.withDefault('xin.View', {
 	  transition: 'transition-slide'
@@ -46,11 +46,6 @@ webpackJsonp([3],{
 	      if (this.parentElement.add) {
 	        this.parentElement.add(this);
 	      }
-	
-	      // deprecated in order of new uri parser
-	      // this._parameterNames = (this.uri.match(/((\(\?)?:\w+|\*\w+)/g) || []).map(function(param) {
-	      //   return param.substr(1);
-	      // });
 	
 	      this.__app.route(this.uri, this.focus.bind(this));
 	      this.fire('routed');
@@ -164,16 +159,16 @@ webpackJsonp([3],{
 
 /***/ },
 
-/***/ 21:
+/***/ 22:
 /***/ function(module, exports, __webpack_require__) {
 
 	// style-loader: Adds some css to the DOM by adding a <style> tag
 	
 	// load the styles
-	var content = __webpack_require__(22);
+	var content = __webpack_require__(23);
 	if(typeof content === 'string') content = [[module.id, content, '']];
 	// add the styles to the DOM
-	var update = __webpack_require__(18)(content, {});
+	var update = __webpack_require__(19)(content, {});
 	if(content.locals) module.exports = content.locals;
 	// Hot Module Replacement
 	if(false) {
@@ -191,10 +186,10 @@ webpackJsonp([3],{
 
 /***/ },
 
-/***/ 22:
+/***/ 23:
 /***/ function(module, exports, __webpack_require__) {
 
-	exports = module.exports = __webpack_require__(17)();
+	exports = module.exports = __webpack_require__(18)();
 	// imports
 	
 	

@@ -42,11 +42,6 @@ class View extends xin.Component {
       this.parentElement.add(this);
     }
 
-    // deprecated in order of new uri parser
-    // this._parameterNames = (this.uri.match(/((\(\?)?:\w+|\*\w+)/g) || []).map(function(param) {
-    //   return param.substr(1);
-    // });
-
     this.__app.route(this.uri, this.focus.bind(this));
     this.fire('routed');
   }

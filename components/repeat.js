@@ -27,36 +27,38 @@ class RepeatRow extends T {
   update (item, index) {
     this[this.__repeatAs] = item;
     this[this.__repeatIndexAs] = index;
-    this.notify(this.__repeatAs);
-    this.notify(this.__repeatIndexAs);
+    this.notify(this.__repeatAs, item);
+    this.notify(this.__repeatIndexAs, index);
   }
 
   set (path, value) {
-    if (typeof path === 'object') {
-      return super.set(path);
+    path = this.__templateGetPathAsArray(path);
+
+    if (path[0] === this.__repeatAs || path[0] === this.__repeatIndexAs) {
+      return super.set(path, value);
     }
 
-    if (!path.startsWith(this.__repeatAs) && !path.startsWith(this.__repeatIndexAs)) {
-      return this.__templateHost.set(path, value);
-    }
-
-    return super.set(path, value);
+    return this.__templateHost.set(path, value);
   }
 
   get (path) {
-    if (!path.startsWith(this.__repeatAs) && !path.startsWith(this.__repeatIndexAs)) {
-      return this.__templateHost.get(path);
+    path = this.__templateGetPathAsArray(path);
+
+    if (path[0] === this.__repeatAs || path[0] === this.__repeatIndexAs) {
+      return super.get(path);
     }
 
-    return super.get(path);
+    return this.__templateHost.get(path);
   }
 
-  notify (path, value, oldValue) {
-    if (!path.startsWith(this.__repeatAs) && !path.startsWith(this.__repeatIndexAs)) {
-      return this.__templateHost.notify(path, value, oldValue);
+  notify (path, value) {
+    path = this.__templateGetPathAsArray(path);
+
+    if (path[0] === this.__repeatAs || path[0] === this.__repeatIndexAs) {
+      return super.notify(path, value);
     }
 
-    return super.notify(path, value, oldValue);
+    return this.__templateHost.notify(path, value);
   }
 };
 

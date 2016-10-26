@@ -4,11 +4,14 @@ const Fx = require('./fx');
 const asyncModule = require('./async');
 const inflector = require('./inflector');
 const setup = require('./setup');
+const T = require('template-binding');
 
 module.exports = window.xin = repository.get;
 module.exports.put = repository.put;
 module.exports.define = repository.define;
+module.exports.v = repository.v;
 module.exports.mix = repository.mix;
+module.exports.filter = T.Filter;
 module.exports.Component = component.Component;
 module.exports.base = component.base;
 module.exports.Fx = Fx;

@@ -28,36 +28,50 @@ webpackJsonp([4],[
 	  _createClass(XHR, [{
 	    key: '_urlChanged',
 	    value: function _urlChanged() {
-	      this.debounce('__request', this.__request, this.debounceDuration);
+	      if (this.auto) {
+	        this.generateRequest();
+	      }
 	    }
 	  }, {
 	    key: '_asChanged',
 	    value: function _asChanged() {
-	      this.debounce('__request', this.__request, this.debounceDuration);
+	      if (this.auto) {
+	        this.generateRequest();
+	      }
 	    }
 	  }, {
-	    key: '__request',
-	    value: function __request() {
+	    key: '_requestFlight',
+	    value: function _requestFlight() {
+	      var _this2 = this;
+	
 	      var url = this.generateUrl();
 	      if (!url) {
 	        return;
 	      }
 	
-	      return this.request({
+	      return this.req({
 	        method: this.method,
 	        url: url,
 	        as: this.as
 	      }).then(function (xhr) {
-	        this.fire('response', {
-	          body: xhr.body,
+	        var body = xhr.body;
+	        _this2.fire('response', {
+	          body: body,
 	          xhr: xhr
 	        });
-	      }.bind(this), function (err) {
-	        this.fire('error', {
+	        return body;
+	      }, function (err) {
+	        _this2.fire('error', {
 	          error: err,
 	          xhr: err.xhr
 	        });
-	      }.bind(this));
+	        throw err;
+	      });
+	    }
+	  }, {
+	    key: 'generateRequest',
+	    value: function generateRequest() {
+	      this.debounce('_requestFlight', this._requestFlight, this.debounceDuration);
 	    }
 	  }, {
 	    key: 'generateUrl',
@@ -72,20 +86,20 @@ webpackJsonp([4],[
 	      return options;
 	    }
 	  }, {
-	    key: 'request',
-	    value: function request(options) {
-	      var _this2 = this;
+	    key: 'req',
+	    value: function req(options) {
+	      var _this3 = this;
 	
 	      options = this.__prepareOptions(options);
 	
 	      return new Promise(function (resolve, reject) {
 	        var xhr = new XMLHttpRequest();
 	        var doResolve = function doResolve() {
-	          _this2.set('response', xhr.responseBody);
+	          _this3.set('response', xhr.responseBody);
 	          resolve(xhr);
 	        };
 	        var doReject = function doReject(err) {
-	          _this2.set('error', err);
+	          _this3.set('error', err);
 	          reject(err);
 	        };
 	
@@ -137,6 +151,11 @@ webpackJsonp([4],[
 	    key: 'props',
 	    get: function get() {
 	      return {
+	        auto: {
+	          type: Boolean,
+	          value: false
+	        },
+	
 	        method: {
 	          type: String,
 	          value: 'get'
