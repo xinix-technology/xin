@@ -1,12 +1,12 @@
-let repository = {};
+const REPOSITORY = {};
 
 function get (id) {
   if (!isNaN(id)) {
-    return repository[id];
+    return REPOSITORY[id];
   }
 
-  if (repository[id]) {
-    return repository[id];
+  if (REPOSITORY[id]) {
+    return REPOSITORY[id];
   }
 
   var idSplitted = id.split('.');
@@ -20,7 +20,7 @@ function get (id) {
 }
 
 function put (id, value) {
-  repository[id] = value;
+  REPOSITORY[id] = value;
 }
 
 function v (value) {
