@@ -1,20 +1,23 @@
-const repository = require('./repository');
-const component = require('./component');
-const Fx = require('./fx');
-const asyncModule = require('./async');
-const inflector = require('./inflector');
-const setup = require('./setup');
-const T = require('template-binding');
+import repository from './repository';
+import component from './component';
+import Fx from './fx';
+import asyncModule from './async';
+import inflector from './inflector';
+import setup from './setup';
+import T from 'template-binding';
 
-module.exports = window.xin = repository.get;
-module.exports.put = repository.put;
-module.exports.define = repository.define;
-module.exports.v = repository.v;
-module.exports.mix = repository.mix;
-module.exports.filter = T.Filter;
-module.exports.Component = component.Component;
-module.exports.base = component.base;
-module.exports.Fx = Fx;
-module.exports.async = asyncModule;
-module.exports.inflector = inflector;
-module.exports.setup = setup;
+let xin = window.xin = (id) => repository.get(id);
+
+xin.put = repository.put;
+xin.define = repository.define;
+xin.v = repository.v;
+xin.mix = repository.mix;
+xin.filter = T.Filter;
+xin.Component = component.Component;
+xin.base = component.base;
+xin.Fx = Fx;
+xin.async = asyncModule;
+xin.inflector = inflector;
+xin.setup = setup;
+
+export default xin;

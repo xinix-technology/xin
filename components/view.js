@@ -1,6 +1,6 @@
-const xin = require('../src');
+import xin from '../src';
 
-require('./view.css');
+import './view.css';
 
 const SETUP = xin.setup.withDefault('xin.View', {
   transition: 'transition-slide',
@@ -116,4 +116,4 @@ class View extends xin.Component {
 xin.define('xin-view', View);
 xin.View = View;
 
-module.exports = View;
+export default View;

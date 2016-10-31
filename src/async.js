@@ -52,5 +52,4 @@ class Debounce {
   }
 }
 
-module.exports.Async = Async;
-module.exports.Debounce = Debounce;
+export default { Async, Debounce };

@@ -1,4 +1,4 @@
-require('../css/transition-animate.css');
+import '../css/transition-animate.css';
 
 class Fx {
   constructor (element, transition) {
@@ -101,4 +101,4 @@ Fx.get = function (name) {
   return adapters[name] || adapters.none;
 };
 
-module.exports = Fx;
+export default Fx;
