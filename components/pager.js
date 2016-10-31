@@ -1,6 +1,6 @@
-const xin = require('../src');
+import xin from '../src';
 
-require('./pager.css');
+import './pager.css';
 
 class Pager extends xin.Component {
   add (element) {
@@ -66,4 +66,4 @@ class Pager extends xin.Component {
 xin.define('xin-pager', Pager);
 xin.Pager = Pager;
 
-module.exports = Pager;
+export default Pager;

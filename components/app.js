@@ -1,4 +1,4 @@
-const xin = require('../src');
+import xin from '../src';
 
 class App extends xin.Component {
   get props () {
@@ -131,7 +131,7 @@ class App extends xin.Component {
     // this.__starting = false;
 
     if (executed) {
-      console.info(`Started    ${this.__getId()}`);
+      console.info(`Started ${this.is}:${this.__id}`);
 
       this.__started = true;
 
@@ -292,4 +292,4 @@ function compose (middlewares) {
 
 xin.App = App;
 
-module.exports = App;
+export default App;

@@ -1,6 +1,4 @@
-/* globals XMLHttpRequest */
-
-const xin = require('../src/');
+import xin from '../src/';
 
 class XHR extends xin.Component {
   get props () {
@@ -104,7 +102,7 @@ class XHR extends xin.Component {
     options = this.__prepareOptions(options);
 
     return new Promise((resolve, reject) => {
-      let xhr = new XMLHttpRequest();
+      let xhr = new window.XMLHttpRequest();
       let doResolve = () => {
         this.set('response', xhr.responseBody);
         resolve(xhr);
@@ -163,4 +161,4 @@ class XHR extends xin.Component {
 xin.define('xin-xhr', XHR);
 xin.XHR = XHR;
 
-module.exports = XHR;
+export default XHR;

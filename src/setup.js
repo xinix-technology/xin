@@ -11,6 +11,9 @@ function setup (key, value) {
   }
 }
 
+setup.defaults = defaults;
+setup.withDefault = withDefault;
+
 function defaults (values, defaultValues) {
   if (typeof defaultValues !== 'object') {
     return values || defaultValues;
@@ -31,6 +34,4 @@ function withDefault (key, defaultValues) {
   return defaults(setup(key), defaultValues);
 }
 
-module.exports = setup;
-module.exports.defaults = defaults;
-module.exports.withDefault = withDefault;
+export { setup as default };

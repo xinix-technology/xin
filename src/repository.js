@@ -61,8 +61,4 @@ function mix () {
   return data;
 }
 
-module.exports.get = get;
-module.exports.put = put;
-module.exports.define = define;
-module.exports.v = v;
-module.exports.mix = mix;
+export default { get, put, define, v, mix };

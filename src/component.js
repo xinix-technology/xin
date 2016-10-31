@@ -1,11 +1,11 @@
-/* globals HTMLElement */
-/* eslint no-proto: 0 */
-
 import T from 'template-binding';
-import { put, v } from './repository';
+import repository from './repository';
 import inflector from './inflector';
-import { Async, Debounce } from './async';
+import async from './async';
 import setup from './setup';
+
+const put = repository.put;
+const v = repository.v;
 
 const DEBUG = setup.withDefault('debug', false);
 
@@ -33,8 +33,6 @@ function base (base) {
       put(this.__id, this);
       this.setAttribute('xin-id', this.__id);
 
-      // this.classList.add(this.is);
-
       if (typeof this.created === 'function') {
         this.created();
       }
@@ -47,27 +45,49 @@ function base (base) {
 
       this.__initListeners();
 
-      this.readyCallback();
+      this.async(this.readyCallback);
     }
 
     readyCallback () {
+      this.__componentReady = true;
+
       if (DEBUG) console.info(`READY ${this.is}`);
+
+      let contentFragment;
+
+      if (this.__template) {
+        contentFragment = document.createDocumentFragment();
+        [].slice.call(this.childNodes).forEach(node => {
+          if (node === this.__templateMarker) return;
+          contentFragment.appendChild(node);
+        });
+      }
+
+      this.__templateRender(contentFragment);
 
       if (typeof this.ready === 'function') {
         this.ready();
       }
+
+      if (this.__componentAttaching) {
+        this.attachedCallback();
+      }
     }
 
     attachedCallback () {
-      if (DEBUG) console.info(`ATTACHED ${this.is}`);
+      this.__componentAttaching = true;
+
+      if (!this.__componentReady) {
+        return;
+      }
+
+      if (DEBUG) console.info(`ATTACHED ${this.is} ${this.__componentAttaching ? '(delayed)' : ''}`);
 
       if (typeof this.attached === 'function') {
         this.attached();
       }
-    }
 
-    __getId () {
-      return this.is + (this.__id ? (':' + this.__id) : '');
+      this.__componentAttaching = false;
     }
 
     get __app () {
@@ -90,6 +110,8 @@ function base (base) {
       this.__componentContent = [];
       this.__debouncers = {};
       this.__notifiers = {};
+      this.__componentReady = false;
+      this.__componentAttaching = false;
       // this.__componentFilters = {};
     }
 
@@ -111,7 +133,7 @@ function base (base) {
           // fallback to property.value
           let expr = T.Expr.get(attrVal);
           if (expr.type === 's') {
-            defaultValue = T.Serializer.deserialize(attrVal, property.type);
+            defaultValue = T.deserialize(attrVal, property.type);
           }
         }
 
@@ -120,7 +142,7 @@ function base (base) {
 
         // when property is undefined, log error when property is required otherwise assign to default value
         if (property.required && (this[propName] === undefined || this[propName] === null)) {
-          throw new Error('"' + this.__getId() + '" missing required "' + propName + '"');
+          throw new Error(`${this.is}:${this.__id} missing required ${propName}`);
         }
 
         if (property.observer) {
@@ -138,7 +160,8 @@ function base (base) {
           this.__templateAnnotate(expr, accessor);
 
           // invoke first time;
-          this.set(propName, expr.invoke(this));
+          let val = expr.invoke(this);
+          this.set(propName, val);
         }
 
         if (property.notify) {
@@ -160,17 +183,7 @@ function base (base) {
         template.innerHTML = this.template;
       }
 
-      // when template does not exist do not populate content
-      if (template) {
-        [].slice.call(this.childNodes).forEach(node => {
-          this.__componentContent.push(node);
-          this.removeChild(node);
-        });
-      }
-
-      T.prototype.__templateInitialize.call(this, template, this);
-
-      this.render(this.__componentContent);
+      this.__templateInitialize(template, this);
     }
 
     __addNotifier (eventName) {
@@ -224,7 +237,7 @@ function base (base) {
             return;
           }
 
-          return expr.invoke(this, { evt });
+          expr.invoke(this, { evt });
         }, true);
       });
     }
@@ -263,7 +276,7 @@ function base (base) {
     }
 
     async (callback, waitTime) {
-      let asyncO = new Async(this);
+      let asyncO = new async.Async(this);
       asyncO.start(callback, waitTime);
       return asyncO;
     }
@@ -273,7 +286,7 @@ function base (base) {
       if (debouncer && debouncer.running) {
         debouncer.cancel();
       } else {
-        debouncer = this.__debouncers[job] = new Debounce(this, immediate);
+        debouncer = this.__debouncers[job] = new async.Debounce(this, immediate);
       }
       debouncer.start(callback, wait);
 
@@ -341,7 +354,7 @@ function base (base) {
       }
 
       // register event notifier
-      if (expr.mode === '{' && expr.type === 'p' && accessor.node instanceof HTMLElement) {
+      if (expr.mode === '{' && expr.type === 'p' && accessor.node instanceof window.HTMLElement) {
         switch (accessor.node.nodeName) {
           case 'INPUT':
           case 'TEXTAREA':
@@ -408,5 +421,6 @@ function parseListenerMetadata (key) {
   return metadata;
 }
 
-module.exports.Component = base('HTMLElement');
-module.exports.base = base;
+const Component = base('HTMLElement');
+
+export default { Component, base };

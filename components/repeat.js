@@ -1,7 +1,5 @@
-/* globals Node */
-
-const xin = require('../src');
-const T = require('template-binding');
+import xin from '../src';
+import T from 'template-binding';
 
 const FILTER_ALL = () => true;
 
@@ -9,19 +7,21 @@ class RepeatRow extends T {
   constructor (repeat, item, index) {
     super(repeat, repeat.__templateModel, repeat);
 
+    this.is = '$repeat-row';
+    this.__id = this.__templateId;
+
     this.__repeat = repeat;
     this.__repeatAs = repeat.as;
     this.__repeatIndexAs = repeat.indexAs;
 
     this.__templateChildNodes.forEach(node => {
-      if (node.nodeType === Node.ELEMENT_NODE) {
+      if (node.nodeType === window.Node.ELEMENT_NODE) {
         node.__repeatModel = this;
       }
     });
 
     this.update(item, index);
-
-    this.render();
+    // this.__templateRender();
   }
 
   update (item, index) {
@@ -149,4 +149,4 @@ class Repeat extends xin.base('HTMLTemplateElement') {
 xin.define('xin-repeat', Repeat, { extends: 'template' });
 xin.Repeat = Repeat;
 
-module.exports = Repeat;
+export default Repeat;
