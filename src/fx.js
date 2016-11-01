@@ -1,6 +1,14 @@
 import '../css/transition-animate.css';
 
 class Fx {
+  static add (name, transition) {
+    adapters[name] = transition;
+  }
+
+  static get (name) {
+    return adapters[name] || adapters.none;
+  }
+
   constructor (element, transition) {
     this.element = element;
     this.duration = 0;
@@ -19,21 +27,17 @@ class Fx {
   }
 }
 
-var adapters = {
+const adapters = {
   'none': {
-    in: function (/* direction */) {
-      return Promise.resolve();
-    },
-    out: function (/* direction */) {
-      return Promise.resolve();
-    },
+    in: () => Promise.resolve(),
+    out: () => Promise.resolve(),
   },
   'transition-slide': {
-    in: function (direction) {
+    in (direction) {
       var directionClass = direction > 0 ? 'transition-slide-in-right' : 'transition-slide-in-left';
 
-      return new Promise(function (resolve/* , reject */) {
-        var onEnd = function () {
+      return new Promise((resolve) => {
+        var onEnd = () => {
           this.element.removeEventListener('webkitTransitionEnd', onEnd);
           this.element.removeEventListener('transitionend', onEnd);
 
@@ -41,29 +45,27 @@ var adapters = {
 
           resolve();
 
-          setTimeout(function () {
+          setTimeout(() => {
             this.element.classList.remove(directionClass);
             this.element.classList.remove('transition-slide-in');
-          }.bind(this), 50);
-        }.bind(this);
+          }, 50);
+        };
 
         this.element.addEventListener('webkitTransitionEnd', onEnd);
         this.element.addEventListener('transitionend', onEnd);
         this.element.classList.add(directionClass);
 
-        setTimeout(function () {
+        setTimeout(() => {
           this.element.classList.add('transition-slide-animate');
 
-          setTimeout(function () {
-            this.element.classList.add('transition-slide-in');
-          }.bind(this), 50);
-        }.bind(this), 50);
-      }.bind(this));
+          setTimeout(() => this.element.classList.add('transition-slide-in'), 50);
+        }, 50);
+      });
     },
-    out: function (direction) {
+    out (direction) {
       var directionClass = direction > 0 ? 'transition-slide-out-left' : 'transition-slide-out-right';
-      return new Promise(function (resolve/* , reject */) {
-        var onEnd = function () {
+      return new Promise((resolve) => {
+        let onEnd = () => {
           this.element.removeEventListener('webkitTransitionEnd', onEnd);
           this.element.removeEventListener('transitionend', onEnd);
 
@@ -71,34 +73,23 @@ var adapters = {
 
           resolve();
 
-          setTimeout(function () {
+          setTimeout(() => {
             this.element.classList.remove(directionClass);
             this.element.classList.remove('transition-slide-out');
-          }.bind(this), 50);
-        }.bind(this);
+          }, 50);
+        };
 
         this.element.addEventListener('webkitTransitionEnd', onEnd);
         this.element.addEventListener('transitionend', onEnd);
         this.element.classList.add(directionClass);
 
-        setTimeout(function () {
+        setTimeout(() => {
           this.element.classList.add('transition-slide-animate');
-
-          setTimeout(function () {
-            this.element.classList.add('transition-slide-out');
-          }.bind(this), 50);
-        }.bind(this), 50);
-      }.bind(this));
+          setTimeout(() => this.element.classList.add('transition-slide-out'), 50);
+        }, 50);
+      });
     },
   },
-};
-
-Fx.add = function (name, transition) {
-  adapters[name] = transition;
-};
-
-Fx.get = function (name) {
-  return adapters[name] || adapters.none;
 };
 
 export default Fx;

@@ -32,13 +32,13 @@ class Pager extends xin.Component {
     Promise.all([
       prevEl.transitionFx.play('out', -1),
       nextEl.transitionFx.play('in', -1),
-    ]).then(function () {
+    ]).then(() => {
       prevEl.setVisible(false);
       prevEl.setFocus(false);
       nextEl.setVisible(true);
       nextEl.setFocus(true);
       this.$focused = nextEl;
-    }.bind(this));
+    });
   }
 
   __transitionForward (prevEl, nextEl) {
@@ -46,19 +46,19 @@ class Pager extends xin.Component {
       Promise.all([
         prevEl.transitionFx.play('out', 1),
         nextEl.transitionFx.play('in', 1),
-      ]).then(function () {
+      ]).then(() => {
         prevEl.setVisible(false);
         prevEl.setFocus(false);
         nextEl.setVisible(true);
         nextEl.setFocus(true);
         this.$focused = nextEl;
-      }.bind(this));
+      });
     } else {
-      (new xin.Fx(nextEl, 'none')).play('in', 1).then(function () {
+      (new xin.Fx(nextEl, 'none')).play('in', 1).then(() => {
         nextEl.setVisible(true);
         nextEl.setFocus(true);
         this.$focused = nextEl;
-      }.bind(this));
+      });
     }
   }
 }
