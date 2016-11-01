@@ -26,6 +26,12 @@ function base (base) {
       return {};
     }
 
+    created () {}
+
+    ready () {}
+
+    attached () {}
+
     createdCallback () {
       if (DEBUG) console.info(`CREATED ${this.is}`);
 
@@ -118,14 +124,15 @@ function base (base) {
     __initProps () {
       for (let propName in this.props) {
         // exclude prototype properties
-        if (!Object.prototype.hasOwnProperty.call(this.props, propName)) {
-          continue;
-        }
+        // if (!Object.prototype.hasOwnProperty.call(this.props, propName)) {
+        //   continue;
+        // }
 
         let property = this.props[propName];
         let attrName = inflector.dashify(propName);
 
-        let defaultValue;
+        let propValue;
+
         if (this.hasAttribute(attrName)) {
           let attrVal = this.getAttribute(attrName);
 
@@ -133,24 +140,20 @@ function base (base) {
           // fallback to property.value
           let expr = T.Expr.get(attrVal);
           if (expr.type === 's') {
-            defaultValue = T.deserialize(attrVal, property.type);
+            propValue = T.deserialize(attrVal, property.type);
           }
         }
 
-        // force notify first
-        this.set(propName, defaultValue === undefined ? v(property.value) : defaultValue);
+        propValue = propValue === undefined ? v(property.value) : propValue;
 
         // when property is undefined, log error when property is required otherwise assign to default value
-        if (property.required && (this[propName] === undefined || this[propName] === null)) {
+        if (property.required && (propValue === undefined || propValue === null)) {
           throw new Error(`${this.is}:${this.__id} missing required ${propName}`);
         }
 
         if (property.observer) {
           let expr = T.Expr.getFn(property.observer, [ propName ], true);
           this.__templateAnnotate(expr);
-
-          // invoke first time for observer annotation
-          expr.invoke(this);
         }
 
         let accessor = T.Accessor.get(this, propName);
@@ -159,14 +162,17 @@ function base (base) {
           let expr = T.Expr.getFn(property.computed, [], true);
           this.__templateAnnotate(expr, accessor);
 
-          // invoke first time;
-          let val = expr.invoke(this);
-          this.set(propName, val);
+          // compute value of computed prop
+          propValue = expr.invoke(this);
         }
 
         if (property.notify) {
           this.__templateGetBinding(propName).annotations.push(new NotifyAnnotation(this, propName));
         }
+
+        // set and force notify for the first time
+        this[propName] = propValue;
+        this.notify(propName, propValue);
       }
     }
 

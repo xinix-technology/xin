@@ -38,11 +38,11 @@ class Debounce {
 
     this.running = true;
     this.async = new Async(this.context);
-    this.async.start(function () {
+    this.async.start(() => {
       callback.call(this.context);
       this.running = false;
       this.async = null;
-    }.bind(this), wait);
+    }, wait);
   }
 
   cancel () {
