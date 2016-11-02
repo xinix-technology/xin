@@ -1,4 +1,29 @@
+const requestAnimationFrame = window.requestAnimationFrame ||
+  window.webkitRequestAnimationFrame ||
+  window.mozRequestAnimationFrame ||
+  window.oRequestAnimationFrame ||
+  window.msRequestAnimationFrame;
+
+const cancelAnimationFrame = window.cancelAnimationFrame ||
+  window.webkitCancelRequestAnimationFrame ||
+  window.webkitCancelAnimationFrame ||
+  window.mozCancelRequestAnimationFrame || window.mozCancelAnimationFrame ||
+  window.oCancelRequestAnimationFrame || window.oCancelAnimationFrame ||
+  window.msCancelRequestAnimationFrame || window.msCancelAnimationFrame;
+
 class Async {
+  static nextFrame (callback) {
+    requestAnimationFrame(() => {
+      requestAnimationFrame(callback);
+    });
+  }
+
+  static run (context, callback, wait) {
+    let asyncO = new Async(context);
+    asyncO.start(callback, wait);
+    return asyncO;
+  }
+
   constructor (context) {
     this.context = context;
     this.handle = null;
@@ -15,41 +40,18 @@ class Async {
     var boundCallback = function () {
       callback.call(context);
     };
-    this.handle = setTimeout(boundCallback, wait);
+
+    if (wait) {
+      this.handle = setTimeout(() => (this.frameHandle = requestAnimationFrame(boundCallback)), wait);
+    } else {
+      this.frameHandle = requestAnimationFrame(boundCallback);
+    }
   }
 
   cancel () {
+    cancelAnimationFrame(~~this.frameHandle);
     clearTimeout(~~this.handle);
   }
 };
 
-class Debounce {
-  constructor (context, immediate) {
-    this.context = context;
-    this.immediate = Boolean(immediate);
-    this.async = null;
-    this.running = false;
-  }
-
-  start (callback, wait) {
-    if (this.immediate) {
-      throw new Error('Unimplemented yet!');
-    }
-
-    this.running = true;
-    this.async = new Async(this.context);
-    this.async.start(() => {
-      callback.call(this.context);
-      this.running = false;
-      this.async = null;
-    }, wait);
-  }
-
-  cancel () {
-    this.running = false;
-    this.async.cancel();
-    this.async = null;
-  }
-}
-
-export default { Async, Debounce };
+export default Async;

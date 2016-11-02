@@ -147,8 +147,8 @@ class App extends xin.Component {
     };
 
     if (this.mode === 'history') {
-      window.addEventListener('popstate', callback, false);
-      document.addEventListener('click', evt => {
+      xin.event(window).on('popstate', callback);
+      xin.event(document).on('click', evt => {
         if (!evt.defaultPrevented && evt.target.nodeName === 'A' && evt.target.target === '') {
           evt.preventDefault();
 
@@ -159,7 +159,7 @@ class App extends xin.Component {
         }
       });
     } else {
-      window.addEventListener('hashchange', callback, false);
+      xin.event(window).on('hashchange', callback);
     }
   }
 

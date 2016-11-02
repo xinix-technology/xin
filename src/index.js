@@ -1,23 +1,28 @@
-import repository from './repository';
-import component from './component';
+import { get, put } from './repository';
+import { Component, base, define } from './component';
 import Fx from './fx';
-import inflector from './inflector';
 import setup from './setup';
 import T from 'template-binding';
-import asyncModule from './async';
+import Async from './async';
+import Debounce from './debounce';
 
-let xin = window.xin = (id) => repository.get(id);
+if (typeof window.xin === 'object') {
+  setup.load(window.xin);
+}
 
-xin.put = repository.put;
-xin.define = repository.define;
-xin.v = repository.v;
-xin.mix = repository.mix;
-xin.filter = T.Filter;
-xin.Component = component.Component;
-xin.base = component.base;
-xin.Fx = Fx;
-xin.inflector = inflector;
+const xin = (id) => get(id);
+
+xin.put = put;
+xin.Component = Component;
+xin.define = define;
+xin.base = base;
 xin.setup = setup;
-xin.async = asyncModule;
+xin.filter = T.Filter;
+xin.event = T.Event;
+xin.Fx = Fx;
+xin.Async = Async;
+xin.Debounce = Debounce;
+
+window.xin = xin;
 
 export default xin;

@@ -2,16 +2,22 @@ const webpack = require('webpack');
 const path = require('path');
 const fs = require('fs');
 
-console.info('ENV', process.env.NODE_ENV);
+const ENV = process.env.NODE_ENV || 'development';
+const ANALYZE = process.env.ANALYZE || false;
+
+console.info(`
+  ENV     ${ENV}
+  ANALYZE ${ANALYZE}
+`);
 
 function getEntry () {
   let entry = {
-    'xin': ['./src/index.js'],
+    'xin': [ './src/index.js' ],
   };
 
   let result = fs.readdirSync('./components').reduce((result, file) => {
     if (path.extname(file) === '.js') {
-      result['components/' + path.basename(file, '.js')] = './components/' + file;
+      result[`components/${path.basename(file, '.js')}`] = `./components/${file}`;
     }
     return result;
   }, entry);
@@ -20,19 +26,16 @@ function getEntry () {
 }
 
 function getPlugins () {
-  let plugins = [];
+  let plugins = [
+    new webpack.optimize.CommonsChunkPlugin('xin', ENV === 'production' ? 'xin.min.js' : 'xin.js'),
+  ];
 
-  if (process.env.NODE_ENV === 'production') {
-    plugins.push(new webpack.optimize.UglifyJsPlugin({
-      compress: { warnings: false },
-    }));
-    plugins.push(new webpack.optimize.DedupePlugin());
+  if (ENV === 'production') {
+    plugins.push(
+      new webpack.optimize.UglifyJsPlugin({ compress: { warnings: false } }),
+      new webpack.optimize.DedupePlugin()
+    );
   }
-
-  plugins.push(new webpack.optimize.CommonsChunkPlugin(
-    'xin',
-    process.env.NODE_ENV === 'production' ? 'xin.min.js' : 'xin.js'
-  ));
 
   return plugins;
 }
@@ -41,7 +44,7 @@ module.exports = {
   entry: getEntry(),
   output: {
     path: path.join(__dirname, 'dist'),
-    filename: process.env.NODE_ENV === 'production' ? '[name].min.js' : '[name].js',
+    filename: ENV === 'production' ? '[name].min.js' : '[name].js',
   },
   devtool: 'source-map',
   plugins: getPlugins(),
@@ -50,14 +53,14 @@ module.exports = {
       {
         test: /\.css$/,
         exclude: /(node_modules|bower_components)/,
-        loader: 'style-loader!css-loader',
+        loader: 'style!css',
       },
       {
         test: /\.js$/,
-        exclude: /(node_modules|bower_components)/,
-        loader: require.resolve('babel-loader'),
+        include: /(src|components|node_modules\/template-binding)/,
+        loader: 'babel',
         query: {
-          presets: ['babel-preset-es2015', 'babel-preset-es2016', 'babel-preset-es2017', 'babel-preset-stage-0'].map(require.resolve),
+          cacheDirectory: true,
         },
       },
     ],

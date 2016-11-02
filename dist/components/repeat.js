@@ -4,20 +4,29 @@ webpackJsonp([2],[
 
 	'use strict';
 	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 	
 	var _get = function get(object, property, receiver) { if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { return get(parent, property, receiver); } } else if ("value" in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } };
+	
+	var _src = __webpack_require__(1);
+	
+	var _src2 = _interopRequireDefault(_src);
+	
+	var _templateBinding = __webpack_require__(4);
+	
+	var _templateBinding2 = _interopRequireDefault(_templateBinding);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 	
 	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
 	
 	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-	
-	/* globals Node */
-	
-	var xin = __webpack_require__(1);
-	var T = __webpack_require__(4);
 	
 	var FILTER_ALL = function FILTER_ALL() {
 	  return true;
@@ -29,21 +38,27 @@ webpackJsonp([2],[
 	  function RepeatRow(repeat, item, index) {
 	    _classCallCheck(this, RepeatRow);
 	
-	    var _this = _possibleConstructorReturn(this, (RepeatRow.__proto__ || Object.getPrototypeOf(RepeatRow)).call(this, repeat, repeat.__templateModel, repeat));
+	    // override T constructor
+	    var _this = _possibleConstructorReturn(this, (RepeatRow.__proto__ || Object.getPrototypeOf(RepeatRow)).call(this));
+	
+	    _this.__templateInitialize(repeat, repeat.__templateModel, repeat);
+	
+	    _this.is = '$repeat-row';
+	    _this.__id = _this.__templateId;
 	
 	    _this.__repeat = repeat;
 	    _this.__repeatAs = repeat.as;
 	    _this.__repeatIndexAs = repeat.indexAs;
 	
 	    _this.__templateChildNodes.forEach(function (node) {
-	      if (node.nodeType === Node.ELEMENT_NODE) {
+	      if (node.nodeType === window.Node.ELEMENT_NODE) {
 	        node.__repeatModel = _this;
 	      }
 	    });
 	
 	    _this.update(item, index);
 	
-	    _this.render();
+	    _this.__templateRender();
 	    return _this;
 	  }
 	
@@ -91,7 +106,7 @@ webpackJsonp([2],[
 	  }]);
 	
 	  return RepeatRow;
-	}(T);
+	}(_templateBinding2.default);
 	
 	;
 	
@@ -107,7 +122,7 @@ webpackJsonp([2],[
 	  _createClass(Repeat, [{
 	    key: '__initTemplate',
 	    value: function __initTemplate() {
-	      T.prototype.__templateInitialize.call(this, null, this);
+	      _templateBinding2.default.prototype.__templateInitialize.call(this, null, this);
 	    }
 	  }, {
 	    key: '_itemsChanged',
@@ -135,9 +150,12 @@ webpackJsonp([2],[
 	        })();
 	      }
 	
-	      this.rows.splice(len).forEach(function (row) {
-	        row.__templateUninitialize();
-	      });
+	      this.rows.splice(len);
+	
+	      // move to detach
+	      // this.rows.splice(len).forEach(row => {
+	      //   row.__templateUninitialize();
+	      // });
 	    }
 	  }, {
 	    key: 'itemForElement',
@@ -200,12 +218,12 @@ webpackJsonp([2],[
 	  }]);
 	
 	  return Repeat;
-	}(xin.base('HTMLTemplateElement'));
+	}(_src2.default.base('HTMLTemplateElement'));
 	
-	xin.define('xin-repeat', Repeat, { extends: 'template' });
-	xin.Repeat = Repeat;
+	_src2.default.define('xin-repeat', Repeat, { extends: 'template' });
+	_src2.default.Repeat = Repeat;
 	
-	module.exports = Repeat;
+	exports.default = Repeat;
 
 /***/ }
 ]);

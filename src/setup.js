@@ -1,37 +1,9 @@
-const options = window.xinOptions || {};
+const setup = new Map();
 
-function setup (key, value) {
-  switch (arguments.length) {
-    case 0:
-      return options;
-    case 1:
-      return options[key] || undefined;
-    default:
-      options[key] = value;
+setup.load = obj => {
+  for (let i in obj) {
+    setup.set(i, obj[i]);
   }
-}
+};
 
-setup.defaults = defaults;
-setup.withDefault = withDefault;
-
-function defaults (values, defaultValues) {
-  if (typeof defaultValues !== 'object') {
-    return values || defaultValues;
-  }
-
-  values = values || {};
-  for (var i in defaultValues) {
-    if (i in values) {
-      continue;
-    }
-
-    values[i] = defaultValues[i];
-  }
-  return values;
-}
-
-function withDefault (key, defaultValues) {
-  return defaults(setup(key), defaultValues);
-}
-
-export { setup as default };
+export default setup;
