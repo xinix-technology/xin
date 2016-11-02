@@ -5,7 +5,10 @@ const FILTER_ALL = () => true;
 
 class RepeatRow extends T {
   constructor (repeat, item, index) {
-    super(repeat, repeat.__templateModel, repeat);
+    super();
+
+    // override T constructor
+    this.__templateInitialize(repeat, repeat.__templateModel, repeat);
 
     this.is = '$repeat-row';
     this.__id = this.__templateId;
@@ -21,7 +24,8 @@ class RepeatRow extends T {
     });
 
     this.update(item, index);
-    // this.__templateRender();
+
+    this.__templateRender();
   }
 
   update (item, index) {
@@ -111,9 +115,12 @@ class Repeat extends xin.base('HTMLTemplateElement') {
       });
     }
 
-    this.rows.splice(len).forEach(row => {
-      row.__templateUninitialize();
-    });
+    this.rows.splice(len);
+
+    // move to detach
+    // this.rows.splice(len).forEach(row => {
+    //   row.__templateUninitialize();
+    // });
   }
 
   itemForElement (element) {

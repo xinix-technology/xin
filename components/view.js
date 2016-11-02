@@ -2,9 +2,7 @@ import xin from '../src';
 
 import './view.css';
 
-const SETUP = xin.setup.withDefault('xin.View', {
-  transition: 'transition-slide',
-});
+const SETUP_TRANSITION = xin.setup.get('xin.View.transition') || 'transition-slide';
 
 class View extends xin.Component {
   get props () {
@@ -15,7 +13,7 @@ class View extends xin.Component {
       },
       transition: {
         type: String,
-        value: SETUP.transition,
+        value: SETUP_TRANSITION,
       },
     };
   }
@@ -54,7 +52,7 @@ class View extends xin.Component {
 
   __focused () {
     if (typeof this.focused === 'function') {
-      return this.focused.apply(this, arguments);
+      this.async(() => this.focused(...arguments));
     }
   }
 
@@ -114,6 +112,5 @@ class View extends xin.Component {
 }
 
 xin.define('xin-view', View);
-xin.View = View;
 
 export default View;

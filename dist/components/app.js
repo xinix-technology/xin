@@ -4,7 +4,17 @@ webpackJsonp([0],[
 
 	'use strict';
 	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+	
+	var _src = __webpack_require__(1);
+	
+	var _src2 = _interopRequireDefault(_src);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
 	function _asyncToGenerator(fn) { return function () { var gen = fn.apply(this, arguments); return new Promise(function (resolve, reject) { function step(key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { return Promise.resolve(value).then(function (value) { step("next", value); }, function (err) { step("throw", err); }); } } return step("next"); }); }; }
 	
@@ -13,8 +23,6 @@ webpackJsonp([0],[
 	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
 	
 	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-	
-	var xin = __webpack_require__(1);
 	
 	var App = function (_xin$Component) {
 	  _inherits(App, _xin$Component);
@@ -38,7 +46,7 @@ webpackJsonp([0],[
 	  }, {
 	    key: 'created',
 	    value: function created() {
-	      xin.put('app', this);
+	      _src2.default.put('app', this);
 	
 	      // this.classList.add('xin-app');
 	
@@ -145,7 +153,7 @@ webpackJsonp([0],[
 	                // this.__starting = false;
 	
 	                if (executed) {
-	                  console.info('Started    ' + this.__getId());
+	                  console.info('Started ' + this.is + ':' + this.__id);
 	
 	                  this.__started = true;
 	
@@ -178,19 +186,19 @@ webpackJsonp([0],[
 	      };
 	
 	      if (this.mode === 'history') {
-	        window.addEventListener('popstate', callback, false);
-	        document.addEventListener('click', function (evt) {
+	        _src2.default.event(window).on('popstate', callback);
+	        _src2.default.event(document).on('click', function (evt) {
 	          if (!evt.defaultPrevented && evt.target.nodeName === 'A' && evt.target.target === '') {
 	            evt.preventDefault();
 	
 	            var state = { url: evt.target.getAttribute('href') };
-	            this.history.pushState(state, evt.target.innerHTML, evt.target.href);
+	            _this2.history.pushState(state, evt.target.innerHTML, evt.target.href);
 	
 	            callback();
 	          }
-	        }.bind(this));
+	        });
 	      } else {
-	        window.addEventListener('hashchange', callback, false);
+	        _src2.default.event(window).on('hashchange', callback);
 	      }
 	    }
 	  }, {
@@ -366,9 +374,9 @@ webpackJsonp([0],[
 	  }]);
 	
 	  return App;
-	}(xin.Component);
+	}(_src2.default.Component);
 	
-	xin.define('xin-app', App);
+	_src2.default.define('xin-app', App);
 	
 	function compose(middlewares) {
 	  var _this3 = this;
@@ -477,9 +485,9 @@ webpackJsonp([0],[
 	  }();
 	}
 	
-	xin.App = App;
+	_src2.default.App = App;
 	
-	module.exports = App;
+	exports.default = App;
 
 /***/ }
 ]);

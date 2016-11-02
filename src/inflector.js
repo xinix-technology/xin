@@ -33,4 +33,4 @@ function dashify (camel) {
   return dashified[camel];
 }
 
-export default { camelize, dashify };
+export { camelize, dashify };

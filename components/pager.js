@@ -35,9 +35,11 @@ class Pager extends xin.Component {
     ]).then(() => {
       prevEl.setVisible(false);
       prevEl.setFocus(false);
-      nextEl.setVisible(true);
-      nextEl.setFocus(true);
-      this.$focused = nextEl;
+      this.async(() => {
+        nextEl.setVisible(true);
+        nextEl.setFocus(true);
+        this.$focused = nextEl;
+      });
     });
   }
 
@@ -49,9 +51,11 @@ class Pager extends xin.Component {
       ]).then(() => {
         prevEl.setVisible(false);
         prevEl.setFocus(false);
-        nextEl.setVisible(true);
-        nextEl.setFocus(true);
-        this.$focused = nextEl;
+        this.async(() => {
+          nextEl.setVisible(true);
+          nextEl.setFocus(true);
+          this.$focused = nextEl;
+        });
       });
     } else {
       (new xin.Fx(nextEl, 'none')).play('in', 1).then(() => {

@@ -1,3 +1,6 @@
+import T from 'template-binding';
+import Async from './async';
+
 import '../css/transition-animate.css';
 
 class Fx {
@@ -38,55 +41,53 @@ const adapters = {
 
       return new Promise((resolve) => {
         var onEnd = () => {
-          this.element.removeEventListener('webkitTransitionEnd', onEnd);
-          this.element.removeEventListener('transitionend', onEnd);
+          // T.Event(this.element).off('webkitTransitionEnd', onEnd);
+          T.Event(this.element).off('transitionend', onEnd);
 
           this.element.classList.remove('transition-slide-animate');
 
           resolve();
 
-          setTimeout(() => {
+          Async.run(null, () => {
             this.element.classList.remove(directionClass);
             this.element.classList.remove('transition-slide-in');
-          }, 50);
+          });
         };
 
-        this.element.addEventListener('webkitTransitionEnd', onEnd);
-        this.element.addEventListener('transitionend', onEnd);
+        // T.Event(this.element).on('webkitTransitionEnd', onEnd);
+        T.Event(this.element).on('transitionend', onEnd);
         this.element.classList.add(directionClass);
 
-        setTimeout(() => {
+        Async.run(null, () => {
           this.element.classList.add('transition-slide-animate');
-
-          setTimeout(() => this.element.classList.add('transition-slide-in'), 50);
-        }, 50);
+          Async.run(null, () => this.element.classList.add('transition-slide-in'));
+        });
       });
     },
     out (direction) {
       var directionClass = direction > 0 ? 'transition-slide-out-left' : 'transition-slide-out-right';
       return new Promise((resolve) => {
         let onEnd = () => {
-          this.element.removeEventListener('webkitTransitionEnd', onEnd);
-          this.element.removeEventListener('transitionend', onEnd);
-
+          // T.Event(this.element).off('webkitTransitionEnd', onEnd);
+          T.Event(this.element).off('transitionend', onEnd);
           this.element.classList.remove('transition-slide-animate');
 
           resolve();
 
-          setTimeout(() => {
+          Async.run(null, () => {
             this.element.classList.remove(directionClass);
             this.element.classList.remove('transition-slide-out');
-          }, 50);
+          });
         };
 
-        this.element.addEventListener('webkitTransitionEnd', onEnd);
-        this.element.addEventListener('transitionend', onEnd);
+        // T.Event(this.element).on('webkitTransitionEnd', onEnd);
+        T.Event(this.element).on('transitionend', onEnd);
         this.element.classList.add(directionClass);
 
-        setTimeout(() => {
+        Async.run(null, () => {
           this.element.classList.add('transition-slide-animate');
-          setTimeout(() => this.element.classList.add('transition-slide-out'), 50);
-        }, 50);
+          Async.run(null, () => this.element.classList.add('transition-slide-out'));
+        });
       });
     },
   },

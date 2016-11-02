@@ -1,13 +1,10 @@
 import T from 'template-binding';
-import repository from './repository';
-import inflector from './inflector';
-import async from './async';
+import { put } from './repository';
+import { v } from './object';
+import { dashify } from './inflector';
+import Async from './async';
+import Debounce from './debounce';
 import setup from './setup';
-
-const put = repository.put;
-const v = repository.v;
-
-const DEBUG = setup.withDefault('debug', false);
 
 let componentId = 0;
 function nextId () {
@@ -22,8 +19,8 @@ function base (base) {
   }
 
   class Component extends window[base] {
-    get props () {
-      return {};
+    get $ () {
+      return this.__templateHost.getElementsByTagName('*');
     }
 
     created () {}
@@ -33,7 +30,7 @@ function base (base) {
     attached () {}
 
     createdCallback () {
-      if (DEBUG) console.info(`CREATED ${this.is}`);
+      if (setup.get('debug')) console.info(`CREATED ${this.is}`);
 
       this.__id = nextId();
       put(this.__id, this);
@@ -57,7 +54,7 @@ function base (base) {
     readyCallback () {
       this.__componentReady = true;
 
-      if (DEBUG) console.info(`READY ${this.is}`);
+      if (setup.get('debug')) console.info(`READY ${this.is}`);
 
       let contentFragment;
 
@@ -87,7 +84,7 @@ function base (base) {
         return;
       }
 
-      if (DEBUG) console.info(`ATTACHED ${this.is} ${this.__componentAttaching ? '(delayed)' : ''}`);
+      if (setup.get('debug')) console.info(`ATTACHED ${this.is} ${this.__componentAttaching ? '(delayed)' : ''}`);
 
       if (typeof this.attached === 'function') {
         this.attached();
@@ -114,11 +111,10 @@ function base (base) {
 
     __initData () {
       this.__componentContent = [];
-      this.__debouncers = {};
-      this.__notifiers = {};
+      this.__componentDebouncers = {};
+      this.__componentNotifiers = {};
       this.__componentReady = false;
       this.__componentAttaching = false;
-      // this.__componentFilters = {};
     }
 
     __initProps () {
@@ -129,7 +125,7 @@ function base (base) {
         // }
 
         let property = this.props[propName];
-        let attrName = inflector.dashify(propName);
+        let attrName = dashify(propName);
 
         let propValue;
 
@@ -192,12 +188,26 @@ function base (base) {
       this.__templateInitialize(template, this);
     }
 
-    __addNotifier (eventName) {
-      if (this.__notifiers[eventName]) {
+    __initListeners () {
+      if (!this.listeners) {
         return;
       }
 
-      this.__notifiers[eventName] = (evt) => {
+      Object.keys(this.listeners).forEach(key => {
+        let meta = parseListenerMetadata(key);
+        let expr = T.Expr.getFn(this.listeners[key], [], true);
+        this.on(meta.eventName, evt => {
+          expr.invoke(this, { evt });
+        });
+      });
+    }
+
+    __addNotifier (eventName) {
+      if (this.__componentNotifiers[eventName]) {
+        return;
+      }
+
+      this.__componentNotifiers[eventName] = (evt) => {
         let element = evt.target;
 
         if (element.__templateModel !== this) {
@@ -217,35 +227,16 @@ function base (base) {
         }
       };
 
-      this.__templateHost.addEventListener(eventName, this.__notifiers[eventName]);
+      this.on(eventName, this.__componentNotifiers[eventName]);
     }
 
     __removeNotifier (eventName) {
-      if (!this.__notifiers[eventName]) {
+      if (!this.__componentNotifiers[eventName]) {
         return;
       }
 
-      this.__templateHost.removeEventListener(eventName, this.__notifiers[eventName], true);
-      this.__notifiers[eventName] = null;
-    }
-
-    __initListeners () {
-      if (!this.listeners) {
-        return;
-      }
-
-      Object.keys(this.listeners).forEach(key => {
-        let listenerMetadata = parseListenerMetadata(key);
-        let expr = T.Expr.getFn(this.listeners[key], [], true);
-
-        this.addEventListener(listenerMetadata.eventName, evt => {
-          if (listenerMetadata.selector && !evt.target.matches(listenerMetadata.selector) && !evt.target.matches(listenerMetadata.selector + ' *')) {
-            return;
-          }
-
-          expr.invoke(this, { evt });
-        }, true);
-      });
+      this.off(eventName, this.__componentNotifiers[eventName]);
+      this.__componentNotifiers[eventName] = null;
     }
 
     fire (type, detail, options) {
@@ -282,77 +273,24 @@ function base (base) {
     }
 
     async (callback, waitTime) {
-      let asyncO = new async.Async(this);
-      asyncO.start(callback, waitTime);
-      return asyncO;
+      return Async.run(this, callback, waitTime);
     }
 
     debounce (job, callback, wait, immediate) {
-      let debouncer = this.__debouncers[job];
+      let debouncer = this.__componentDebouncers[job];
       if (debouncer && debouncer.running) {
         debouncer.cancel();
       } else {
-        debouncer = this.__debouncers[job] = new async.Debounce(this, immediate);
+        debouncer = this.__componentDebouncers[job] = new Debounce(this, immediate);
       }
       debouncer.start(callback, wait);
 
       return debouncer;
     }
 
-    // __componentGetFilters (path) {
-    //   let propName = path[0];
-    //   let propFilters = this.__componentFilters[propName];
-    //   if (!propFilters) {
-    //     let prop = this.props[propName];
-    //     propFilters = {};
-    //     if (prop && prop.filters) {
-    //       propFilters = {};
-    //       for (let key in prop.filters) {
-    //         let pathFilters = prop.filters[key];
-    //         propFilters[key] = pathFilters.split('|').map(filter => {
-    //           return T.Filter.get(filter.trim());
-    //         });
-    //       }
-    //     }
-    //     this.__componentFilters[propName] = propFilters;
-    //   }
-    //
-    //   return propFilters[path.slice(1).join('.')];
-    // }
-
     // T overriden
     // -------------------------------------------------------------------------
     //
-
-    get $ () {
-      // return this.getElementsByTagName('*');
-      return this.__templateHost.getElementsByTagName('*');
-    }
-
-    // set (path, value) {
-    //   path = this.__templateGetPathAsArray(path);
-    //
-    //   if (path[0] === 'modelErrors') {
-    //     return T.prototype.set.call(this, path, value);
-    //   }
-    //
-    //   let modelErrorsPath = path.slice(0);
-    //   modelErrorsPath.unshift('modelErrors');
-    //
-    //   try {
-    //     let filters = this.__componentGetFilters(path);
-    //     if (filters) {
-    //       value = filters.reduce((val, filter) => filter.invoke(val), value);
-    //     }
-    //
-    //     this.set(modelErrorsPath, undefined);
-    //
-    //     return T.prototype.set.call(this, path, value);
-    //   } catch (err) {
-    //     err.path = modelErrorsPath.join('.');
-    //     this.set(modelErrorsPath, err);
-    //   }
-    // }
 
     __templateAnnotate (expr, accessor) {
       if (!T.prototype.__templateAnnotate.call(this, expr, accessor)) {
@@ -388,11 +326,8 @@ function base (base) {
       continue;
     }
 
-    switch (key) {
-      // case 'set':
-      case '$':
-      case '__templateAnnotate':
-        continue;
+    if (key === '$' || key === '__templateAnnotate') {
+      continue;
     }
 
     Component.prototype[key] = tproto[key];
@@ -419,14 +354,38 @@ class NotifyAnnotation {
 }
 
 function parseListenerMetadata (key) {
+  key = key.trim();
+
   let splitted = key.split(' ');
   let metadata = {
+    key: key,
     eventName: splitted[0],
     selector: splitted[1] ? splitted.slice(1).join(' ') : null,
   };
+
   return metadata;
+}
+
+function define (name, Component, options) {
+  // TODO please make it happen for v1
+  // if (window.customElements) {
+  //   throw new Error('Unimplemented webcomponents v1');
+  //   // window.customElements.define(name, Component, options);
+  //   // return Component;
+  // }
+
+  let ElementPrototype = {
+    prototype: Object.create(Component.prototype, { is: { value: name } }),
+    extends: (options && options.extends) ? options.extends : undefined,
+  };
+
+  let ElementClass = document.registerElement(name, ElementPrototype);
+
+  put(name, ElementClass);
+
+  return ElementClass;
 }
 
 const Component = base('HTMLElement');
 
-export default { Component, base };
+export { Component, base, define };

@@ -5,7 +5,19 @@ webpackJsonp([3],{
 
 	'use strict';
 	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+	
+	var _src = __webpack_require__(1);
+	
+	var _src2 = _interopRequireDefault(_src);
+	
+	__webpack_require__(26);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 	
@@ -13,13 +25,7 @@ webpackJsonp([3],{
 	
 	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 	
-	var xin = __webpack_require__(1);
-	
-	__webpack_require__(22);
-	
-	var SETUP = xin.setup.withDefault('xin.View', {
-	  transition: 'transition-slide'
-	});
+	var SETUP_TRANSITION = _src2.default.setup.get('xin.View.transition') || 'transition-slide';
 	
 	var View = function (_xin$Component) {
 	  _inherits(View, _xin$Component);
@@ -41,7 +47,7 @@ webpackJsonp([3],{
 	      this.classList.remove('xin-view--focus');
 	      this.classList.remove('xin-view--visible');
 	
-	      this.transitionFx = new xin.Fx(this);
+	      this.transitionFx = new _src2.default.Fx(this);
 	
 	      if (this.parentElement.add) {
 	        this.parentElement.add(this);
@@ -60,8 +66,13 @@ webpackJsonp([3],{
 	  }, {
 	    key: '__focused',
 	    value: function __focused() {
+	      var _this2 = this,
+	          _arguments = arguments;
+	
 	      if (typeof this.focused === 'function') {
-	        return this.focused.apply(this, arguments);
+	        this.async(function () {
+	          return _this2.focused.apply(_this2, _arguments);
+	        });
 	      }
 	    }
 	  }, {
@@ -134,7 +145,7 @@ webpackJsonp([3],{
 	        },
 	        transition: {
 	          type: String,
-	          value: SETUP.transition
+	          value: SETUP_TRANSITION
 	        }
 	      };
 	    }
@@ -150,25 +161,24 @@ webpackJsonp([3],{
 	  }]);
 	
 	  return View;
-	}(xin.Component);
+	}(_src2.default.Component);
 	
-	xin.define('xin-view', View);
-	xin.View = View;
+	_src2.default.define('xin-view', View);
 	
-	module.exports = View;
+	exports.default = View;
 
 /***/ },
 
-/***/ 22:
+/***/ 26:
 /***/ function(module, exports, __webpack_require__) {
 
 	// style-loader: Adds some css to the DOM by adding a <style> tag
 	
 	// load the styles
-	var content = __webpack_require__(23);
+	var content = __webpack_require__(27);
 	if(typeof content === 'string') content = [[module.id, content, '']];
 	// add the styles to the DOM
-	var update = __webpack_require__(19)(content, {});
+	var update = __webpack_require__(23)(content, {});
 	if(content.locals) module.exports = content.locals;
 	// Hot Module Replacement
 	if(false) {
@@ -186,10 +196,10 @@ webpackJsonp([3],{
 
 /***/ },
 
-/***/ 23:
+/***/ 27:
 /***/ function(module, exports, __webpack_require__) {
 
-	exports = module.exports = __webpack_require__(18)();
+	exports = module.exports = __webpack_require__(22)();
 	// imports
 	
 	

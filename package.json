@@ -18,11 +18,10 @@
   "homepage": "http://xinix.co.id/p/product/xin",
   "scripts": {
     "test:lint": "eslint .",
-    "test:wct": "wct",
-    "test": "npm run test:lint && npm run test:wct",
+    "test": "yarn run test:lint",
     "clean": "rm -rf dist",
     "build:webpack": "webpack",
-    "build": "npm run clean && npm run build:webpack && NODE_ENV=production npm run build:webpack"
+    "build": "yarn run clean && yarn run build:webpack && NODE_ENV=production yarn run build:webpack"
   },
   "devDependencies": {
     "babel-core": "^6.17.0",
@@ -37,14 +36,12 @@
     "eslint-config-standard": "^6.2.1",
     "eslint-plugin-promise": "^3.3.0",
     "eslint-plugin-standard": "^2.0.0",
-    "rollup-plugin-babel": "^2.6.1",
     "style-loader": "^0.13.1",
-    "web-component-tester": "4.3.1",
-    "web-component-tester-istanbul": "^0.10.0",
     "webpack": "^1.13.2"
   },
   "dependencies": {
-    "template-binding": "xinix-technology/template-binding#master",
+    "gator": "github:ccampbell/gator",
+    "template-binding": "github:xinix-technology/template-binding#master",
     "webcomponentsjs": "^1.0.2"
   }
 }
