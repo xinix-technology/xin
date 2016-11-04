@@ -1,9 +1,6 @@
 .xin-view {
   box-sizing: border-box;
   display: none;
-
-  -webkit-backface-visibility: hidden;
-  backface-visibility: hidden;
 }
 
 .xin-view.xin-view--visible {

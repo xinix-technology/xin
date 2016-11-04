@@ -59,11 +59,11 @@ class Async {
       });
     };
 
-    this.handle = setTimeout(boundCallback, wait);
-    // if (wait) {
-    // } else {
-    //   boundCallback();
-    // }
+    if (wait) {
+      this.handle = setTimeout(boundCallback, wait);
+    } else {
+      boundCallback();
+    }
   }
 
   __clear () {

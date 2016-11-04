@@ -47,7 +47,7 @@ const adapters = {
 
           resolve();
 
-          Async.run(null, () => {
+          Async.nextFrame(() => {
             this.element.classList.remove(directionClass);
             this.element.classList.remove('transition-slide-in');
           });
@@ -56,9 +56,9 @@ const adapters = {
         T.Event(this.element).on('transitionend', onEnd);
         this.element.classList.add(directionClass);
 
-        Async.run(null, () => {
+        Async.nextFrame(() => {
           this.element.classList.add('transition-slide-animate');
-          Async.run(null, () => this.element.classList.add('transition-slide-in'));
+          Async.nextFrame(() => this.element.classList.add('transition-slide-in'));
         });
       });
     },
@@ -71,7 +71,7 @@ const adapters = {
 
           resolve();
 
-          Async.run(null, () => {
+          Async.nextFrame(() => {
             this.element.classList.remove(directionClass);
             this.element.classList.remove('transition-slide-out');
           });
@@ -80,9 +80,9 @@ const adapters = {
         T.Event(this.element).on('transitionend', onEnd);
         this.element.classList.add(directionClass);
 
-        Async.run(null, () => {
+        Async.nextFrame(() => {
           this.element.classList.add('transition-slide-animate');
-          Async.run(null, () => this.element.classList.add('transition-slide-out'));
+          Async.nextFrame(() => this.element.classList.add('transition-slide-out'));
         });
       });
     },
