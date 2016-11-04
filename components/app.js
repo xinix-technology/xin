@@ -1,5 +1,7 @@
 import xin from '../src';
 
+const NOOP = () => {};
+
 class App extends xin.Component {
   get props () {
     return {
@@ -24,9 +26,8 @@ class App extends xin.Component {
       },
 
       hashSeparator: {
-        type: String,
-        value: '#!',
-        observer: '_hashSeparatorChanged',
+        type: RegExp,
+        value: () => /#!(.*)$/,
       },
     };
   }
@@ -58,16 +59,17 @@ class App extends xin.Component {
     this.handlers = [];
     this.middlewares = [];
 
+    this.__awaitRouteCallback = NOOP;
     this.__started = false;
-  }
-
-  _hashSeparatorChanged (hashSeparator) {
-    this.reHashSeparator = new RegExp(hashSeparator + '(.*)$');
+    this.__starting = false;
   }
 
   attached () {
     if (!this.manual) {
-      this.async(this.start);
+      this.async(() => {
+        this.__availableUris = [].map.call(this.querySelectorAll('.xin-view'), el => el.uri);
+        this.start();
+      });
     }
   }
 
@@ -117,18 +119,22 @@ class App extends xin.Component {
     }
 
     this.handlers.push(routeHandler);
+
+    this.__awaitRouteCallback(this.getFragmentExecutors(this.getFragment()));
   }
 
   async start () {
-    if (this.__started) {
+    if (this.__started || this.__starting) {
       return;
     }
 
     this.__middlewareChainRun = compose(this.middlewares);
 
-    // this.__starting = true;
+    console.info(`Starting ${this.is}:${this.__id} ...`);
+
+    this.__starting = true;
     let executed = await this.__execute();
-    // this.__starting = false;
+    this.__starting = false;
 
     if (executed) {
       console.info(`Started ${this.is}:${this.__id}`);
@@ -142,7 +148,7 @@ class App extends xin.Component {
   }
 
   __listenNavigation () {
-    let callback = this.__executeCallback = () => {
+    let callback = () => {
       this.__execute();
     };
 
@@ -168,8 +174,6 @@ class App extends xin.Component {
   }
 
   getFragmentExecutors (fragment) {
-    fragment = fragment || this.getFragment();
-
     return this.handlers.reduce((executors, handler) => {
       if (handler.type === 's') {
         if (fragment === handler.route) {
@@ -194,13 +198,29 @@ class App extends xin.Component {
     }, []);
   }
 
+  __waitForRoute () {
+    return new Promise((resolve, reject) => {
+      this.__awaitRouteCallback = (executors) => {
+        if (executors.length === 0) {
+          return;
+        }
+
+        this.__awaitRouteCallback = NOOP;
+        resolve(executors);
+      };
+    });
+  }
+
   async __execute () {
     let fragment = this.getFragment();
-
     let executors = this.getFragmentExecutors(fragment);
     if (executors.length === 0) {
-      this.fire('route-not-found', fragment);
-      return false;
+      if (this.__availableUris.indexOf(fragment) === -1) {
+        this.fire('route-not-found', fragment);
+        return false;
+      }
+
+      executors = await this.__waitForRoute();
     }
 
     let context = { uri: fragment };
@@ -209,7 +229,9 @@ class App extends xin.Component {
 
     // run middleware chain then execute all executors
     await this.__middlewareChainRun(context, () => {
-      executors.forEach(executor => executor.handler.callback(executor.args, context));
+      executors.forEach(executor => {
+        executor.handler.callback(executor.args, context);
+      });
     });
 
     return true;
@@ -226,8 +248,8 @@ class App extends xin.Component {
         this.__execute();
       }
     } else {
-      this.location.href.match(this.reHashSeparator);
-      this.location.href = this.location.href.replace(this.reHashSeparator, '') + this.hashSeparator + path;
+      this.location.href.match(this.hashSeparator);
+      this.location.href = this.location.href.replace(this.hashSeparator, '') + this.hashSeparator + path;
     }
     return this;
   }
@@ -237,17 +259,22 @@ class App extends xin.Component {
   }
 
   getFragment () {
-    let fragment;
-    if (this.mode === 'history') {
-      fragment = decodeURI(this.location.pathname + this.location.search);
-      fragment = fragment.replace(/\?(.*)$/, '');
-      fragment = this.rootUri === '/' ? fragment : fragment.replace(this.rootUri, '');
-    } else {
-      let match = this.location.href.match(this.reHashSeparator);
-      fragment = match ? match[1] : '';
-    }
+    try {
+      let fragment;
+      if (this.mode === 'history') {
+        fragment = decodeURI(this.location.pathname + this.location.search);
+        fragment = fragment.replace(/\?(.*)$/, '');
+        fragment = this.rootUri === '/' ? fragment : fragment.replace(this.rootUri, '');
+      } else {
+        let match = this.location.href.match(this.hashSeparator);
+        fragment = match ? match[1] : '';
+      }
 
-    return '/' + fragment.toString().replace(/\/$/, '').replace(/^\//, '');
+      return '/' + fragment.toString().replace(/\/$/, '').replace(/^\//, '');
+    } catch (err) {
+      console.error('Fragment is not match any pattern, fallback to /');
+      return '/';
+    }
   }
 
   // $back (evt) {

@@ -8,4 +8,4 @@ function mix (...objects) {
   }, {});
 }
 
-export { v, mix };
+export default { v, mix };

@@ -41,7 +41,6 @@ const adapters = {
 
       return new Promise((resolve) => {
         var onEnd = () => {
-          // T.Event(this.element).off('webkitTransitionEnd', onEnd);
           T.Event(this.element).off('transitionend', onEnd);
 
           this.element.classList.remove('transition-slide-animate');
@@ -54,7 +53,6 @@ const adapters = {
           });
         };
 
-        // T.Event(this.element).on('webkitTransitionEnd', onEnd);
         T.Event(this.element).on('transitionend', onEnd);
         this.element.classList.add(directionClass);
 
@@ -68,7 +66,6 @@ const adapters = {
       var directionClass = direction > 0 ? 'transition-slide-out-left' : 'transition-slide-out-right';
       return new Promise((resolve) => {
         let onEnd = () => {
-          // T.Event(this.element).off('webkitTransitionEnd', onEnd);
           T.Event(this.element).off('transitionend', onEnd);
           this.element.classList.remove('transition-slide-animate');
 
@@ -80,7 +77,6 @@ const adapters = {
           });
         };
 
-        // T.Event(this.element).on('webkitTransitionEnd', onEnd);
         T.Event(this.element).on('transitionend', onEnd);
         this.element.classList.add(directionClass);
 

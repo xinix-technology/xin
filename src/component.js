@@ -1,6 +1,6 @@
 import T from 'template-binding';
 import { put } from './repository';
-import { v } from './object';
+import object from './object';
 import { dashify } from './inflector';
 import Async from './async';
 import Debounce from './debounce';
@@ -36,9 +36,7 @@ function base (base) {
       put(this.__id, this);
       this.setAttribute('xin-id', this.__id);
 
-      if (typeof this.created === 'function') {
-        this.created();
-      }
+      this.created();
 
       this.__initData();
 
@@ -68,9 +66,7 @@ function base (base) {
 
       this.__templateRender(contentFragment);
 
-      if (typeof this.ready === 'function') {
-        this.ready();
-      }
+      this.ready();
 
       if (this.__componentAttaching) {
         this.attachedCallback();
@@ -86,9 +82,7 @@ function base (base) {
 
       if (setup.get('debug')) console.info(`ATTACHED ${this.is} ${this.__componentAttaching ? '(delayed)' : ''}`);
 
-      if (typeof this.attached === 'function') {
-        this.attached();
-      }
+      this.attached();
 
       this.__componentAttaching = false;
     }
@@ -140,7 +134,7 @@ function base (base) {
           }
         }
 
-        propValue = propValue === undefined ? v(property.value) : propValue;
+        propValue = propValue === undefined ? object.v(property.value) : propValue;
 
         // when property is undefined, log error when property is required otherwise assign to default value
         if (property.required && (propValue === undefined || propValue === null)) {
@@ -240,36 +234,7 @@ function base (base) {
     }
 
     fire (type, detail, options) {
-      options = options || {};
-      detail = detail || {};
-
-      let evt;
-      let bubbles = options.bubbles === undefined ? true : options.bubbles;
-      let cancelable = Boolean(options.cancelable);
-
-      switch (type) {
-        case 'click':
-          evt = new window.Event(type, {
-            bubbles: bubbles,
-            cancelable: cancelable,
-          });
-
-          // TODO check if without this works on every browsers
-          // evt = document.createEvent('HTMLEvents');
-          // evt.initEvent(type, true, false);
-          break;
-        default:
-          evt = new window.CustomEvent(type, {
-            bubbles: Boolean(bubbles),
-            cancelable: cancelable,
-            detail: detail,
-          });
-          break;
-      }
-
-      this.dispatchEvent(evt);
-
-      return evt;
+      return T.Event(this).fire(type, detail, options);
     }
 
     async (callback, waitTime) {
