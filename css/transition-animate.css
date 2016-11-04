@@ -18,6 +18,8 @@
 }
 
 .transition-slide-animate {
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
   -webkit-transition: -webkit-transform 300ms;
   transition: transform 300ms, -webkit-transform 300ms;
   will-change: transform, -webkit-transform;
