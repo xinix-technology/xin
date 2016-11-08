@@ -115,12 +115,10 @@ class Repeat extends xin.base('HTMLTemplateElement') {
       });
     }
 
-    this.rows.splice(len);
-
     // move to detach
-    // this.rows.splice(len).forEach(row => {
-    //   row.__templateUninitialize();
-    // });
+    this.rows.splice(len).forEach(row => {
+      row.__templateUninitialize();
+    });
   }
 
   itemForElement (element) {

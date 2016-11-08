@@ -24,6 +24,8 @@ webpackJsonp([0],[
 	
 	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 	
+	var NOOP = function NOOP() {};
+	
 	var App = function (_xin$Component) {
 	  _inherits(App, _xin$Component);
 	
@@ -58,18 +60,22 @@ webpackJsonp([0],[
 	      this.handlers = [];
 	      this.middlewares = [];
 	
+	      this.__awaitRouteCallback = NOOP;
 	      this.__started = false;
-	    }
-	  }, {
-	    key: '_hashSeparatorChanged',
-	    value: function _hashSeparatorChanged(hashSeparator) {
-	      this.reHashSeparator = new RegExp(hashSeparator + '(.*)$');
+	      this.__starting = false;
 	    }
 	  }, {
 	    key: 'attached',
 	    value: function attached() {
+	      var _this2 = this;
+	
 	      if (!this.manual) {
-	        this.async(this.start);
+	        this.async(function () {
+	          _this2.__availableUris = [].map.call(_this2.querySelectorAll('.xin-view'), function (el) {
+	            return el.uri;
+	          });
+	          _this2.start();
+	        });
 	      }
 	    }
 	  }, {
@@ -122,6 +128,8 @@ webpackJsonp([0],[
 	      }
 	
 	      this.handlers.push(routeHandler);
+	
+	      this.__awaitRouteCallback(this.getFragmentExecutors(this.getFragment()));
 	    }
 	  }, {
 	    key: 'start',
@@ -132,7 +140,7 @@ webpackJsonp([0],[
 	          while (1) {
 	            switch (_context.prev = _context.next) {
 	              case 0:
-	                if (!this.__started) {
+	                if (!(this.__started || this.__starting)) {
 	                  _context.next = 2;
 	                  break;
 	                }
@@ -143,14 +151,16 @@ webpackJsonp([0],[
 	
 	                this.__middlewareChainRun = compose(this.middlewares);
 	
-	                // this.__starting = true;
-	                _context.next = 5;
+	                console.info('Starting ' + this.is + ':' + this.__id + ' ...');
+	
+	                this.__starting = true;
+	                _context.next = 7;
 	                return this.__execute();
 	
-	              case 5:
+	              case 7:
 	                executed = _context.sent;
 	
-	                // this.__starting = false;
+	                this.__starting = false;
 	
 	                if (executed) {
 	                  console.info('Started ' + this.is + ':' + this.__id);
@@ -162,7 +172,7 @@ webpackJsonp([0],[
 	                  this.fire('started');
 	                }
 	
-	              case 7:
+	              case 10:
 	              case 'end':
 	                return _context.stop();
 	            }
@@ -179,10 +189,10 @@ webpackJsonp([0],[
 	  }, {
 	    key: '__listenNavigation',
 	    value: function __listenNavigation() {
-	      var _this2 = this;
+	      var _this3 = this;
 	
-	      var callback = this.__executeCallback = function () {
-	        _this2.__execute();
+	      var callback = function callback() {
+	        _this3.__execute();
 	      };
 	
 	      if (this.mode === 'history') {
@@ -192,7 +202,7 @@ webpackJsonp([0],[
 	            evt.preventDefault();
 	
 	            var state = { url: evt.target.getAttribute('href') };
-	            _this2.history.pushState(state, evt.target.innerHTML, evt.target.href);
+	            _this3.history.pushState(state, evt.target.innerHTML, evt.target.href);
 	
 	            callback();
 	          }
@@ -204,8 +214,6 @@ webpackJsonp([0],[
 	  }, {
 	    key: 'getFragmentExecutors',
 	    value: function getFragmentExecutors(fragment) {
-	      fragment = fragment || this.getFragment();
-	
 	      return this.handlers.reduce(function (executors, handler) {
 	        if (handler.type === 's') {
 	          if (fragment === handler.route) {
@@ -234,6 +242,22 @@ webpackJsonp([0],[
 	      }, []);
 	    }
 	  }, {
+	    key: '__waitForRoute',
+	    value: function __waitForRoute() {
+	      var _this4 = this;
+	
+	      return new Promise(function (resolve, reject) {
+	        _this4.__awaitRouteCallback = function (executors) {
+	          if (executors.length === 0) {
+	            return;
+	          }
+	
+	          _this4.__awaitRouteCallback = NOOP;
+	          resolve(executors);
+	        };
+	      });
+	    }
+	  }, {
 	    key: '__execute',
 	    value: function () {
 	      var _ref2 = _asyncToGenerator(regeneratorRuntime.mark(function _callee2() {
@@ -246,31 +270,43 @@ webpackJsonp([0],[
 	                executors = this.getFragmentExecutors(fragment);
 	
 	                if (!(executors.length === 0)) {
-	                  _context2.next = 5;
+	                  _context2.next = 9;
+	                  break;
+	                }
+	
+	                if (!(this.__availableUris.indexOf(fragment) === -1)) {
+	                  _context2.next = 6;
 	                  break;
 	                }
 	
 	                this.fire('route-not-found', fragment);
 	                return _context2.abrupt('return', false);
 	
-	              case 5:
+	              case 6:
+	                _context2.next = 8;
+	                return this.__waitForRoute();
+	
+	              case 8:
+	                executors = _context2.sent;
+	
+	              case 9:
 	                context = { uri: fragment };
 	
 	
 	                this.fire('navigated', context);
 	
 	                // run middleware chain then execute all executors
-	                _context2.next = 9;
+	                _context2.next = 13;
 	                return this.__middlewareChainRun(context, function () {
 	                  executors.forEach(function (executor) {
-	                    return executor.handler.callback(executor.args, context);
+	                    executor.handler.callback(executor.args, context);
 	                  });
 	                });
 	
-	              case 9:
+	              case 13:
 	                return _context2.abrupt('return', true);
 	
-	              case 10:
+	              case 14:
 	              case 'end':
 	                return _context2.stop();
 	            }
@@ -297,8 +333,8 @@ webpackJsonp([0],[
 	          this.__execute();
 	        }
 	      } else {
-	        this.location.href.match(this.reHashSeparator);
-	        this.location.href = this.location.href.replace(this.reHashSeparator, '') + this.hashSeparator + path;
+	        this.location.href.match(this.hashSeparator);
+	        this.location.href = this.location.href.replace(this.hashSeparator, '') + this.hashSeparator + path;
 	      }
 	      return this;
 	    }
@@ -310,17 +346,22 @@ webpackJsonp([0],[
 	  }, {
 	    key: 'getFragment',
 	    value: function getFragment() {
-	      var fragment = void 0;
-	      if (this.mode === 'history') {
-	        fragment = decodeURI(this.location.pathname + this.location.search);
-	        fragment = fragment.replace(/\?(.*)$/, '');
-	        fragment = this.rootUri === '/' ? fragment : fragment.replace(this.rootUri, '');
-	      } else {
-	        var match = this.location.href.match(this.reHashSeparator);
-	        fragment = match ? match[1] : '';
-	      }
+	      try {
+	        var fragment = void 0;
+	        if (this.mode === 'history') {
+	          fragment = decodeURI(this.location.pathname + this.location.search);
+	          fragment = fragment.replace(/\?(.*)$/, '');
+	          fragment = this.rootUri === '/' ? fragment : fragment.replace(this.rootUri, '');
+	        } else {
+	          var match = this.location.href.match(this.hashSeparator);
+	          fragment = match ? match[1] : '';
+	        }
 	
-	      return '/' + fragment.toString().replace(/\/$/, '').replace(/^\//, '');
+	        return '/' + fragment.toString().replace(/\/$/, '').replace(/^\//, '');
+	      } catch (err) {
+	        console.error('Fragment is not match any pattern, fallback to /');
+	        return '/';
+	      }
 	    }
 	
 	    // $back (evt) {
@@ -353,9 +394,11 @@ webpackJsonp([0],[
 	        },
 	
 	        hashSeparator: {
-	          type: String,
-	          value: '#!',
-	          observer: '_hashSeparatorChanged'
+	          type: RegExp,
+	          value: function value() {
+	            return (/#!(.*)$/
+	            );
+	          }
 	        }
 	      };
 	    }
@@ -379,7 +422,7 @@ webpackJsonp([0],[
 	_src2.default.define('xin-app', App);
 	
 	function compose(middlewares) {
-	  var _this3 = this;
+	  var _this5 = this;
 	
 	  var _iteratorNormalCompletion = true;
 	  var _didIteratorError = false;
@@ -476,7 +519,7 @@ webpackJsonp([0],[
 	              return _context4.stop();
 	          }
 	        }
-	      }, _callee4, _this3);
+	      }, _callee4, _this5);
 	    }));
 	
 	    return function (_x, _x2) {

@@ -123,7 +123,14 @@ function base (base) {
 
         let propValue;
 
-        if (this.hasAttribute(attrName)) {
+        if ('computed' in property) {
+          let accessor = T.Accessor.get(this, propName);
+          let expr = T.Expr.getFn(property.computed, [], true);
+          this.__templateAnnotate(expr, accessor);
+
+          // compute value of computed prop
+          propValue = expr.invoke(this);
+        } else if (this.hasAttribute(attrName)) {
           let attrVal = this.getAttribute(attrName);
 
           // copy value from attribute to property
@@ -132,31 +139,21 @@ function base (base) {
           if (expr.type === 's') {
             propValue = T.deserialize(attrVal, property.type);
           }
+        } else if ('value' in property) {
+          propValue = object.v(property.value);
         }
 
-        propValue = propValue === undefined ? object.v(property.value) : propValue;
-
         // when property is undefined, log error when property is required otherwise assign to default value
-        if (property.required && (propValue === undefined || propValue === null)) {
+        if (property.required && propValue === undefined /* (propValue === undefined || propValue === null) */) {
           throw new Error(`${this.is}:${this.__id} missing required ${propName}`);
         }
 
-        if (property.observer) {
+        if ('observer' in property) {
           let expr = T.Expr.getFn(property.observer, [ propName ], true);
           this.__templateAnnotate(expr);
         }
 
-        let accessor = T.Accessor.get(this, propName);
-
-        if (property.computed) {
-          let expr = T.Expr.getFn(property.computed, [], true);
-          this.__templateAnnotate(expr, accessor);
-
-          // compute value of computed prop
-          propValue = expr.invoke(this);
-        }
-
-        if (property.notify) {
+        if ('notify' in property) {
           this.__templateGetBinding(propName).annotations.push(new NotifyAnnotation(this, propName));
         }
 
@@ -190,9 +187,15 @@ function base (base) {
       Object.keys(this.listeners).forEach(key => {
         let meta = parseListenerMetadata(key);
         let expr = T.Expr.getFn(this.listeners[key], [], true);
-        this.on(meta.eventName, evt => {
-          expr.invoke(this, { evt });
-        });
+        if (meta.selector) {
+          this.on(meta.eventName, meta.selector, evt => {
+            expr.invoke(this, { evt });
+          });
+        } else {
+          this.on(meta.eventName, evt => {
+            expr.invoke(this, { evt });
+          });
+        }
       });
     }
 
@@ -334,9 +337,9 @@ function parseListenerMetadata (key) {
 function define (name, Component, options) {
   // TODO please make it happen for v1
   // if (window.customElements) {
-  //   throw new Error('Unimplemented webcomponents v1');
-  //   // window.customElements.define(name, Component, options);
-  //   // return Component;
+  //   // throw new Error('Unimplemented webcomponents v1');
+  //   window.customElements.define(name, Component, options);
+  //   return Component;
   // }
 
   let ElementPrototype = {

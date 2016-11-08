@@ -117,23 +117,27 @@
 	
 	var _component = __webpack_require__(3);
 	
-	var _fx = __webpack_require__(19);
+	var _fx = __webpack_require__(18);
 	
 	var _fx2 = _interopRequireDefault(_fx);
 	
-	var _setup = __webpack_require__(18);
+	var _setup = __webpack_require__(17);
 	
 	var _setup2 = _interopRequireDefault(_setup);
+	
+	var _object = __webpack_require__(13);
+	
+	var _object2 = _interopRequireDefault(_object);
 	
 	var _templateBinding = __webpack_require__(4);
 	
 	var _templateBinding2 = _interopRequireDefault(_templateBinding);
 	
-	var _async = __webpack_require__(16);
+	var _async = __webpack_require__(15);
 	
 	var _async2 = _interopRequireDefault(_async);
 	
-	var _debounce = __webpack_require__(17);
+	var _debounce = __webpack_require__(16);
 	
 	var _debounce2 = _interopRequireDefault(_debounce);
 	
@@ -151,6 +155,7 @@
 	xin.Component = _component.Component;
 	xin.define = _component.define;
 	xin.base = _component.base;
+	xin.object = _object2.default;
 	xin.setup = _setup2.default;
 	xin.filter = _templateBinding2.default.Filter;
 	xin.event = _templateBinding2.default.Event;
@@ -218,19 +223,21 @@
 	
 	var _repository = __webpack_require__(2);
 	
-	var _object = __webpack_require__(14);
+	var _object = __webpack_require__(13);
 	
-	var _inflector = __webpack_require__(15);
+	var _object2 = _interopRequireDefault(_object);
 	
-	var _async = __webpack_require__(16);
+	var _inflector = __webpack_require__(14);
+	
+	var _async = __webpack_require__(15);
 	
 	var _async2 = _interopRequireDefault(_async);
 	
-	var _debounce = __webpack_require__(17);
+	var _debounce = __webpack_require__(16);
 	
 	var _debounce2 = _interopRequireDefault(_debounce);
 	
-	var _setup = __webpack_require__(18);
+	var _setup = __webpack_require__(17);
 	
 	var _setup2 = _interopRequireDefault(_setup);
 	
@@ -281,9 +288,7 @@
 	        (0, _repository.put)(this.__id, this);
 	        this.setAttribute('xin-id', this.__id);
 	
-	        if (typeof this.created === 'function') {
-	          this.created();
-	        }
+	        this.created();
 	
 	        this.__initData();
 	
@@ -316,9 +321,7 @@
 	
 	        this.__templateRender(contentFragment);
 	
-	        if (typeof this.ready === 'function') {
-	          this.ready();
-	        }
+	        this.ready();
 	
 	        if (this.__componentAttaching) {
 	          this.attachedCallback();
@@ -335,9 +338,7 @@
 	
 	        if (_setup2.default.get('debug')) console.info('ATTACHED ' + this.is + ' ' + (this.__componentAttaching ? '(delayed)' : ''));
 	
-	        if (typeof this.attached === 'function') {
-	          this.attached();
-	        }
+	        this.attached();
 	
 	        this.__componentAttaching = false;
 	      }
@@ -364,40 +365,37 @@
 	
 	          var propValue = void 0;
 	
-	          if (this.hasAttribute(attrName)) {
+	          if ('computed' in property) {
+	            var accessor = _templateBinding2.default.Accessor.get(this, propName);
+	            var expr = _templateBinding2.default.Expr.getFn(property.computed, [], true);
+	            this.__templateAnnotate(expr, accessor);
+	
+	            // compute value of computed prop
+	            propValue = expr.invoke(this);
+	          } else if (this.hasAttribute(attrName)) {
 	            var attrVal = this.getAttribute(attrName);
 	
 	            // copy value from attribute to property
 	            // fallback to property.value
-	            var expr = _templateBinding2.default.Expr.get(attrVal);
-	            if (expr.type === 's') {
+	            var _expr = _templateBinding2.default.Expr.get(attrVal);
+	            if (_expr.type === 's') {
 	              propValue = _templateBinding2.default.deserialize(attrVal, property.type);
 	            }
+	          } else if ('value' in property) {
+	            propValue = _object2.default.v(property.value);
 	          }
-	
-	          propValue = propValue === undefined ? (0, _object.v)(property.value) : propValue;
 	
 	          // when property is undefined, log error when property is required otherwise assign to default value
-	          if (property.required && (propValue === undefined || propValue === null)) {
-	            throw new Error(this.is + ':' + this.__id + ' missing required ' + propName);
+	          if (property.required && propValue === undefined /* (propValue === undefined || propValue === null) */) {
+	              throw new Error(this.is + ':' + this.__id + ' missing required ' + propName);
+	            }
+	
+	          if ('observer' in property) {
+	            var _expr2 = _templateBinding2.default.Expr.getFn(property.observer, [propName], true);
+	            this.__templateAnnotate(_expr2);
 	          }
 	
-	          if (property.observer) {
-	            var _expr = _templateBinding2.default.Expr.getFn(property.observer, [propName], true);
-	            this.__templateAnnotate(_expr);
-	          }
-	
-	          var accessor = _templateBinding2.default.Accessor.get(this, propName);
-	
-	          if (property.computed) {
-	            var _expr2 = _templateBinding2.default.Expr.getFn(property.computed, [], true);
-	            this.__templateAnnotate(_expr2, accessor);
-	
-	            // compute value of computed prop
-	            propValue = _expr2.invoke(this);
-	          }
-	
-	          if (property.notify) {
+	          if ('notify' in property) {
 	            this.__templateGetBinding(propName).annotations.push(new NotifyAnnotation(this, propName));
 	          }
 	
@@ -435,9 +433,15 @@
 	        Object.keys(this.listeners).forEach(function (key) {
 	          var meta = parseListenerMetadata(key);
 	          var expr = _templateBinding2.default.Expr.getFn(_this3.listeners[key], [], true);
-	          _this3.on(meta.eventName, function (evt) {
-	            expr.invoke(_this3, { evt: evt });
-	          });
+	          if (meta.selector) {
+	            _this3.on(meta.eventName, meta.selector, function (evt) {
+	              expr.invoke(_this3, { evt: evt });
+	            });
+	          } else {
+	            _this3.on(meta.eventName, function (evt) {
+	              expr.invoke(_this3, { evt: evt });
+	            });
+	          }
 	        });
 	      }
 	    }, {
@@ -484,36 +488,7 @@
 	    }, {
 	      key: 'fire',
 	      value: function fire(type, detail, options) {
-	        options = options || {};
-	        detail = detail || {};
-	
-	        var evt = void 0;
-	        var bubbles = options.bubbles === undefined ? true : options.bubbles;
-	        var cancelable = Boolean(options.cancelable);
-	
-	        switch (type) {
-	          case 'click':
-	            evt = new window.Event(type, {
-	              bubbles: bubbles,
-	              cancelable: cancelable
-	            });
-	
-	            // TODO check if without this works on every browsers
-	            // evt = document.createEvent('HTMLEvents');
-	            // evt.initEvent(type, true, false);
-	            break;
-	          default:
-	            evt = new window.CustomEvent(type, {
-	              bubbles: Boolean(bubbles),
-	              cancelable: cancelable,
-	              detail: detail
-	            });
-	            break;
-	        }
-	
-	        this.dispatchEvent(evt);
-	
-	        return evt;
+	        return _templateBinding2.default.Event(this).fire(type, detail, options);
 	      }
 	    }, {
 	      key: 'async',
@@ -648,9 +623,9 @@
 	function define(name, Component, options) {
 	  // TODO please make it happen for v1
 	  // if (window.customElements) {
-	  //   throw new Error('Unimplemented webcomponents v1');
-	  //   // window.customElements.define(name, Component, options);
-	  //   // return Component;
+	  //   // throw new Error('Unimplemented webcomponents v1');
+	  //   window.customElements.define(name, Component, options);
+	  //   return Component;
 	  // }
 	
 	  var ElementPrototype = {
@@ -711,8 +686,6 @@
 	
 	var _serializer = __webpack_require__(12);
 	
-	var _slot = __webpack_require__(13);
-	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
 	function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
@@ -720,6 +693,12 @@
 	var templateId = 0;
 	function nextId() {
 	  return templateId++;
+	}
+	
+	var SLOT_SUPPORTED = typeof window === 'undefined' ? false : 'HTMLUnknownElement' in window && !(document.createElement('slot') instanceof window.HTMLUnknownElement);
+	
+	function slotName(element) {
+	  return SLOT_SUPPORTED ? element.name : element.getAttribute('name');
 	}
 	
 	function fixTemplate(template) {
@@ -812,18 +791,18 @@
 	      return;
 	    }
 	
-	    try {
-	      var binding = this.__templateGetBinding(path);
-	      if (binding) {
-	        if (typeof value === 'undefined') {
-	          value = this.get(path);
-	        }
-	
-	        binding.walkEffect(value);
+	    // try {
+	    var binding = this.__templateGetBinding(path);
+	    if (binding) {
+	      if (typeof value === 'undefined') {
+	        value = this.get(path);
 	      }
-	    } catch (err) {
-	      console.warn('#notify caught error: ' + err.message + '\n Stack trace: ' + err.stack);
+	
+	      binding.walkEffect(value);
 	    }
+	    // } catch (err) {
+	    //   console.warn(`#notify caught error: ${err.message}\n Stack trace: ${err.stack}`);
+	    // }
 	  },
 	  __templateInitialize: function __templateInitialize(template, host, marker) {
 	    this.__templateId = nextId();
@@ -877,28 +856,33 @@
 	    this.__templateFragment = null;
 	
 	    if (contentFragment && contentFragment instanceof window.DocumentFragment) {
-	      try {
-	        [].forEach.call(fragment.querySelectorAll('slot'), function (slot) {
-	          var name = (0, _slot.slotName)(slot);
-	          var node = name ? contentFragment.querySelectorAll('[slot="' + name + '"]') : contentFragment;
-	          (0, _slot.slotAppend)(slot, node, fragment);
-	        });
-	      } catch (err) {
-	        console.error(err.stack);
-	        throw err;
-	      }
+	      // try {
+	      [].forEach.call(fragment.querySelectorAll('slot'), function (slot) {
+	        var name = slotName(slot);
+	        var parent = slot.parentElement || fragment;
+	        var marker = document.createComment('slot ' + name);
+	
+	        parent.insertBefore(marker, slot);
+	        parent.removeChild(slot);
+	
+	        if (name) {
+	          var node = contentFragment.querySelectorAll('[slot="' + name + '"]');
+	          [].forEach.call(node, function (node) {
+	            parent.insertBefore(node, marker);
+	          });
+	        } else {
+	          parent.insertBefore(contentFragment, marker);
+	        }
+	      });
 	    }
 	
 	    this.__templateMarker.parentElement.insertBefore(fragment, this.__templateMarker);
 	  },
-	
-	
-	  // __templateUninitialize () {
-	  //   this.__templateChildNodes.forEach(node => {
-	  //     node.parentElement.removeChild(node);
-	  //   });
-	  // },
-	
+	  __templateUninitialize: function __templateUninitialize() {
+	    this.__templateChildNodes.forEach(function (node) {
+	      node.parentElement.removeChild(node);
+	    });
+	  },
 	  __templateGetPathAsArray: function __templateGetPathAsArray(path) {
 	    // if (!path) {
 	    //   throw new Error(`Unknown path ${path} to set to ${this.is}`);
@@ -1311,12 +1295,14 @@
 	    _classCallCheck(this, Token);
 	
 	    this.name = name;
-	    try {
-	      this._value = JSON.parse(this.name);
-	      this.type = 's';
-	    } catch (err) {
-	      this._value = null;
-	      this.type = 'v';
+	    this._value = null;
+	    this.type = 'v';
+	
+	    if (!this.name.match(/^[a-zA-Z_]/)) {
+	      try {
+	        this._value = JSON.parse(this.name);
+	        this.type = 's';
+	      } catch (err) {}
 	    }
 	  }
 	
@@ -1973,6 +1959,41 @@
 	  return id++;
 	}
 	
+	var aliases = new Map();
+	var aliasesDefaultTranslator = function aliasesDefaultTranslator(name) {
+	  return [name];
+	};
+	var aliasesTranslators = {
+	  transitionend: function transitionend(name) {
+	    var el = document.createElement('fakeelement');
+	    var transitions = {
+	      'OTransition': 'oTransitionEnd',
+	      'MozTransition': 'transitionend',
+	      'WebkitTransition': 'webkitTransitionEnd',
+	      'transition': 'transitionend'
+	    };
+	
+	    for (var t in transitions) {
+	      if (el.style[t] !== undefined) {
+	        return [transitions[t]];
+	      }
+	    }
+	  }
+	};
+	
+	function _aliases(name) {
+	  var theAliases = void 0;
+	  if (aliases.has(name)) {
+	    theAliases = aliases.get(name);
+	  } else {
+	    var translator = aliasesTranslators[name] || aliasesDefaultTranslator;
+	    theAliases = translator(name);
+	    aliases.set(name, theAliases);
+	  }
+	
+	  return theAliases;
+	}
+	
 	/**
 	 * binds the specified events to the element
 	 *
@@ -1983,6 +2004,8 @@
 	 * @returns {Object}
 	 */
 	function _bind(events, selector, callback, remove) {
+	  var _this = this;
+	
 	  // fail silently if you pass null or undefined as an alement
 	  // in the EventDelegator constructor
 	  if (!this.element) {
@@ -2019,16 +2042,19 @@
 	  }
 	
 	  for (i = 0; i < events.length; i++) {
-	    if (remove) {
-	      _removeHandler(this, events[i], selector, callback);
-	      continue;
-	    }
+	    _aliases(events[i]).forEach(function (alias) {
+	      // console.info('> ' + events[i] + ':' + alias);
+	      if (remove) {
+	        _removeHandler(_this, alias, selector, callback);
+	        return;
+	      }
 	
-	    if (!_handlers[id] || !_handlers[id][events[i]]) {
-	      EventDelegator.addEvent(this, events[i], _getGlobalCallback(events[i]));
-	    }
+	      if (!_handlers[id] || !_handlers[id][alias]) {
+	        EventDelegator.addEvent(_this, alias, _getGlobalCallback(alias));
+	      }
 	
-	    _addHandler(this, events[i], selector, callback);
+	      _addHandler(_this, alias, selector, callback);
+	    });
 	  }
 	
 	  return this;
@@ -2087,9 +2113,43 @@
 	  return _bind.call(this, events, selector, callback, true);
 	};
 	
+	EventDelegator.prototype.fire = function (type, detail, options) {
+	  options = options || {};
+	  detail = detail || {};
+	
+	  var evt = void 0;
+	  var bubbles = options.bubbles === undefined ? true : options.bubbles;
+	  var cancelable = Boolean(options.cancelable);
+	
+	  switch (type) {
+	    case 'click':
+	      evt = new window.Event(type, {
+	        bubbles: bubbles,
+	        cancelable: cancelable
+	      });
+	
+	      // TODO check if without this works on every browsers
+	      // evt = document.createEvent('HTMLEvents');
+	      // evt.initEvent(type, true, false);
+	      break;
+	    default:
+	      evt = new window.CustomEvent(type, {
+	        bubbles: Boolean(bubbles),
+	        cancelable: cancelable,
+	        detail: detail
+	      });
+	      break;
+	  }
+	
+	  this.element.dispatchEvent(evt);
+	
+	  return evt;
+	};
+	
 	EventDelegator.matchesSelector = function () {};
 	EventDelegator.cancel = _cancel;
 	EventDelegator.addEvent = _addEvent;
+	EventDelegator.aliases = _aliases;
 	EventDelegator.matchesEvent = function () {
 	  return true;
 	};
@@ -2120,6 +2180,8 @@
 	    case 'object':
 	      if (value instanceof Date) {
 	        return value;
+	      } else if (value instanceof RegExp) {
+	        return value.toString().slice(1, -1);
 	      } else if (value) {
 	        try {
 	          return JSON.stringify(value);
@@ -2166,6 +2228,10 @@
 	      value = new Date(value);
 	      break;
 	
+	    case RegExp:
+	      value = new RegExp(value);
+	      break;
+	
 	    case Function:
 	      value = new Function(value); // eslint-disable-line
 	      break;
@@ -2183,49 +2249,6 @@
 
 /***/ },
 /* 13 */
-/***/ function(module, exports) {
-
-	'use strict';
-	
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-	
-	function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
-	
-	var SLOT_SUPPORTED = typeof window === 'undefined' ? false : 'HTMLUnknownElement' in window && !(document.createElement('slot') instanceof window.HTMLUnknownElement);
-	
-	function slotName(element) {
-	  return SLOT_SUPPORTED ? element.name : element.getAttribute('name');
-	}
-	
-	function slotAppend(slot, node, root) {
-	  if (!slot.__slotHasChildren) {
-	    slot.__slotHasChildren = true;
-	    slot.__slotFallbackContent = [].concat(_toConsumableArray(slot.childNodes));
-	    while (slot.firstChild) {
-	      slot.removeChild(slot.firstChild);
-	    }
-	  }
-	
-	  if (node instanceof window.Node) {
-	    slot.appendChild(node);
-	  } else {
-	    node.forEach(function (node) {
-	      return slot.appendChild(node);
-	    });
-	  }
-	}
-	
-	// function elementSlot (element) {
-	//   return SLOT_SUPPORTED ? element.slot : element.getAttribute('slot');
-	// }
-	
-	exports.slotName = slotName;
-	exports.slotAppend = slotAppend;
-
-/***/ },
-/* 14 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -2253,11 +2276,10 @@
 	  }, {});
 	}
 	
-	exports.v = v;
-	exports.mix = mix;
+	exports.default = { v: v, mix: mix };
 
 /***/ },
-/* 15 */
+/* 14 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -2300,7 +2322,7 @@
 	exports.dashify = dashify;
 
 /***/ },
-/* 16 */
+/* 15 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -2317,13 +2339,18 @@
 	
 	var cancelAnimationFrame = window.cancelAnimationFrame || window.webkitCancelRequestAnimationFrame || window.webkitCancelAnimationFrame || window.mozCancelRequestAnimationFrame || window.mozCancelAnimationFrame || window.oCancelRequestAnimationFrame || window.oCancelAnimationFrame || window.msCancelRequestAnimationFrame || window.msCancelAnimationFrame;
 	
+	var id = 0;
+	function nextId() {
+	  return id++;
+	}
+	
 	var Async = function () {
 	  _createClass(Async, null, [{
 	    key: 'nextFrame',
 	    value: function nextFrame(callback) {
-	      requestAnimationFrame(function () {
-	        requestAnimationFrame(callback);
-	      });
+	      return requestAnimationFrame(callback);
+	      // requestAnimationFrame(() => {
+	      // });
 	    }
 	  }, {
 	    key: 'run',
@@ -2337,39 +2364,56 @@
 	  function Async(context) {
 	    _classCallCheck(this, Async);
 	
+	    this.id = nextId();
 	    this.context = context;
 	    this.handle = null;
+	    this.frameHandle = null;
+	    this.cleared = true;
 	  }
 	
 	  _createClass(Async, [{
 	    key: 'start',
 	    value: function start(callback, wait) {
-	      var _this = this;
-	
 	      if (typeof callback !== 'function') {
 	        throw new Error('Async should specify function');
 	      }
 	
+	      if (!this.cleared) {
+	        throw new Error('Async already run');
+	      }
+	
+	      this.cleared = false;
+	
 	      wait = wait || 0;
 	
+	      var self = this;
 	      var context = this.context;
 	      var boundCallback = function boundCallback() {
-	        callback.call(context);
+	        self.frameHandle = requestAnimationFrame(function () {
+	          self.__clear();
+	          callback.call(context);
+	        });
 	      };
 	
 	      if (wait) {
-	        this.handle = setTimeout(function () {
-	          return _this.frameHandle = requestAnimationFrame(boundCallback);
-	        }, wait);
+	        this.handle = setTimeout(boundCallback, wait);
 	      } else {
-	        this.frameHandle = requestAnimationFrame(boundCallback);
+	        boundCallback();
 	      }
+	    }
+	  }, {
+	    key: '__clear',
+	    value: function __clear() {
+	      this.cleared = true;
+	
+	      cancelAnimationFrame(~~this.frameHandle);
+	      clearTimeout(~~this.handle);
+	      this.handle = this.frameHandle = null;
 	    }
 	  }, {
 	    key: 'cancel',
 	    value: function cancel() {
-	      cancelAnimationFrame(~~this.frameHandle);
-	      clearTimeout(~~this.handle);
+	      this.__clear();
 	    }
 	  }]);
 	
@@ -2381,7 +2425,7 @@
 	exports.default = Async;
 
 /***/ },
-/* 17 */
+/* 16 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -2392,7 +2436,7 @@
 	
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 	
-	var _async = __webpack_require__(16);
+	var _async = __webpack_require__(15);
 	
 	var _async2 = _interopRequireDefault(_async);
 	
@@ -2442,7 +2486,7 @@
 	exports.default = Debounce;
 
 /***/ },
-/* 18 */
+/* 17 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -2461,7 +2505,7 @@
 	exports.default = setup;
 
 /***/ },
-/* 19 */
+/* 18 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -2476,11 +2520,11 @@
 	
 	var _templateBinding2 = _interopRequireDefault(_templateBinding);
 	
-	var _async = __webpack_require__(16);
+	var _async = __webpack_require__(15);
 	
 	var _async2 = _interopRequireDefault(_async);
 	
-	__webpack_require__(20);
+	__webpack_require__(19);
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
@@ -2541,26 +2585,24 @@
 	
 	      return new Promise(function (resolve) {
 	        var onEnd = function onEnd() {
-	          // T.Event(this.element).off('webkitTransitionEnd', onEnd);
 	          _templateBinding2.default.Event(_this.element).off('transitionend', onEnd);
 	
 	          _this.element.classList.remove('transition-slide-animate');
 	
 	          resolve();
 	
-	          _async2.default.run(null, function () {
+	          _async2.default.nextFrame(function () {
 	            _this.element.classList.remove(directionClass);
 	            _this.element.classList.remove('transition-slide-in');
 	          });
 	        };
 	
-	        // T.Event(this.element).on('webkitTransitionEnd', onEnd);
 	        _templateBinding2.default.Event(_this.element).on('transitionend', onEnd);
 	        _this.element.classList.add(directionClass);
 	
-	        _async2.default.run(null, function () {
+	        _async2.default.nextFrame(function () {
 	          _this.element.classList.add('transition-slide-animate');
-	          _async2.default.run(null, function () {
+	          _async2.default.nextFrame(function () {
 	            return _this.element.classList.add('transition-slide-in');
 	          });
 	        });
@@ -2572,25 +2614,23 @@
 	      var directionClass = direction > 0 ? 'transition-slide-out-left' : 'transition-slide-out-right';
 	      return new Promise(function (resolve) {
 	        var onEnd = function onEnd() {
-	          // T.Event(this.element).off('webkitTransitionEnd', onEnd);
 	          _templateBinding2.default.Event(_this2.element).off('transitionend', onEnd);
 	          _this2.element.classList.remove('transition-slide-animate');
 	
 	          resolve();
 	
-	          _async2.default.run(null, function () {
+	          _async2.default.nextFrame(function () {
 	            _this2.element.classList.remove(directionClass);
 	            _this2.element.classList.remove('transition-slide-out');
 	          });
 	        };
 	
-	        // T.Event(this.element).on('webkitTransitionEnd', onEnd);
 	        _templateBinding2.default.Event(_this2.element).on('transitionend', onEnd);
 	        _this2.element.classList.add(directionClass);
 	
-	        _async2.default.run(null, function () {
+	        _async2.default.nextFrame(function () {
 	          _this2.element.classList.add('transition-slide-animate');
-	          _async2.default.run(null, function () {
+	          _async2.default.nextFrame(function () {
 	            return _this2.element.classList.add('transition-slide-out');
 	          });
 	        });
@@ -2602,16 +2642,16 @@
 	exports.default = Fx;
 
 /***/ },
-/* 20 */
+/* 19 */
 /***/ function(module, exports, __webpack_require__) {
 
 	// style-loader: Adds some css to the DOM by adding a <style> tag
 	
 	// load the styles
-	var content = __webpack_require__(21);
+	var content = __webpack_require__(20);
 	if(typeof content === 'string') content = [[module.id, content, '']];
 	// add the styles to the DOM
-	var update = __webpack_require__(23)(content, {});
+	var update = __webpack_require__(22)(content, {});
 	if(content.locals) module.exports = content.locals;
 	// Hot Module Replacement
 	if(false) {
@@ -2628,21 +2668,21 @@
 	}
 
 /***/ },
-/* 21 */
+/* 20 */
 /***/ function(module, exports, __webpack_require__) {
 
-	exports = module.exports = __webpack_require__(22)();
+	exports = module.exports = __webpack_require__(21)();
 	// imports
 	
 	
 	// module
-	exports.push([module.id, ".transition-slide-in-left {\n  -webkit-transform: translateX(-100%);\n  transform: translateX(-100%);\n  display: block!important;\n}\n\n.transition-slide-in-right {\n  -webkit-transform: translateX(100%);\n  transform: translateX(100%);\n  display: block!important;\n}\n\n.transition-slide-out-left,\n.transition-slide-out-right {\n  -webkit-transform: translateX(0);\n  transform: translateX(0);\n  display: block!important;\n}\n\n.transition-slide-animate {\n  -webkit-transition: -webkit-transform 300ms;\n  transition: transform 300ms, -webkit-transform 300ms;\n  will-change: transform, -webkit-transform;\n}\n\n.transition-slide-out.transition-slide-out-left {\n  -webkit-transform: translateX(-100%);\n  transform: translateX(-100%);\n}\n\n.transition-slide-out.transition-slide-out-right {\n  -webkit-transform: translateX(100%);\n  transform: translateX(100%);\n}\n\n.transition-slide-in {\n  -webkit-transform: translateX(0);\n  transform: translateX(0);\n}\n\n.trans-animated {\n  -webkit-animation-duration: 300ms;\n  animation-duration: 300ms;\n  -webkit-animation-fill-mode: both;\n  animation-fill-mode: both;\n}\n", ""]);
+	exports.push([module.id, ".transition-slide-in-left {\n  -webkit-transform: translateX(-100%);\n  transform: translateX(-100%);\n  display: block!important;\n}\n\n.transition-slide-in-right {\n  -webkit-transform: translateX(100%);\n  transform: translateX(100%);\n  display: block!important;\n}\n\n.transition-slide-out-left,\n.transition-slide-out-right {\n  -webkit-transform: translateX(0);\n  transform: translateX(0);\n  display: block!important;\n}\n\n.transition-slide-animate {\n  -webkit-backface-visibility: hidden;\n  backface-visibility: hidden;\n  -webkit-transition: -webkit-transform 300ms;\n  transition: transform 300ms, -webkit-transform 300ms;\n  will-change: transform, -webkit-transform;\n}\n\n.transition-slide-out.transition-slide-out-left {\n  -webkit-transform: translateX(-100%);\n  transform: translateX(-100%);\n}\n\n.transition-slide-out.transition-slide-out-right {\n  -webkit-transform: translateX(100%);\n  transform: translateX(100%);\n}\n\n.transition-slide-in {\n  -webkit-transform: translateX(0);\n  transform: translateX(0);\n}\n\n.trans-animated {\n  -webkit-animation-duration: 300ms;\n  animation-duration: 300ms;\n  -webkit-animation-fill-mode: both;\n  animation-fill-mode: both;\n}\n", ""]);
 	
 	// exports
 
 
 /***/ },
-/* 22 */
+/* 21 */
 /***/ function(module, exports) {
 
 	/*
@@ -2698,7 +2738,7 @@
 
 
 /***/ },
-/* 23 */
+/* 22 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/*
