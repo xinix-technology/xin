@@ -11,11 +11,13 @@ webpackJsonp([3],{
 	
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 	
+	var _get = function get(object, property, receiver) { if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { return get(parent, property, receiver); } } else if ("value" in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } };
+	
 	var _src = __webpack_require__(1);
 	
 	var _src2 = _interopRequireDefault(_src);
 	
-	__webpack_require__(26);
+	__webpack_require__(25);
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
@@ -37,19 +39,47 @@ webpackJsonp([3],{
 	  }
 	
 	  _createClass(View, [{
+	    key: 'focusing',
+	
+	
+	    // get listeners () {
+	    //   return {
+	    //     focusing: 'focusing(evt)',
+	    //     focus: 'focused(evt)',
+	    //     blur: 'blurred(evt)',
+	    //   };
+	    // }
+	
+	    value: function focusing() {}
+	  }, {
+	    key: 'focused',
+	    value: function focused() {}
+	  }, {
+	    key: 'blurred',
+	    value: function blurred() {}
+	  }, {
 	    key: 'created',
 	    value: function created() {
+	      _get(View.prototype.__proto__ || Object.getPrototypeOf(View.prototype), 'created', this).call(this);
+	
 	      this.classList.add('xin-view');
+	    }
+	  }, {
+	    key: 'ready',
+	    value: function ready() {
+	      _get(View.prototype.__proto__ || Object.getPrototypeOf(View.prototype), 'ready', this).call(this);
+	
+	      this.transitionFx = new _src2.default.Fx(this);
 	    }
 	  }, {
 	    key: 'attached',
 	    value: function attached() {
+	      _get(View.prototype.__proto__ || Object.getPrototypeOf(View.prototype), 'attached', this).call(this);
+	
 	      this.classList.remove('xin-view--focus');
 	      this.classList.remove('xin-view--visible');
 	
-	      this.transitionFx = new _src2.default.Fx(this);
-	
-	      if (this.parentElement.add) {
+	      if ('add' in this.parentElement) {
 	        this.parentElement.add(this);
 	      }
 	
@@ -57,63 +87,35 @@ webpackJsonp([3],{
 	      this.fire('routed');
 	    }
 	  }, {
-	    key: '__focusing',
-	    value: function __focusing() {
-	      if (typeof this.focusing === 'function') {
-	        return this.focusing.apply(this, arguments);
-	      }
-	    }
-	  }, {
-	    key: '__focused',
-	    value: function __focused() {
-	      var _this2 = this,
-	          _arguments = arguments;
-	
-	      if (typeof this.focused === 'function') {
-	        this.async(function () {
-	          return _this2.focused.apply(_this2, _arguments);
-	        });
-	      }
-	    }
-	  }, {
 	    key: 'focus',
 	    value: function focus(parameters) {
+	      var _this2 = this;
+	
 	      this.set('parameters', parameters || {});
 	
+	      this.focusing();
 	      this.fire('focusing');
 	
-	      if (this.parentElement.setFocus) {
-	        this.parentElement.setFocus(this);
-	      } else {
-	        [].forEach.call(this.parentElement.children, function (element) {
-	          if (element.setFocus) {
-	            element.setFocus(false);
-	            element.setVisible(false);
-	          }
-	        });
-	
-	        if (this.setFocus) {
-	          this.setFocus(true);
-	          this.setVisible(true);
+	      this.async(function () {
+	        if ('setFocus' in _this2.parentElement) {
+	          _this2.parentElement.setFocus(_this2);
+	        } else {
+	          _this2.setFocus(true);
+	          _this2.setVisible(true);
 	        }
-	      }
-	    }
-	  }, {
-	    key: '__blurred',
-	    value: function __blurred() {
-	      if (typeof this.blurred === 'function') {
-	        return this.blurred.apply(this, arguments);
-	      }
+	      });
 	    }
 	  }, {
 	    key: 'setVisible',
 	    value: function setVisible(visible) {
-	      this.classList[visible ? 'add' : 'remove']('xin-view--visible');
+	      if (visible) {
+	        this.classList.add('xin-view--visible');
+	        this.fire('show');
+	      } else {
+	        this.classList.remove('xin-view--visible');
+	        this.fire('hide');
 	
-	      this.fire(visible ? 'show' : 'hide');
-	
-	      if (!visible) {
-	        [].forEach.call(this.querySelectorAll('.xin-view-behavior.xin-view--visible'), function (el) {
+	        [].forEach.call(this.querySelectorAll('.xin-view.xin-view--visible'), function (el) {
 	          return el.setVisible(visible);
 	        });
 	      }
@@ -121,13 +123,17 @@ webpackJsonp([3],{
 	  }, {
 	    key: 'setFocus',
 	    value: function setFocus(focus) {
-	      this.classList[focus ? 'add' : 'remove']('xin-view--focus');
+	      if (focus) {
+	        this.classList.add('xin-view--focus');
+	        this.focused();
+	        this.fire('focus');
+	      } else {
+	        this.classList.remove('xin-view--focus');
+	        this.blurred();
+	        this.fire('blur');
 	
-	      this.fire(focus ? 'focus' : 'blur');
-	
-	      if (!focus) {
-	        [].forEach.call(this.querySelectorAll('.xin-view-behavior.xin-view--focus'), function (el) {
-	          if (el.parentElement.setFocus) {
+	        [].forEach.call(this.querySelectorAll('.xin-view.xin-view--focus'), function (el) {
+	          if ('setFocus' in el.parentElement) {
 	            el.parentElement.setFocus(null);
 	          } else {
 	            el.setFocus(focus);
@@ -149,15 +155,6 @@ webpackJsonp([3],{
 	        }
 	      };
 	    }
-	  }, {
-	    key: 'listeners',
-	    get: function get() {
-	      return {
-	        focusing: '__focusing',
-	        focus: '__focused',
-	        blur: '__blurred'
-	      };
-	    }
 	  }]);
 	
 	  return View;
@@ -169,16 +166,16 @@ webpackJsonp([3],{
 
 /***/ },
 
-/***/ 26:
+/***/ 25:
 /***/ function(module, exports, __webpack_require__) {
 
 	// style-loader: Adds some css to the DOM by adding a <style> tag
 	
 	// load the styles
-	var content = __webpack_require__(27);
+	var content = __webpack_require__(26);
 	if(typeof content === 'string') content = [[module.id, content, '']];
 	// add the styles to the DOM
-	var update = __webpack_require__(23)(content, {});
+	var update = __webpack_require__(22)(content, {});
 	if(content.locals) module.exports = content.locals;
 	// Hot Module Replacement
 	if(false) {
@@ -196,10 +193,10 @@ webpackJsonp([3],{
 
 /***/ },
 
-/***/ 27:
+/***/ 26:
 /***/ function(module, exports, __webpack_require__) {
 
-	exports = module.exports = __webpack_require__(22)();
+	exports = module.exports = __webpack_require__(21)();
 	// imports
 	
 	

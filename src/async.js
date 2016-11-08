@@ -18,9 +18,9 @@ function nextId () {
 
 class Async {
   static nextFrame (callback) {
-    requestAnimationFrame(() => {
-      requestAnimationFrame(callback);
-    });
+    return requestAnimationFrame(callback);
+    // requestAnimationFrame(() => {
+    // });
   }
 
   static run (context, callback, wait) {

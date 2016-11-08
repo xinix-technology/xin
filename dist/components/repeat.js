@@ -150,12 +150,10 @@ webpackJsonp([2],[
 	        })();
 	      }
 	
-	      this.rows.splice(len);
-	
 	      // move to detach
-	      // this.rows.splice(len).forEach(row => {
-	      //   row.__templateUninitialize();
-	      // });
+	      this.rows.splice(len).forEach(function (row) {
+	        row.__templateUninitialize();
+	      });
 	    }
 	  }, {
 	    key: 'itemForElement',
