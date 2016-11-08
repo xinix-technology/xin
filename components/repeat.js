@@ -85,7 +85,7 @@ class Repeat extends xin.base('HTMLTemplateElement') {
       },
 
       filter: {
-        type: Object,
+        type: Function,
         observer: '_filterChanged',
       },
     };

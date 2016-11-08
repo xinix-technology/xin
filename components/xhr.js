@@ -69,12 +69,12 @@ class XHR extends xin.Component {
       url: url,
       as: this.as,
     }).then(xhr => {
-      let body = xhr.body;
+      // let body = xhr.body;
       this.fire('response', {
-        body: body,
+        // body: body,
         xhr: xhr,
       });
-      return body;
+      return xhr.responseBody;
     }, err => {
       this.fire('error', {
         error: err,

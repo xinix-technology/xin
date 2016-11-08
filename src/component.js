@@ -133,6 +133,7 @@ function base (base) {
         } else if (this.hasAttribute(attrName)) {
           let attrVal = this.getAttribute(attrName);
 
+
           // copy value from attribute to property
           // fallback to property.value
           let expr = T.Expr.get(attrVal);
