@@ -1,8 +1,8 @@
 import xin from '../src';
+import './css/view.css';
 
-import './view.css';
-
-const SETUP_TRANSITION = xin.setup.get('xin.View.transition') || 'transition-slide';
+const TRANSITION_IN = xin.setup.get('xin.View.transitionIn') || xin.setup.get('xin.View.transition') || 'slide';
+const TRANSITION_OUT = xin.setup.get('xin.View.transitionOut') || xin.setup.get('xin.View.transition') || 'fade';
 
 class View extends xin.Component {
   get props () {
@@ -11,20 +11,20 @@ class View extends xin.Component {
         type: String,
         required: true,
       },
-      transition: {
+      transitionIn: {
         type: String,
-        value: SETUP_TRANSITION,
+        value: TRANSITION_IN,
+      },
+      transitionOut: {
+        type: String,
+        value: TRANSITION_OUT,
+      },
+      index: {
+        type: Number,
+        value: 0,
       },
     };
   }
-
-  // get listeners () {
-  //   return {
-  //     focusing: 'focusing(evt)',
-  //     focus: 'focused(evt)',
-  //     blur: 'blurred(evt)',
-  //   };
-  // }
 
   focusing () {}
 
@@ -41,7 +41,16 @@ class View extends xin.Component {
   ready () {
     super.ready();
 
-    this.transitionFx = new xin.Fx(this);
+    this.inFx = new xin.Fx({
+      element: this,
+      transition: this.transitionIn,
+      method: 'in',
+    });
+    this.outFx = new xin.Fx({
+      element: this,
+      transition: this.transitionOut,
+      method: 'out',
+    });
   }
 
   attached () {
@@ -50,26 +59,22 @@ class View extends xin.Component {
     this.classList.remove('xin-view--focus');
     this.classList.remove('xin-view--visible');
 
-    if ('add' in this.parentElement) {
-      this.parentElement.add(this);
-    }
-
-    this.__app.route(this.uri, this.focus.bind(this));
+    this.__app.route(this.uri, parameters => this.focus(parameters));
     this.fire('routed');
   }
 
   focus (parameters) {
     this.set('parameters', parameters || {});
 
-    this.focusing();
-    this.fire('focusing');
+    this.focusing(parameters);
+    this.fire('focusing', parameters);
 
     this.async(() => {
       if ('setFocus' in this.parentElement) {
         this.parentElement.setFocus(this);
       } else {
-        this.setFocus(true);
         this.setVisible(true);
+        this.setFocus(true);
       }
     });
   }
@@ -77,25 +82,24 @@ class View extends xin.Component {
   setVisible (visible) {
     if (visible) {
       this.classList.add('xin-view--visible');
+
       this.fire('show');
     } else {
       this.classList.remove('xin-view--visible');
-      this.fire('hide');
-
       [].forEach.call(this.querySelectorAll('.xin-view.xin-view--visible'), el => el.setVisible(visible));
+
+      this.fire('hide');
     }
   }
 
   setFocus (focus) {
     if (focus) {
       this.classList.add('xin-view--focus');
+
       this.focused();
       this.fire('focus');
     } else {
       this.classList.remove('xin-view--focus');
-      this.blurred();
-      this.fire('blur');
-
       [].forEach.call(this.querySelectorAll('.xin-view.xin-view--focus'), el => {
         if ('setFocus' in el.parentElement) {
           el.parentElement.setFocus(null);
@@ -103,6 +107,9 @@ class View extends xin.Component {
           el.setFocus(focus);
         }
       });
+
+      this.blurred();
+      this.fire('blur');
     }
   }
 }

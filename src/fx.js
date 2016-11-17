@@ -12,77 +12,85 @@ class Fx {
     return adapters[name] || adapters.none;
   }
 
-  constructor (element, transition) {
-    this.element = element;
-    this.duration = 0;
-    this.transition = transition || element.transition || 'none';
+  constructor (options) {
+    options = options || {};
+    this.element = options.element;
+    this.duration = options.duration || 0;
+    this.transition = options.transition || 'none';
+    this.method = options.method || '';
 
-    var merged = Fx.get(this.transition);
-    for (var i in merged) {
-      if (typeof merged[i] === 'function') {
-        this[i] = merged[i];
-      }
-    }
+    this.adapter = options.adapter || Fx.get(this.transition);
+
+    this.running = false;
+    this.direction = 0;
   }
 
-  play (method, direction) {
-    return this[method](direction);
+  async play (direction) {
+    this.running = true;
+    this.direction = direction;
+
+    await this.adapter.play(this);
+  }
+
+  async stop () {
+    await this.adapter.stop(this);
+
+    this.running = false;
+    this.direction = 0;
   }
 }
 
 const adapters = {
   'none': {
-    in: () => Promise.resolve(),
-    out: () => Promise.resolve(),
+    async play () {},
+    async stop () {},
   },
-  'transition-slide': {
-    in (direction) {
-      var directionClass = direction > 0 ? 'transition-slide-in-right' : 'transition-slide-in-left';
-
-      return new Promise((resolve) => {
-        var onEnd = () => {
-          T.Event(this.element).off('transitionend', onEnd);
-
-          this.element.classList.remove('transition-slide-animate');
-
+  'slide': {
+    play (fx) {
+      return new Promise(resolve => {
+        T.Event(fx.element).once('transitionend', () => {
+          fx.element.classList.remove('trans-slide__animate');
           resolve();
-
-          Async.nextFrame(() => {
-            this.element.classList.remove(directionClass);
-            this.element.classList.remove('transition-slide-in');
-          });
-        };
-
-        T.Event(this.element).on('transitionend', onEnd);
-        this.element.classList.add(directionClass);
+        });
+        fx.element.classList.add(`trans-slide__${fx.method}-${fx.direction > 0 ? 'left' : 'right'}`);
 
         Async.nextFrame(() => {
-          this.element.classList.add('transition-slide-animate');
-          Async.nextFrame(() => this.element.classList.add('transition-slide-in'));
+          fx.element.classList.add('trans-slide__animate');
+          Async.nextFrame(() => fx.element.classList.add(`trans-slide__${fx.method}`));
         });
       });
     },
-    out (direction) {
-      var directionClass = direction > 0 ? 'transition-slide-out-left' : 'transition-slide-out-right';
-      return new Promise((resolve) => {
-        let onEnd = () => {
-          T.Event(this.element).off('transitionend', onEnd);
-          this.element.classList.remove('transition-slide-animate');
-
+    stop (fx) {
+      return new Promise(resolve => {
+        Async.nextFrame(() => {
+          fx.element.classList.remove(`trans-slide__${fx.method}-${fx.direction > 0 ? 'left' : 'right'}`);
+          fx.element.classList.remove(`trans-slide__${fx.method}`);
           resolve();
+        });
+      });
+    },
+  },
+  'fade': {
+    play (fx) {
+      return new Promise(resolve => {
+        T.Event(fx.element).once('transitionend', () => {
+          resolve();
+        });
 
-          Async.nextFrame(() => {
-            this.element.classList.remove(directionClass);
-            this.element.classList.remove('transition-slide-out');
-          });
-        };
-
-        T.Event(this.element).on('transitionend', onEnd);
-        this.element.classList.add(directionClass);
+        fx.element.classList.add(`trans-fade__${fx.method}`);
 
         Async.nextFrame(() => {
-          this.element.classList.add('transition-slide-animate');
-          Async.nextFrame(() => this.element.classList.add('transition-slide-out'));
+          fx.element.classList.add(`trans-fade__${fx.method}-animate`);
+        });
+      });
+    },
+    stop (fx) {
+      return new Promise(resolve => {
+        fx.element.classList.remove(`trans-fade__${fx.method}`);
+
+        Async.nextFrame(() => {
+          fx.element.classList.remove(`trans-fade__${fx.method}-animate`);
+          resolve();
         });
       });
     },
