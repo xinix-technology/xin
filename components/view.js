@@ -1,7 +1,8 @@
 import xin from '../src';
 import './css/view.css';
 
-const SETUP_TRANSITION = xin.setup.get('xin.View.transition') || 'slide';
+const TRANSITION_IN = xin.setup.get('xin.View.transitionIn') || xin.setup.get('xin.View.transition') || 'slide';
+const TRANSITION_OUT = xin.setup.get('xin.View.transitionOut') || xin.setup.get('xin.View.transition') || 'fade';
 
 class View extends xin.Component {
   get props () {
@@ -10,9 +11,13 @@ class View extends xin.Component {
         type: String,
         required: true,
       },
-      transition: {
+      transitionIn: {
         type: String,
-        value: SETUP_TRANSITION,
+        value: TRANSITION_IN,
+      },
+      transitionOut: {
+        type: String,
+        value: TRANSITION_OUT,
       },
       index: {
         type: Number,
@@ -36,7 +41,16 @@ class View extends xin.Component {
   ready () {
     super.ready();
 
-    this.transitionFx = new xin.Fx(this);
+    this.inFx = new xin.Fx({
+      element: this,
+      transition: this.transitionIn,
+      method: 'in',
+    });
+    this.outFx = new xin.Fx({
+      element: this,
+      transition: this.transitionOut,
+      method: 'out',
+    });
   }
 
   attached () {

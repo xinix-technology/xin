@@ -33,8 +33,8 @@ class Pager extends xin.Component {
 
   __transitionBackward (prevEl, nextEl) {
     Promise.all([
-      prevEl.transitionFx.play('out', -1),
-      nextEl.transitionFx.play('in', -1),
+      nextEl.inFx.play(-1),
+      prevEl.outFx.play(-1),
     ]).then(() => {
       prevEl.setVisible(false);
       nextEl.setVisible(true);
@@ -42,16 +42,16 @@ class Pager extends xin.Component {
       nextEl.setFocus(true);
       this.$focused = nextEl;
 
-      prevEl.transitionFx.stop();
-      nextEl.transitionFx.stop();
+      nextEl.inFx.stop();
+      prevEl.outFx.stop();
     });
   }
 
   __transitionForward (prevEl, nextEl) {
     if (prevEl) {
       Promise.all([
-        nextEl.transitionFx.play('in', 1),
-        prevEl.transitionFx.play('out', 1),
+        nextEl.inFx.play(1),
+        prevEl.outFx.play(1),
       ]).then(() => {
         prevEl.setVisible(false);
         nextEl.setVisible(true);
@@ -59,16 +59,21 @@ class Pager extends xin.Component {
         nextEl.setFocus(true);
         this.$focused = nextEl;
 
-        prevEl.transitionFx.stop();
-        nextEl.transitionFx.stop();
+        nextEl.inFx.stop();
+        prevEl.outFx.stop();
       });
     } else {
-      (new xin.Fx(nextEl, 'none')).play('in', 1).then(() => {
+      let transitionFx = new xin.Fx({
+        element: nextEl,
+        transition: 'none',
+      });
+
+      transitionFx.play('in', 1).then(() => {
         nextEl.setVisible(true);
         nextEl.setFocus(true);
         this.$focused = nextEl;
 
-        nextEl.transitionFx.stop();
+        transitionFx.stop();
       });
     }
   }
