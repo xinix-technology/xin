@@ -159,6 +159,6 @@ class XHR extends xin.Component {
 }
 
 xin.define('xin-xhr', XHR);
-xin.XHR = XHR;
+// xin.XHR = XHR;
 
 export default XHR;

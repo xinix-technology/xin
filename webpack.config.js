@@ -3,11 +3,9 @@ const path = require('path');
 const fs = require('fs');
 
 const ENV = process.env.NODE_ENV || 'development';
-const ANALYZE = process.env.ANALYZE || false;
 
-console.info(`
+console.error(`
   ENV     ${ENV}
-  ANALYZE ${ANALYZE}
 `);
 
 function getEntry () {
@@ -27,13 +25,15 @@ function getEntry () {
 
 function getPlugins () {
   let plugins = [
-    new webpack.optimize.CommonsChunkPlugin('xin', ENV === 'production' ? 'xin.min.js' : 'xin.js'),
+    new webpack.optimize.CommonsChunkPlugin({
+      name: 'xin',
+      filename: ENV === 'production' ? 'xin.min.js' : 'xin.js',
+    }),
   ];
 
   if (ENV === 'production') {
     plugins.push(
-      new webpack.optimize.UglifyJsPlugin({ compress: { warnings: false } }),
-      new webpack.optimize.DedupePlugin()
+      new webpack.optimize.UglifyJsPlugin({ compress: { warnings: false } })
     );
   }
 
@@ -53,13 +53,17 @@ module.exports = {
       {
         test: /\.css$/,
         exclude: /(node_modules|bower_components)/,
-        loader: 'style!css',
+        loader: [
+          require.resolve('style-loader'),
+          require.resolve('css-loader'),
+        ],
       },
       {
         test: /\.js$/,
         include: /(src|components|node_modules\/template-binding)/,
-        loader: 'babel',
+        loader: require.resolve('babel-loader'),
         query: {
+          presets: ['es2015', 'stage-3'],
           cacheDirectory: true,
         },
       },

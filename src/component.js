@@ -19,6 +19,14 @@ function base (base) {
   }
 
   class Component extends window[base] {
+    constructor () {
+      super();
+
+      this.is = this.nodeName.toLowerCase();
+
+      this.createdCallback();
+    }
+
     get $ () {
       return this.__templateHost.getElementsByTagName('*');
     }
@@ -28,6 +36,8 @@ function base (base) {
     ready () {}
 
     attached () {}
+
+    detached () {}
 
     createdCallback () {
       if (setup.get('debug')) console.info(`CREATED ${this.is}`);
@@ -87,6 +97,18 @@ function base (base) {
       this.__componentAttaching = false;
     }
 
+    detachedCallback () {
+      this.detached();
+    }
+
+    connectedCallback () {
+      return this.attachedCallback();
+    }
+
+    disconnectedCallback () {
+      return this.detachedCallback();
+    }
+
     get __app () {
       if (!this.__app$) {
         if (this.__appSignature) {
@@ -132,7 +154,6 @@ function base (base) {
           propValue = expr.invoke(this);
         } else if (this.hasAttribute(attrName)) {
           let attrVal = this.getAttribute(attrName);
-
 
           // copy value from attribute to property
           // fallback to property.value
@@ -335,13 +356,25 @@ function parseListenerMetadata (key) {
   return metadata;
 }
 
+function useCustomElements () {
+  if ('value' in useCustomElements === false) {
+    let customElementsVersion = setup.get('customElements.version');
+    useCustomElements.value = (
+      (customElementsVersion === 'v1') ||
+      ((!customElementsVersion || customElementsVersion === 'auto') && 'customElements' in window)
+    );
+
+    // console.log('Use customElements = ' + useCustomElements.value);
+  }
+
+  return useCustomElements.value;
+}
+
 function define (name, Component, options) {
-  // TODO please make it happen for v1
-  // if (window.customElements) {
-  //   // throw new Error('Unimplemented webcomponents v1');
-  //   window.customElements.define(name, Component, options);
-  //   return Component;
-  // }
+  if (useCustomElements()) {
+    window.customElements.define(name, Component, options);
+    return Component;
+  }
 
   let ElementPrototype = {
     prototype: Object.create(Component.prototype, { is: { value: name } }),

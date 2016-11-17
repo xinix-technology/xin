@@ -1,21 +1,24 @@
 import xin from '../src';
 
-import './pager.css';
+import './css/pager.css';
 
 class Pager extends xin.Component {
-  add (element) {
-    this.views = this.views || [];
-    this.views.push(element);
+  ready () {
+    super.ready();
+
+    for (let el = this.firstElementChild, i = 0; el; el = el.nextElementSibling, i++) {
+      if ('set' in el) {
+        el.set('index', i);
+      } else {
+        el.setAttribute('index', i);
+      }
+    }
   }
 
   setFocus (element) {
     if (element) {
-      var index = this.views.indexOf(element);
-      var oldIndex = -1;
-      if (this.focused$) {
-        oldIndex = this.views.indexOf(this.focused$);
-      }
-
+      let index = element.index;
+      let oldIndex = this.focused$ ? this.focused$.index : -1;
       if (oldIndex < index) {
         this.__transitionForward(this.focused$, element);
       } else if (oldIndex > index) {
@@ -34,40 +37,44 @@ class Pager extends xin.Component {
       nextEl.transitionFx.play('in', -1),
     ]).then(() => {
       prevEl.setVisible(false);
+      nextEl.setVisible(true);
       prevEl.setFocus(false);
-      this.async(() => {
-        nextEl.setVisible(true);
-        nextEl.setFocus(true);
-        this.$focused = nextEl;
-      });
+      nextEl.setFocus(true);
+      this.$focused = nextEl;
+
+      prevEl.transitionFx.stop();
+      nextEl.transitionFx.stop();
     });
   }
 
   __transitionForward (prevEl, nextEl) {
     if (prevEl) {
       Promise.all([
-        prevEl.transitionFx.play('out', 1),
         nextEl.transitionFx.play('in', 1),
+        prevEl.transitionFx.play('out', 1),
       ]).then(() => {
         prevEl.setVisible(false);
+        nextEl.setVisible(true);
         prevEl.setFocus(false);
-        this.async(() => {
-          nextEl.setVisible(true);
-          nextEl.setFocus(true);
-          this.$focused = nextEl;
-        });
+        nextEl.setFocus(true);
+        this.$focused = nextEl;
+
+        prevEl.transitionFx.stop();
+        nextEl.transitionFx.stop();
       });
     } else {
       (new xin.Fx(nextEl, 'none')).play('in', 1).then(() => {
         nextEl.setVisible(true);
         nextEl.setFocus(true);
         this.$focused = nextEl;
+
+        nextEl.transitionFx.stop();
       });
     }
   }
 }
 
 xin.define('xin-pager', Pager);
-xin.Pager = Pager;
+// xin.Pager = Pager;
 
 export default Pager;

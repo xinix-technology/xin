@@ -152,6 +152,6 @@ class Repeat extends xin.base('HTMLTemplateElement') {
 }
 
 xin.define('xin-repeat', Repeat, { extends: 'template' });
-xin.Repeat = Repeat;
+// xin.Repeat = Repeat;
 
 export default Repeat;

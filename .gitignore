@@ -1,8 +1,9 @@
+# os specific files
 .DS_Store
-/bower_components
+
+# development files
 /node_modules
-/vendor
-/*.sublime-*
-/.sass-cache
 /coverage
-_docs
+
+# user specific files
+/*.sublime-*

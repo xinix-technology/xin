@@ -1,4 +1,6 @@
 .xin-view {
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
   box-sizing: border-box;
   display: none;
 }
