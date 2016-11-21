@@ -26,11 +26,20 @@ class App extends xin.Component {
         value: '/',
       },
 
-      hashSeparator: {
-        type: RegExp,
-        value: () => /#!(.*)$/,
+      hash: {
+        type: String,
+        value: '#!',
       },
     };
+  }
+
+  get hashRegexp () {
+    if (!this._hashRegexp || this._hash !== this.hash) {
+      this._hashRegexp = new RegExp(`${this.hash}(.*)$`);
+      this._hash = this.hash;
+    }
+
+    return this._hashRegexp;
   }
 
   notFound (fragment) {
@@ -184,8 +193,7 @@ class App extends xin.Component {
         this.__execute();
       }
     } else {
-      this.location.href.match(this.hashSeparator);
-      this.location.href = this.location.href.replace(this.hashSeparator, '') + this.hashSeparator + path;
+      this.location.hash = this.hash + path;
     }
     return this;
   }
@@ -202,7 +210,7 @@ class App extends xin.Component {
         fragment = fragment.replace(/\?(.*)$/, '');
         fragment = this.rootUri === '/' ? fragment : fragment.replace(this.rootUri, '');
       } else {
-        let match = this.location.href.match(this.hashSeparator);
+        let match = this.location.href.match(this.hashRegexp);
         fragment = match ? match[1] : '';
       }
 
