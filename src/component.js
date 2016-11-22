@@ -161,7 +161,9 @@ function base (base) {
           if (expr.type === 's') {
             propValue = T.deserialize(attrVal, property.type);
           }
-        } else if ('value' in property) {
+        }
+
+        if (propValue === undefined && 'value' in property) {
           propValue = object.v(property.value);
         }
 
