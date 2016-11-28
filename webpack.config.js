@@ -12,7 +12,7 @@ console.info(`
 
 function getEntry () {
   let entry = {
-    'xin': [ './src/index.js' ],
+    'xin': './index.js',
   };
 
   let result = fs.readdirSync('./components').reduce((result, file) => {

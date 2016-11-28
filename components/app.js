@@ -1,6 +1,7 @@
-import xin from '../src';
+import xin from '../';
+import event from '../event';
 
-const NOOP = () => {};
+import Route from './lib/route';
 
 class App extends xin.Component {
   get props () {
@@ -25,21 +26,24 @@ class App extends xin.Component {
         value: '/',
       },
 
-      hashSeparator: {
-        type: RegExp,
-        value: () => /#!(.*)$/,
+      hash: {
+        type: String,
+        value: '#!',
       },
     };
   }
 
-  get listeners () {
-    return {
-      'route-not-found': 'handleRouteNotFound(evt)',
-    };
+  get hashRegexp () {
+    if (!this._hashRegexp || this._hash !== this.hash) {
+      this._hashRegexp = new RegExp(`${this.hash}(.*)$`);
+      this._hash = this.hash;
+    }
+
+    return this._hashRegexp;
   }
 
-  handleRouteNotFound (evt) {
-    console.error('Route not found: ' + evt.detail);
+  notFound (fragment) {
+    console.warn(`Route not found: ${fragment}`);
   }
 
   _titleChanged (title) {
@@ -49,8 +53,6 @@ class App extends xin.Component {
   created () {
     xin.put('app', this);
 
-    // this.classList.add('xin-app');
-
     this.__appSignature = true;
     this.location = window.location;
     this.history = window.history;
@@ -59,7 +61,6 @@ class App extends xin.Component {
     this.handlers = [];
     this.middlewares = [];
 
-    this.__awaitRouteCallback = NOOP;
     this.__started = false;
     this.__starting = false;
   }
@@ -67,60 +68,13 @@ class App extends xin.Component {
   attached () {
     if (!this.manual) {
       this.async(() => {
-        this.__availableUris = [].map.call(this.querySelectorAll('.xin-view'), el => el.uri);
         this.start();
       });
     }
   }
 
-  __isStatic (pattern) {
-    return !pattern.match(/[[{]/);
-  }
-
-  __routeRegExp (str) {
-    let chunks = str.split('[');
-
-    if (chunks.length > 2) {
-      throw new Error('Invalid use of optional params');
-    }
-
-    let tokens = [];
-    let re = chunks[0].replace(/{([^}]+)}/g, function (g, token) {
-      tokens.push(token);
-      return '([^/]+)';
-    }).replace(/\//g, '\\/');
-
-    let optRe = '';
-
-    if (chunks[1]) {
-      optRe = '(?:' + chunks[1].slice(0, -1).replace(/{([^}]+)}/g, function (g, token) {
-        tokens.push(token);
-        return '([^/]+)';
-      }).replace(/\//g, '\\/') + ')?';
-    }
-    return [ new RegExp('^' + re + optRe + '$'), tokens ];
-  }
-
   route (route, callback) {
-    let routeHandler = {
-      route: route,
-      type: 's',
-      pattern: null,
-      args: [],
-      callback: callback,
-    };
-
-    if (!this.__isStatic(route)) {
-      let result = this.__routeRegExp(route);
-
-      routeHandler.type = 'v';
-      routeHandler.pattern = result[0];
-      routeHandler.args = result[1];
-    }
-
-    this.handlers.push(routeHandler);
-
-    this.__awaitRouteCallback(this.getFragmentExecutors(this.getFragment()));
+    this.handlers.push(new Route(route, callback));
   }
 
   async start () {
@@ -129,6 +83,8 @@ class App extends xin.Component {
     }
 
     this.__middlewareChainRun = compose(this.middlewares);
+
+    this.__listenNavigation();
 
     console.info(`Starting ${this.is}:${this.__id} ...`);
 
@@ -141,8 +97,6 @@ class App extends xin.Component {
 
       this.__started = true;
 
-      this.__listenNavigation();
-
       this.fire('started');
     }
   }
@@ -153,8 +107,8 @@ class App extends xin.Component {
     };
 
     if (this.mode === 'history') {
-      xin.event(window).on('popstate', callback);
-      xin.event(document).on('click', evt => {
+      event(window).on('popstate', callback);
+      event(document).on('click', evt => {
         if (!evt.defaultPrevented && evt.target.nodeName === 'A' && evt.target.target === '') {
           evt.preventDefault();
 
@@ -165,7 +119,7 @@ class App extends xin.Component {
         }
       });
     } else {
-      xin.event(window).on('hashchange', callback);
+      event(window).on('hashchange', callback);
     }
   }
 
@@ -175,65 +129,35 @@ class App extends xin.Component {
 
   getFragmentExecutors (fragment) {
     return this.handlers.reduce((executors, handler) => {
-      if (handler.type === 's') {
-        if (fragment === handler.route) {
-          executors.push({ handler: handler, args: {} });
-        }
-      } else if (handler.type === 'v') {
-        let result = fragment.match(handler.pattern);
-        if (result) {
-          let args = {};
-
-          handler.args.forEach(function (name, index) {
-            args[name] = result[index + 1];
-          });
-
-          executors.push({
-            handler: handler,
-            args: args,
-          });
-        }
-      }
+      let executor = handler.getExecutorFor(fragment);
+      if (executor) executors.push(executor);
       return executors;
     }, []);
   }
 
-  __waitForRoute () {
-    return new Promise((resolve, reject) => {
-      this.__awaitRouteCallback = (executors) => {
-        if (executors.length === 0) {
-          return;
-        }
-
-        this.__awaitRouteCallback = NOOP;
-        resolve(executors);
-      };
-    });
-  }
-
   async __execute () {
     let fragment = this.getFragment();
-    let executors = this.getFragmentExecutors(fragment);
-    if (executors.length === 0) {
-      if (this.__availableUris.indexOf(fragment) === -1) {
-        this.fire('route-not-found', fragment);
-        return false;
-      }
-
-      executors = await this.__waitForRoute();
-    }
-
-    let context = { uri: fragment };
-
-    this.fire('navigated', context);
+    let context = { app: this, uri: fragment };
 
     // run middleware chain then execute all executors
-    await this.__middlewareChainRun(context, () => {
+    let willContinue = await this.__middlewareChainRun(context, () => {
+      let executors = this.getFragmentExecutors(context.uri);
+      if (executors.length === 0) {
+        this.notFound(fragment);
+        this.fire('route-not-found', fragment);
+        return;
+      }
+
       executors.forEach(executor => {
         executor.handler.callback(executor.args, context);
       });
     });
 
+    if (willContinue === false) {
+      return false;
+    }
+
+    this.fire('navigated', context);
     return true;
   }
 
@@ -248,8 +172,7 @@ class App extends xin.Component {
         this.__execute();
       }
     } else {
-      this.location.href.match(this.hashSeparator);
-      this.location.href = this.location.href.replace(this.hashSeparator, '') + this.hashSeparator + path;
+      this.location.hash = this.hash + path;
     }
     return this;
   }
@@ -266,7 +189,7 @@ class App extends xin.Component {
         fragment = fragment.replace(/\?(.*)$/, '');
         fragment = this.rootUri === '/' ? fragment : fragment.replace(this.rootUri, '');
       } else {
-        let match = this.location.href.match(this.hashSeparator);
+        let match = this.location.href.match(this.hashRegexp);
         fragment = match ? match[1] : '';
       }
 
@@ -286,7 +209,7 @@ class App extends xin.Component {
 xin.define('xin-app', App);
 
 function compose (middlewares) {
-  for (const fn of middlewares) {
+  for (let fn of middlewares) {
     if (typeof fn !== 'function') {
       throw new TypeError('Middleware must be composed of functions!');
     }
@@ -316,7 +239,5 @@ function compose (middlewares) {
     return dispatch(0);
   };
 }
-
-xin.App = App;
 
 export default App;

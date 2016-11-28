@@ -1,7 +1,7 @@
-import T from 'template-binding';
-import Async from './async';
+import event from 'event-helper';
+import { Async } from 'function-helper';
 
-import '../css/transition-animate.css';
+import './css/transition-animate.css';
 
 class Fx {
   static add (name, transition) {
@@ -48,7 +48,7 @@ const adapters = {
   'slide': {
     play (fx) {
       return new Promise(resolve => {
-        T.Event(fx.element).once('transitionend', () => {
+        event(fx.element).once('transitionend', () => {
           fx.element.classList.remove('trans-slide__animate');
           resolve();
         });
@@ -73,7 +73,7 @@ const adapters = {
   'fade': {
     play (fx) {
       return new Promise(resolve => {
-        T.Event(fx.element).once('transitionend', () => {
+        event(fx.element).once('transitionend', () => {
           resolve();
         });
 
