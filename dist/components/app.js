@@ -1,6 +1,17 @@
 webpackJsonp([2],{
 
-/***/ 11:
+/***/ 13:
+/***/ function(module, exports, __webpack_require__) {
+
+"use strict";
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_event_helper__ = __webpack_require__(17);
+/* harmony reexport (binding) */ __webpack_require__.d(exports, "default", function() { return __WEBPACK_IMPORTED_MODULE_0_event_helper__["a"]; });
+
+
+
+/***/ },
+
+/***/ 14:
 /***/ function(module, exports) {
 
 "use strict";
@@ -104,7 +115,435 @@ exports.default = Route;
 
 /***/ },
 
-/***/ 28:
+/***/ 17:
+/***/ function(module, exports, __webpack_require__) {
+
+"use strict";
+let _matcher;
+let _level = 0;
+let _id = 0;
+let _handlers = {};
+let _delegatorInstances = {};
+
+function _addEvent (delegator, type, callback) {
+    // blur and focus do not bubble up but if you use event capturing
+    // then you will get them
+  let useCapture = type === 'blur' || type === 'focus';
+  delegator.element.addEventListener(type, callback, useCapture);
+}
+
+function _cancel (evt) {
+  evt.preventDefault();
+  evt.stopPropagation();
+}
+
+/**
+ * returns function to use for determining if an element
+ * matches a query selector
+ *
+ * @returns {Function}
+ */
+function _getMatcher (element) {
+  if (_matcher) {
+    return _matcher;
+  }
+
+  if (element.matches) {
+    _matcher = element.matches;
+    return _matcher;
+  }
+
+  if (element.webkitMatchesSelector) {
+    _matcher = element.webkitMatchesSelector;
+    return _matcher;
+  }
+
+  if (element.mozMatchesSelector) {
+    _matcher = element.mozMatchesSelector;
+    return _matcher;
+  }
+
+  if (element.msMatchesSelector) {
+    _matcher = element.msMatchesSelector;
+    return _matcher;
+  }
+
+  if (element.oMatchesSelector) {
+    _matcher = element.oMatchesSelector;
+    return _matcher;
+  }
+
+    // if it doesn't match a native browser method
+    // fall back to the delegator function
+  _matcher = Delegator.matchesSelector;
+  return _matcher;
+}
+
+/**
+ * determines if the specified element matches a given selector
+ *
+ * @param {Node} element - the element to compare against the selector
+ * @param {string} selector
+ * @param {Node} boundElement - the element the listener was attached to
+ * @returns {void|Node}
+ */
+function _matchesSelector (element, selector, boundElement) {
+    // no selector means this event was bound directly to this element
+  if (selector === '_root') {
+    return boundElement;
+  }
+
+    // if we have moved up to the element you bound the event to
+    // then we have come too far
+  if (element === boundElement) {
+    return;
+  }
+
+    // if this is a match then we are done!
+  if (_getMatcher(element).call(element, selector)) {
+    return element;
+  }
+
+    // if this element did not match but has a parent we should try
+    // going up the tree to see if any of the parent elements match
+    // for example if you are looking for a click on an <a> tag but there
+    // is a <span> inside of the a tag that it is the target,
+    // it should still work
+  if (element.parentNode) {
+    _level++;
+    return _matchesSelector(element.parentNode, selector, boundElement);
+  }
+}
+
+function _addHandler (delegator, event, selector, callback) {
+  if (!_handlers[delegator.id]) {
+    _handlers[delegator.id] = {};
+  }
+
+  if (!_handlers[delegator.id][event]) {
+    _handlers[delegator.id][event] = {};
+  }
+
+  if (!_handlers[delegator.id][event][selector]) {
+    _handlers[delegator.id][event][selector] = [];
+  }
+
+  _handlers[delegator.id][event][selector].push(callback);
+}
+
+function _removeHandler (delegator, event, selector, callback) {
+    // if there are no events tied to this element at all
+    // then don't do anything
+  if (!_handlers[delegator.id]) {
+    return;
+  }
+
+    // if there is no event type specified then remove all events
+    // example: Delegator(element).off()
+  if (!event) {
+    for (let type in _handlers[delegator.id]) {
+      if (_handlers[delegator.id].hasOwnProperty(type)) {
+        _handlers[delegator.id][type] = {};
+      }
+    }
+    return;
+  }
+
+    // if no callback or selector is specified remove all events of this type
+    // example: Delegator(element).off('click')
+  if (!callback && !selector) {
+    _handlers[delegator.id][event] = {};
+    return;
+  }
+
+    // if a selector is specified but no callback remove all events
+    // for this selector
+    // example: Delegator(element).off('click', '.sub-element')
+  if (!callback) {
+    delete _handlers[delegator.id][event][selector];
+    return;
+  }
+
+    // if we have specified an event type, selector, and callback then we
+    // need to make sure there are callbacks tied to this selector to
+    // begin with.  if there aren't then we can stop here
+  if (!_handlers[delegator.id][event][selector]) {
+    return;
+  }
+
+    // if there are then loop through all the callbacks and if we find
+    // one that matches remove it from the array
+  for (let i = 0; i < _handlers[delegator.id][event][selector].length; i++) {
+    if (_handlers[delegator.id][event][selector][i] === callback) {
+      _handlers[delegator.id][event][selector].splice(i, 1);
+      break;
+    }
+  }
+}
+
+function _handleEvent (id, e, type) {
+  if (!_handlers[id][type]) {
+    return;
+  }
+
+  let target = e.target || e.srcElement;
+  let selector;
+  let match;
+  let matches = {};
+  let i = 0;
+  let j = 0;
+
+    // find all events that match
+  _level = 0;
+  for (selector in _handlers[id][type]) {
+    if (_handlers[id][type].hasOwnProperty(selector)) {
+      match = _matchesSelector(target, selector, _delegatorInstances[id].element);
+
+      if (match && Delegator.matchesEvent(type, _delegatorInstances[id].element, match, selector === '_root', e)) {
+        _level++;
+        _handlers[id][type][selector].match = match;
+        matches[_level] = _handlers[id][type][selector];
+      }
+    }
+  }
+
+    // stopPropagation() fails to set cancelBubble to true in Webkit
+    // @see http://code.google.com/p/chromium/issues/detail?id=162270
+  e.stopPropagation = function () {
+    e.cancelBubble = true;
+  };
+
+  for (i = 0; i <= _level; i++) {
+    if (matches[i]) {
+      for (j = 0; j < matches[i].length; j++) {
+        if (matches[i][j].call(matches[i].match, e) === false) {
+          Delegator.cancel(e);
+          return;
+        }
+
+        if (e.cancelBubble) {
+          return;
+        }
+      }
+    }
+  }
+}
+
+let id = 0;
+function nextId () {
+  return id++;
+}
+
+const aliases = new Map();
+const aliasesDefaultTranslator = name => ([ name ]);
+const aliasesTranslators = {
+  transitionend (name) {
+    let el = document.createElement('fakeelement');
+    let transitions = {
+      'OTransition': 'oTransitionEnd',
+      'MozTransition': 'transitionend',
+      'WebkitTransition': 'webkitTransitionEnd',
+      'transition': 'transitionend',
+    };
+
+    for (let t in transitions) {
+      if (el.style[t] !== undefined) {
+        return [transitions[t]];
+      }
+    }
+  },
+};
+
+function _aliases (name) {
+  let theAliases;
+  if (aliases.has(name)) {
+    theAliases = aliases.get(name);
+  } else {
+    let translator = aliasesTranslators[name] || aliasesDefaultTranslator;
+    theAliases = translator(name);
+    aliases.set(name, theAliases);
+  }
+
+  return theAliases;
+}
+
+/**
+ * binds the specified events to the element
+ *
+ * @param {string|Array} events
+ * @param {string} selector
+ * @param {Function} callback
+ * @param {boolean=} remove
+ * @returns {Object}
+ */
+function _bind (events, selector, callback, remove) {
+    // fail silently if you pass null or undefined as an alement
+    // in the Delegator constructor
+  if (!this.element) {
+    return;
+  }
+
+  if (!(events instanceof Array)) {
+    events = [events];
+  }
+
+  if (!callback && typeof (selector) === 'function') {
+    callback = selector;
+    selector = '_root';
+  }
+
+  if (selector instanceof window.HTMLElement) {
+    let id;
+    if (selector.hasAttribute('bind-event-id')) {
+      id = selector.getAttribute('bind-event-id');
+    } else {
+      id = nextId();
+      selector.setAttribute('bind-event-id', id);
+    }
+    selector = `[bind-event-id="${id}"]`;
+  }
+
+  let id = this.id;
+  let i;
+
+  function _getGlobalCallback (type) {
+    return function (e) {
+      _handleEvent(id, e, type);
+    };
+  }
+
+  for (i = 0; i < events.length; i++) {
+    _aliases(events[i]).forEach(alias => {
+      // console.info('> ' + events[i] + ':' + alias);
+      if (remove) {
+        _removeHandler(this, alias, selector, callback);
+        return;
+      }
+
+      if (!_handlers[id] || !_handlers[id][alias]) {
+        Delegator.addEvent(this, alias, _getGlobalCallback(alias));
+      }
+
+      _addHandler(this, alias, selector, callback);
+    });
+  }
+
+  return this;
+}
+
+/**
+ * Delegator object constructor
+ *
+ * @param {Node} element
+ */
+function Delegator (element, id) {
+  this.element = element;
+  this.id = id;
+}
+
+/**
+ * adds an event
+ *
+ * @param {string|Array} events
+ * @param {string} selector
+ * @param {Function} callback
+ * @returns {Object}
+ */
+Delegator.prototype.on = function (events, selector, callback) {
+  return _bind.call(this, events, selector, callback);
+};
+
+/**
+ * removes an event
+ *
+ * @param {string|Array} events
+ * @param {string} selector
+ * @param {Function} callback
+ * @returns {Object}
+ */
+Delegator.prototype.off = function (events, selector, callback) {
+  return _bind.call(this, events, selector, callback, true);
+};
+
+Delegator.prototype.once = function (events, selector, callback) {
+  if (!callback && typeof (selector) === 'function') {
+    callback = selector;
+    selector = '_root';
+  }
+
+  const proxyCallback = (...args) => {
+    this.off(events, selector, proxyCallback);
+    return callback(...args);
+  };
+
+  return this.on(events, selector, proxyCallback);
+};
+
+Delegator.prototype.fire = function (type, detail, options) {
+  options = options || {};
+  detail = detail || {};
+
+  let evt;
+  let bubbles = options.bubbles === undefined ? true : options.bubbles;
+  let cancelable = Boolean(options.cancelable);
+
+  switch (type) {
+    case 'click':
+      evt = new window.Event(type, {
+        bubbles: bubbles,
+        cancelable: cancelable,
+      });
+
+      // XXX check if without this works on every browsers
+      // evt = document.createEvent('HTMLEvents');
+      // evt.initEvent(type, true, false);
+      break;
+    default:
+      evt = new window.CustomEvent(type, {
+        bubbles: Boolean(bubbles),
+        cancelable: cancelable,
+        detail: detail,
+      });
+      break;
+  }
+
+  this.element.dispatchEvent(evt);
+
+  return evt;
+};
+
+Delegator.matchesSelector = function () {};
+Delegator.cancel = _cancel;
+Delegator.addEvent = _addEvent;
+Delegator.aliases = _aliases;
+Delegator.matchesEvent = function () {
+  return true;
+};
+
+function eventHelper (element) {
+  // only keep one Delegator instance per node to make sure that
+  // we don't create a ton of new objects if you want to delegate
+  // multiple events from the same node
+  //
+  // for example: eventHelper(document).on(...
+  for (let key in _delegatorInstances) {
+    if (_delegatorInstances[key].element === element) {
+      return _delegatorInstances[key];
+    }
+  }
+
+  _id++;
+  _delegatorInstances[_id] = new Delegator(element, _id);
+
+  return _delegatorInstances[_id];
+}
+
+/* harmony default export */ exports["a"] = eventHelper;
+
+
+/***/ },
+
+/***/ 35:
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -116,11 +555,15 @@ Object.defineProperty(exports, "__esModule", {
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _src = __webpack_require__(0);
+var _ = __webpack_require__(0);
 
-var _src2 = _interopRequireDefault(_src);
+var _2 = _interopRequireDefault(_);
 
-var _route2 = __webpack_require__(11);
+var _event = __webpack_require__(13);
+
+var _event2 = _interopRequireDefault(_event);
+
+var _route2 = __webpack_require__(14);
 
 var _route3 = _interopRequireDefault(_route2);
 
@@ -133,8 +576,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-// const NOOP = () => {};
 
 var App = function (_xin$Component) {
   _inherits(App, _xin$Component);
@@ -158,9 +599,7 @@ var App = function (_xin$Component) {
   }, {
     key: 'created',
     value: function created() {
-      _src2.default.put('app', this);
-
-      // this.classList.add('xin-app');
+      _2.default.put('app', this);
 
       this.__appSignature = true;
       this.location = window.location;
@@ -170,7 +609,6 @@ var App = function (_xin$Component) {
       this.handlers = [];
       this.middlewares = [];
 
-      // this.__awaitRouteCallback = NOOP;
       this.__started = false;
       this.__starting = false;
     }
@@ -181,7 +619,6 @@ var App = function (_xin$Component) {
 
       if (!this.manual) {
         this.async(function () {
-          // this.__availableUris = [].map.call(this.querySelectorAll('.xin-view'), el => el.uri);
           _this2.start();
         });
       }
@@ -190,7 +627,6 @@ var App = function (_xin$Component) {
     key: 'route',
     value: function route(_route, callback) {
       this.handlers.push(new _route3.default(_route, callback));
-      // this.__awaitRouteCallback(this.getFragmentExecutors(this.getFragment()));
     }
   }, {
     key: 'start',
@@ -257,8 +693,8 @@ var App = function (_xin$Component) {
       };
 
       if (this.mode === 'history') {
-        _src2.default.event(window).on('popstate', callback);
-        _src2.default.event(document).on('click', function (evt) {
+        (0, _event2.default)(window).on('popstate', callback);
+        (0, _event2.default)(document).on('click', function (evt) {
           if (!evt.defaultPrevented && evt.target.nodeName === 'A' && evt.target.target === '') {
             evt.preventDefault();
 
@@ -269,7 +705,7 @@ var App = function (_xin$Component) {
           }
         });
       } else {
-        _src2.default.event(window).on('hashchange', callback);
+        (0, _event2.default)(window).on('hashchange', callback);
       }
     }
   }, {
@@ -281,20 +717,6 @@ var App = function (_xin$Component) {
         return executors;
       }, []);
     }
-
-    // __waitForRoute () {
-    //   return new Promise((resolve, reject) => {
-    //     this.__awaitRouteCallback = (executors) => {
-    //       if (executors.length === 0) {
-    //         return;
-    //       }
-    //
-    //       this.__awaitRouteCallback = NOOP;
-    //       resolve(executors);
-    //     };
-    //   });
-    // }
-
   }, {
     key: '__execute',
     value: function () {
@@ -318,9 +740,6 @@ var App = function (_xin$Component) {
                     _this4.notFound(fragment);
                     _this4.fire('route-not-found', fragment);
                     return;
-                    // if (this.__availableUris.indexOf(fragment) === -1) {
-                    // }
-                    // executors = await this.__waitForRoute();
                   }
 
                   executors.forEach(function (executor) {
@@ -370,8 +789,7 @@ var App = function (_xin$Component) {
           this.__execute();
         }
       } else {
-        this.location.href.match(this.hashSeparator);
-        this.location.href = this.location.href.replace(this.hashSeparator, '') + this.hashSeparator + path;
+        this.location.hash = this.hash + path;
       }
       return this;
     }
@@ -390,7 +808,7 @@ var App = function (_xin$Component) {
           fragment = fragment.replace(/\?(.*)$/, '');
           fragment = this.rootUri === '/' ? fragment : fragment.replace(this.rootUri, '');
         } else {
-          var match = this.location.href.match(this.hashSeparator);
+          var match = this.location.href.match(this.hashRegexp);
           fragment = match ? match[1] : '';
         }
 
@@ -430,14 +848,21 @@ var App = function (_xin$Component) {
           value: '/'
         },
 
-        hashSeparator: {
-          type: RegExp,
-          value: function value() {
-            return (/#!(.*)$/
-            );
-          }
+        hash: {
+          type: String,
+          value: '#!'
         }
       };
+    }
+  }, {
+    key: 'hashRegexp',
+    get: function get() {
+      if (!this._hashRegexp || this._hash !== this.hash) {
+        this._hashRegexp = new RegExp(this.hash + '(.*)$');
+        this._hash = this.hash;
+      }
+
+      return this._hashRegexp;
     }
   }, {
     key: 'started',
@@ -447,9 +872,9 @@ var App = function (_xin$Component) {
   }]);
 
   return App;
-}(_src2.default.Component);
+}(_2.default.Component);
 
-_src2.default.define('xin-app', App);
+_2.default.define('xin-app', App);
 
 function compose(middlewares) {
   var _this5 = this;
@@ -558,10 +983,9 @@ function compose(middlewares) {
   }();
 }
 
-// xin.App = App;
 exports.default = App;
 
 /***/ }
 
-},[28]);
+},[35]);
 //# sourceMappingURL=app.js.map

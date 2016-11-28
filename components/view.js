@@ -1,4 +1,6 @@
-import xin from '../src';
+import xin from '../';
+import Fx from '../fx';
+
 import './css/view.css';
 
 const TRANSITION_IN = xin.setup.get('xin.View.transitionIn') || xin.setup.get('xin.View.transition') || 'slide';
@@ -41,12 +43,13 @@ class View extends xin.Component {
   ready () {
     super.ready();
 
-    this.inFx = new xin.Fx({
+    this.inFx = new Fx({
       element: this,
       transition: this.transitionIn,
       method: 'in',
     });
-    this.outFx = new xin.Fx({
+
+    this.outFx = new Fx({
       element: this,
       transition: this.transitionOut,
       method: 'out',

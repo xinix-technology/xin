@@ -1,10 +1,15 @@
 import T from 'template-binding';
+import Expr from 'template-binding/expr';
+import Accessor from 'template-binding/accessor';
+import event from 'event-helper';
+import { deserialize } from 'serializer';
+import { val } from 'object-helper';
+import { Async, Debounce } from 'function-helper';
+
 import { put } from './repository';
-import object from './object';
-import { dashify } from './inflector';
-import Async from './async';
-import Debounce from './debounce';
+import { dashify } from 'inflector';
 import setup from './setup';
+import NotifyAnnotation from './notify-annotation';
 
 let componentId = 0;
 function nextId () {
@@ -131,6 +136,7 @@ function base (base) {
       this.__componentNotifiers = {};
       this.__componentReady = false;
       this.__componentAttaching = false;
+      this.__componentNotifiedProps = [];
     }
 
     __initProps () {
@@ -146,8 +152,8 @@ function base (base) {
         let propValue;
 
         if ('computed' in property) {
-          let accessor = T.Accessor.get(this, propName);
-          let expr = T.Expr.getFn(property.computed, [], true);
+          let accessor = Accessor.get(this, propName);
+          let expr = Expr.getFn(property.computed, [], true);
           this.__templateAnnotate(expr, accessor);
 
           // compute value of computed prop
@@ -157,14 +163,19 @@ function base (base) {
 
           // copy value from attribute to property
           // fallback to property.value
-          let expr = T.Expr.get(attrVal);
+          let expr = Expr.get(attrVal);
           if (expr.type === 's') {
-            propValue = T.deserialize(attrVal, property.type);
+            propValue = deserialize(attrVal, property.type);
+          } else {
+            if ('notify' in property && expr.mode === '{') {
+              this.__componentNotifiedProps[propName] = true;
+              this.__templateGetBinding(propName).annotations.push(new NotifyAnnotation(this, propName));
+            }
           }
         }
 
         if (propValue === undefined && 'value' in property) {
-          propValue = object.v(property.value);
+          propValue = val(property.value);
         }
 
         // when property is undefined, log error when property is required otherwise assign to default value
@@ -173,18 +184,22 @@ function base (base) {
         }
 
         if ('observer' in property) {
-          let expr = T.Expr.getFn(property.observer, [ propName ], true);
+          let expr = Expr.getFn(property.observer, [ propName ], true);
           this.__templateAnnotate(expr);
-        }
-
-        if ('notify' in property) {
-          this.__templateGetBinding(propName).annotations.push(new NotifyAnnotation(this, propName));
         }
 
         // set and force notify for the first time
         this[propName] = propValue;
-        this.notify(propName, propValue);
+
+        // only notify if propValue already defined
+        if (propValue !== undefined) {
+          this.notify(propName, propValue);
+        }
       }
+    }
+
+    __isNotified (name) {
+      return (name in this.__componentNotifiedProps);
     }
 
     __initTemplate () {
@@ -210,7 +225,7 @@ function base (base) {
 
       Object.keys(this.listeners).forEach(key => {
         let meta = parseListenerMetadata(key);
-        let expr = T.Expr.getFn(this.listeners[key], [], true);
+        let expr = Expr.getFn(this.listeners[key], [], true);
         if (meta.selector) {
           this.on(meta.eventName, meta.selector, evt => {
             expr.invoke(this, { evt });
@@ -241,6 +256,7 @@ function base (base) {
             element.__templateModel.set(element.__templateNotifyKey, element.value);
             break;
           case '-notify':
+            // console.log(evt.target, evt.detail);
             element.__templateModel.set(evt.detail.name, evt.detail.value);
             break;
           default:
@@ -261,11 +277,11 @@ function base (base) {
     }
 
     fire (type, detail, options) {
-      return T.Event(this).fire(type, detail, options);
+      return event(this).fire(type, detail, options);
     }
 
     async (callback, waitTime) {
-      return Async.run(this, callback, waitTime);
+      return (new Async(this)).start(callback, waitTime);
     }
 
     debounce (job, callback, wait, immediate) {
@@ -328,21 +344,6 @@ function base (base) {
   baseComponents[base] = Component;
 
   return Component;
-}
-
-class NotifyAnnotation {
-  constructor (model, name) {
-    let expr = T.Expr.get(model.getAttribute(name));
-    this.model = model;
-    this.name = expr.name;
-  }
-
-  effect (value) {
-    this.model.fire('-notify', {
-      name: this.name,
-      value: value,
-    });
-  }
 }
 
 function parseListenerMetadata (key) {

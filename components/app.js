@@ -1,7 +1,7 @@
-import xin from '../src';
-import Route from './lib/route';
+import xin from '../';
+import event from '../event';
 
-// const NOOP = () => {};
+import Route from './lib/route';
 
 class App extends xin.Component {
   get props () {
@@ -53,8 +53,6 @@ class App extends xin.Component {
   created () {
     xin.put('app', this);
 
-    // this.classList.add('xin-app');
-
     this.__appSignature = true;
     this.location = window.location;
     this.history = window.history;
@@ -63,7 +61,6 @@ class App extends xin.Component {
     this.handlers = [];
     this.middlewares = [];
 
-    // this.__awaitRouteCallback = NOOP;
     this.__started = false;
     this.__starting = false;
   }
@@ -71,7 +68,6 @@ class App extends xin.Component {
   attached () {
     if (!this.manual) {
       this.async(() => {
-        // this.__availableUris = [].map.call(this.querySelectorAll('.xin-view'), el => el.uri);
         this.start();
       });
     }
@@ -79,7 +75,6 @@ class App extends xin.Component {
 
   route (route, callback) {
     this.handlers.push(new Route(route, callback));
-    // this.__awaitRouteCallback(this.getFragmentExecutors(this.getFragment()));
   }
 
   async start () {
@@ -112,8 +107,8 @@ class App extends xin.Component {
     };
 
     if (this.mode === 'history') {
-      xin.event(window).on('popstate', callback);
-      xin.event(document).on('click', evt => {
+      event(window).on('popstate', callback);
+      event(document).on('click', evt => {
         if (!evt.defaultPrevented && evt.target.nodeName === 'A' && evt.target.target === '') {
           evt.preventDefault();
 
@@ -124,7 +119,7 @@ class App extends xin.Component {
         }
       });
     } else {
-      xin.event(window).on('hashchange', callback);
+      event(window).on('hashchange', callback);
     }
   }
 
@@ -140,19 +135,6 @@ class App extends xin.Component {
     }, []);
   }
 
-  // __waitForRoute () {
-  //   return new Promise((resolve, reject) => {
-  //     this.__awaitRouteCallback = (executors) => {
-  //       if (executors.length === 0) {
-  //         return;
-  //       }
-  //
-  //       this.__awaitRouteCallback = NOOP;
-  //       resolve(executors);
-  //     };
-  //   });
-  // }
-
   async __execute () {
     let fragment = this.getFragment();
     let context = { app: this, uri: fragment };
@@ -164,9 +146,6 @@ class App extends xin.Component {
         this.notFound(fragment);
         this.fire('route-not-found', fragment);
         return;
-        // if (this.__availableUris.indexOf(fragment) === -1) {
-        // }
-        // executors = await this.__waitForRoute();
       }
 
       executors.forEach(executor => {
@@ -261,5 +240,4 @@ function compose (middlewares) {
   };
 }
 
-// xin.App = App;
 export default App;

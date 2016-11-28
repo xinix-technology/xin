@@ -1,4 +1,4 @@
-import xin from '../src/';
+import xin from '../';
 
 class XHR extends xin.Component {
   get props () {

@@ -1,5 +1,6 @@
-import xin from '../src';
 import T from 'template-binding';
+
+import xin from '../';
 
 const FILTER_ALL = () => true;
 

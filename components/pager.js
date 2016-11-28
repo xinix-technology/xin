@@ -1,4 +1,5 @@
-import xin from '../src';
+import xin from '../';
+import Fx from '../fx';
 
 import './css/pager.css';
 
@@ -63,7 +64,7 @@ class Pager extends xin.Component {
         prevEl.outFx.stop();
       });
     } else {
-      let transitionFx = new xin.Fx({
+      let transitionFx = new Fx({
         element: nextEl,
         transition: 'none',
       });

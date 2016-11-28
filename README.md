@@ -1,35 +1,11 @@
-xin
-===
+# xin
 
 Xin is Single Page Application framework using javascript.
 
 ![Xin](http://xinix.co.id/storage/uploads/xin.png "SPA Framework")
 
-# Install
+## Install
 
-```
-xpax init
-```
+Use Webpack v2 to build.
 
-to rebuild js and css
-```
-gulp
-```
-
-# Watch
-
-```
-gulp watch
-```
-
-# UI
-
-TBD
-
-# Directive
-
-TBD
-
-# TODO
-
-[] Fullscreen on mobile browser
+Later, we will use yo generator. Any help to compose generator accepted. ;)

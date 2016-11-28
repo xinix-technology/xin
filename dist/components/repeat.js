@@ -1,6 +1,6 @@
 webpackJsonp([4],{
 
-/***/ 30:
+/***/ 37:
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -14,13 +14,13 @@ var _createClass = function () { function defineProperties(target, props) { for 
 
 var _get = function get(object, property, receiver) { if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { return get(parent, property, receiver); } } else if ("value" in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } };
 
-var _src = __webpack_require__(0);
-
-var _src2 = _interopRequireDefault(_src);
-
 var _templateBinding = __webpack_require__(1);
 
 var _templateBinding2 = _interopRequireDefault(_templateBinding);
+
+var _ = __webpack_require__(0);
+
+var _2 = _interopRequireDefault(_);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -218,14 +218,14 @@ var Repeat = function (_xin$base) {
   }]);
 
   return Repeat;
-}(_src2.default.base('HTMLTemplateElement'));
+}(_2.default.base('HTMLTemplateElement'));
 
-_src2.default.define('xin-repeat', Repeat, { extends: 'template' });
+_2.default.define('xin-repeat', Repeat, { extends: 'template' });
 // xin.Repeat = Repeat;
 
 exports.default = Repeat;
 
 /***/ }
 
-},[30]);
+},[37]);
 //# sourceMappingURL=repeat.js.map

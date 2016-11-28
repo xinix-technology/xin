@@ -13,6 +13,7 @@
 - [ ] make sure class=layout available on xin
 - [ ] xin-modal like xin-view but attached outside xin-pager
 - [ ] xin-popover like xin-modal but without navigation url
+- [ ] Fullscreen on mobile browser
 
 ## DONE
 - [x] bug, benerin biar komponen bisa terima atribut dengan dash dibind ke camelcase proper, ex, <x-x video-id="foo"> sama #videoId

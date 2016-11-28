@@ -1,6 +1,6 @@
 webpackJsonp([3],{
 
-/***/ 32:
+/***/ 39:
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -12,9 +12,9 @@ Object.defineProperty(exports, "__esModule", {
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _src = __webpack_require__(0);
+var _ = __webpack_require__(0);
 
-var _src2 = _interopRequireDefault(_src);
+var _2 = _interopRequireDefault(_);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -204,14 +204,14 @@ var XHR = function (_xin$Component) {
   }]);
 
   return XHR;
-}(_src2.default.Component);
+}(_2.default.Component);
 
-_src2.default.define('xin-xhr', XHR);
+_2.default.define('xin-xhr', XHR);
 // xin.XHR = XHR;
 
 exports.default = XHR;
 
 /***/ }
 
-},[32]);
+},[39]);
 //# sourceMappingURL=xhr.js.map
