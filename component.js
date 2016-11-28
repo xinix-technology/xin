@@ -69,6 +69,8 @@ function base (base) {
 
       if (setup.get('debug')) console.info(`READY ${this.is}`);
 
+      this.__initPropValues();
+
       let contentFragment;
 
       if (this.__template) {
@@ -136,28 +138,21 @@ function base (base) {
       this.__componentNotifiers = {};
       this.__componentReady = false;
       this.__componentAttaching = false;
-      this.__componentNotifiedProps = [];
+      this.__componentInitialPropValues = {};
+      this.__componentNotifiedProps = {};
     }
 
     __initProps () {
       for (let propName in this.props) {
-        // exclude prototype properties
-        // if (!Object.prototype.hasOwnProperty.call(this.props, propName)) {
-        //   continue;
-        // }
-
         let property = this.props[propName];
         let attrName = dashify(propName);
-
-        let propValue;
 
         if ('computed' in property) {
           let accessor = Accessor.get(this, propName);
           let expr = Expr.getFn(property.computed, [], true);
           this.__templateAnnotate(expr, accessor);
 
-          // compute value of computed prop
-          propValue = expr.invoke(this);
+          this.__componentInitialPropValues[propName] = () => expr.invoke(this);
         } else if (this.hasAttribute(attrName)) {
           let attrVal = this.getAttribute(attrName);
 
@@ -165,13 +160,33 @@ function base (base) {
           // fallback to property.value
           let expr = Expr.get(attrVal);
           if (expr.type === 's') {
-            propValue = deserialize(attrVal, property.type);
+            this.__componentInitialPropValues[propName] = () => deserialize(attrVal, property.type);
           } else {
             if ('notify' in property && expr.mode === '{') {
               this.__componentNotifiedProps[propName] = true;
               this.__templateGetBinding(propName).annotations.push(new NotifyAnnotation(this, propName));
             }
+            this.__componentInitialPropValues[propName] = () => expr.invoke(this.__templateModel);
           }
+        }
+
+        if ('observer' in property) {
+          let expr = Expr.getFn(property.observer, [ propName ], true);
+          this.__templateAnnotate(expr);
+        }
+      }
+    }
+
+    __initPropValues () {
+      for (let propName in this.props) {
+        let property = this.props[propName];
+
+        let propValue;
+
+        if (this.__componentInitialPropValues[propName]) {
+          propValue = this.__componentInitialPropValues[propName]();
+        } else {
+          propValue = this[propName];
         }
 
         if (propValue === undefined && 'value' in property) {
@@ -183,15 +198,10 @@ function base (base) {
           throw new Error(`${this.is}:${this.__id} missing required ${propName}`);
         }
 
-        if ('observer' in property) {
-          let expr = Expr.getFn(property.observer, [ propName ], true);
-          this.__templateAnnotate(expr);
-        }
-
         // set and force notify for the first time
         this[propName] = propValue;
 
-        // only notify if propValue already defined
+        // only notify if propValue already defined otherwise undefined value will be propagated to model
         if (propValue !== undefined) {
           this.notify(propName, propValue);
         }
