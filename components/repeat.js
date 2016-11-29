@@ -1,11 +1,19 @@
-import T from 'template-binding';
+webpackJsonp([4],{
 
-import xin from '../';
+/***/ 38:
+/***/ function(module, exports, __webpack_require__) {
+
+"use strict";
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_template_binding__ = __webpack_require__(9);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1____ = __webpack_require__(0);
+
+
+
 
 const FILTER_ALL = () => true;
 
-class RepeatRow extends T {
-  constructor (repeat, item, index) {
+class RepeatRow extends __WEBPACK_IMPORTED_MODULE_0_template_binding__["a" /* default */] {
+  constructor(repeat, item, index) {
     super();
 
     // override T constructor
@@ -29,14 +37,14 @@ class RepeatRow extends T {
     this.__templateRender();
   }
 
-  update (item, index) {
+  update(item, index) {
     this[this.__repeatAs] = item;
     this[this.__repeatIndexAs] = index;
     this.notify(this.__repeatAs, item);
     this.notify(this.__repeatIndexAs, index);
   }
 
-  set (path, value) {
+  set(path, value) {
     path = this.__templateGetPathAsArray(path);
 
     if (path[0] === this.__repeatAs || path[0] === this.__repeatIndexAs) {
@@ -46,7 +54,7 @@ class RepeatRow extends T {
     return this.__templateHost.set(path, value);
   }
 
-  get (path) {
+  get(path) {
     path = this.__templateGetPathAsArray(path);
 
     if (path[0] === this.__repeatAs || path[0] === this.__repeatIndexAs) {
@@ -56,7 +64,7 @@ class RepeatRow extends T {
     return this.__templateHost.get(path);
   }
 
-  notify (path, value) {
+  notify(path, value) {
     path = this.__templateGetPathAsArray(path);
 
     if (path[0] === this.__repeatAs || path[0] === this.__repeatIndexAs) {
@@ -67,36 +75,36 @@ class RepeatRow extends T {
   }
 };
 
-class Repeat extends xin.base('HTMLTemplateElement') {
-  get props () {
+class Repeat extends __WEBPACK_IMPORTED_MODULE_1____["default"].base('HTMLTemplateElement') {
+  get props() {
     return {
       items: {
         type: Array,
-        observer: '_itemsChanged',
+        observer: '_itemsChanged'
       },
 
       as: {
         type: String,
-        value: 'item',
+        value: 'item'
       },
 
       indexAs: {
         type: String,
-        value: 'index',
+        value: 'index'
       },
 
       filter: {
         type: Function,
-        observer: '_filterChanged',
-      },
+        observer: '_filterChanged'
+      }
     };
   }
 
-  __initTemplate () {
-    T.prototype.__templateInitialize.call(this, null, this);
+  __initTemplate() {
+    __WEBPACK_IMPORTED_MODULE_0_template_binding__["a" /* default */].prototype.__templateInitialize.call(this, null, this);
   }
 
-  _itemsChanged (items) {
+  _itemsChanged(items) {
     this.rows = this.rows || [];
 
     let len = 0;
@@ -122,28 +130,28 @@ class Repeat extends xin.base('HTMLTemplateElement') {
     });
   }
 
-  itemForElement (element) {
+  itemForElement(element) {
     while (element && !element.__repeatModel) {
       element = element.parentElement;
     }
     return element.__repeatModel.get(this.as);
   }
 
-  indexForElement (element) {
+  indexForElement(element) {
     while (element && !element.__repeatModel) {
       element = element.parentElement;
     }
     return element.__repeatModel.get(this.indexAs);
   }
 
-  modelForElement (element) {
+  modelForElement(element) {
     while (element && !element.__repeatModel) {
       element = element.parentElement;
     }
     return element.__repeatModel;
   }
 
-  _filterChanged (filter) {
+  _filterChanged(filter) {
     if (typeof filter !== 'function') {
       return;
     }
@@ -152,6 +160,11 @@ class Repeat extends xin.base('HTMLTemplateElement') {
   }
 }
 
-xin.define('xin-repeat', Repeat, { extends: 'template' });
+__WEBPACK_IMPORTED_MODULE_1____["default"].define('xin-repeat', Repeat, { extends: 'template' });
 
-export default Repeat;
+/* harmony default export */ exports["default"] = Repeat;
+
+/***/ }
+
+},[38]);
+//# sourceMappingURL=repeat.js.map
