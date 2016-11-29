@@ -21,7 +21,7 @@
     "test": "yarn run test:lint",
     "clean": "rm -rf dist",
     "build:webpack": "webpack",
-    "build": "yarn run clean && yarn run build:webpack && NODE_ENV=production yarn run build:webpack"
+    "build": "yarn run clean && webpack && webpack --env=production"
   },
   "devDependencies": {
     "babel-core": "^6.17.0",

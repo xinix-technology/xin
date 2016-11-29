@@ -1,6 +1,6 @@
 webpackJsonp([3],{
 
-/***/ 41:
+/***/ 40:
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -172,5 +172,5 @@ __WEBPACK_IMPORTED_MODULE_0____["default"].define('xin-xhr', XHR);
 
 /***/ }
 
-},[41]);
+},[40]);
 //# sourceMappingURL=xhr.js.map

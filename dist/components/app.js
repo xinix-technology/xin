@@ -73,22 +73,12 @@ class Route {
 
 /***/ },
 
-/***/ 17:
-/***/ function(module, exports, __webpack_require__) {
-
-"use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_event_helper__ = __webpack_require__(2);
-/* harmony reexport (binding) */ __webpack_require__.d(exports, "a", function() { return __WEBPACK_IMPORTED_MODULE_0_event_helper__["a"]; });
-
-
-/***/ },
-
-/***/ 37:
+/***/ 36:
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0____ = __webpack_require__(0);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__event__ = __webpack_require__(17);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_event_helper__ = __webpack_require__(1);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__lib_route__ = __webpack_require__(16);
 function _asyncToGenerator(fn) { return function () { var gen = fn.apply(this, arguments); return new Promise(function (resolve, reject) { function step(key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { return Promise.resolve(value).then(function (value) { step("next", value); }, function (err) { step("throw", err); }); } } return step("next"); }); }; }
 
@@ -205,8 +195,8 @@ class App extends __WEBPACK_IMPORTED_MODULE_0____["default"].Component {
     };
 
     if (this.mode === 'history') {
-      __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1__event__["a" /* default */])(window).on('popstate', callback);
-      __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1__event__["a" /* default */])(document).on('click', evt => {
+      __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1_event_helper__["a" /* default */])(window).on('popstate', callback);
+      __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1_event_helper__["a" /* default */])(document).on('click', evt => {
         if (!evt.defaultPrevented && evt.target.nodeName === 'A' && evt.target.target === '') {
           evt.preventDefault();
 
@@ -217,7 +207,7 @@ class App extends __WEBPACK_IMPORTED_MODULE_0____["default"].Component {
         }
       });
     } else {
-      __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1__event__["a" /* default */])(window).on('hashchange', callback);
+      __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1_event_helper__["a" /* default */])(window).on('hashchange', callback);
     }
   }
 
@@ -360,5 +350,5 @@ function compose(middlewares) {
 
 /***/ }
 
-},[37]);
+},[36]);
 //# sourceMappingURL=app.js.map

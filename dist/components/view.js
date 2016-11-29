@@ -1,6 +1,33 @@
 webpackJsonp([0],{
 
-/***/ 1:
+/***/ 18:
+/***/ function(module, exports, __webpack_require__) {
+
+// style-loader: Adds some css to the DOM by adding a <style> tag
+
+// load the styles
+var content = __webpack_require__(27);
+if(typeof content === 'string') content = [[module.i, content, '']];
+// add the styles to the DOM
+var update = __webpack_require__(3)(content, {});
+if(content.locals) module.exports = content.locals;
+// Hot Module Replacement
+if(false) {
+	// When the styles change, update the <style> tags
+	if(!content.locals) {
+		module.hot.accept("!!./../../node_modules/css-loader/index.js!./view.css", function() {
+			var newContent = require("!!./../../node_modules/css-loader/index.js!./view.css");
+			if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
+			update(newContent);
+		});
+	}
+	// When the module is disposed, remove the <style> tags
+	module.hot.dispose(function() { update(); });
+}
+
+/***/ },
+
+/***/ 2:
 /***/ function(module, exports) {
 
 /*
@@ -57,37 +84,10 @@ module.exports = function() {
 
 /***/ },
 
-/***/ 19:
+/***/ 27:
 /***/ function(module, exports, __webpack_require__) {
 
-// style-loader: Adds some css to the DOM by adding a <style> tag
-
-// load the styles
-var content = __webpack_require__(28);
-if(typeof content === 'string') content = [[module.i, content, '']];
-// add the styles to the DOM
-var update = __webpack_require__(3)(content, {});
-if(content.locals) module.exports = content.locals;
-// Hot Module Replacement
-if(false) {
-	// When the styles change, update the <style> tags
-	if(!content.locals) {
-		module.hot.accept("!!./../../node_modules/css-loader/index.js!./view.css", function() {
-			var newContent = require("!!./../../node_modules/css-loader/index.js!./view.css");
-			if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
-			update(newContent);
-		});
-	}
-	// When the module is disposed, remove the <style> tags
-	module.hot.dispose(function() { update(); });
-}
-
-/***/ },
-
-/***/ 28:
-/***/ function(module, exports, __webpack_require__) {
-
-exports = module.exports = __webpack_require__(1)();
+exports = module.exports = __webpack_require__(2)();
 // imports
 
 
@@ -352,138 +352,13 @@ function updateLink(linkElement, obj) {
 
 /***/ },
 
-/***/ 4:
-/***/ function(module, exports, __webpack_require__) {
-
-"use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_event_helper__ = __webpack_require__(2);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_function_helper__ = __webpack_require__(7);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__css_transition_animate_css__ = __webpack_require__(8);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__css_transition_animate_css___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2__css_transition_animate_css__);
-function _asyncToGenerator(fn) { return function () { var gen = fn.apply(this, arguments); return new Promise(function (resolve, reject) { function step(key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { return Promise.resolve(value).then(function (value) { step("next", value); }, function (err) { step("throw", err); }); } } return step("next"); }); }; }
-
-
-
-
-
-
-class Fx {
-  static add(name, transition) {
-    adapters[name] = transition;
-  }
-
-  static get(name) {
-    return adapters[name] || adapters.none;
-  }
-
-  constructor(options) {
-    options = options || {};
-    this.element = options.element;
-    this.duration = options.duration || 0;
-    this.transition = options.transition || 'none';
-    this.method = options.method || '';
-
-    this.adapter = options.adapter || Fx.get(this.transition);
-
-    this.running = false;
-    this.direction = 0;
-  }
-
-  play(direction) {
-    var _this = this;
-
-    return _asyncToGenerator(function* () {
-      _this.running = true;
-      _this.direction = direction;
-
-      yield _this.adapter.play(_this);
-    })();
-  }
-
-  stop() {
-    var _this2 = this;
-
-    return _asyncToGenerator(function* () {
-      yield _this2.adapter.stop(_this2);
-
-      _this2.running = false;
-      _this2.direction = 0;
-    })();
-  }
-}
-
-const adapters = {
-  'none': {
-    play() {
-      return _asyncToGenerator(function* () {})();
-    },
-    stop() {
-      return _asyncToGenerator(function* () {})();
-    }
-  },
-  'slide': {
-    play(fx) {
-      return new Promise(resolve => {
-        __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0_event_helper__["a" /* default */])(fx.element).once('transitionend', () => {
-          fx.element.classList.remove('trans-slide__animate');
-          resolve();
-        });
-        fx.element.classList.add(`trans-slide__${ fx.method }-${ fx.direction > 0 ? 'left' : 'right' }`);
-
-        __WEBPACK_IMPORTED_MODULE_1_function_helper__["a" /* Async */].nextFrame(() => {
-          fx.element.classList.add('trans-slide__animate');
-          __WEBPACK_IMPORTED_MODULE_1_function_helper__["a" /* Async */].nextFrame(() => fx.element.classList.add(`trans-slide__${ fx.method }`));
-        });
-      });
-    },
-    stop(fx) {
-      return new Promise(resolve => {
-        __WEBPACK_IMPORTED_MODULE_1_function_helper__["a" /* Async */].nextFrame(() => {
-          fx.element.classList.remove(`trans-slide__${ fx.method }-${ fx.direction > 0 ? 'left' : 'right' }`);
-          fx.element.classList.remove(`trans-slide__${ fx.method }`);
-          resolve();
-        });
-      });
-    }
-  },
-  'fade': {
-    play(fx) {
-      return new Promise(resolve => {
-        __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0_event_helper__["a" /* default */])(fx.element).once('transitionend', () => {
-          resolve();
-        });
-
-        fx.element.classList.add(`trans-fade__${ fx.method }`);
-
-        __WEBPACK_IMPORTED_MODULE_1_function_helper__["a" /* Async */].nextFrame(() => {
-          fx.element.classList.add(`trans-fade__${ fx.method }-animate`);
-        });
-      });
-    },
-    stop(fx) {
-      return new Promise(resolve => {
-        fx.element.classList.remove(`trans-fade__${ fx.method }`);
-
-        __WEBPACK_IMPORTED_MODULE_1_function_helper__["a" /* Async */].nextFrame(() => {
-          fx.element.classList.remove(`trans-fade__${ fx.method }-animate`);
-          resolve();
-        });
-      });
-    }
-  }
-};
-
-/* harmony default export */ exports["a"] = Fx;
-
-/***/ },
-
-/***/ 40:
+/***/ 39:
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0____ = __webpack_require__(0);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__fx__ = __webpack_require__(4);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__css_view_css__ = __webpack_require__(19);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__css_view_css__ = __webpack_require__(18);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__css_view_css___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2__css_view_css__);
 
 
@@ -610,10 +485,135 @@ __WEBPACK_IMPORTED_MODULE_0____["default"].define('xin-view', View);
 
 /***/ },
 
+/***/ 4:
+/***/ function(module, exports, __webpack_require__) {
+
+"use strict";
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_event_helper__ = __webpack_require__(1);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_function_helper__ = __webpack_require__(7);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__css_transition_animate_css__ = __webpack_require__(8);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__css_transition_animate_css___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2__css_transition_animate_css__);
+function _asyncToGenerator(fn) { return function () { var gen = fn.apply(this, arguments); return new Promise(function (resolve, reject) { function step(key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { return Promise.resolve(value).then(function (value) { step("next", value); }, function (err) { step("throw", err); }); } } return step("next"); }); }; }
+
+
+
+
+
+
+class Fx {
+  static add(name, transition) {
+    adapters[name] = transition;
+  }
+
+  static get(name) {
+    return adapters[name] || adapters.none;
+  }
+
+  constructor(options) {
+    options = options || {};
+    this.element = options.element;
+    this.duration = options.duration || 0;
+    this.transition = options.transition || 'none';
+    this.method = options.method || '';
+
+    this.adapter = options.adapter || Fx.get(this.transition);
+
+    this.running = false;
+    this.direction = 0;
+  }
+
+  play(direction) {
+    var _this = this;
+
+    return _asyncToGenerator(function* () {
+      _this.running = true;
+      _this.direction = direction;
+
+      yield _this.adapter.play(_this);
+    })();
+  }
+
+  stop() {
+    var _this2 = this;
+
+    return _asyncToGenerator(function* () {
+      yield _this2.adapter.stop(_this2);
+
+      _this2.running = false;
+      _this2.direction = 0;
+    })();
+  }
+}
+
+const adapters = {
+  'none': {
+    play() {
+      return _asyncToGenerator(function* () {})();
+    },
+    stop() {
+      return _asyncToGenerator(function* () {})();
+    }
+  },
+  'slide': {
+    play(fx) {
+      return new Promise(resolve => {
+        __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0_event_helper__["a" /* default */])(fx.element).once('transitionend', () => {
+          fx.element.classList.remove('trans-slide__animate');
+          resolve();
+        });
+        fx.element.classList.add(`trans-slide__${ fx.method }-${ fx.direction > 0 ? 'left' : 'right' }`);
+
+        __WEBPACK_IMPORTED_MODULE_1_function_helper__["a" /* Async */].nextFrame(() => {
+          fx.element.classList.add('trans-slide__animate');
+          __WEBPACK_IMPORTED_MODULE_1_function_helper__["a" /* Async */].nextFrame(() => fx.element.classList.add(`trans-slide__${ fx.method }`));
+        });
+      });
+    },
+    stop(fx) {
+      return new Promise(resolve => {
+        __WEBPACK_IMPORTED_MODULE_1_function_helper__["a" /* Async */].nextFrame(() => {
+          fx.element.classList.remove(`trans-slide__${ fx.method }-${ fx.direction > 0 ? 'left' : 'right' }`);
+          fx.element.classList.remove(`trans-slide__${ fx.method }`);
+          resolve();
+        });
+      });
+    }
+  },
+  'fade': {
+    play(fx) {
+      return new Promise(resolve => {
+        __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0_event_helper__["a" /* default */])(fx.element).once('transitionend', () => {
+          resolve();
+        });
+
+        fx.element.classList.add(`trans-fade__${ fx.method }`);
+
+        __WEBPACK_IMPORTED_MODULE_1_function_helper__["a" /* Async */].nextFrame(() => {
+          fx.element.classList.add(`trans-fade__${ fx.method }-animate`);
+        });
+      });
+    },
+    stop(fx) {
+      return new Promise(resolve => {
+        fx.element.classList.remove(`trans-fade__${ fx.method }`);
+
+        __WEBPACK_IMPORTED_MODULE_1_function_helper__["a" /* Async */].nextFrame(() => {
+          fx.element.classList.remove(`trans-fade__${ fx.method }-animate`);
+          resolve();
+        });
+      });
+    }
+  }
+};
+
+/* harmony default export */ exports["a"] = Fx;
+
+/***/ },
+
 /***/ 6:
 /***/ function(module, exports, __webpack_require__) {
 
-exports = module.exports = __webpack_require__(1)();
+exports = module.exports = __webpack_require__(2)();
 // imports
 
 
@@ -652,5 +652,5 @@ if(false) {
 
 /***/ }
 
-},[40]);
+},[39]);
 //# sourceMappingURL=view.js.map

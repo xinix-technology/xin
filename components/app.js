@@ -1,5 +1,5 @@
 import xin from '../';
-import event from '../event';
+import event from 'event-helper';
 
 import Route from './lib/route';
 

@@ -1,6 +1,6 @@
 webpackJsonp([4],{
 
-/***/ 39:
+/***/ 38:
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -166,5 +166,5 @@ __WEBPACK_IMPORTED_MODULE_1____["default"].define('xin-repeat', Repeat, { extend
 
 /***/ }
 
-},[39]);
+},[38]);
 //# sourceMappingURL=repeat.js.map
