@@ -86,7 +86,9 @@ class View extends xin.Component {
     if (visible) {
       this.classList.add('xin-view--visible');
 
-      this.fire('show');
+      this.fire('show', {
+        view: this,
+      });
     } else {
       this.classList.remove('xin-view--visible');
       [].forEach.call(this.querySelectorAll('.xin-view.xin-view--visible'), el => el.setVisible(visible));

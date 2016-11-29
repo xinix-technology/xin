@@ -219,10 +219,13 @@ function base (base) {
         // when instance template exist detach from component content
         template = this.firstElementChild;
         this.removeChild(template);
-      } else if (this.template) {
-        // create new template based on template property
-        template = document.createElement('template');
-        template.innerHTML = this.template;
+      } else {
+        let t = this.template;
+        if (t) {
+          // create new template based on template property
+          template = document.createElement('template');
+          template.innerHTML = t;
+        }
       }
 
       this.__templateInitialize(template, this);
