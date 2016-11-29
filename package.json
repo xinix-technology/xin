@@ -1,6 +1,6 @@
 {
   "name": "xin",
-  "version": "2.2.0",
+  "version": "2.2.1",
   "description": "Javascript SPA framework with web component",
   "author": [
     "Ganesha <reekoheek@gmail.com>",
@@ -34,14 +34,15 @@
     "eslint-plugin-promise": "^3.3.0",
     "eslint-plugin-standard": "^2.0.0",
     "style-loader": "^0.13.1",
-    "webpack": "2.1.0-beta.27"
+    "webpack": "reekoheek/webpack#master"
   },
   "dependencies": {
-    "event-helper": "xinix-technology/event-helper",
-    "function-helper": "xinix-technology/function-helper",
-    "inflector": "xinix-technology/inflector",
-    "object-helper": "xinix-technology/object-helper",
-    "template-binding": "xinix-technology/template-binding#1.0.1"
+    "event-helper": "xinix-technology/event-helper#master",
+    "function-helper": "xinix-technology/function-helper#master",
+    "inflector": "xinix-technology/inflector#master",
+    "object-helper": "xinix-technology/object-helper#master",
+    "serializer": "xinix-technology/serializer#master",
+    "template-binding": "xinix-technology/template-binding#master"
   },
   "optionalDependencies": {
     "webcomponentsjs": "^1.0.2"
