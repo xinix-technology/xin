@@ -1,6 +1,7 @@
 const webpack = require('webpack');
 const path = require('path');
 const fs = require('fs');
+const UglifyJsPlugin = require('./dev/webpack/UglifyJsPlugin');
 
 const ENV = process.env.NODE_ENV || 'development';
 
@@ -33,7 +34,7 @@ function getPlugins () {
 
   if (ENV === 'production') {
     plugins.push(
-      new webpack.optimize.UglifyJsPlugin({ compress: { warnings: true } })
+      new UglifyJsPlugin({ compress: { warnings: true } })
     );
   }
 
