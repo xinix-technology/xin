@@ -33,7 +33,7 @@ function getPlugins () {
 
   if (ENV === 'production') {
     plugins.push(
-      new webpack.optimize.UglifyJsPlugin({ compress: { warnings: false } })
+      new webpack.optimize.UglifyJsPlugin({ compress: { warnings: true } })
     );
   }
 
@@ -60,10 +60,27 @@ module.exports = {
       },
       {
         test: /\.js$/,
-        include: /(src|components|node_modules\/template-binding)/,
+        exclude: /(node_modules|bower_components)/,
         loader: require.resolve('babel-loader'),
         query: {
-          presets: ['es2015', 'stage-3'],
+          plugins: [
+            // require.resolve('babel-plugin-transform-es2015-modules-commonjs'),
+            require.resolve('babel-plugin-transform-async-to-generator'),
+          ],
+          // presets: ['es2015', 'stage-3'],
+          cacheDirectory: true,
+        },
+      },
+      {
+        test: /\.js$/,
+        include: /(node_modules\/template-binding)/,
+        loader: require.resolve('babel-loader'),
+        query: {
+          plugins: [
+            // require.resolve('babel-plugin-transform-es2015-modules-commonjs'),
+            require.resolve('babel-plugin-transform-async-to-generator'),
+          ],
+          // presets: ['es2015', 'stage-3'],
           cacheDirectory: true,
         },
       },

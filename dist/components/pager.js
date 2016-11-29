@@ -1,33 +1,6 @@
 webpackJsonp([1],{
 
-/***/ 15:
-/***/ function(module, exports, __webpack_require__) {
-
-// style-loader: Adds some css to the DOM by adding a <style> tag
-
-// load the styles
-var content = __webpack_require__(32);
-if(typeof content === 'string') content = [[module.i, content, '']];
-// add the styles to the DOM
-var update = __webpack_require__(3)(content, {});
-if(content.locals) module.exports = content.locals;
-// Hot Module Replacement
-if(false) {
-	// When the styles change, update the <style> tags
-	if(!content.locals) {
-		module.hot.accept("!!./../../node_modules/css-loader/index.js!./pager.css", function() {
-			var newContent = require("!!./../../node_modules/css-loader/index.js!./pager.css");
-			if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
-			update(newContent);
-		});
-	}
-	// When the module is disposed, remove the <style> tags
-	module.hot.dispose(function() { update(); });
-}
-
-/***/ },
-
-/***/ 2:
+/***/ 1:
 /***/ function(module, exports) {
 
 /*
@@ -80,6 +53,48 @@ module.exports = function() {
 	};
 	return list;
 };
+
+
+/***/ },
+
+/***/ 18:
+/***/ function(module, exports, __webpack_require__) {
+
+// style-loader: Adds some css to the DOM by adding a <style> tag
+
+// load the styles
+var content = __webpack_require__(27);
+if(typeof content === 'string') content = [[module.i, content, '']];
+// add the styles to the DOM
+var update = __webpack_require__(3)(content, {});
+if(content.locals) module.exports = content.locals;
+// Hot Module Replacement
+if(false) {
+	// When the styles change, update the <style> tags
+	if(!content.locals) {
+		module.hot.accept("!!./../../node_modules/css-loader/index.js!./pager.css", function() {
+			var newContent = require("!!./../../node_modules/css-loader/index.js!./pager.css");
+			if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
+			update(newContent);
+		});
+	}
+	// When the module is disposed, remove the <style> tags
+	module.hot.dispose(function() { update(); });
+}
+
+/***/ },
+
+/***/ 27:
+/***/ function(module, exports, __webpack_require__) {
+
+exports = module.exports = __webpack_require__(1)();
+// imports
+
+
+// module
+exports.push([module.i, "xin-pager {\n  box-sizing: border-box;\n  display: block;\n  position: relative;\n  overflow: hidden;\n}\n\nxin-pager .xin-view {\n  position: absolute;\n  top: 0;\n  left: 0;\n  width: 100%;\n  height: 100%;\n}\n", ""]);
+
+// exports
 
 
 /***/ },
@@ -337,150 +352,94 @@ function updateLink(linkElement, obj) {
 
 /***/ },
 
-/***/ 32:
-/***/ function(module, exports, __webpack_require__) {
-
-exports = module.exports = __webpack_require__(2)();
-// imports
-
-
-// module
-exports.push([module.i, "xin-pager {\n  box-sizing: border-box;\n  display: block;\n  position: relative;\n  overflow: hidden;\n}\n\nxin-pager .xin-view {\n  position: absolute;\n  top: 0;\n  left: 0;\n  width: 100%;\n  height: 100%;\n}\n", ""]);
-
-// exports
-
-
-/***/ },
-
-/***/ 36:
+/***/ 38:
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
-'use strict';
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0____ = __webpack_require__(0);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__fx__ = __webpack_require__(4);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__css_pager_css__ = __webpack_require__(18);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__css_pager_css___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2__css_pager_css__);
 
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
 
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _get = function get(object, property, receiver) { if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { return get(parent, property, receiver); } } else if ("value" in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } };
 
-var _ = __webpack_require__(0);
 
-var _2 = _interopRequireDefault(_);
+class Pager extends __WEBPACK_IMPORTED_MODULE_0____["default"].Component {
+  ready() {
+    super.ready();
 
-var _fx = __webpack_require__(4);
-
-var _fx2 = _interopRequireDefault(_fx);
-
-__webpack_require__(15);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
-
-function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-var Pager = function (_xin$Component) {
-  _inherits(Pager, _xin$Component);
-
-  function Pager() {
-    _classCallCheck(this, Pager);
-
-    return _possibleConstructorReturn(this, (Pager.__proto__ || Object.getPrototypeOf(Pager)).apply(this, arguments));
+    for (let el = this.firstElementChild, i = 0; el; el = el.nextElementSibling, i++) {
+      if ('set' in el) {
+        el.set('index', i);
+      } else {
+        el.setAttribute('index', i);
+      }
+    }
   }
 
-  _createClass(Pager, [{
-    key: 'ready',
-    value: function ready() {
-      _get(Pager.prototype.__proto__ || Object.getPrototypeOf(Pager.prototype), 'ready', this).call(this);
-
-      for (var el = this.firstElementChild, i = 0; el; el = el.nextElementSibling, i++) {
-        if ('set' in el) {
-          el.set('index', i);
-        } else {
-          el.setAttribute('index', i);
-        }
+  setFocus(element) {
+    if (element) {
+      let index = element.index;
+      let oldIndex = this.focused$ ? this.focused$.index : -1;
+      if (oldIndex < index) {
+        this.__transitionForward(this.focused$, element);
+      } else if (oldIndex > index) {
+        this.__transitionBackward(this.focused$, element);
       }
+    } else if (this.focused$) {
+      this.focused$.setFocus(false);
     }
-  }, {
-    key: 'setFocus',
-    value: function setFocus(element) {
-      if (element) {
-        var index = element.index;
-        var oldIndex = this.focused$ ? this.focused$.index : -1;
-        if (oldIndex < index) {
-          this.__transitionForward(this.focused$, element);
-        } else if (oldIndex > index) {
-          this.__transitionBackward(this.focused$, element);
-        }
-      } else if (this.focused$) {
-        this.focused$.setFocus(false);
-      }
 
-      this.focused$ = element;
-    }
-  }, {
-    key: '__transitionBackward',
-    value: function __transitionBackward(prevEl, nextEl) {
-      var _this2 = this;
+    this.focused$ = element;
+  }
 
-      Promise.all([nextEl.inFx.play(-1), prevEl.outFx.play(-1)]).then(function () {
+  __transitionBackward(prevEl, nextEl) {
+    Promise.all([nextEl.inFx.play(-1), prevEl.outFx.play(-1)]).then(() => {
+      prevEl.setVisible(false);
+      nextEl.setVisible(true);
+      prevEl.setFocus(false);
+      nextEl.setFocus(true);
+      this.$focused = nextEl;
+
+      nextEl.inFx.stop();
+      prevEl.outFx.stop();
+    });
+  }
+
+  __transitionForward(prevEl, nextEl) {
+    if (prevEl) {
+      Promise.all([nextEl.inFx.play(1), prevEl.outFx.play(1)]).then(() => {
         prevEl.setVisible(false);
         nextEl.setVisible(true);
         prevEl.setFocus(false);
         nextEl.setFocus(true);
-        _this2.$focused = nextEl;
+        this.$focused = nextEl;
 
         nextEl.inFx.stop();
         prevEl.outFx.stop();
       });
+    } else {
+      let transitionFx = new __WEBPACK_IMPORTED_MODULE_1__fx__["a" /* default */]({
+        element: nextEl,
+        transition: 'none'
+      });
+
+      transitionFx.play('in', 1).then(() => {
+        nextEl.setVisible(true);
+        nextEl.setFocus(true);
+        this.$focused = nextEl;
+
+        transitionFx.stop();
+      });
     }
-  }, {
-    key: '__transitionForward',
-    value: function __transitionForward(prevEl, nextEl) {
-      var _this3 = this;
+  }
+}
 
-      if (prevEl) {
-        Promise.all([nextEl.inFx.play(1), prevEl.outFx.play(1)]).then(function () {
-          prevEl.setVisible(false);
-          nextEl.setVisible(true);
-          prevEl.setFocus(false);
-          nextEl.setFocus(true);
-          _this3.$focused = nextEl;
-
-          nextEl.inFx.stop();
-          prevEl.outFx.stop();
-        });
-      } else {
-        (function () {
-          var transitionFx = new _fx2.default({
-            element: nextEl,
-            transition: 'none'
-          });
-
-          transitionFx.play('in', 1).then(function () {
-            nextEl.setVisible(true);
-            nextEl.setFocus(true);
-            _this3.$focused = nextEl;
-
-            transitionFx.stop();
-          });
-        })();
-      }
-    }
-  }]);
-
-  return Pager;
-}(_2.default.Component);
-
-_2.default.define('xin-pager', Pager);
+__WEBPACK_IMPORTED_MODULE_0____["default"].define('xin-pager', Pager);
 // xin.Pager = Pager;
 
-exports.default = Pager;
+/* harmony default export */ exports["default"] = Pager;
 
 /***/ },
 
@@ -488,26 +447,27 @@ exports.default = Pager;
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_template_binding__ = __webpack_require__(1);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_template_binding___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_template_binding__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__async__ = __webpack_require__(5);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__css_transition_animate_css__ = __webpack_require__(7);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_event_helper__ = __webpack_require__(2);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_function_helper__ = __webpack_require__(7);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__css_transition_animate_css__ = __webpack_require__(8);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__css_transition_animate_css___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2__css_transition_animate_css__);
+function _asyncToGenerator(fn) { return function () { var gen = fn.apply(this, arguments); return new Promise(function (resolve, reject) { function step(key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { return Promise.resolve(value).then(function (value) { step("next", value); }, function (err) { step("throw", err); }); } } return step("next"); }); }; }
+
 
 
 
 
 
 class Fx {
-  static add (name, transition) {
+  static add(name, transition) {
     adapters[name] = transition;
   }
 
-  static get (name) {
+  static get(name) {
     return adapters[name] || adapters.none;
   }
 
-  constructor (options) {
+  constructor(options) {
     options = options || {};
     this.element = options.element;
     this.duration = options.duration || 0;
@@ -520,87 +480,98 @@ class Fx {
     this.direction = 0;
   }
 
-  async play (direction) {
-    this.running = true;
-    this.direction = direction;
+  play(direction) {
+    var _this = this;
 
-    await this.adapter.play(this);
+    return _asyncToGenerator(function* () {
+      _this.running = true;
+      _this.direction = direction;
+
+      yield _this.adapter.play(_this);
+    })();
   }
 
-  async stop () {
-    await this.adapter.stop(this);
+  stop() {
+    var _this2 = this;
 
-    this.running = false;
-    this.direction = 0;
+    return _asyncToGenerator(function* () {
+      yield _this2.adapter.stop(_this2);
+
+      _this2.running = false;
+      _this2.direction = 0;
+    })();
   }
 }
 
 const adapters = {
   'none': {
-    async play () {},
-    async stop () {},
+    play() {
+      return _asyncToGenerator(function* () {})();
+    },
+    stop() {
+      return _asyncToGenerator(function* () {})();
+    }
   },
   'slide': {
-    play (fx) {
+    play(fx) {
       return new Promise(resolve => {
-        __WEBPACK_IMPORTED_MODULE_0_template_binding___default.a.Event(fx.element).once('transitionend', () => {
+        __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0_event_helper__["a" /* default */])(fx.element).once('transitionend', () => {
           fx.element.classList.remove('trans-slide__animate');
           resolve();
         });
-        fx.element.classList.add(`trans-slide__${fx.method}-${fx.direction > 0 ? 'left' : 'right'}`);
+        fx.element.classList.add(`trans-slide__${ fx.method }-${ fx.direction > 0 ? 'left' : 'right' }`);
 
-        __WEBPACK_IMPORTED_MODULE_1__async__["a" /* default */].nextFrame(() => {
+        __WEBPACK_IMPORTED_MODULE_1_function_helper__["a" /* Async */].nextFrame(() => {
           fx.element.classList.add('trans-slide__animate');
-          __WEBPACK_IMPORTED_MODULE_1__async__["a" /* default */].nextFrame(() => fx.element.classList.add(`trans-slide__${fx.method}`));
+          __WEBPACK_IMPORTED_MODULE_1_function_helper__["a" /* Async */].nextFrame(() => fx.element.classList.add(`trans-slide__${ fx.method }`));
         });
       });
     },
-    stop (fx) {
+    stop(fx) {
       return new Promise(resolve => {
-        __WEBPACK_IMPORTED_MODULE_1__async__["a" /* default */].nextFrame(() => {
-          fx.element.classList.remove(`trans-slide__${fx.method}-${fx.direction > 0 ? 'left' : 'right'}`);
-          fx.element.classList.remove(`trans-slide__${fx.method}`);
+        __WEBPACK_IMPORTED_MODULE_1_function_helper__["a" /* Async */].nextFrame(() => {
+          fx.element.classList.remove(`trans-slide__${ fx.method }-${ fx.direction > 0 ? 'left' : 'right' }`);
+          fx.element.classList.remove(`trans-slide__${ fx.method }`);
           resolve();
         });
       });
-    },
+    }
   },
   'fade': {
-    play (fx) {
+    play(fx) {
       return new Promise(resolve => {
-        __WEBPACK_IMPORTED_MODULE_0_template_binding___default.a.Event(fx.element).once('transitionend', () => {
+        __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0_event_helper__["a" /* default */])(fx.element).once('transitionend', () => {
           resolve();
         });
 
-        fx.element.classList.add(`trans-fade__${fx.method}`);
+        fx.element.classList.add(`trans-fade__${ fx.method }`);
 
-        __WEBPACK_IMPORTED_MODULE_1__async__["a" /* default */].nextFrame(() => {
-          fx.element.classList.add(`trans-fade__${fx.method}-animate`);
+        __WEBPACK_IMPORTED_MODULE_1_function_helper__["a" /* Async */].nextFrame(() => {
+          fx.element.classList.add(`trans-fade__${ fx.method }-animate`);
         });
       });
     },
-    stop (fx) {
+    stop(fx) {
       return new Promise(resolve => {
-        fx.element.classList.remove(`trans-fade__${fx.method}`);
+        fx.element.classList.remove(`trans-fade__${ fx.method }`);
 
-        __WEBPACK_IMPORTED_MODULE_1__async__["a" /* default */].nextFrame(() => {
-          fx.element.classList.remove(`trans-fade__${fx.method}-animate`);
+        __WEBPACK_IMPORTED_MODULE_1_function_helper__["a" /* Async */].nextFrame(() => {
+          fx.element.classList.remove(`trans-fade__${ fx.method }-animate`);
           resolve();
         });
       });
-    },
-  },
+    }
+  }
 };
 
-/* harmony default export */ exports["default"] = Fx;
-
+/* harmony default export */ exports["a"] = Fx;
 
 /***/ },
 
 /***/ 6:
 /***/ function(module, exports, __webpack_require__) {
 
-exports = module.exports = __webpack_require__(2)();
+exports = module.exports = __webpack_require__(1)();
 // imports
 
 
@@ -612,7 +583,7 @@ exports.push([module.i, ".trans-slide__in-left {\n  -webkit-transform: translate
 
 /***/ },
 
-/***/ 7:
+/***/ 8:
 /***/ function(module, exports, __webpack_require__) {
 
 // style-loader: Adds some css to the DOM by adding a <style> tag
@@ -639,5 +610,5 @@ if(false) {
 
 /***/ }
 
-},[36]);
+},[38]);
 //# sourceMappingURL=pager.js.map

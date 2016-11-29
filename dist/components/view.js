@@ -1,33 +1,6 @@
 webpackJsonp([0],{
 
-/***/ 16:
-/***/ function(module, exports, __webpack_require__) {
-
-// style-loader: Adds some css to the DOM by adding a <style> tag
-
-// load the styles
-var content = __webpack_require__(33);
-if(typeof content === 'string') content = [[module.i, content, '']];
-// add the styles to the DOM
-var update = __webpack_require__(3)(content, {});
-if(content.locals) module.exports = content.locals;
-// Hot Module Replacement
-if(false) {
-	// When the styles change, update the <style> tags
-	if(!content.locals) {
-		module.hot.accept("!!./../../node_modules/css-loader/index.js!./view.css", function() {
-			var newContent = require("!!./../../node_modules/css-loader/index.js!./view.css");
-			if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
-			update(newContent);
-		});
-	}
-	// When the module is disposed, remove the <style> tags
-	module.hot.dispose(function() { update(); });
-}
-
-/***/ },
-
-/***/ 2:
+/***/ 1:
 /***/ function(module, exports) {
 
 /*
@@ -80,6 +53,48 @@ module.exports = function() {
 	};
 	return list;
 };
+
+
+/***/ },
+
+/***/ 19:
+/***/ function(module, exports, __webpack_require__) {
+
+// style-loader: Adds some css to the DOM by adding a <style> tag
+
+// load the styles
+var content = __webpack_require__(28);
+if(typeof content === 'string') content = [[module.i, content, '']];
+// add the styles to the DOM
+var update = __webpack_require__(3)(content, {});
+if(content.locals) module.exports = content.locals;
+// Hot Module Replacement
+if(false) {
+	// When the styles change, update the <style> tags
+	if(!content.locals) {
+		module.hot.accept("!!./../../node_modules/css-loader/index.js!./view.css", function() {
+			var newContent = require("!!./../../node_modules/css-loader/index.js!./view.css");
+			if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
+			update(newContent);
+		});
+	}
+	// When the module is disposed, remove the <style> tags
+	module.hot.dispose(function() { update(); });
+}
+
+/***/ },
+
+/***/ 28:
+/***/ function(module, exports, __webpack_require__) {
+
+exports = module.exports = __webpack_require__(1)();
+// imports
+
+
+// module
+exports.push([module.i, ".xin-view {\n  box-sizing: border-box;\n  display: none;\n}\n\n.xin-view.xin-view--visible {\n  display: block;\n}\n", ""]);
+
+// exports
 
 
 /***/ },
@@ -337,227 +352,31 @@ function updateLink(linkElement, obj) {
 
 /***/ },
 
-/***/ 33:
-/***/ function(module, exports, __webpack_require__) {
-
-exports = module.exports = __webpack_require__(2)();
-// imports
-
-
-// module
-exports.push([module.i, ".xin-view {\n  box-sizing: border-box;\n  display: none;\n}\n\n.xin-view.xin-view--visible {\n  display: block;\n}\n", ""]);
-
-// exports
-
-
-/***/ },
-
-/***/ 38:
-/***/ function(module, exports, __webpack_require__) {
-
-"use strict";
-'use strict';
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-var _get = function get(object, property, receiver) { if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { return get(parent, property, receiver); } } else if ("value" in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } };
-
-var _ = __webpack_require__(0);
-
-var _2 = _interopRequireDefault(_);
-
-var _fx = __webpack_require__(4);
-
-var _fx2 = _interopRequireDefault(_fx);
-
-__webpack_require__(16);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
-
-function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-var TRANSITION_IN = _2.default.setup.get('xin.View.transitionIn') || _2.default.setup.get('xin.View.transition') || 'slide';
-var TRANSITION_OUT = _2.default.setup.get('xin.View.transitionOut') || _2.default.setup.get('xin.View.transition') || 'fade';
-
-var View = function (_xin$Component) {
-  _inherits(View, _xin$Component);
-
-  function View() {
-    _classCallCheck(this, View);
-
-    return _possibleConstructorReturn(this, (View.__proto__ || Object.getPrototypeOf(View)).apply(this, arguments));
-  }
-
-  _createClass(View, [{
-    key: 'focusing',
-    value: function focusing() {}
-  }, {
-    key: 'focused',
-    value: function focused() {}
-  }, {
-    key: 'blurred',
-    value: function blurred() {}
-  }, {
-    key: 'created',
-    value: function created() {
-      _get(View.prototype.__proto__ || Object.getPrototypeOf(View.prototype), 'created', this).call(this);
-
-      this.classList.add('xin-view');
-    }
-  }, {
-    key: 'ready',
-    value: function ready() {
-      _get(View.prototype.__proto__ || Object.getPrototypeOf(View.prototype), 'ready', this).call(this);
-
-      this.inFx = new _fx2.default({
-        element: this,
-        transition: this.transitionIn,
-        method: 'in'
-      });
-
-      this.outFx = new _fx2.default({
-        element: this,
-        transition: this.transitionOut,
-        method: 'out'
-      });
-    }
-  }, {
-    key: 'attached',
-    value: function attached() {
-      var _this2 = this;
-
-      _get(View.prototype.__proto__ || Object.getPrototypeOf(View.prototype), 'attached', this).call(this);
-
-      this.classList.remove('xin-view--focus');
-      this.classList.remove('xin-view--visible');
-
-      this.__app.route(this.uri, function (parameters) {
-        return _this2.focus(parameters);
-      });
-      this.fire('routed');
-    }
-  }, {
-    key: 'focus',
-    value: function focus(parameters) {
-      var _this3 = this;
-
-      this.set('parameters', parameters || {});
-
-      this.focusing(parameters);
-      this.fire('focusing', parameters);
-
-      this.async(function () {
-        if ('setFocus' in _this3.parentElement) {
-          _this3.parentElement.setFocus(_this3);
-        } else {
-          _this3.setVisible(true);
-          _this3.setFocus(true);
-        }
-      });
-    }
-  }, {
-    key: 'setVisible',
-    value: function setVisible(visible) {
-      if (visible) {
-        this.classList.add('xin-view--visible');
-
-        this.fire('show');
-      } else {
-        this.classList.remove('xin-view--visible');
-        [].forEach.call(this.querySelectorAll('.xin-view.xin-view--visible'), function (el) {
-          return el.setVisible(visible);
-        });
-
-        this.fire('hide');
-      }
-    }
-  }, {
-    key: 'setFocus',
-    value: function setFocus(focus) {
-      if (focus) {
-        this.classList.add('xin-view--focus');
-
-        this.focused();
-        this.fire('focus');
-      } else {
-        this.classList.remove('xin-view--focus');
-        [].forEach.call(this.querySelectorAll('.xin-view.xin-view--focus'), function (el) {
-          if ('setFocus' in el.parentElement) {
-            el.parentElement.setFocus(null);
-          } else {
-            el.setFocus(focus);
-          }
-        });
-
-        this.blurred();
-        this.fire('blur');
-      }
-    }
-  }, {
-    key: 'props',
-    get: function get() {
-      return {
-        uri: {
-          type: String,
-          required: true
-        },
-        transitionIn: {
-          type: String,
-          value: TRANSITION_IN
-        },
-        transitionOut: {
-          type: String,
-          value: TRANSITION_OUT
-        },
-        index: {
-          type: Number,
-          value: 0
-        }
-      };
-    }
-  }]);
-
-  return View;
-}(_2.default.Component);
-
-_2.default.define('xin-view', View);
-
-exports.default = View;
-
-/***/ },
-
 /***/ 4:
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_template_binding__ = __webpack_require__(1);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_template_binding___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_template_binding__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__async__ = __webpack_require__(5);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__css_transition_animate_css__ = __webpack_require__(7);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_event_helper__ = __webpack_require__(2);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_function_helper__ = __webpack_require__(7);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__css_transition_animate_css__ = __webpack_require__(8);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__css_transition_animate_css___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2__css_transition_animate_css__);
+function _asyncToGenerator(fn) { return function () { var gen = fn.apply(this, arguments); return new Promise(function (resolve, reject) { function step(key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { return Promise.resolve(value).then(function (value) { step("next", value); }, function (err) { step("throw", err); }); } } return step("next"); }); }; }
+
 
 
 
 
 
 class Fx {
-  static add (name, transition) {
+  static add(name, transition) {
     adapters[name] = transition;
   }
 
-  static get (name) {
+  static get(name) {
     return adapters[name] || adapters.none;
   }
 
-  constructor (options) {
+  constructor(options) {
     options = options || {};
     this.element = options.element;
     this.duration = options.duration || 0;
@@ -570,87 +389,231 @@ class Fx {
     this.direction = 0;
   }
 
-  async play (direction) {
-    this.running = true;
-    this.direction = direction;
+  play(direction) {
+    var _this = this;
 
-    await this.adapter.play(this);
+    return _asyncToGenerator(function* () {
+      _this.running = true;
+      _this.direction = direction;
+
+      yield _this.adapter.play(_this);
+    })();
   }
 
-  async stop () {
-    await this.adapter.stop(this);
+  stop() {
+    var _this2 = this;
 
-    this.running = false;
-    this.direction = 0;
+    return _asyncToGenerator(function* () {
+      yield _this2.adapter.stop(_this2);
+
+      _this2.running = false;
+      _this2.direction = 0;
+    })();
   }
 }
 
 const adapters = {
   'none': {
-    async play () {},
-    async stop () {},
+    play() {
+      return _asyncToGenerator(function* () {})();
+    },
+    stop() {
+      return _asyncToGenerator(function* () {})();
+    }
   },
   'slide': {
-    play (fx) {
+    play(fx) {
       return new Promise(resolve => {
-        __WEBPACK_IMPORTED_MODULE_0_template_binding___default.a.Event(fx.element).once('transitionend', () => {
+        __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0_event_helper__["a" /* default */])(fx.element).once('transitionend', () => {
           fx.element.classList.remove('trans-slide__animate');
           resolve();
         });
-        fx.element.classList.add(`trans-slide__${fx.method}-${fx.direction > 0 ? 'left' : 'right'}`);
+        fx.element.classList.add(`trans-slide__${ fx.method }-${ fx.direction > 0 ? 'left' : 'right' }`);
 
-        __WEBPACK_IMPORTED_MODULE_1__async__["a" /* default */].nextFrame(() => {
+        __WEBPACK_IMPORTED_MODULE_1_function_helper__["a" /* Async */].nextFrame(() => {
           fx.element.classList.add('trans-slide__animate');
-          __WEBPACK_IMPORTED_MODULE_1__async__["a" /* default */].nextFrame(() => fx.element.classList.add(`trans-slide__${fx.method}`));
+          __WEBPACK_IMPORTED_MODULE_1_function_helper__["a" /* Async */].nextFrame(() => fx.element.classList.add(`trans-slide__${ fx.method }`));
         });
       });
     },
-    stop (fx) {
+    stop(fx) {
       return new Promise(resolve => {
-        __WEBPACK_IMPORTED_MODULE_1__async__["a" /* default */].nextFrame(() => {
-          fx.element.classList.remove(`trans-slide__${fx.method}-${fx.direction > 0 ? 'left' : 'right'}`);
-          fx.element.classList.remove(`trans-slide__${fx.method}`);
+        __WEBPACK_IMPORTED_MODULE_1_function_helper__["a" /* Async */].nextFrame(() => {
+          fx.element.classList.remove(`trans-slide__${ fx.method }-${ fx.direction > 0 ? 'left' : 'right' }`);
+          fx.element.classList.remove(`trans-slide__${ fx.method }`);
           resolve();
         });
       });
-    },
+    }
   },
   'fade': {
-    play (fx) {
+    play(fx) {
       return new Promise(resolve => {
-        __WEBPACK_IMPORTED_MODULE_0_template_binding___default.a.Event(fx.element).once('transitionend', () => {
+        __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0_event_helper__["a" /* default */])(fx.element).once('transitionend', () => {
           resolve();
         });
 
-        fx.element.classList.add(`trans-fade__${fx.method}`);
+        fx.element.classList.add(`trans-fade__${ fx.method }`);
 
-        __WEBPACK_IMPORTED_MODULE_1__async__["a" /* default */].nextFrame(() => {
-          fx.element.classList.add(`trans-fade__${fx.method}-animate`);
+        __WEBPACK_IMPORTED_MODULE_1_function_helper__["a" /* Async */].nextFrame(() => {
+          fx.element.classList.add(`trans-fade__${ fx.method }-animate`);
         });
       });
     },
-    stop (fx) {
+    stop(fx) {
       return new Promise(resolve => {
-        fx.element.classList.remove(`trans-fade__${fx.method}`);
+        fx.element.classList.remove(`trans-fade__${ fx.method }`);
 
-        __WEBPACK_IMPORTED_MODULE_1__async__["a" /* default */].nextFrame(() => {
-          fx.element.classList.remove(`trans-fade__${fx.method}-animate`);
+        __WEBPACK_IMPORTED_MODULE_1_function_helper__["a" /* Async */].nextFrame(() => {
+          fx.element.classList.remove(`trans-fade__${ fx.method }-animate`);
           resolve();
         });
       });
-    },
-  },
+    }
+  }
 };
 
-/* harmony default export */ exports["default"] = Fx;
+/* harmony default export */ exports["a"] = Fx;
 
+/***/ },
+
+/***/ 40:
+/***/ function(module, exports, __webpack_require__) {
+
+"use strict";
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0____ = __webpack_require__(0);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__fx__ = __webpack_require__(4);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__css_view_css__ = __webpack_require__(19);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__css_view_css___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2__css_view_css__);
+
+
+
+
+
+const TRANSITION_IN = __WEBPACK_IMPORTED_MODULE_0____["default"].setup.get('xin.View.transitionIn') || __WEBPACK_IMPORTED_MODULE_0____["default"].setup.get('xin.View.transition') || 'slide';
+const TRANSITION_OUT = __WEBPACK_IMPORTED_MODULE_0____["default"].setup.get('xin.View.transitionOut') || __WEBPACK_IMPORTED_MODULE_0____["default"].setup.get('xin.View.transition') || 'fade';
+
+class View extends __WEBPACK_IMPORTED_MODULE_0____["default"].Component {
+  get props() {
+    return {
+      uri: {
+        type: String,
+        required: true
+      },
+      transitionIn: {
+        type: String,
+        value: TRANSITION_IN
+      },
+      transitionOut: {
+        type: String,
+        value: TRANSITION_OUT
+      },
+      index: {
+        type: Number,
+        value: 0
+      }
+    };
+  }
+
+  focusing() {}
+
+  focused() {}
+
+  blurred() {}
+
+  created() {
+    super.created();
+
+    this.classList.add('xin-view');
+  }
+
+  ready() {
+    super.ready();
+
+    this.inFx = new __WEBPACK_IMPORTED_MODULE_1__fx__["a" /* default */]({
+      element: this,
+      transition: this.transitionIn,
+      method: 'in'
+    });
+
+    this.outFx = new __WEBPACK_IMPORTED_MODULE_1__fx__["a" /* default */]({
+      element: this,
+      transition: this.transitionOut,
+      method: 'out'
+    });
+  }
+
+  attached() {
+    super.attached();
+
+    this.classList.remove('xin-view--focus');
+    this.classList.remove('xin-view--visible');
+
+    this.__app.route(this.uri, parameters => this.focus(parameters));
+    this.fire('routed');
+  }
+
+  focus(parameters) {
+    this.set('parameters', parameters || {});
+
+    this.focusing(parameters);
+    this.fire('focusing', parameters);
+
+    this.async(() => {
+      if ('setFocus' in this.parentElement) {
+        this.parentElement.setFocus(this);
+      } else {
+        this.setVisible(true);
+        this.setFocus(true);
+      }
+    });
+  }
+
+  setVisible(visible) {
+    if (visible) {
+      this.classList.add('xin-view--visible');
+
+      this.fire('show');
+    } else {
+      this.classList.remove('xin-view--visible');
+      [].forEach.call(this.querySelectorAll('.xin-view.xin-view--visible'), el => el.setVisible(visible));
+
+      this.fire('hide');
+    }
+  }
+
+  setFocus(focus) {
+    if (focus) {
+      this.classList.add('xin-view--focus');
+
+      this.focused();
+      this.fire('focus');
+    } else {
+      this.classList.remove('xin-view--focus');
+      [].forEach.call(this.querySelectorAll('.xin-view.xin-view--focus'), el => {
+        if ('setFocus' in el.parentElement) {
+          el.parentElement.setFocus(null);
+        } else {
+          el.setFocus(focus);
+        }
+      });
+
+      this.blurred();
+      this.fire('blur');
+    }
+  }
+}
+
+__WEBPACK_IMPORTED_MODULE_0____["default"].define('xin-view', View);
+
+/* harmony default export */ exports["default"] = View;
 
 /***/ },
 
 /***/ 6:
 /***/ function(module, exports, __webpack_require__) {
 
-exports = module.exports = __webpack_require__(2)();
+exports = module.exports = __webpack_require__(1)();
 // imports
 
 
@@ -662,7 +625,7 @@ exports.push([module.i, ".trans-slide__in-left {\n  -webkit-transform: translate
 
 /***/ },
 
-/***/ 7:
+/***/ 8:
 /***/ function(module, exports, __webpack_require__) {
 
 // style-loader: Adds some css to the DOM by adding a <style> tag
@@ -689,5 +652,5 @@ if(false) {
 
 /***/ }
 
-},[38]);
+},[40]);
 //# sourceMappingURL=view.js.map
