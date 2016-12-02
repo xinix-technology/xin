@@ -143,8 +143,9 @@ function base (base) {
     }
 
     __initProps () {
-      for (let propName in this.props) {
-        let property = this.props[propName];
+      let props = this.__getProps();
+      for (let propName in props) {
+        let property = props[propName];
         let attrName = dashify(propName);
 
         if ('computed' in property) {
@@ -177,9 +178,18 @@ function base (base) {
       }
     }
 
+    __getProps () {
+      if (!this._props) {
+        this._props = this.props;
+      }
+      return this._props;
+    }
+
     __initPropValues () {
-      for (let propName in this.props) {
-        let property = this.props[propName];
+      let props = this.__getProps();
+
+      for (let propName in props) {
+        let property = props[propName];
 
         let propValue;
 
