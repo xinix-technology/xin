@@ -8,7 +8,7 @@ const TRANSITION_OUT = xin.setup.get('xin.View.transitionOut') || xin.setup.get(
 
 class View extends xin.Component {
   get props () {
-    return {
+    return Object.assign({}, super.props, {
       uri: {
         type: String,
         required: true,
@@ -25,7 +25,7 @@ class View extends xin.Component {
         type: Number,
         value: 0,
       },
-    };
+    });
   }
 
   focusing () {}
