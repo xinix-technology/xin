@@ -144,7 +144,7 @@ function base (base) {
           } else {
             if ('notify' in property && expr.mode === '{') {
               this.__componentNotifiedProps[propName] = true;
-              this.__templateGetBinding(propName).annotations.push(new NotifyAnnotation(this, propName));
+              this.__templateGetBinding(propName).annotate(new NotifyAnnotation(this, propName));
             }
             this.__componentInitialPropValues[propName] = () => expr.invoke(this.__templateModel);
           }
