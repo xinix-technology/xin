@@ -72,7 +72,7 @@ class Repeat extends xin.base('HTMLTemplateElement') {
     return {
       items: {
         type: Array,
-        observer: '_itemsChanged',
+        observer: '_itemsChanged(items, filter)',
       },
 
       as: {
@@ -87,32 +87,34 @@ class Repeat extends xin.base('HTMLTemplateElement') {
 
       filter: {
         type: Function,
-        observer: '_filterChanged',
+        observer: '_itemsChanged(items, filter)',
       },
     };
+  }
+
+  created () {
+    super.created();
+
+    this.rows = [];
   }
 
   __initTemplate () {
     T.prototype.__templateInitialize.call(this, null, this);
   }
 
-  _itemsChanged (items) {
-    this.rows = this.rows || [];
-
+  _itemsChanged (items, filter) {
     let len = 0;
 
     if (items && items.length) {
       let filter = this.filter || FILTER_ALL;
-      items.forEach((item, index) => {
-        if (filter(item)) {
-          if (this.rows[index]) {
-            this.rows[index].update(item, index);
-          } else {
-            this.rows.push(new RepeatRow(this, item, index));
-          }
-
-          len++;
+      items.filter(filter).forEach((item, index) => {
+        if (this.rows[index]) {
+          this.rows[index].update(item, index);
+        } else {
+          this.rows.push(new RepeatRow(this, item, index));
         }
+
+        len++;
       });
     }
 
@@ -141,14 +143,6 @@ class Repeat extends xin.base('HTMLTemplateElement') {
       element = element.parentElement;
     }
     return element.__repeatModel;
-  }
-
-  _filterChanged (filter) {
-    if (typeof filter !== 'function') {
-      return;
-    }
-
-    this._itemsChanged(this.items);
   }
 }
 
