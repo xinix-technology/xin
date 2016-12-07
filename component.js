@@ -319,6 +319,10 @@ function base (base) {
       return debouncer;
     }
 
+    nextFrame (callback) {
+      return Async.nextFrame(callback.bind(this));
+    }
+
     // T overriden
     // -------------------------------------------------------------------------
     //
