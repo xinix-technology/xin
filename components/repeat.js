@@ -103,24 +103,26 @@ class Repeat extends xin.base('HTMLTemplateElement') {
   }
 
   _itemsChanged (items, filter) {
-    let len = 0;
+    this.debounce('_itemsChanged', () => {
+      let len = 0;
 
-    if (items && items.length) {
-      let filter = this.filter || FILTER_ALL;
-      items.filter(filter).forEach((item, index) => {
-        if (this.rows[index]) {
-          this.rows[index].update(item, index);
-        } else {
-          this.rows.push(new RepeatRow(this, item, index));
-        }
+      if (items && items.length) {
+        let filter = this.filter || FILTER_ALL;
+        items.filter(filter).forEach((item, index) => {
+          if (this.rows[index]) {
+            this.rows[index].update(item, index);
+          } else {
+            this.rows.push(new RepeatRow(this, item, index));
+          }
 
-        len++;
+          len++;
+        });
+      }
+
+      // move to detach
+      this.rows.splice(len).forEach(row => {
+        row.__templateUninitialize();
       });
-    }
-
-    // move to detach
-    this.rows.splice(len).forEach(row => {
-      row.__templateUninitialize();
     });
   }
 
