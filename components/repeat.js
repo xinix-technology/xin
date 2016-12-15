@@ -29,6 +29,10 @@ class RepeatRow extends T {
     this.__templateRender();
   }
 
+  get __app () {
+    return this.__templateHost.__app;
+  }
+
   update (item, index) {
     this[this.__repeatAs] = item;
     this[this.__repeatIndexAs] = index;
