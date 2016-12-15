@@ -6,7 +6,7 @@ import { deserialize } from 'serializer';
 import { val } from 'object-helper';
 import { Async, Debounce } from 'function-helper';
 
-import { put } from './repository';
+import { get, put } from './repository';
 import { dashify } from 'inflector';
 import setup from './setup';
 import NotifyAnnotation from './notify-annotation';
@@ -393,25 +393,29 @@ function useCustomElements () {
       (customElementsVersion === 'v1') ||
       ((!customElementsVersion || customElementsVersion === 'auto') && 'customElements' in window)
     );
-
-    // console.log('Use customElements = ' + useCustomElements.value);
   }
 
   return useCustomElements.value;
 }
 
 function define (name, Component, options) {
-  if (useCustomElements()) {
-    window.customElements.define(name, Component, options);
-    return Component;
+  let ElementClass = get(name);
+
+  if (ElementClass) {
+    console.warn(`Duplicate registering ${name}`);
+    return ElementClass;
   }
 
-  let ElementPrototype = {
-    prototype: Object.create(Component.prototype, { is: { value: name } }),
-    extends: (options && options.extends) ? options.extends : undefined,
-  };
+  if (useCustomElements()) {
+    window.customElements.define(name, Component, options);
+  } else {
+    let ElementPrototype = {
+      prototype: Object.create(Component.prototype, { is: { value: name } }),
+      extends: (options && options.extends) ? options.extends : undefined,
+    };
 
-  let ElementClass = document.registerElement(name, ElementPrototype);
+    ElementClass = document.registerElement(name, ElementPrototype);
+  }
 
   put(name, ElementClass);
 
