@@ -6,7 +6,7 @@ import { deserialize } from 'serializer';
 import { val } from 'object-helper';
 import { Async, Debounce } from 'function-helper';
 
-import { put } from './repository';
+import { get, put } from './repository';
 import { dashify } from 'inflector';
 import setup from './setup';
 import NotifyAnnotation from './notify-annotation';
@@ -24,6 +24,14 @@ function base (base) {
   }
 
   class Component extends window[base] {
+    constructor () {
+      super();
+
+      this.is = this.nodeName.toLowerCase();
+
+      this.createdCallback();
+    }
+
     get $ () {
       return this.__templateHost.getElementsByTagName('*');
     }
@@ -33,6 +41,8 @@ function base (base) {
     ready () {}
 
     attached () {}
+
+    detached () {}
 
     createdCallback () {
       if (setup.get('debug')) console.info(`CREATED ${this.is}`);
@@ -94,6 +104,18 @@ function base (base) {
       this.__componentAttaching = false;
     }
 
+    detachedCallback () {
+      this.detached();
+    }
+
+    connectedCallback () {
+      return this.attachedCallback();
+    }
+
+    disconnectedCallback () {
+      return this.detachedCallback();
+    }
+
     get __app () {
       if (!this.__app$) {
         if (this.__appSignature) {
@@ -134,7 +156,6 @@ function base (base) {
           this.__componentInitialPropValues[propName] = () => expr.invoke(this);
         } else if (this.hasAttribute(attrName)) {
           let attrVal = this.getAttribute(attrName);
-
 
           // copy value from attribute to property
           // fallback to property.value
@@ -365,20 +386,36 @@ function parseListenerMetadata (key) {
   return metadata;
 }
 
+function useCustomElements () {
+  if ('value' in useCustomElements === false) {
+    let customElementsVersion = setup.get('customElements.version');
+    useCustomElements.value = (
+      (customElementsVersion === 'v1') ||
+      ((!customElementsVersion || customElementsVersion === 'auto') && 'customElements' in window)
+    );
+  }
+
+  return useCustomElements.value;
+}
+
 function define (name, Component, options) {
-  // TODO please make it happen for v1
-  // if (window.customElements) {
-  //   // throw new Error('Unimplemented webcomponents v1');
-  //   window.customElements.define(name, Component, options);
-  //   return Component;
-  // }
+  let ElementClass = get(name);
 
-  let ElementPrototype = {
-    prototype: Object.create(Component.prototype, { is: { value: name } }),
-    extends: (options && options.extends) ? options.extends : undefined,
-  };
+  if (ElementClass) {
+    console.warn(`Duplicate registering ${name}`);
+    return ElementClass;
+  }
 
-  let ElementClass = document.registerElement(name, ElementPrototype);
+  if (useCustomElements()) {
+    window.customElements.define(name, Component, options);
+  } else {
+    let ElementPrototype = {
+      prototype: Object.create(Component.prototype, { is: { value: name } }),
+      extends: (options && options.extends) ? options.extends : undefined,
+    };
+
+    ElementClass = document.registerElement(name, ElementPrototype);
+  }
 
   put(name, ElementClass);
 
