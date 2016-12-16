@@ -199,7 +199,7 @@ function base (base) {
           propValue = this[propName];
         }
 
-        if (propValue === undefined && 'value' in property) {
+        if ('value' in property && isUndefinedPropValue(propName, propValue)) {
           propValue = val(property.value);
         }
 
@@ -384,6 +384,10 @@ function parseListenerMetadata (key) {
   };
 
   return metadata;
+}
+
+function isUndefinedPropValue (propName, propValue) {
+  return propValue === undefined || (propName === 'title' && !propValue);
 }
 
 function useCustomElements () {
