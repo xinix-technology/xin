@@ -43,8 +43,10 @@ class Fx {
 const adapters = {
   'none': {
     async play () {},
+
     async stop () {},
   },
+
   'slide': {
     play (fx) {
       return new Promise(resolve => {
@@ -60,6 +62,7 @@ const adapters = {
         });
       });
     },
+
     stop (fx) {
       return new Promise(resolve => {
         Async.nextFrame(() => {
@@ -70,6 +73,7 @@ const adapters = {
       });
     },
   },
+
   'fade': {
     play (fx) {
       return new Promise(resolve => {
@@ -84,6 +88,7 @@ const adapters = {
         });
       });
     },
+
     stop (fx) {
       return new Promise(resolve => {
         fx.element.classList.remove(`trans-fade__${fx.method}`);

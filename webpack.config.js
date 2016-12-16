@@ -60,7 +60,6 @@ module.exports = (env) => {
           loader: require.resolve('babel-loader'),
           query: {
             plugins: [
-              // require.resolve('babel-plugin-transform-es2015-modules-commonjs'),
               require.resolve('babel-plugin-transform-async-to-generator'),
             ],
             // presets: ['es2015', 'stage-3'],
@@ -73,7 +72,6 @@ module.exports = (env) => {
           loader: require.resolve('babel-loader'),
           query: {
             plugins: [
-              // require.resolve('babel-plugin-transform-es2015-modules-commonjs'),
               require.resolve('babel-plugin-transform-async-to-generator'),
             ],
             // presets: ['es2015', 'stage-3'],

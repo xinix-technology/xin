@@ -19,8 +19,8 @@
 
 .trans-slide__animate {
   will-change: transform, -webkit-transform;
-  -webkit-transition: -webkit-transform ease-out .2s;
-  transition: transform ease-out .2s;
+  -webkit-transition: -webkit-transform ease-out 200ms;
+  transition: transform ease-out 200ms;
   z-index: 999;
 }
 
@@ -44,7 +44,8 @@
   display: block!important;
   opacity: 0;
   will-change: opacity;
-  transition: opacity ease-in .2s;
+  -webkit-transition: opacity ease-in 200ms;
+  transition: opacity ease-in 200ms;
 }
 
 .trans-fade__out {
