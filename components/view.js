@@ -62,14 +62,17 @@ class View extends xin.Component {
     this.classList.remove('xin-view--focus');
     this.classList.remove('xin-view--visible');
 
-    this.__app.route(this.uri, parameters => this.focus(parameters));
+    this.__app.route(this.uri, parameters => {
+      this.focus(parameters);
+    });
+
     this.fire('routed');
   }
 
-  focus (parameters) {
+  async focus (parameters) {
     this.set('parameters', parameters || {});
 
-    this.focusing(parameters);
+    await this.focusing(parameters);
     this.fire('focusing', parameters);
 
     this.async(() => {
@@ -86,9 +89,7 @@ class View extends xin.Component {
     if (visible) {
       this.classList.add('xin-view--visible');
 
-      this.fire('show', {
-        view: this,
-      });
+      this.fire('show', { view: this });
     } else {
       this.classList.remove('xin-view--visible');
       [].forEach.call(this.querySelectorAll('.xin-view.xin-view--visible'), el => el.setVisible(visible));
@@ -97,11 +98,11 @@ class View extends xin.Component {
     }
   }
 
-  setFocus (focus) {
+  async setFocus (focus) {
     if (focus) {
       this.classList.add('xin-view--focus');
 
-      this.focused();
+      await this.focused();
       this.fire('focus');
     } else {
       this.classList.remove('xin-view--focus');
@@ -113,7 +114,7 @@ class View extends xin.Component {
         }
       });
 
-      this.blurred();
+      await this.blurred();
       this.fire('blur');
     }
   }
