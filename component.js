@@ -11,10 +11,12 @@ import { dashify } from 'inflector';
 import setup from './setup';
 import NotifyAnnotation from './notify-annotation';
 
-let componentId = 0;
-function nextId () {
-  return componentId++;
-}
+const ID = (function *() {
+  let id = 0;
+  while (true) {
+    yield id++;
+  }
+})();
 
 let baseComponents = {};
 
@@ -23,7 +25,15 @@ function base (base) {
     return baseComponents[base];
   }
 
-  class Component extends window[base] {
+  let BaseElement;
+  if (useCustomElements()) {
+    BaseElement = window[base];
+  } else {
+    BaseElement = function () {};
+    BaseElement.prototype = Object.create(window[base].prototype);
+  }
+
+  class Component extends BaseElement {
     constructor () {
       super();
 
@@ -47,9 +57,9 @@ function base (base) {
     createdCallback () {
       if (setup.get('debug')) console.info(`CREATED ${this.is}`);
 
-      this.__id = nextId();
+      this.__id = ID.next().value;
+
       put(this.__id, this);
-      this.setAttribute('xin-id', this.__id);
 
       this.created();
 
@@ -98,6 +108,9 @@ function base (base) {
       }
 
       if (setup.get('debug')) console.info(`ATTACHED ${this.is} ${this.__componentAttaching ? '(delayed)' : ''}`);
+
+      // deferred set attributes until connectedCallback
+      this.setAttribute('xin-id', this.__id);
 
       this.attached();
 
@@ -413,10 +426,14 @@ function define (name, Component, options) {
   if (useCustomElements()) {
     window.customElements.define(name, Component, options);
   } else {
+    let prototype = Object.create(Component.prototype, { is: { value: name } });
     let ElementPrototype = {
-      prototype: Object.create(Component.prototype, { is: { value: name } }),
-      extends: (options && options.extends) ? options.extends : undefined,
+      prototype: prototype,
     };
+
+    if (options && options.extends) {
+      ElementPrototype.extends = options.extends;
+    }
 
     ElementClass = document.registerElement(name, ElementPrototype);
   }

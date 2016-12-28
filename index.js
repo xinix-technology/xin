@@ -2,16 +2,9 @@ import setup from './setup';
 import { get, put } from './repository';
 import { Component, base, define } from './component';
 
-const xin = window.xin = (() => {
-  if ('xin' in window) {
-    switch (typeof window.xin) {
-      case 'object':
-        setup.load(window.xin);
-        break;
-      case 'function':
-        console.warn('Duplicate xin library');
-        return window.xin;
-    }
+const xin = (() => {
+  if ('xin' in window && typeof window.xin === 'function') {
+    return window.xin;
   }
 
   let xin = (id) => get(id);
@@ -24,5 +17,7 @@ const xin = window.xin = (() => {
 
   return xin;
 })();
+
+window.xin = xin;
 
 export default xin;
