@@ -6,4 +6,8 @@ setup.load = obj => {
   }
 };
 
+if ('xin' in window && typeof window.xin === 'object') {
+  setup.load(window.xin);
+}
+
 export default setup;

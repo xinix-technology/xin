@@ -215,7 +215,7 @@ function compose (middlewares) {
     }
   }
 
-  return async (context, next) => {
+  return (context, next) => {
     // last called middlewares #
     let index = -1;
 

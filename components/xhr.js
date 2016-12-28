@@ -1,71 +1,64 @@
-webpackJsonp([3],{
+import xin from '../';
 
-/***/ 40:
-/***/ function(module, exports, __webpack_require__) {
-
-"use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0____ = __webpack_require__(0);
-
-
-class XHR extends __WEBPACK_IMPORTED_MODULE_0____["default"].Component {
-  get props() {
+class XHR extends xin.Component {
+  get props () {
     return {
       auto: {
         type: Boolean,
-        value: false
+        value: false,
       },
 
       method: {
         type: String,
-        value: 'get'
+        value: 'get',
       },
 
       url: {
         type: String,
-        observer: '_urlChanged'
+        observer: '_urlChanged',
       },
 
       as: {
         type: String,
         value: 'intelligent',
-        observer: '_asChanged'
+        observer: '_asChanged',
       },
 
       debounceDuration: {
         type: Number,
-        value: 0
+        value: 0,
       },
 
       request: {
         type: Object,
-        notify: true
+        notify: true,
       },
 
       response: {
         type: Object,
-        notify: true
+        notify: true,
       },
 
       error: {
         type: Object,
-        notify: true
-      }
+        notify: true,
+      },
     };
   }
 
-  _urlChanged() {
+  _urlChanged () {
     if (this.auto) {
       this.generateRequest();
     }
   }
 
-  _asChanged() {
+  _asChanged () {
     if (this.auto) {
       this.generateRequest();
     }
   }
 
-  _requestFlight() {
+  _requestFlight () {
     let url = this.generateUrl();
     if (!url) {
       return;
@@ -74,38 +67,38 @@ class XHR extends __WEBPACK_IMPORTED_MODULE_0____["default"].Component {
     return this.req({
       method: this.method,
       url: url,
-      as: this.as
+      as: this.as,
     }).then(xhr => {
       // let body = xhr.body;
       this.fire('response', {
         // body: body,
-        xhr: xhr
+        xhr: xhr,
       });
       return xhr.responseBody;
     }, err => {
       this.fire('error', {
         error: err,
-        xhr: err.xhr
+        xhr: err.xhr,
       });
       throw err;
     });
   }
 
-  generateRequest() {
+  generateRequest () {
     this.debounce('_requestFlight', this._requestFlight, this.debounceDuration);
   }
 
-  generateUrl() {
+  generateUrl () {
     return this.url;
   }
 
-  __prepareOptions(options) {
+  __prepareOptions (options) {
     options = options || {};
     options.method = (options.method || 'get').toUpperCase();
     return options;
   }
 
-  req(options) {
+  req (options) {
     options = this.__prepareOptions(options);
 
     return new Promise((resolve, reject) => {
@@ -165,12 +158,6 @@ class XHR extends __WEBPACK_IMPORTED_MODULE_0____["default"].Component {
   }
 }
 
-__WEBPACK_IMPORTED_MODULE_0____["default"].define('xin-xhr', XHR);
-// xin.XHR = XHR;
+xin.define('xin-xhr', XHR);
 
-/* harmony default export */ exports["default"] = XHR;
-
-/***/ }
-
-},[40]);
-//# sourceMappingURL=xhr.js.map
+export default XHR;
