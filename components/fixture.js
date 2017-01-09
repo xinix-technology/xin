@@ -3,15 +3,15 @@ import xin from '../';
 class Fixture extends xin.Component {
   static create (template) {
     const t = `
-      <test-fixture>
+      <xin-fixture>
         <template>
           ${template}
         </template>
-      </test-fixture>
+      </xin-fixture>
     `;
     const d = document.createElement('div');
     d.innerHTML = t;
-    const fixture = d.querySelector('test-fixture');
+    const fixture = d.querySelector('xin-fixture');
     document.body.appendChild(fixture);
     return fixture;
   }
@@ -27,6 +27,6 @@ class Fixture extends xin.Component {
   }
 }
 
-xin.define('test-fixture', Fixture);
+xin.define('xin-fixture', Fixture);
 
 export default Fixture;
