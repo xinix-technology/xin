@@ -145,6 +145,10 @@ function base (base) {
       return this.__app$;
     }
 
+    get __global () {
+      return window;
+    }
+
     __initData () {
       this.__componentContent = [];
       this.__componentDebouncers = {};
