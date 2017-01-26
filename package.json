@@ -35,7 +35,7 @@
     "eslint-plugin-standard": "^2.0.0",
     "style-loader": "^0.13.1",
     "uglify-js-harmony": "mishoo/UglifyJS2#harmony",
-    "webpack": "2.1.0-beta.27"
+    "webpack": "beta"
   },
   "dependencies": {
     "event-helper": "xinix-technology/event-helper#master",
