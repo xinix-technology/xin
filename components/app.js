@@ -1,7 +1,8 @@
 import xin from '../';
 import event from 'event-helper';
-
 import Route from './lib/route';
+
+import './css/app.css';
 
 class App extends xin.Component {
   get props () {
@@ -63,6 +64,8 @@ class App extends xin.Component {
 
     this.__started = false;
     this.__starting = false;
+
+    this.classList.add('xin-app');
   }
 
   attached () {
