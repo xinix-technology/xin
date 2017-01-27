@@ -8,10 +8,7 @@ class NotifyAnnotation {
   }
 
   effect (value) {
-    this.model.fire('-notify', {
-      name: this.name,
-      value: value,
-    });
+    this.model.__templateModel.set(this.name, value);
   }
 }
 

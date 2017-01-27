@@ -1,84 +1,71 @@
-const webpack = require('webpack');
-const path = require('path');
-const fs = require('fs');
-const UglifyJsPlugin = require('./dev/webpack/UglifyJsPlugin');
-
-module.exports = (env) => {
-  env = env || 'development';
-
-  console.error(`env=${env}`);
+module.exports = function ({ PORT = 8080 } = {}) {
+  console.error('env=', { PORT });
 
   return {
-    entry: (() => {
-      let entry = {
-        'xin': './index.js',
-      };
-
-      let result = fs.readdirSync('./components').reduce((result, file) => {
-        if (path.extname(file) === '.js') {
-          result[`components/${path.basename(file, '.js')}`] = `./components/${file}`;
-        }
-        return result;
-      }, entry);
-
-      return result;
-    })(),
+    entry: getEntries(),
     output: {
-      path: path.join(__dirname, 'dist'),
-      filename: env === 'production' ? '[name].min.js' : '[name].js',
+      filename: '[name].js',
     },
     devtool: 'source-map',
-    plugins: (() => {
-      let plugins = [
-        new webpack.optimize.CommonsChunkPlugin({
-          name: 'xin',
-          filename: env === 'production' ? 'xin.min.js' : 'xin.js',
-        }),
-      ];
-
-      if (env === 'production') {
-        plugins.push(
-          new UglifyJsPlugin({ compress: { warnings: true } })
-        );
-      }
-
-      return plugins;
-    })(),
     module: {
-      loaders: [
+      rules: [
         {
           test: /\.css$/,
-          exclude: /(node_modules|bower_components)/,
-          loader: [
-            require.resolve('style-loader'),
-            require.resolve('css-loader'),
-          ],
+          exclude: /node_modules/,
+          use: [ 'style-loader', 'css-loader' ],
+        },
+        {
+          test: /\.test.js$/,
+          exclude: /node_modules/,
+          use: 'mocha-loader',
         },
         {
           test: /\.js$/,
-          exclude: /(node_modules|bower_components)/,
-          loader: require.resolve('babel-loader'),
-          query: {
-            plugins: [
-              require.resolve('babel-plugin-transform-async-to-generator'),
-            ],
-            // presets: ['es2015', 'stage-3'],
-            cacheDirectory: true,
-          },
+          exclude: /node_modules/,
+          use: getBabelLoader(),
         },
         {
           test: /\.js$/,
-          include: /(node_modules\/template-binding)/,
-          loader: require.resolve('babel-loader'),
-          query: {
-            plugins: [
-              require.resolve('babel-plugin-transform-async-to-generator'),
-            ],
-            // presets: ['es2015', 'stage-3'],
-            cacheDirectory: true,
-          },
+          include: /node_modules\/template-binding/,
+          use: getBabelLoader(),
         },
       ],
     },
+    devServer: {
+      // historyApiFallback: false,
+      // inline: false,
+      // hot: false,
+      // host: '0.0.0.0',
+      port: PORT,
+    },
   };
 };
+
+function getBabelLoader () {
+  return {
+    loader: 'babel-loader',
+    options: {
+      babelrc: false,
+      // plugins: [
+      //   'babel-plugin-syntax-dynamic-import',
+      //   'babel-plugin-transform-async-to-generator',
+      // ],
+      // presets: [
+      //   'babel-preset-es2015',
+      //   'babel-preset-stage-3',
+      // ],
+      cacheDirectory: true,
+    },
+  };
+}
+
+// FIXME please add component tests
+function getEntries () {
+  const entries = {
+    'dist/test/xin.test': './test/xin.test.js',
+
+    'dist/examples/binding': './examples/binding.js',
+  };
+
+  return entries;
+}

@@ -1,13 +1,19 @@
-const setup = new Map();
-
-setup.load = obj => {
-  for (let i in obj) {
-    setup.set(i, obj[i]);
+class Setup {
+  constructor (obj) {
+    Object.assign(this, obj);
   }
-};
 
-if ('xin' in window && typeof window.xin === 'object') {
-  setup.load(window.xin);
+  get (key) {
+    return this[key];
+  }
+
+  set (key, value) {
+    this[key] = value;
+  }
 }
 
-export default setup;
+export default (
+  'xin' in window && 'setup' in window.xin
+    ? window.xin.setup
+    : new Setup(window.xin)
+);
