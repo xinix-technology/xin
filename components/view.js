@@ -69,8 +69,8 @@ class View extends xin.Component {
     this.fire('routed');
   }
 
-  async focus (parameters) {
-    this.set('parameters', parameters || {});
+  async focus (parameters = {}) {
+    this.set('parameters', parameters);
 
     await this.focusing(parameters);
     this.fire('focusing', parameters);
@@ -88,35 +88,35 @@ class View extends xin.Component {
   setVisible (visible) {
     if (visible) {
       this.classList.add('xin-view--visible');
-
       this.fire('show', { view: this });
-    } else {
-      this.classList.remove('xin-view--visible');
-      [].forEach.call(this.querySelectorAll('.xin-view.xin-view--visible'), el => el.setVisible(visible));
-
-      this.fire('hide');
+      return;
     }
+
+    this.classList.remove('xin-view--visible');
+    [].forEach.call(this.querySelectorAll('.xin-view.xin-view--visible'), el => el.setVisible(visible));
+
+    this.fire('hide');
   }
 
   async setFocus (focus) {
     if (focus) {
       this.classList.add('xin-view--focus');
-
       await this.focused();
       this.fire('focus');
-    } else {
-      this.classList.remove('xin-view--focus');
-      [].forEach.call(this.querySelectorAll('.xin-view.xin-view--focus'), el => {
-        if ('setFocus' in el.parentElement) {
-          el.parentElement.setFocus(null);
-        } else {
-          el.setFocus(focus);
-        }
-      });
-
-      await this.blurred();
-      this.fire('blur');
+      return;
     }
+
+    this.classList.remove('xin-view--focus');
+    [].forEach.call(this.querySelectorAll('.xin-view.xin-view--focus'), el => {
+      if ('setFocus' in el.parentElement) {
+        el.parentElement.setFocus(null);
+      } else {
+        el.setFocus(focus);
+      }
+    });
+
+    await this.blurred();
+    this.fire('blur');
   }
 }
 

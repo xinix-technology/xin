@@ -107,10 +107,17 @@ function base (base) {
         return;
       }
 
+      // notify default props
+      this.notify('__global');
+      this.notify('__setup');
+      this.notify('__app');
+
       if (setup.get('debug')) console.info(`ATTACHED ${this.is} ${this.__componentAttaching ? '(delayed)' : ''}`);
 
-      // deferred set attributes until connectedCallback
-      this.setAttribute('xin-id', this.__id);
+      if (!this.hasAttribute('xin-id')) {
+        // deferred set attributes until connectedCallback
+        this.setAttribute('xin-id', this.__id);
+      }
 
       this.attached();
 
@@ -147,6 +154,10 @@ function base (base) {
 
     get __global () {
       return window;
+    }
+
+    get __setup () {
+      return window.xin.setup;
     }
 
     __initData () {
@@ -291,16 +302,9 @@ function base (base) {
         }
 
         evt.stopImmediatePropagation();
-        switch (eventName) {
-          case 'input':
-            element.__templateModel.set(element.__templateNotifyKey, element.value);
-            break;
-          case '-notify':
-            // console.log(evt.target, evt.detail);
-            element.__templateModel.set(evt.detail.name, evt.detail.value);
-            break;
-          default:
-            throw new Error('Unimplemented');
+
+        if ('__componentNotifyKey' in element && '__componentNotifyAccessor' in element) {
+          element.__templateModel.set(element.__componentNotifyKey, element[element.__componentNotifyAccessor]);
         }
       };
 
@@ -351,18 +355,24 @@ function base (base) {
 
       // register event notifier
       if (expr.mode === '{' && expr.type === 'p' && accessor.node instanceof window.HTMLElement) {
-        switch (accessor.node.nodeName) {
-          case 'INPUT':
-          case 'TEXTAREA':
-            if (accessor.name === 'value') {
-              accessor.node.__templateNotifyKey = expr.name;
-              this.__addNotifier('input');
-            }
-            break;
-          default:
-            // register event for custom notifier
-            this.__addNotifier('-notify');
-            break;
+        const node = accessor.node;
+        const nodeName = node.nodeName;
+
+        const startNotify = () => {
+          node.__componentNotifyKey = expr.name;
+          node.__componentNotifyAccessor = accessor.name;
+          this.__addNotifier('input');
+        };
+
+        if (nodeName === 'INPUT') {
+          const inputType = node.getAttribute('type');
+          if (inputType === 'radio' || inputType === 'checkbox') {
+            throw new Error('Unimplemented yet');
+          } else {
+            startNotify();
+          }
+        } else if (nodeName === 'TEXTAREA') {
+          startNotify();
         }
       }
 
