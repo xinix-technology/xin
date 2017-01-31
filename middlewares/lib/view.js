@@ -7,9 +7,21 @@ class View {
     this.uri = element.getAttribute('uri');
     this.element = element;
     this.loader = loader;
-    this.loaded = element.classList.contains('xin-view');
     this.route = new Route(this.uri);
+    this.isStaticRoute = Route.isStatic(this.uri);
     this.bag = bag;
+  }
+
+  get loaded () {
+    if (this._loaded) {
+      return true;
+    }
+
+    const loaded = this.element.classList.contains('xin-view');
+    if (loaded) {
+      this._loaded = true;
+      return true;
+    }
   }
 
   load () {
@@ -20,7 +32,7 @@ class View {
 
       // use global event helper because element does not created yet at this time
       event(this.element).once('routed', () => {
-        this.loaded = true;
+        this._loaded = true;
         resolve();
       });
 

@@ -14,35 +14,37 @@ class LazyView extends Middleware {
   created () {
     super.created();
 
-    this.views = new Map();
+    this.views = [];
   }
 
   get (uri) {
-    if (this.views.has(uri)) {
-      return this.views.get(uri);
+    let view = this.views.find(view => view.uri === uri);
+    if (view) {
+      return view;
     }
 
-    let iterator = this.views.values();
-    for (let view of iterator) {
-      if (view.route.getExecutorFor(uri)) {
-        return view;
+    return this.views.find(view => {
+      if (view.isStaticRoute && view.uri === uri) {
+        return true;
       }
-    }
+
+      return view.route.getExecutorFor(uri);
+    });
   }
 
-  set (uri, view) {
-    this.views.set(uri, view);
+  put (view) {
+    this.views.push(view);
   }
 
   ensure (app, uri) {
-    if (this.views.size === 0) {
+    if (this.views.length === 0) {
       [].forEach.call(app.querySelectorAll('[lazy-view]'), el => {
         let loader = this.loaders.find(loader => {
           return el.nodeName.toLowerCase().match(loader.test);
         });
 
         let view = new View(this, el, loader);
-        this.set(view.uri, view);
+        this.put(view);
       });
     }
 
