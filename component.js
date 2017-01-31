@@ -54,7 +54,7 @@ function base (base) {
 
     detached () {}
 
-    createdCallback () {
+    async createdCallback () {
       if (setup.get('debug')) console.info(`CREATED ${this.is}`);
 
       this.__id = ID.next().value;
@@ -65,7 +65,7 @@ function base (base) {
 
       this.__initData();
 
-      this.__initTemplate();
+      await this.__initTemplate();
 
       this.__initProps();
 
@@ -250,7 +250,7 @@ function base (base) {
       return (name in this.__componentNotifiedProps);
     }
 
-    __initTemplate () {
+    async __initTemplate () {
       let template;
 
       if (this.childElementCount === 1 && this.firstElementChild.nodeName === 'TEMPLATE' && !this.firstElementChild.hasAttribute('is')) {
@@ -258,7 +258,7 @@ function base (base) {
         template = this.firstElementChild;
         this.removeChild(template);
       } else {
-        let t = this.template;
+        let t = await this.template;
         if (t) {
           // create new template based on template property
           template = document.createElement('template');
@@ -358,10 +358,10 @@ function base (base) {
         const node = accessor.node;
         const nodeName = node.nodeName;
 
-        const startNotify = () => {
+        const startNotify = (name) => {
           node.__componentNotifyKey = expr.name;
           node.__componentNotifyAccessor = accessor.name;
-          this.__addNotifier('input');
+          this.__addNotifier(name);
         };
 
         if (nodeName === 'INPUT') {
@@ -369,10 +369,12 @@ function base (base) {
           if (inputType === 'radio' || inputType === 'checkbox') {
             throw new Error('Unimplemented yet');
           } else {
-            startNotify();
+            startNotify('input');
           }
         } else if (nodeName === 'TEXTAREA') {
-          startNotify();
+          startNotify('input');
+        } else if (nodeName === 'SELECT') {
+          startNotify('change');
         }
       }
 
