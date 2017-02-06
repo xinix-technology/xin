@@ -54,7 +54,7 @@ function base (base) {
 
     detached () {}
 
-    async createdCallback () {
+    createdCallback () {
       if (setup.get('debug')) console.info(`CREATED ${this.is}`);
 
       this.__id = ID.next().value;
@@ -65,7 +65,7 @@ function base (base) {
 
       this.__initData();
 
-      await this.__initTemplate();
+      this.__initTemplate();
 
       this.__initProps();
 
@@ -250,20 +250,17 @@ function base (base) {
       return (name in this.__componentNotifiedProps);
     }
 
-    async __initTemplate () {
+    __initTemplate () {
       let template;
 
       if (this.childElementCount === 1 && this.firstElementChild.nodeName === 'TEMPLATE' && !this.firstElementChild.hasAttribute('is')) {
         // when instance template exist detach from component content
         template = this.firstElementChild;
         this.removeChild(template);
-      } else {
-        let t = await this.template;
-        if (t) {
-          // create new template based on template property
-          template = document.createElement('template');
-          template.innerHTML = t;
-        }
+      } else if (this.template) {
+        // create new template based on template property
+        template = document.createElement('template');
+        template.innerHTML = this.template;
       }
 
       this.__templateInitialize(template, this);
