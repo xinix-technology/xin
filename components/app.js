@@ -7,9 +7,8 @@ import './css/app.css';
 class App extends xin.Component {
   get props () {
     return {
-      docTitle: {
+      title: {
         type: String,
-        value: 'Application',
         observer: '_titleChanged',
       },
 
@@ -48,7 +47,9 @@ class App extends xin.Component {
   }
 
   _titleChanged (title) {
-    document.title = title;
+    if (title) {
+      document.title = title;
+    }
   }
 
   created () {
