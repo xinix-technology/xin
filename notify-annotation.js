@@ -7,7 +7,7 @@ class NotifyAnnotation {
     this.name = expr.name;
   }
 
-  effect (value) {
+  effect (type, value) {
     this.model.__templateModel.set(this.name, value);
   }
 }
