@@ -1,6 +1,6 @@
 {
     "name": "xin",
-    "version": "0.1.1",
+    "version": "1.0.0",
     "profile": "web",
     "dependencies": {
         "backbone": "1.2.x",

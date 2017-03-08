@@ -1,5 +1,6 @@
 {
   "name": "xin",
+  "version":"1.0.0",
   "description": "Javascript SPA framework based on Backbone and Underscore",
   "devDependencies": {
     "gulp": "^3.8.2",
