@@ -1,12 +1,10 @@
+# os specific files
 .DS_Store
-/bower_components
+
+# development files
 /node_modules
-/vendor
-/*.sublime-*
-/.sass-cache
 /coverage
-/app
-/demo/mine/*
-/demo/vanila/*
-/demo/demo/*
-_docs
+
+# user specific files
+/*.sublime-*
+yarn.lock

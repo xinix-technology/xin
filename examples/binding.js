@@ -1,4 +1,4 @@
-import 'file-loader?name=dist/[path]/[name].[ext]!./binding.html';
+import 'file-loader?name=[path][name].[ext]!./binding.html';
 
 import xin from '../';
 
