@@ -1,12 +1,18 @@
-module.exports = function ({ PORT = 8080 } = {}) {
-  console.error('env=', { PORT });
+const path = require('path');
+const BabiliPlugin = require('babili-webpack-plugin');
+
+module.exports = function (env = {}) {
+  let { port = 8080, minify = false } = env;
+  console.error('env=', env);
 
   return {
     entry: getEntries(),
     output: {
-      filename: '[name].js',
+      path: path.join(__dirname, 'dist'),
+      filename: `[name]${minify ? '.min' : ''}.js`,
     },
     devtool: 'source-map',
+    plugins: getPlugins(env),
     module: {
       rules: [
         {
@@ -32,11 +38,9 @@ module.exports = function ({ PORT = 8080 } = {}) {
       ],
     },
     devServer: {
-      // historyApiFallback: false,
-      // inline: false,
-      // hot: false,
-      // host: '0.0.0.0',
-      port: PORT,
+      contentBase: path.join(__dirname, 'dist'),
+      compress: true,
+      port: port,
     },
   };
 };
@@ -59,12 +63,26 @@ function getBabelLoader () {
   };
 }
 
+function getPlugins ({ minify = false } = {}) {
+  let plugins = [];
+
+  if (minify) {
+    plugins.push(
+      new BabiliPlugin()
+    );
+  }
+
+  return plugins;
+}
+
 // FIXME please add component tests
 function getEntries () {
   const entries = {
-    'dist/test/xin.test': './test/xin.test.js',
+    'xin': './index.js',
 
-    'dist/examples/binding': './examples/binding.js',
+    'test/xin.test': './test/xin.test.js',
+
+    'examples/binding': './examples/binding.js',
   };
 
   return entries;

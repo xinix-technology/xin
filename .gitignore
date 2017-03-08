@@ -7,3 +7,4 @@
 
 # user specific files
 /*.sublime-*
+yarn.lock

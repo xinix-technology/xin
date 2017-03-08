@@ -1,12 +1,12 @@
 {
   "name": "xin",
-  "version": "2.2.1",
+  "version": "2.3.0",
   "description": "Javascript SPA framework with web component",
   "author": [
     "Ganesha <reekoheek@gmail.com>",
     "Dwan <dwaan@me.com>"
   ],
-  "main": "src/index.js",
+  "main": "index.js",
   "keywords": [
     "xin",
     "SPA",
@@ -19,11 +19,12 @@
   "scripts": {
     "test": "eslint .",
     "dev": "webpack-dev-server",
-    "build": "webpack"
+    "build": "webpack && webpack --env.minify=1"
   },
   "devDependencies": {
     "babel-core": "^6.17.0",
     "babel-loader": "^6.2.5",
+    "babili-webpack-plugin": "0.0.11",
     "chai": "^3.5.0",
     "css-loader": "^0.25.0",
     "eslint": "^3.5.0",
@@ -32,19 +33,19 @@
     "eslint-plugin-standard": "^2.0.0",
     "file-loader": "^0.9.0",
     "mocha": "^3.2.0",
-    "mocha-loader": "webpack/mocha-loader#master",
+    "mocha-loader": "webpack-contrib/mocha-loader#master",
     "style-loader": "^0.13.1",
     "url-loader": "^0.5.7",
-    "webpack": "beta",
-    "webpack-dev-server": "beta"
+    "webpack": "^2.2.1",
+    "webpack-dev-server": "^2.4.1"
   },
   "dependencies": {
-    "event-helper": "xinix-technology/event-helper#master",
-    "function-helper": "xinix-technology/function-helper#master",
-    "inflector": "xinix-technology/inflector#master",
-    "object-helper": "xinix-technology/object-helper#master",
-    "serializer": "xinix-technology/serializer#master",
-    "template-binding": "xinix-technology/template-binding#master"
+    "event-helper": "xinix-technology/event-helper#1.0.0",
+    "function-helper": "xinix-technology/function-helper#1.0.0",
+    "inflector": "xinix-technology/inflector#1.0.0",
+    "object-helper": "xinix-technology/object-helper#1.0.0",
+    "serializer": "xinix-technology/serializer#1.0.0",
+    "template-binding": "xinix-technology/template-binding#1.1.1"
   },
   "optionalDependencies": {
     "webcomponentsjs": "^1.0.2"
