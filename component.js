@@ -11,11 +11,11 @@ import { dashify } from 'inflector';
 import setup from './setup';
 import NotifyAnnotation from './notify-annotation';
 
-const ID = (function *() {
+const nextId = (function () {
   let id = 0;
-  while (true) {
-    yield id++;
-  }
+  return function () {
+    return id++;
+  };
 })();
 
 let baseComponents = {};
@@ -57,7 +57,7 @@ function base (base) {
     createdCallback () {
       if (setup.get('debug')) console.info(`CREATED ${this.is}`);
 
-      this.__id = ID.next().value;
+      this.__id = nextId();
 
       put(this.__id, this);
 

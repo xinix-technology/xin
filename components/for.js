@@ -1,10 +1,11 @@
 import T from 'template-binding';
 import xin from '../';
 import Row from './row';
+import './css/for.css';
 
 const FILTER_ALL = () => true;
 
-class Repeat extends xin.base('HTMLTemplateElement') {
+class For extends xin.Component {
   get props () {
     return {
       items: {
@@ -36,6 +37,9 @@ class Repeat extends xin.base('HTMLTemplateElement') {
   }
 
   __initTemplate () {
+    this.__templateFor = this.firstElementChild;
+    // this.__templateFor.__templateHost = this.__templateHost;
+    this.removeChild(this.__templateFor);
     T.prototype.__templateInitialize.call(this, null, this);
   }
 
@@ -49,7 +53,7 @@ class Repeat extends xin.base('HTMLTemplateElement') {
           if (this.rows[index]) {
             this.rows[index].update(item, index);
           } else {
-            this.rows.push(new Row(this, this, item, index));
+            this.rows.push(new Row(this.__templateFor, this, item, index));
           }
 
           len++;
@@ -84,7 +88,6 @@ class Repeat extends xin.base('HTMLTemplateElement') {
     return element.__repeatModel;
   }
 }
+xin.define('xin-for', For);
 
-xin.define('xin-repeat', Repeat, { extends: 'template' });
-
-export default Repeat;
+export default For;
