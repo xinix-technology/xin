@@ -437,6 +437,8 @@ function define (name, Component, options) {
   }
 
   if (useCustomElements()) {
+    // v1 the element class is the component itself
+    ElementClass = Component;
     window.customElements.define(name, Component, options);
   } else {
     let prototype = Object.create(Component.prototype, { is: { value: name } });

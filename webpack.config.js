@@ -1,4 +1,5 @@
 const path = require('path');
+const glob = require('glob');
 const BabiliPlugin = require('babili-webpack-plugin');
 
 module.exports = function (env = {}) {
@@ -19,11 +20,6 @@ module.exports = function (env = {}) {
           test: /\.css$/,
           exclude: /node_modules/,
           use: [ 'style-loader', 'css-loader' ],
-        },
-        {
-          test: /\.test.js$/,
-          exclude: /node_modules/,
-          use: 'mocha-loader',
         },
         {
           test: /\.js$/,
@@ -50,10 +46,11 @@ function getBabelLoader () {
     loader: 'babel-loader',
     options: {
       babelrc: false,
-      // plugins: [
+      plugins: [
+        require.resolve('babel-plugin-__coverage__'),
       //   'babel-plugin-syntax-dynamic-import',
       //   'babel-plugin-transform-async-to-generator',
-      // ],
+      ],
       // presets: [
       //   'babel-preset-es2015',
       //   'babel-preset-stage-3',
@@ -78,12 +75,11 @@ function getPlugins ({ minify = false } = {}) {
 // FIXME please add component tests
 function getEntries () {
   const entries = {
-    'xin': './index.js',
-
-    'test/xin.test': './test/xin.test.js',
-
-    'examples/binding': './examples/binding.js',
+    // 'xin': './index.js',
+    // 'examples/binding': './examples/binding.js',
   };
+
+  glob.sync('./test/**/*-test.js').forEach(test => (entries[test.match(/\/(test\/.*).js$/)[1]] = test));
 
   return entries;
 }
