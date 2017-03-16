@@ -71,11 +71,11 @@ module.exports = function (config) {
     // how many browser should be started simultaneous
     concurrency: Infinity,
 
-    // client: {
-    //   mocha: {
-    //     timeout: 3000,
-    //   },
-    // },
+    client: {
+      mocha: {
+        timeout: 5000,
+      },
+    },
 
     webpackMiddleware: {
       // webpack-dev-middleware configuration

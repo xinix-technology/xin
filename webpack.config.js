@@ -47,7 +47,7 @@ function getBabelLoader () {
     options: {
       babelrc: false,
       plugins: [
-        require.resolve('babel-plugin-__coverage__'),
+        [ require.resolve('babel-plugin-__coverage__'), { 'ignore': 'node_modules' } ],
       //   'babel-plugin-syntax-dynamic-import',
       //   'babel-plugin-transform-async-to-generator',
       ],
