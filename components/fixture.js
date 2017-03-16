@@ -2,7 +2,6 @@ import xin from '../';
 
 class Fixture extends xin.Component {
   static create (template) {
-    console.log('create');
     const t = `
       <xin-fixture>
         <template>
@@ -35,6 +34,7 @@ class Fixture extends xin.Component {
 
   dispose () {
     this.parentElement.removeChild(this);
+    this.connected = false;
   }
 
   waitConnected () {

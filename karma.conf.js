@@ -47,7 +47,7 @@ module.exports = function (config) {
     reporters: [ 'progress', 'coverage' ],
 
     // web server port
-    port: 9876,
+    // port: 9876,
 
     // enable / disable colors in the output (reporters and logs)
     colors: true,
@@ -71,11 +71,11 @@ module.exports = function (config) {
     // how many browser should be started simultaneous
     concurrency: Infinity,
 
-    client: {
-      mocha: {
-        timeout: 5000,
-      },
-    },
+    // client: {
+    //   mocha: {
+    //     timeout: 5000,
+    //   },
+    // },
 
     webpackMiddleware: {
       // webpack-dev-middleware configuration
