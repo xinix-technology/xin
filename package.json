@@ -25,7 +25,7 @@
   "devDependencies": {
     "babel-core": "^6.17.0",
     "babel-loader": "^6.2.5",
-    "babel-plugin-__coverage__": "^11.0.0",
+    "babel-plugin-istanbul": "^4.0.0",
     "babili-webpack-plugin": "0.0.11",
     "chai": "^3.5.0",
     "css-loader": "^0.25.0",
