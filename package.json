@@ -50,7 +50,7 @@
   },
   "dependencies": {
     "event-helper": "xinix-technology/event-helper#1.0.0",
-    "function-helper": "xinix-technology/function-helper#1.0.0",
+    "function-helper": "xinix-technology/function-helper#1.0.1",
     "inflector": "xinix-technology/inflector#1.0.0",
     "object-helper": "xinix-technology/object-helper#1.0.0",
     "serializer": "xinix-technology/serializer#1.0.0",
