@@ -10,11 +10,16 @@ require('file-loader?name=pages/concepts/[name].[ext]!./pages/concepts/' + file 
 require('file-loader?name=pages/views/[name].[ext]!./pages/views/' + file + '.md');
 
 let next = Promise.resolve();
+if ('fetch' in window === false) {
+  next = next.then(() => System.import('whatwg-fetch'));
+}
+
 if ('customElements' in window === false) {
   next = next.then(() => System.import('@webcomponents/custom-elements'));
 }
 
 window.xin = {
+  // 'debug': true,
   'xin.View.transition': 'fade',
 };
 

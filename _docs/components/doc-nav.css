@@ -75,7 +75,7 @@ doc-nav.doc-nav--visible {
   z-index: 99999;
 }
 
-@media screen and (min-width: 1000px) {
+@media screen and (min-width: 768px) {
   doc-nav {
     display: block;
   }

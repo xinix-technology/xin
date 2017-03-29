@@ -27,8 +27,8 @@
 /******/
 /******/ 	// objects to store loaded and loading chunks
 /******/ 	var installedChunks = {
-/******/ 		3: 0,
-/******/ 		4: 0
+/******/ 		4: 0,
+/******/ 		5: 0
 /******/ 	};
 /******/
 /******/ 	// The require function
@@ -140,7 +140,7 @@
 /******/ 	__webpack_require__.oe = function(err) { console.error(err); throw err; };
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 27);
+/******/ 	return __webpack_require__(__webpack_require__.s = 28);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -544,11 +544,16 @@ __webpack_require__(2)("./" + file + '.md');
 __webpack_require__(4)("./" + file + '.md');
 
 let next = Promise.resolve();
+if ('fetch' in window === false) {
+  next = next.then(() => __webpack_require__.e/* import() */(1).then(__webpack_require__.bind(null, 26)));
+}
+
 if ('customElements' in window === false) {
-  next = next.then(() => __webpack_require__.e/* import() */(1).then(__webpack_require__.bind(null, 24)));
+  next = next.then(() => __webpack_require__.e/* import() */(2).then(__webpack_require__.bind(null, 24)));
 }
 
 window.xin = {
+  // 'debug': true,
   'xin.View.transition': 'fade'
 };
 
@@ -729,18 +734,19 @@ module.exports = __webpack_require__.p + "pages/views/markdown.md";
 /***/ }),
 /* 24 */,
 /* 25 */,
-/* 26 */
+/* 26 */,
+/* 27 */
 /***/ (function(module, exports, __webpack_require__) {
 
 module.exports = __webpack_require__.p + "demo/features/binding.html";
 
 /***/ }),
-/* 27 */
+/* 28 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_file_loader_name_demo_features_name_ext_extract_loader_binding_html__ = __webpack_require__(26);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_file_loader_name_demo_features_name_ext_extract_loader_binding_html__ = __webpack_require__(27);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_file_loader_name_demo_features_name_ext_extract_loader_binding_html___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_file_loader_name_demo_features_name_ext_extract_loader_binding_html__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1____ = __webpack_require__(5);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_____default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1____);

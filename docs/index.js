@@ -27,7 +27,7 @@
 /******/
 /******/ 	// objects to store loaded and loading chunks
 /******/ 	var installedChunks = {
-/******/ 		4: 0
+/******/ 		5: 0
 /******/ 	};
 /******/
 /******/ 	// The require function
@@ -543,11 +543,16 @@ __webpack_require__(2)("./" + file + '.md');
 __webpack_require__(4)("./" + file + '.md');
 
 let next = Promise.resolve();
+if ('fetch' in window === false) {
+  next = next.then(() => __webpack_require__.e/* import() */(1).then(__webpack_require__.bind(null, 26)));
+}
+
 if ('customElements' in window === false) {
-  next = next.then(() => __webpack_require__.e/* import() */(1).then(__webpack_require__.bind(null, 24)));
+  next = next.then(() => __webpack_require__.e/* import() */(2).then(__webpack_require__.bind(null, 24)));
 }
 
 window.xin = {
+  // 'debug': true,
   'xin.View.transition': 'fade'
 };
 

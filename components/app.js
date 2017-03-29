@@ -30,6 +30,11 @@ class App extends xin.Component {
         type: String,
         value: '#!',
       },
+
+      delay: {
+        type: Number,
+        value: 1, // working for safari (delay=1), chrome (delay=0)
+      },
     };
   }
 
@@ -70,11 +75,13 @@ class App extends xin.Component {
   }
 
   attached () {
-    if (!this.manual) {
-      this.async(() => {
-        this.start();
-      });
+    if (this.manual) {
+      return;
     }
+
+    this.async(() => {
+      this.start();
+    }, this.delay);
   }
 
   route (route, callback) {

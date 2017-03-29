@@ -46,11 +46,12 @@ class MarkdownView extends View {
 
   async render () {
     let src = this.getSrcUrl();
-    console.log('src', src);
+
     if (this.cache[src] === undefined) {
       let response = await window.fetch(src);
       if (response.ok) {
-        this.cache[src] = marked(await response.text());
+        let content = await response.text();
+        this.cache[src] = marked(content);
       } else {
         this.cache[src] = '';
         console.warn(`Content at ${src} invalid or not found! [${response.status}]`);

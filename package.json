@@ -1,6 +1,6 @@
 {
   "name": "xin",
-  "version": "2.3.2",
+  "version": "2.4.0",
   "description": "Javascript SPA framework with web component",
   "author": [
     "Ganesha <reekoheek@gmail.com>",
@@ -46,21 +46,22 @@
     "karma-mocha": "^1.3.0",
     "karma-sourcemap-loader": "^0.3.7",
     "karma-webpack": "^2.0.3",
+    "marked": "^0.3.6",
     "mocha": "^3.2.0",
     "mocha-loader": "webpack-contrib/mocha-loader#master",
+    "prismjs": "^1.6.0",
     "style-loader": "^0.13.1",
     "url-loader": "^0.5.8",
     "webpack": "^2.2.1",
-    "prismjs": "^1.6.0",
-    "marked": "^0.3.6",
-    "webpack-dev-server": "^2.4.1"
+    "webpack-dev-server": "^2.4.1",
+    "whatwg-fetch": "^2.0.3"
   },
   "dependencies": {
-    "event-helper": "xinix-technology/event-helper#1.0.0",
+    "event-helper": "xinix-technology/event-helper#1.0.1",
     "function-helper": "xinix-technology/function-helper#1.0.1",
     "inflector": "xinix-technology/inflector#1.0.0",
     "object-helper": "xinix-technology/object-helper#1.0.0",
     "serializer": "xinix-technology/serializer#1.0.0",
-    "template-binding": "xinix-technology/template-binding#1.1.3"
+    "template-binding": "xinix-technology/template-binding#1.1.4"
   }
 }
