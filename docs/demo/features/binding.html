@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Binding</title>
+</head>
+<body>
+  <style>
+    label {
+      display: block;
+    }
+  </style>
+
+  <x-panel id="panel">
+    <template>
+      <p>
+        <label>Read write</label>
+        <input type="text" value="{{foo}}">
+      </p>
+      <p>
+        <label>Read only</label>
+        <input type="text" value="[[foo]]">
+      </p>
+      <p>
+        <label>Result</label>
+        <span>[[foo]]</span>
+      </p>
+    </template>
+  </x-panel>
+
+  <script src="./binding.js"></script>
+</body>
+</html>

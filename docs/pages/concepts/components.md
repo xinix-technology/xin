@@ -50,6 +50,6 @@ xin.define('foo-bar', FooBar);
 
 Components can access several default system properties:
 
-- __app
-- __global
-- __setup
+- `component.__app`
+- `component.__global`
+- `component.__setup`
