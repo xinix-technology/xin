@@ -46,6 +46,7 @@ doc-header .logo-link span {
 
 doc-header img.logo {
   height: 32px;
+  width: 32px;
 }
 
 doc-header ~ div.content {

@@ -38,6 +38,7 @@ module.exports = function ({ mode = 'dist', target = 'latest', port = 8080, mini
         },
         {
           test: /\.(jpe?g|png|gif|svg)(\?.*)?$/i,
+          exclude: /icons/,
           use: getUrlLoader('./img/[name].[ext]'),
         },
         {

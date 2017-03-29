@@ -9,6 +9,11 @@ require('file-loader?name=pages/guides/[name].[ext]!./pages/guides/' + file + '.
 require('file-loader?name=pages/concepts/[name].[ext]!./pages/concepts/' + file + '.md');
 require('file-loader?name=pages/views/[name].[ext]!./pages/views/' + file + '.md');
 
+require('file-loader?name=[name].[ext]!./favicon.ico');
+require('file-loader?name=[name].[ext]!./manifest.json');
+file = 'apple-icon';
+require('file-loader?name=icons/[name].[ext]!./icons/' + file + '.png');
+
 let next = Promise.resolve();
 if ('fetch' in window === false) {
   next = next.then(() => System.import('whatwg-fetch'));

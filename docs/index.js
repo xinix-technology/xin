@@ -139,7 +139,7 @@
 /******/ 	__webpack_require__.oe = function(err) { console.error(err); throw err; };
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 5);
+/******/ 	return __webpack_require__(__webpack_require__.s = 6);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -455,13 +455,30 @@ function updateLink(linkElement, obj) {
 /***/ (function(module, exports, __webpack_require__) {
 
 var map = {
-	"./binding.md": 13,
-	"./components.md": 14,
-	"./defer.md": 15,
-	"./events.md": 16,
-	"./helper-functions.md": 17,
-	"./index.md": 18,
-	"./selectors.md": 19
+	"./android-icon-144x144.png": 16,
+	"./android-icon-192x192.png": 17,
+	"./android-icon-36x36.png": 18,
+	"./android-icon-48x48.png": 19,
+	"./android-icon-72x72.png": 20,
+	"./android-icon-96x96.png": 21,
+	"./apple-icon-114x114.png": 22,
+	"./apple-icon-120x120.png": 23,
+	"./apple-icon-144x144.png": 24,
+	"./apple-icon-152x152.png": 25,
+	"./apple-icon-180x180.png": 26,
+	"./apple-icon-57x57.png": 27,
+	"./apple-icon-60x60.png": 28,
+	"./apple-icon-72x72.png": 29,
+	"./apple-icon-76x76.png": 30,
+	"./apple-icon-precomposed.png": 31,
+	"./apple-icon.png": 32,
+	"./favicon-16x16.png": 33,
+	"./favicon-32x32.png": 34,
+	"./favicon-96x96.png": 35,
+	"./ms-icon-144x144.png": 36,
+	"./ms-icon-150x150.png": 37,
+	"./ms-icon-310x310.png": 38,
+	"./ms-icon-70x70.png": 39
 };
 function webpackContext(req) {
 	return __webpack_require__(webpackContextResolve(req));
@@ -484,8 +501,13 @@ webpackContext.id = 2;
 /***/ (function(module, exports, __webpack_require__) {
 
 var map = {
-	"./getting-started.md": 20,
-	"./index.md": 21
+	"./binding.md": 40,
+	"./components.md": 41,
+	"./defer.md": 42,
+	"./events.md": 43,
+	"./helper-functions.md": 44,
+	"./index.md": 45,
+	"./selectors.md": 46
 };
 function webpackContext(req) {
 	return __webpack_require__(webpackContextResolve(req));
@@ -508,8 +530,8 @@ webpackContext.id = 3;
 /***/ (function(module, exports, __webpack_require__) {
 
 var map = {
-	"./index.md": 22,
-	"./markdown.md": 23
+	"./getting-started.md": 47,
+	"./index.md": 48
 };
 function webpackContext(req) {
 	return __webpack_require__(webpackContextResolve(req));
@@ -531,24 +553,53 @@ webpackContext.id = 4;
 /* 5 */
 /***/ (function(module, exports, __webpack_require__) {
 
-__webpack_require__(6);
+var map = {
+	"./index.md": 49,
+	"./markdown.md": 50
+};
+function webpackContext(req) {
+	return __webpack_require__(webpackContextResolve(req));
+};
+function webpackContextResolve(req) {
+	var id = map[req];
+	if(!(id + 1)) // check for number or string
+		throw new Error("Cannot find module '" + req + "'.");
+	return id;
+};
+webpackContext.keys = function webpackContextKeys() {
+	return Object.keys(map);
+};
+webpackContext.resolve = webpackContextResolve;
+module.exports = webpackContext;
+webpackContext.id = 5;
 
-__webpack_require__(8);
+/***/ }),
+/* 6 */
+/***/ (function(module, exports, __webpack_require__) {
+
 __webpack_require__(9);
 
-__webpack_require__(7);
+__webpack_require__(11);
+__webpack_require__(12);
+
+__webpack_require__(10);
 let file = 'index';
-__webpack_require__(3)("./" + file + '.md');
-__webpack_require__(2)("./" + file + '.md');
 __webpack_require__(4)("./" + file + '.md');
+__webpack_require__(3)("./" + file + '.md');
+__webpack_require__(5)("./" + file + '.md');
+
+__webpack_require__(7);
+__webpack_require__(8);
+file = 'apple-icon';
+__webpack_require__(2)("./" + file + '.png');
 
 let next = Promise.resolve();
 if ('fetch' in window === false) {
-  next = next.then(() => __webpack_require__.e/* import() */(1).then(__webpack_require__.bind(null, 26)));
+  next = next.then(() => __webpack_require__.e/* import() */(1).then(__webpack_require__.bind(null, 53)));
 }
 
 if ('customElements' in window === false) {
-  next = next.then(() => __webpack_require__.e/* import() */(2).then(__webpack_require__.bind(null, 24)));
+  next = next.then(() => __webpack_require__.e/* import() */(2).then(__webpack_require__.bind(null, 51)));
 }
 
 window.xin = {
@@ -556,28 +607,40 @@ window.xin = {
   'xin.View.transition': 'fade'
 };
 
-next.then(() => __webpack_require__.e/* import() */(0).then(__webpack_require__.bind(null, 25)));
-
-/***/ }),
-/* 6 */
-/***/ (function(module, exports, __webpack_require__) {
-
-module.exports = __webpack_require__.p + "index.html";
+next.then(() => __webpack_require__.e/* import() */(0).then(__webpack_require__.bind(null, 52)));
 
 /***/ }),
 /* 7 */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__.p + "pages/index.md";
+module.exports = __webpack_require__.p + "favicon.ico";
 
 /***/ }),
 /* 8 */
 /***/ (function(module, exports, __webpack_require__) {
 
+module.exports = __webpack_require__.p + "manifest.json";
+
+/***/ }),
+/* 9 */
+/***/ (function(module, exports, __webpack_require__) {
+
+module.exports = __webpack_require__.p + "index.html";
+
+/***/ }),
+/* 10 */
+/***/ (function(module, exports, __webpack_require__) {
+
+module.exports = __webpack_require__.p + "pages/index.md";
+
+/***/ }),
+/* 11 */
+/***/ (function(module, exports, __webpack_require__) {
+
 // style-loader: Adds some css to the DOM by adding a <style> tag
 
 // load the styles
-var content = __webpack_require__(10);
+var content = __webpack_require__(13);
 if(typeof content === 'string') content = [[module.i, content, '']];
 // add the styles to the DOM
 var update = __webpack_require__(1)(content, {});
@@ -597,13 +660,13 @@ if(false) {
 }
 
 /***/ }),
-/* 9 */
+/* 12 */
 /***/ (function(module, exports, __webpack_require__) {
 
 // style-loader: Adds some css to the DOM by adding a <style> tag
 
 // load the styles
-var content = __webpack_require__(12);
+var content = __webpack_require__(15);
 if(typeof content === 'string') content = [[module.i, content, '']];
 // add the styles to the DOM
 var update = __webpack_require__(1)(content, {});
@@ -623,12 +686,12 @@ if(false) {
 }
 
 /***/ }),
-/* 10 */
+/* 13 */
 /***/ (function(module, exports, __webpack_require__) {
 
 exports = module.exports = __webpack_require__(0)();
 // imports
-exports.i(__webpack_require__(11), "");
+exports.i(__webpack_require__(14), "");
 
 // module
 exports.push([module.i, "html {\n  height: 100%\n}\n\nbody {\n  font-weight: 300;\n  height: 100%;\n}\n\nh1, h2, h3, h4, h5 {\n  font-weight: 300;\n  margin: 0;\n  margin-top: 20px\n}\n\n.padding {\n  padding: 20px;\n}\n\nxin-pager {\n  overflow: visible!important;\n}\n\nxin-markdown-view table {\n  width: 100%;\n}\n\nxin-markdown-view pre {\n  background-color: #eee;\n  padding: 20px;\n  overflow: auto;\n}\n", ""]);
@@ -637,7 +700,7 @@ exports.push([module.i, "html {\n  height: 100%\n}\n\nbody {\n  font-weight: 300
 
 
 /***/ }),
-/* 11 */
+/* 14 */
 /***/ (function(module, exports, __webpack_require__) {
 
 exports = module.exports = __webpack_require__(0)();
@@ -651,7 +714,7 @@ exports.push([module.i, "/*! normalize.css v5.0.0 | MIT License | github.com/nec
 
 
 /***/ }),
-/* 12 */
+/* 15 */
 /***/ (function(module, exports, __webpack_require__) {
 
 exports = module.exports = __webpack_require__(0)();
@@ -665,67 +728,211 @@ exports.push([module.i, "html.fit, html.fit body {\n  height: 100%;\n  padding: 
 
 
 /***/ }),
-/* 13 */
-/***/ (function(module, exports, __webpack_require__) {
-
-module.exports = __webpack_require__.p + "pages/concepts/binding.md";
-
-/***/ }),
-/* 14 */
-/***/ (function(module, exports, __webpack_require__) {
-
-module.exports = __webpack_require__.p + "pages/concepts/components.md";
-
-/***/ }),
-/* 15 */
-/***/ (function(module, exports, __webpack_require__) {
-
-module.exports = __webpack_require__.p + "pages/concepts/defer.md";
-
-/***/ }),
 /* 16 */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__.p + "pages/concepts/events.md";
+module.exports = __webpack_require__.p + "icons/android-icon-144x144.png";
 
 /***/ }),
 /* 17 */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__.p + "pages/concepts/helper-functions.md";
+module.exports = __webpack_require__.p + "icons/android-icon-192x192.png";
 
 /***/ }),
 /* 18 */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__.p + "pages/concepts/index.md";
+module.exports = __webpack_require__.p + "icons/android-icon-36x36.png";
 
 /***/ }),
 /* 19 */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__.p + "pages/concepts/selectors.md";
+module.exports = __webpack_require__.p + "icons/android-icon-48x48.png";
 
 /***/ }),
 /* 20 */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__.p + "pages/guides/getting-started.md";
+module.exports = __webpack_require__.p + "icons/android-icon-72x72.png";
 
 /***/ }),
 /* 21 */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__.p + "pages/guides/index.md";
+module.exports = __webpack_require__.p + "icons/android-icon-96x96.png";
 
 /***/ }),
 /* 22 */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__.p + "pages/views/index.md";
+module.exports = __webpack_require__.p + "icons/apple-icon-114x114.png";
 
 /***/ }),
 /* 23 */
+/***/ (function(module, exports, __webpack_require__) {
+
+module.exports = __webpack_require__.p + "icons/apple-icon-120x120.png";
+
+/***/ }),
+/* 24 */
+/***/ (function(module, exports, __webpack_require__) {
+
+module.exports = __webpack_require__.p + "icons/apple-icon-144x144.png";
+
+/***/ }),
+/* 25 */
+/***/ (function(module, exports, __webpack_require__) {
+
+module.exports = __webpack_require__.p + "icons/apple-icon-152x152.png";
+
+/***/ }),
+/* 26 */
+/***/ (function(module, exports, __webpack_require__) {
+
+module.exports = __webpack_require__.p + "icons/apple-icon-180x180.png";
+
+/***/ }),
+/* 27 */
+/***/ (function(module, exports, __webpack_require__) {
+
+module.exports = __webpack_require__.p + "icons/apple-icon-57x57.png";
+
+/***/ }),
+/* 28 */
+/***/ (function(module, exports, __webpack_require__) {
+
+module.exports = __webpack_require__.p + "icons/apple-icon-60x60.png";
+
+/***/ }),
+/* 29 */
+/***/ (function(module, exports, __webpack_require__) {
+
+module.exports = __webpack_require__.p + "icons/apple-icon-72x72.png";
+
+/***/ }),
+/* 30 */
+/***/ (function(module, exports, __webpack_require__) {
+
+module.exports = __webpack_require__.p + "icons/apple-icon-76x76.png";
+
+/***/ }),
+/* 31 */
+/***/ (function(module, exports, __webpack_require__) {
+
+module.exports = __webpack_require__.p + "icons/apple-icon-precomposed.png";
+
+/***/ }),
+/* 32 */
+/***/ (function(module, exports, __webpack_require__) {
+
+module.exports = __webpack_require__.p + "icons/apple-icon.png";
+
+/***/ }),
+/* 33 */
+/***/ (function(module, exports, __webpack_require__) {
+
+module.exports = __webpack_require__.p + "icons/favicon-16x16.png";
+
+/***/ }),
+/* 34 */
+/***/ (function(module, exports, __webpack_require__) {
+
+module.exports = __webpack_require__.p + "icons/favicon-32x32.png";
+
+/***/ }),
+/* 35 */
+/***/ (function(module, exports, __webpack_require__) {
+
+module.exports = __webpack_require__.p + "icons/favicon-96x96.png";
+
+/***/ }),
+/* 36 */
+/***/ (function(module, exports, __webpack_require__) {
+
+module.exports = __webpack_require__.p + "icons/ms-icon-144x144.png";
+
+/***/ }),
+/* 37 */
+/***/ (function(module, exports, __webpack_require__) {
+
+module.exports = __webpack_require__.p + "icons/ms-icon-150x150.png";
+
+/***/ }),
+/* 38 */
+/***/ (function(module, exports, __webpack_require__) {
+
+module.exports = __webpack_require__.p + "icons/ms-icon-310x310.png";
+
+/***/ }),
+/* 39 */
+/***/ (function(module, exports, __webpack_require__) {
+
+module.exports = __webpack_require__.p + "icons/ms-icon-70x70.png";
+
+/***/ }),
+/* 40 */
+/***/ (function(module, exports, __webpack_require__) {
+
+module.exports = __webpack_require__.p + "pages/concepts/binding.md";
+
+/***/ }),
+/* 41 */
+/***/ (function(module, exports, __webpack_require__) {
+
+module.exports = __webpack_require__.p + "pages/concepts/components.md";
+
+/***/ }),
+/* 42 */
+/***/ (function(module, exports, __webpack_require__) {
+
+module.exports = __webpack_require__.p + "pages/concepts/defer.md";
+
+/***/ }),
+/* 43 */
+/***/ (function(module, exports, __webpack_require__) {
+
+module.exports = __webpack_require__.p + "pages/concepts/events.md";
+
+/***/ }),
+/* 44 */
+/***/ (function(module, exports, __webpack_require__) {
+
+module.exports = __webpack_require__.p + "pages/concepts/helper-functions.md";
+
+/***/ }),
+/* 45 */
+/***/ (function(module, exports, __webpack_require__) {
+
+module.exports = __webpack_require__.p + "pages/concepts/index.md";
+
+/***/ }),
+/* 46 */
+/***/ (function(module, exports, __webpack_require__) {
+
+module.exports = __webpack_require__.p + "pages/concepts/selectors.md";
+
+/***/ }),
+/* 47 */
+/***/ (function(module, exports, __webpack_require__) {
+
+module.exports = __webpack_require__.p + "pages/guides/getting-started.md";
+
+/***/ }),
+/* 48 */
+/***/ (function(module, exports, __webpack_require__) {
+
+module.exports = __webpack_require__.p + "pages/guides/index.md";
+
+/***/ }),
+/* 49 */
+/***/ (function(module, exports, __webpack_require__) {
+
+module.exports = __webpack_require__.p + "pages/views/index.md";
+
+/***/ }),
+/* 50 */
 /***/ (function(module, exports, __webpack_require__) {
 
 module.exports = __webpack_require__.p + "pages/views/markdown.md";
