@@ -2,18 +2,23 @@ const path = require('path');
 const glob = require('glob');
 const BabiliPlugin = require('babili-webpack-plugin');
 
-module.exports = function (env = {}) {
-  let { port = 8080, minify = false } = env;
+module.exports = function ({ mode = 'dist', target = 'latest', port = 8080, minify = false } = {}) {
+  let env = { mode, port, minify };
   console.error('env=', env);
 
   return {
-    entry: getEntries(),
+    entry: getEntries(env),
     output: {
-      path: path.join(__dirname, 'dist'),
+      path: getBasePath(env),
       filename: `[name]${minify ? '.min' : ''}.js`,
     },
     devtool: 'source-map',
     plugins: getPlugins(env),
+    resolve: {
+      alias: {
+        xin: __dirname,
+      },
+    },
     module: {
       rules: [
         {
@@ -22,47 +27,91 @@ module.exports = function (env = {}) {
           use: [ 'style-loader', 'css-loader' ],
         },
         {
+          test: /\.css$/,
+          include: /node_modules\/prismjs/,
+          use: [ 'style-loader', 'css-loader' ],
+        },
+        {
+          test: /\.html$/,
+          exclude: /node_modules/,
+          use: 'html-loader',
+        },
+        {
+          test: /\.(jpe?g|png|gif|svg)(\?.*)?$/i,
+          use: getUrlLoader('./img/[name].[ext]'),
+        },
+        {
           test: /\.js$/,
           exclude: /node_modules/,
-          use: getBabelLoader(),
+          use: getBabelLoader(env),
         },
         {
           test: /\.js$/,
           include: /node_modules\/template-binding/,
-          use: getBabelLoader(),
+          use: getBabelLoader(env),
         },
       ],
     },
     devServer: {
-      contentBase: path.join(__dirname, 'dist'),
+      contentBase: getBasePath(env),
       compress: true,
       port: port,
+      hot: false,
     },
   };
 };
 
-function getBabelLoader () {
+function getBabelLoader ({ mode }) {
+  let plugins = [
+    require.resolve('babel-plugin-transform-async-to-generator'),
+    // [ require.resolve('babel-plugin-__coverage__'), { 'ignore': 'node_modules' } ],
+    // require.resolve('babel-plugin-syntax-dynamic-import'),
+  ];
+
+  if (mode !== 'docs') {
+    plugins.push(require.resolve('babel-plugin-istanbul'));
+  }
+
+  let presets = [
+    // require.resolve('babel-preset-es2015'),
+    // require.resolve('babel-preset-stage-3'),
+  ];
+
   return {
     loader: 'babel-loader',
     options: {
       babelrc: false,
-      plugins: [
-        require.resolve('babel-plugin-istanbul'),
-        // [ require.resolve('babel-plugin-__coverage__'), { 'ignore': 'node_modules' } ],
-      //   'babel-plugin-syntax-dynamic-import',
-      //   'babel-plugin-transform-async-to-generator',
-      ],
-      // presets: [
-      //   'babel-preset-es2015',
-      //   'babel-preset-stage-3',
-      // ],
+      plugins,
+      presets,
       cacheDirectory: true,
     },
   };
 }
 
-function getPlugins ({ minify = false } = {}) {
+function getUrlLoader (name = '[name].[ext]') {
+  return {
+    loader: 'url-loader',
+    options: {
+      limit: 1000,
+      name: name,
+    },
+  };
+}
+
+function getPlugins ({ mode, minify }) {
   let plugins = [];
+
+  // if (mode === 'docs') {
+  //   plugins.push(function () {
+  //     this.plugin('emit', (x, callback) => {
+  //       let files = glob.sync('./_docs/pages/**/*.md');
+  //       files.forEach(file => {
+  //         fs.copySync(file, path.join(__dirname, 'docs', file.split('_docs/')[1]));
+  //       });
+  //       callback();
+  //     });
+  //   });
+  // }
 
   if (minify) {
     plugins.push(
@@ -73,14 +122,28 @@ function getPlugins ({ minify = false } = {}) {
   return plugins;
 }
 
-// FIXME please add component tests
-function getEntries () {
-  const entries = {
-    // 'xin': './index.js',
-    // 'examples/binding': './examples/binding.js',
-  };
+function getBasePath ({ mode }) {
+  if (mode === 'docs') {
+    return path.join(__dirname, 'docs');
+  }
 
-  glob.sync('./test/**/*-test.js').forEach(test => (entries[test.match(/\/(test\/.*).js$/)[1]] = test));
+  return path.join(__dirname, 'dist');
+}
+
+function getEntries ({ mode }) {
+  const entries = {};
+
+  switch (mode) {
+    case 'docs':
+      glob.sync('./_docs/*.js').forEach(file => (entries[file.match(/\/_docs\/(.*).js$/)[1]] = file));
+      glob.sync('./_docs/demo/**/*.js').forEach(file => (entries[file.match(/\/_docs\/(.*).js$/)[1]] = file));
+      break;
+    case 'test':
+      glob.sync('./test/**/*-test.js').forEach(file => (entries[file.match(/\/(test\/.*).js$/)[1]] = file));
+      break;
+    default:
+      entries['xin'] = './index.js';
+  }
 
   return entries;
 }

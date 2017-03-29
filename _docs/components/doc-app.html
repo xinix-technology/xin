@@ -1,0 +1,10 @@
+<xin-lazy-view-middleware></xin-lazy-view-middleware>
+
+<doc-header class="layout horizontal"></doc-header>
+<div class="layout horizontal content">
+  <doc-nav id="nav"></doc-nav>
+  <xin-pager class="flex">
+    <xin-markdown-view lazy-view uri="/" src="/pages/index.md" class="padding"></xin-markdown-view>
+    <xin-markdown-view lazy-view uri="/pages/[.*]" class="padding"></xin-markdown-view>
+  </xin-pager>
+</div>

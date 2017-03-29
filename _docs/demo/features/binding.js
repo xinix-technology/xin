@@ -1,6 +1,6 @@
-import 'file-loader?name=[path][name].[ext]!./binding.html';
+import 'file-loader?name=demo/features/[name].[ext]!extract-loader?!./binding.html';
 
-import xin from '../';
+import xin from '../../';
 
 class XPanel extends xin.Component {
   get props () {

@@ -65,19 +65,36 @@ function base (base) {
 
       this.__initData();
 
-      this.__initTemplate();
+      // move to readyCallback
+      // this.__initProps();
+      //
+      // this.__initListeners();
+      // move to readyCallback
 
-      this.__initProps();
-
-      this.__initListeners();
-
-      this.async(this.readyCallback);
+      // move to attachedCallback
+      // this.async(this.readyCallback);
+      // move to attachedCallback
     }
 
     readyCallback () {
       this.__componentReady = true;
 
       if (setup.get('debug')) console.info(`READY ${this.is}`);
+
+      // moved from attachedCallback
+      if (!this.hasAttribute('xin-id')) {
+        // deferred set attributes until connectedCallback
+        this.setAttribute('xin-id', this.__id);
+      }
+      // moved from attachedCallback
+
+      // moved from createdCallback
+      this.__initTemplate();
+
+      this.__initProps();
+
+      this.__initListeners();
+      // moved from createdCallback
 
       this.__initPropValues();
 
@@ -103,9 +120,12 @@ function base (base) {
     attachedCallback () {
       this.__componentAttaching = true;
 
+      // moved from createdCallback
       if (!this.__componentReady) {
+        this.async(this.readyCallback);
         return;
       }
+      // moved from createdCallback
 
       // notify default props
       this.notify('__global');
@@ -113,11 +133,6 @@ function base (base) {
       this.notify('__app');
 
       if (setup.get('debug')) console.info(`ATTACHED ${this.is} ${this.__componentAttaching ? '(delayed)' : ''}`);
-
-      if (!this.hasAttribute('xin-id')) {
-        // deferred set attributes until connectedCallback
-        this.setAttribute('xin-id', this.__id);
-      }
 
       this.attached();
 
