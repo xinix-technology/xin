@@ -16,10 +16,12 @@ class Route {
 
     if (chunks[1]) {
       optRe = '(?:' + chunks[1].slice(0, -1).replace(/{([^}]+)}/g, function (g, token) {
-        tokens.push(token);
-        return '([^/]+)';
+        let [ realToken, re = '[^/]+' ] = token.split(':');
+        tokens.push(realToken);
+        return `(${re})`;
       }).replace(/\//g, '\\/') + ')?';
     }
+
     return [ new RegExp('^' + re + optRe + '$'), tokens ];
   }
 

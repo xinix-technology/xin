@@ -62,6 +62,11 @@ class View extends xin.Component {
     this.classList.remove('xin-view--focus');
     this.classList.remove('xin-view--visible');
 
+    if (!this.__app) {
+      console.warn('Cannot route view to undefined app');
+      return;
+    }
+
     this.__app.route(this.uri, parameters => {
       this.focus(parameters);
     });

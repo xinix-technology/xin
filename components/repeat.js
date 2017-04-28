@@ -6,7 +6,7 @@ const FILTER_ALL = () => true;
 
 class Repeat extends xin.base('HTMLTemplateElement') {
   get props () {
-    return {
+    return Object.assign({}, super.props, {
       items: {
         type: Array,
         observer: '_itemsChanged(items, filter)',
@@ -26,7 +26,7 @@ class Repeat extends xin.base('HTMLTemplateElement') {
         type: Function,
         observer: '_itemsChanged(items, filter)',
       },
-    };
+    });
   }
 
   created () {

@@ -7,14 +7,30 @@ class LazyView extends Middleware {
     return Object.assign({}, super.props, {
       loaders: {
         type: Array,
-        value: () => (xin.setup.viewLoaders || []),
+        value: () => (xin.setup.get('viewLoaders') || []),
       },
     });
   }
+
   created () {
     super.created();
 
     this.views = [];
+  }
+
+  attached () {
+    super.attached();
+
+    this.loaders.push({
+      test: /^xin-/,
+      load (view) {
+        if (view.name === 'xin-view') {
+          return System.import('../components/view');
+        }
+        let name = view.name.match(/^xin-(.+)-view$/)[1];
+        return System.import(`../views/${name}`);
+      },
+    });
   }
 
   get (uri) {
@@ -65,6 +81,6 @@ class LazyView extends Middleware {
   }
 }
 
-xin.define('lazy-view-middleware', LazyView);
+xin.define('xin-lazy-view-middleware', LazyView);
 
 export default LazyView;

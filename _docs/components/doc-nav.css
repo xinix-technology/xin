@@ -1,0 +1,101 @@
+doc-nav {
+  display: none;
+  z-index: 9999;
+}
+
+doc-nav .doc-nav__content {
+  position: fixed;
+  top: 32px;
+  bottom: 32px;
+  left: 32px;
+  right: 32px;
+  overflow: auto;
+  background-color: rgba(255, 255, 255, 0.9);
+  z-index: 99;
+  box-shadow: 0px 0px 32px rgba(0,0,0,.8);
+}
+
+doc-nav .doc-nav__overlay {
+  background-color: rgba(0,0,0,.5);
+  pointer-events: none;
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 100%;
+  z-index: 4;
+  transition-property: opacity;
+  transition-duration: .2s;
+  transition-timing-function: cubic-bezier(.4,0,.2,1);
+}
+
+doc-nav .doc-nav__header,
+doc-nav .doc-nav__item {
+  display: block;
+  line-height: 24px;
+  padding: 5px 30px;
+  margin: 0;
+  font-size: 1rem;
+  border-left: 4px solid transparent;
+}
+
+doc-nav .doc-nav__item.doc-nav--selected {
+  border-left: 4px solid #f50057;
+  color: #f50057;
+}
+
+doc-nav a {
+  text-decoration: none;
+  color: #333;
+}
+
+doc-nav .doc-nav__header {
+  font-weight: bold;
+  margin-top: 20px;
+  font-size: .8rem;
+  border-bottom: 1px dashed #ddd;
+}
+
+doc-nav .doc-nav__close {
+  width: 32px;
+  height: 32px;
+  right: 40px;
+  top: 40px;
+  position: absolute;
+  z-index: 99;
+}
+
+doc-nav.doc-nav--visible {
+  display: block;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 99999;
+}
+
+@media screen and (min-width: 768px) {
+  doc-nav {
+    display: block;
+  }
+
+  doc-nav .doc-nav__overlay {
+    display: none;
+  }
+
+  doc-nav .doc-nav__content {
+    width: 250px;
+    position: relative;
+    top: auto;
+    bottom: auto;
+    left: auto;
+    right: auto;
+    box-shadow: inherit;
+  }
+
+  doc-nav .doc-nav__close,
+  .doc-nav--handle {
+    display: none!important;
+  }
+}
