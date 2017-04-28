@@ -50,6 +50,7 @@
     "mocha": "^3.2.0",
     "mocha-loader": "webpack-contrib/mocha-loader#master",
     "prismjs": "^1.6.0",
+    "sprintf-js": "^1.0.3",
     "style-loader": "^0.13.1",
     "url-loader": "^0.5.8",
     "webpack": "^2.2.1",

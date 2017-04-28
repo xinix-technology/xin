@@ -24,8 +24,11 @@ class LazyView extends Middleware {
     this.loaders.push({
       test: /^xin-/,
       load (view) {
+        if (view.name === 'xin-view') {
+          return System.import('../components/view');
+        }
         let name = view.name.match(/^xin-(.+)-view$/)[1];
-        return System.import(`xin/views/${name}`);
+        return System.import(`../views/${name}`);
       },
     });
   }

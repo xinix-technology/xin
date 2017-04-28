@@ -53,3 +53,25 @@ Components can access several default system properties:
 - `component.__app`
 - `component.__global`
 - `component.__setup`
+
+## Put reference to model
+
+```html
+<foo-container id="container">
+  <template>
+    <foo-object id="theFoo" ref="foo"></foo-object>
+  </template>
+</foo-container>
+```
+
+```js
+let container = document.getElementById('container');
+
+if (container.foo === document.getElementById('theFoo')) {
+  console.log('Reference OK');
+}
+```
+
+## Misc
+
+- .sprintf()

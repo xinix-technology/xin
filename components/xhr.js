@@ -2,7 +2,7 @@ import xin from '../';
 
 class XHR extends xin.Component {
   get props () {
-    return {
+    return Object.assign({}, super.props, {
       auto: {
         type: Boolean,
         value: false,
@@ -43,7 +43,7 @@ class XHR extends xin.Component {
         type: Object,
         notify: true,
       },
-    };
+    });
   }
 
   _urlChanged () {

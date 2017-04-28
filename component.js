@@ -10,6 +10,7 @@ import { get, put } from './repository';
 import { dashify } from 'inflector';
 import setup from './setup';
 import NotifyAnnotation from './notify-annotation';
+import { sprintf } from 'sprintf-js';
 
 const nextId = (function () {
   let id = 0;
@@ -44,6 +45,16 @@ function base (base) {
 
     get $ () {
       return this.__templateHost.getElementsByTagName('*');
+    }
+
+    get props () {
+      return {
+        ref: {
+          type: Object,
+          readonly: true,
+          notify: true,
+        },
+      };
     }
 
     created () {}
@@ -134,6 +145,7 @@ function base (base) {
 
       if (setup.get('debug')) console.info(`ATTACHED ${this.is} ${this.__componentAttaching ? '(delayed)' : ''}`);
 
+      this.set('ref', this);
       this.attached();
 
       this.__componentAttaching = false;
@@ -141,6 +153,7 @@ function base (base) {
 
     detachedCallback () {
       this.detached();
+      this.set('ref', null);
     }
 
     connectedCallback () {
@@ -354,6 +367,10 @@ function base (base) {
 
     nextFrame (callback) {
       return Async.nextFrame(callback.bind(this));
+    }
+
+    sprintf (...args) {
+      return sprintf(...args);
     }
 
     // T overriden

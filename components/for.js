@@ -7,7 +7,7 @@ const FILTER_ALL = () => true;
 
 class For extends xin.Component {
   get props () {
-    return {
+    return Object.assign({}, super.props, {
       items: {
         type: Array,
         observer: '_itemsChanged(items, filter)',
@@ -27,7 +27,7 @@ class For extends xin.Component {
         type: Function,
         observer: '_itemsChanged(items, filter)',
       },
-    };
+    });
   }
 
   created () {
