@@ -1,9 +1,9 @@
-import xin from '../';
-import Fx from '../fx';
+import { Component, define } from '../component';
+import { Fx } from '../core';
 
 import './css/pager.css';
 
-class Pager extends xin.Component {
+export class Pager extends Component {
   ready () {
     super.ready();
 
@@ -80,7 +80,6 @@ class Pager extends xin.Component {
   }
 }
 
-xin.define('xin-pager', Pager);
-// xin.Pager = Pager;
+define('xin-pager', Pager);
 
 export default Pager;

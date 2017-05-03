@@ -1,11 +1,11 @@
-import xin from 'xin';
-import App from 'xin/components/app';
+import xin from '@xinix/xin';
+import { App } from '@xinix/xin/components';
 import html from './doc-app.html';
 
-import 'xin/components/pager';
+import '@xinix/xin/components/pager';
 import './doc-header';
 import './doc-nav';
-import 'xin/middlewares/lazy-view';
+import '@xinix/xin/middlewares/lazy-view';
 
 class DocApp extends App {
   get template () {

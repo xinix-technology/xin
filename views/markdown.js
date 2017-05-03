@@ -16,7 +16,7 @@ marked.setOptions({
   },
 });
 
-class MarkdownView extends View {
+export class MarkdownView extends View {
   get props () {
     return Object.assign({}, super.props, {
       src: {

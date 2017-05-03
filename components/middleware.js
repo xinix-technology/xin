@@ -1,6 +1,6 @@
-import xin from '../';
+import { Component } from '../component';
 
-class Middleware extends xin.Component {
+export class Middleware extends Component {
   attached () {
     super.attached();
 

@@ -1,16 +1,16 @@
-require('file-loader?name=[name].[ext]!extract-loader?!./index.html');
+require('file-loader?name=[name].[ext]!extract-loader?!./index.html'); // eslint-disable-line import/no-webpack-loader-syntax
 
 require('./css/main.css');
-require('xin/css/layout.css');
+require('@xinix/xin/css/layout.css');
 
-require('file-loader?name=pages/[name].[ext]!./pages/index.md');
+require('file-loader?name=pages/[name].[ext]!./pages/index.md'); // eslint-disable-line import/no-webpack-loader-syntax
 let file = 'index';
 require('file-loader?name=pages/guides/[name].[ext]!./pages/guides/' + file + '.md');
 require('file-loader?name=pages/concepts/[name].[ext]!./pages/concepts/' + file + '.md');
 require('file-loader?name=pages/views/[name].[ext]!./pages/views/' + file + '.md');
 
-require('file-loader?name=[name].[ext]!./favicon.ico');
-require('file-loader?name=[name].[ext]!./manifest.json');
+require('file-loader?name=[name].[ext]!./favicon.ico'); // eslint-disable-line import/no-webpack-loader-syntax
+require('file-loader?name=[name].[ext]!./manifest.json'); // eslint-disable-line import/no-webpack-loader-syntax
 file = 'apple-icon';
 require('file-loader?name=icons/[name].[ext]!./icons/' + file + '.png');
 

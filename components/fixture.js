@@ -1,6 +1,6 @@
-import xin from '../';
+import { Component, define } from '../component';
 
-class Fixture extends xin.Component {
+export class Fixture extends Component {
   static create (template) {
     const t = `
       <xin-fixture>
@@ -58,6 +58,6 @@ class Fixture extends xin.Component {
   }
 }
 
-xin.define('xin-fixture', Fixture);
+define('xin-fixture', Fixture);
 
 export default Fixture;

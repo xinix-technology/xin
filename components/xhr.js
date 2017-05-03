@@ -1,6 +1,6 @@
-import xin from '../';
+import { Component, define } from '../component';
 
-class XHR extends xin.Component {
+export class XHR extends Component {
   get props () {
     return Object.assign({}, super.props, {
       auto: {
@@ -158,6 +158,6 @@ class XHR extends xin.Component {
   }
 }
 
-xin.define('xin-xhr', XHR);
+define('xin-xhr', XHR);
 
 export default XHR;

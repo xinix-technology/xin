@@ -1,4 +1,4 @@
-import xin from 'xin';
+import xin from '@xinix/xin';
 import html from './doc-header.html';
 
 import './doc-header.css';

@@ -1,10 +1,9 @@
-import T from 'template-binding';
-import xin from '../';
-import Row from './row';
+import { Row } from './for/row';
+import { base, define, T } from '../component';
 
 const FILTER_ALL = () => true;
 
-class Repeat extends xin.base('HTMLTemplateElement') {
+export class Repeat extends base('HTMLTemplateElement') {
   get props () {
     return Object.assign({}, super.props, {
       items: {
@@ -85,6 +84,6 @@ class Repeat extends xin.base('HTMLTemplateElement') {
   }
 }
 
-xin.define('xin-repeat', Repeat, { extends: 'template' });
+define('xin-repeat', Repeat, { extends: 'template' });
 
 export default Repeat;

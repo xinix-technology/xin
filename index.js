@@ -1,23 +1,28 @@
-import setup from './setup';
-import { get, put } from './repository';
-import { Component, base, define } from './component';
+import { Repository, deprecated } from './core';
+import { Component, define } from './component';
 
-const xin = (() => {
-  if ('xin' in window && typeof window.xin === 'function') {
-    return window.xin;
+function bootstrap () {
+  let instance = Repository.getInstance();
+
+  if ('Component' in instance === false) {
+    Object.defineProperties(instance, {
+      Component: {
+        get () {
+          deprecated('xin.Component', 'import { Component } from \'@xinix/xin\'');
+          return Component;
+        },
+      },
+
+      define: {
+        get () {
+          deprecated('xin.define', 'import { define } from \'@xinix/xin\'');
+          return define;
+        },
+      },
+    });
   }
 
-  let xin = (id) => get(id);
-
-  xin.put = put;
-  xin.setup = setup;
-  xin.Component = Component;
-  xin.base = base;
-  xin.define = define;
-
-  return xin;
-})();
-
-window.xin = xin;
-
-export default xin;
+  return instance;
+}
+export default bootstrap();
+export * from './component';

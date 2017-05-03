@@ -1,8 +1,8 @@
-import 'file-loader?name=demo/features/[name].[ext]!extract-loader?!./binding.html';
+import 'file-loader?name=demo/features/[name].[ext]!extract-loader?!./binding.html'; // eslint-disable-line import/no-webpack-loader-syntax
 
-import xin from '../../';
+import { define, Component } from '@xinix/xin';
 
-class XPanel extends xin.Component {
+class XPanel extends Component {
   get props () {
     return Object.assign({}, super.props, {
       foo: {
@@ -13,4 +13,4 @@ class XPanel extends xin.Component {
   }
 }
 
-xin.define('x-panel', XPanel);
+define('x-panel', XPanel);

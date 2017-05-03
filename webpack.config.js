@@ -16,7 +16,7 @@ module.exports = function ({ mode = 'dist', target = 'latest', port = 8080, mini
     plugins: getPlugins(env),
     resolve: {
       alias: {
-        xin: __dirname,
+        '@xinix/xin': __dirname,
       },
     },
     module: {

@@ -21,7 +21,8 @@
     "test": "karma start --single-run",
     "dev": "karma start",
     "docs": "webpack-dev-server --env.mode=docs",
-    "build": "webpack --env.minify=1 && webpack --env.mode=docs"
+    "build": "webpack --env.minify=1 && webpack --env.mode=docs",
+    "build:docs": "webpack --env.mode=docs"
   },
   "devDependencies": {
     "@webcomponents/custom-elements": "^1.0.0-alpha.3",
@@ -58,11 +59,5 @@
     "whatwg-fetch": "^2.0.3"
   },
   "dependencies": {
-    "event-helper": "xinix-technology/event-helper#1.0.1",
-    "function-helper": "xinix-technology/function-helper#1.0.1",
-    "inflector": "xinix-technology/inflector#1.0.0",
-    "object-helper": "xinix-technology/object-helper#1.0.0",
-    "serializer": "xinix-technology/serializer#1.0.0",
-    "template-binding": "xinix-technology/template-binding#1.1.4"
   }
 }
