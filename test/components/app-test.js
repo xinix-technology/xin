@@ -6,6 +6,6 @@ import '../../components/app';
 
 describe('App', () => {
   it('defined', () => {
-    assert(xin('xin-app'));
+    assert(xin.get('xin-app'));
   });
 });

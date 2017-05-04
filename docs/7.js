@@ -1,4 +1,4 @@
-webpackJsonp([4,5,6,8],{
+webpackJsonp([7,3,4,5,6,8],{
 
 /***/ 101:
 /***/ (function(module, exports, __webpack_require__) {
@@ -2469,7 +2469,39 @@ if(false) {
 	module.hot.dispose(function() { update(); });
 }
 
+/***/ }),
+
+/***/ 111:
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__view__ = __webpack_require__(103);
+/* harmony namespace reexport (by provided) */ __webpack_require__.d(__webpack_exports__, "View", function() { return __WEBPACK_IMPORTED_MODULE_0__view__["View"]; });
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__markdown__ = __webpack_require__(106);
+/* harmony namespace reexport (by provided) */ __webpack_require__.d(__webpack_exports__, "MarkdownView", function() { return __WEBPACK_IMPORTED_MODULE_1__markdown__["MarkdownView"]; });
+
+
+
+/***/ }),
+
+/***/ 126:
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__core__ = __webpack_require__(1);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__views__ = __webpack_require__(111);
+/* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "View", function() { return __WEBPACK_IMPORTED_MODULE_1__views__["View"]; });
+
+
+
+__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__core__["b" /* deprecated */])('components/view', 'import { View } from \'@xinix/xin/views\'');
+
+
+/* harmony default export */ __webpack_exports__["default"] = (__WEBPACK_IMPORTED_MODULE_1__views__["View"]);
+
 /***/ })
 
 });
-//# sourceMappingURL=4.js.map
+//# sourceMappingURL=7.js.map

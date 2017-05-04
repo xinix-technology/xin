@@ -6,7 +6,7 @@ import Fixture from '../../components/fixture';
 
 describe('Fixture', () => {
   it('defined', () => {
-    assert(xin('xin-fixture'));
+    assert(xin.get('xin-fixture'));
   });
 
   describe('.create()', () => {

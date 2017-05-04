@@ -1,7 +1,7 @@
-import { Component, define } from '../component';
-import { Fx } from '../core';
+import { Component, define } from '../../component';
+import { Fx } from '../../core';
 
-import './css/pager.css';
+import './pager.css';
 
 export class Pager extends Component {
   ready () {
@@ -81,5 +81,3 @@ export class Pager extends Component {
 }
 
 define('xin-pager', Pager);
-
-export default Pager;

@@ -1,13 +1,12 @@
-import xin from '../../';
+import { Component, define } from '../../component';
 import { Fx } from '../../core';
 
 import './view.css';
 
-
-export class View extends xin.Component {
+export class View extends Component {
   get props () {
-    const TRANSITION_IN = this.__config.get('xin.View.transitionIn') || this.__config.get('xin.View.transition') || 'slide';
-    const TRANSITION_OUT = this.__config.get('xin.View.transitionOut') || this.__config.get('xin.View.transition') || 'fade';
+    const TRANSITION_IN = this.__repository.get('view.transitionIn') || this.__repository.get('view.transition') || 'slide';
+    const TRANSITION_OUT = this.__repository.get('view.transitionOut') || this.__repository.get('view.transition') || 'fade';
 
     return Object.assign({}, super.props, {
       uri: {
@@ -126,6 +125,4 @@ export class View extends xin.Component {
   }
 }
 
-xin.define('xin-view', View);
-
-export default View;
+define('xin-view', View);

@@ -32,3 +32,41 @@ xin-markdown-view pre {
   padding: 20px;
   overflow: auto;
 }
+
+html.fit, html.fit body {
+  height: 100%;
+  padding: 0;
+  margin: 0;
+}
+
+.layout {
+  height: 100%;
+  weight: 100%;
+
+  display: -webkit-box;
+  display: box;
+  display: -webkit-flex;
+  display: flex;
+
+  -webkit-box-orient: vertical;
+  box-orient: vertical;
+
+  -webkit-flex-direction: column;
+  flex-direction: column;
+}
+
+.layout.horizontal {
+  -webkit-box-orient: horizontal;
+  box-orient: horizontal;
+
+  -webkit-flex-direction: row;
+  flex-direction: row;
+}
+
+.layout .flex {
+  -webkit-box-flex: 1;
+  box-flex: 1;
+
+  -webkit-flex: 1;
+  flex: 1;
+}

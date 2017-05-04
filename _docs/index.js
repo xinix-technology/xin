@@ -1,7 +1,6 @@
 require('file-loader?name=[name].[ext]!extract-loader?!./index.html'); // eslint-disable-line import/no-webpack-loader-syntax
 
 require('./css/main.css');
-require('@xinix/xin/css/layout.css');
 
 require('file-loader?name=pages/[name].[ext]!./pages/index.md'); // eslint-disable-line import/no-webpack-loader-syntax
 let file = 'index';
@@ -24,8 +23,8 @@ if ('customElements' in window === false) {
 }
 
 window.xin = {
-  // 'debug': true,
-  'xin.View.transition': 'fade',
+  // 'env.debug': true,
+  'view.transition': 'fade',
 };
 
 next.then(() => System.import('./components/doc-app'));

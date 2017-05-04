@@ -1,11 +1,11 @@
-import { Repository, deprecated } from './core';
+import { getInstance, deprecated } from './core';
 import { Component, define } from './component';
 
-function bootstrap () {
-  let instance = Repository.getInstance();
+export default (function () {
+  let repository = getInstance();
 
-  if ('Component' in instance === false) {
-    Object.defineProperties(instance, {
+  if ('Component' in repository === false) {
+    Object.defineProperties(repository, {
       Component: {
         get () {
           deprecated('xin.Component', 'import { Component } from \'@xinix/xin\'');
@@ -22,7 +22,7 @@ function bootstrap () {
     });
   }
 
-  return instance;
-}
-export default bootstrap();
+  return repository;
+})();
+export * from './core';
 export * from './component';

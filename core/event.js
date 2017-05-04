@@ -1,3 +1,7 @@
+import { IdGenerator } from './id-generator';
+
+const idGenerator = new IdGenerator('event');
+
 let _matcher;
 let _level = 0;
 let _id = 0;
@@ -207,11 +211,6 @@ function _handleEvent (id, e, type) {
   }
 }
 
-let id = 0;
-function nextId () {
-  return id++;
-}
-
 const aliases = new Map();
 const aliasesDefaultTranslator = name => ([ name ]);
 const aliasesTranslators = {
@@ -275,7 +274,7 @@ function _bind (events, selector, callback, remove) {
     if (selector.hasAttribute('bind-event-id')) {
       id = selector.getAttribute('bind-event-id');
     } else {
-      id = nextId();
+      id = idGenerator.next();
       selector.setAttribute('bind-event-id', id);
     }
     selector = `[bind-event-id="${id}"]`;

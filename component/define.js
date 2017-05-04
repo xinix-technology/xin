@@ -1,16 +1,16 @@
-import { Repository } from '../core';
+import { getInstance } from '../core';
 
 export function define (name, Component, options) {
-  const repo = Repository.getInstance();
+  const repository = getInstance();
 
-  let ElementClass = repo.get(name);
+  let ElementClass = repository.get(name);
 
   if (ElementClass) {
     console.warn(`Duplicate registering ${name}`);
     return ElementClass;
   }
 
-  if (repo.get('config').get('customElements.version') === 'v1') {
+  if (repository.get('customElements.version') === 'v1') {
     // v1 the element class is the component itself
     ElementClass = Component;
     window.customElements.define(name, Component, options);
@@ -25,7 +25,7 @@ export function define (name, Component, options) {
     ElementClass = document.registerElement(name, ElementPrototype);
   }
 
-  repo.put(name, ElementClass);
+  repository.put(name, ElementClass);
 
   return ElementClass;
 }

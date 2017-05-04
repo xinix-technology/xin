@@ -6,6 +6,6 @@ import '../../components/view';
 
 describe('View', () => {
   it('defined', () => {
-    assert(xin('xin-view'));
+    assert(xin.get('xin-view'));
   });
 });

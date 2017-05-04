@@ -1,6 +1,6 @@
 {
-  "name": "xin",
-  "version": "2.4.0",
+  "name": "@xinix/xin",
+  "version": "2.4.1",
   "description": "Javascript SPA framework with web component",
   "author": [
     "Ganesha <reekoheek@gmail.com>",

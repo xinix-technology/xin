@@ -1,4 +1,4 @@
-webpackJsonp([5,6],{
+webpackJsonp([5,6,8],{
 
 /***/ 101:
 /***/ (function(module, exports, __webpack_require__) {
@@ -47,7 +47,18 @@ if(false) {
 
 "use strict";
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0____ = __webpack_require__(6);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__view__ = __webpack_require__(104);
+/* harmony namespace reexport (by provided) */ __webpack_require__.d(__webpack_exports__, "View", function() { return __WEBPACK_IMPORTED_MODULE_0__view__["View"]; });
+
+
+/***/ }),
+
+/***/ 104:
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__component__ = __webpack_require__(5);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__core__ = __webpack_require__(1);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__view_css__ = __webpack_require__(102);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__view_css___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2__view_css__);
@@ -58,10 +69,10 @@ function _asyncToGenerator(fn) { return function () { var gen = fn.apply(this, a
 
 
 
-class View extends __WEBPACK_IMPORTED_MODULE_0____["c" /* default */].Component {
+class View extends __WEBPACK_IMPORTED_MODULE_0__component__["a" /* Component */] {
   get props() {
-    const TRANSITION_IN = this.__config.get('xin.View.transitionIn') || this.__config.get('xin.View.transition') || 'slide';
-    const TRANSITION_OUT = this.__config.get('xin.View.transitionOut') || this.__config.get('xin.View.transition') || 'fade';
+    const TRANSITION_IN = this.__repository.get('view.transitionIn') || this.__repository.get('view.transition') || 'slide';
+    const TRANSITION_OUT = this.__repository.get('view.transitionOut') || this.__repository.get('view.transition') || 'fade';
 
     return Object.assign({}, super.props, {
       uri: {
@@ -190,9 +201,7 @@ class View extends __WEBPACK_IMPORTED_MODULE_0____["c" /* default */].Component 
 /* harmony export (immutable) */ __webpack_exports__["View"] = View;
 
 
-__WEBPACK_IMPORTED_MODULE_0____["c" /* default */].define('xin-view', View);
-
-/* harmony default export */ __webpack_exports__["default"] = (View);
+__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__component__["b" /* define */])('xin-view', View);
 
 /***/ })
 

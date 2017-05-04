@@ -5,7 +5,7 @@ Markdown View
 ## Import
 
 ```js
-import 'xin/views/markdown'
+import '@xinix/xin/views/markdown'
 ```
 
 ## Usage

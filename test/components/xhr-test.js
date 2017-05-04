@@ -10,6 +10,6 @@ import '../../components/xhr';
 
 describe('XHR', () => {
   it('defined', () => {
-    assert(xin('xin-xhr'));
+    assert(xin.get('xin-xhr'));
   });
 });

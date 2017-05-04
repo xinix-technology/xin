@@ -1,4 +1,5 @@
 import { Row } from './for/row';
+import { deprecated } from '../core';
 import { base, define, T } from '../component';
 
 const FILTER_ALL = () => true;
@@ -30,6 +31,8 @@ export class Repeat extends base('HTMLTemplateElement') {
 
   created () {
     super.created();
+
+    deprecated('components/repeat', 'Please use xin-for instead');
 
     this.rows = [];
   }

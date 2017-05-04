@@ -1,4 +1,4 @@
-import { Repository, nextId, event } from '../core';
+import { getInstance, IdGenerator, event } from '../core';
 import { dashify } from '../string';
 import { deserialize, val } from '../object';
 import { T } from './template';
@@ -8,17 +8,18 @@ import { NotifyAnnotation } from './annotation';
 import { Async, Debounce } from '../fn';
 import { sprintf } from 'sprintf-js';
 
+const idGenerator = new IdGenerator('component');
 const baseComponents = {};
 
 export function base (base) {
-  let repo = Repository.getInstance();
+  const repository = getInstance();
 
   if (baseComponents[base]) {
     return baseComponents[base];
   }
 
   let BaseElement;
-  if (repo.get('config').get('customElements.version')) {
+  if (repository.get('customElements.version') === 'v1') {
     BaseElement = window[base];
   } else {
     BaseElement = function () {};
@@ -57,11 +58,9 @@ export function base (base) {
     detached () {}
 
     createdCallback () {
-      if (this.__config.get('debug')) console.info(`CREATED ${this.is}`);
+      if (this.__repository.get('env.debug')) console.info(`CREATED ${this.is}`);
 
-      this.__id = nextId('component');
-
-      this.__repository.put(this.__id, this);
+      this.__id = idGenerator.next();
 
       this.created();
 
@@ -81,7 +80,7 @@ export function base (base) {
     readyCallback () {
       this.__componentReady = true;
 
-      if (this.__config.get('debug')) console.info(`READY ${this.is}`);
+      if (this.__repository.get('env.debug')) console.info(`READY ${this.is}`);
 
       // moved from attachedCallback
       if (!this.hasAttribute('xin-id')) {
@@ -120,6 +119,8 @@ export function base (base) {
     }
 
     attachedCallback () {
+      this.__repository.put(this.__id, this);
+
       this.__componentAttaching = true;
 
       // moved from createdCallback
@@ -131,10 +132,10 @@ export function base (base) {
 
       // notify default props
       this.notify('__global');
-      this.notify('__config');
+      this.notify('__repository');
       this.notify('__app');
 
-      if (this.__config.get('debug')) console.info(`ATTACHED ${this.is} ${this.__componentAttaching ? '(delayed)' : ''}`);
+      if (this.__repository.get('env.debug')) console.info(`ATTACHED ${this.is} ${this.__componentAttaching ? '(delayed)' : ''}`);
 
       this.set('ref', this);
       this.attached();
@@ -143,6 +144,8 @@ export function base (base) {
     }
 
     detachedCallback () {
+      this.__repository.remove(this.__id);
+
       this.detached();
       this.set('ref', null);
     }
@@ -175,12 +178,8 @@ export function base (base) {
       return window;
     }
 
-    get __config () {
-      return this.__repository.get('config');
-    }
-
     get __repository () {
-      return Repository.getInstance();
+      return repository;
     }
 
     __initData () {

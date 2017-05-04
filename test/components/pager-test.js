@@ -6,6 +6,6 @@ import '../../components/pager';
 
 describe('Pager', () => {
   it('defined', () => {
-    assert(xin('xin-pager'));
+    assert(xin.get('xin-pager'));
   });
 });

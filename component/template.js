@@ -1,4 +1,4 @@
-import { event } from '../core';
+import { event, IdGenerator } from '../core';
 import { Expr } from './expr';
 import { Binding } from './binding';
 import { Accessor } from './accessor';
@@ -7,12 +7,7 @@ import { Annotation } from './annotation';
 import { fix } from './helpers/template';
 import { slotName } from './helpers/slot';
 
-const nextId = (function () {
-  let id = 0;
-  return function () {
-    return id++;
-  };
-})();
+const idGenerator = new IdGenerator('template');
 
 export function T (template, host, marker) {
   this.__templateInitialize(template, host, marker);
@@ -260,7 +255,7 @@ T.prototype = {
   // },
 
   __templateInitialize (template, host, marker) {
-    this.__templateId = nextId();
+    this.__templateId = idGenerator.next();
     this.__templateBindings = {};
     this.__templateHost = host || (template ? template.parentElement : null);
     this.__templateMarker = marker;

@@ -1,5 +1,5 @@
-import xin from '../';
-import View from '../components/view';
+import { define } from '../component';
+import { View } from './view';
 import marked from 'marked';
 import Prism from 'prismjs';
 
@@ -72,4 +72,4 @@ export class MarkdownView extends View {
   }
 }
 
-xin.define('xin-markdown-view', MarkdownView);
+define('xin-markdown-view', MarkdownView);
