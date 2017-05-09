@@ -2,7 +2,7 @@
 
 Xin is Single Page Application framework using javascript.
 
-![Xin](http://xinix.co.id/storage/uploads/xin.png "SPA Framework")
+![Xin](http://sagara.id/wp-content/uploads/2017/01/xin.png "SPA Framework")
 
 ## Install
 
