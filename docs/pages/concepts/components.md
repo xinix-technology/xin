@@ -23,11 +23,10 @@ Foobar: Hello Ali
 Write lines below to new file named `foo-bar.js`.
 
 ```js
-// import xin
-import xin from xin;
+import { define, Component } from '@xinix/xin';
 
 // create new component class extend from xin.Component
-class FooBar extends xin.Component {
+class FooBar extends Component {
   get template () {
     return `Foobar: Hello <span>{name}</span>`;
   }
@@ -43,7 +42,7 @@ class FooBar extends xin.Component {
 }
 
 // define component class as foo-bar tag in html.
-xin.define('foo-bar', FooBar);
+define('foo-bar', FooBar);
 ```
 
 ## System Properties
