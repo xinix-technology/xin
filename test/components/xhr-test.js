@@ -1,6 +1,3 @@
-/* eslint-env mocha */
-
-import assert from 'assert';
 import xin from '../../';
 import '../../components/xhr';
 
@@ -10,6 +7,6 @@ import '../../components/xhr';
 
 describe('XHR', () => {
   it('defined', () => {
-    assert(xin.get('xin-xhr'));
+    expect(xin.get('xin-xhr')).toBeTruthy();
   });
 });

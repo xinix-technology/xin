@@ -27,6 +27,11 @@ export class For extends Component {
         type: Function,
         observer: '_itemsChanged(items, filter)',
       },
+
+      to: {
+        type: String,
+        value: '',
+      },
     });
   }
 
@@ -38,9 +43,24 @@ export class For extends Component {
 
   __initTemplate () {
     this.__templateFor = this.firstElementChild;
+    if (!this.__templateFor) {
+      throw new Error('Invalid xin-for definition, must be <xin-for items="[[items]]"><template>...</template></xin-for>');
+    }
     // this.__templateFor.__templateHost = this.__templateHost;
     this.removeChild(this.__templateFor);
-    T.prototype.__templateInitialize.call(this, null, this);
+
+    let marker = this;
+    let toAttr = this.getAttribute('to');
+    if (toAttr) {
+      let container = document.querySelector(toAttr);
+      if (!container) {
+        throw new Error(`xin-for render to unknown element ${toAttr}`);
+      }
+      marker = document.createComment(`marker-for`);
+      container.appendChild(marker);
+    }
+
+    T.prototype.__templateInitialize.call(this, null, this, marker);
   }
 
   _itemsChanged (items, filter) {

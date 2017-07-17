@@ -1,11 +1,8 @@
-/* eslint-env mocha */
-
-import assert from 'assert';
 import xin from '../../';
 import '../../components/pager';
 
 describe('Pager', () => {
   it('defined', () => {
-    assert(xin.get('xin-pager'));
+    expect(xin.get('xin-pager')).toBeTruthy();
   });
 });

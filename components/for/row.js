@@ -5,7 +5,7 @@ export class Row extends T {
     super();
 
     // override T constructor
-    this.__templateInitialize(template, host.__templateModel, host);
+    this.__templateInitialize(template, host.__templateModel, host.__templateMarker);
 
     this.is = '$repeat-row';
     this.__id = this.__templateId;

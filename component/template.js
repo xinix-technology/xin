@@ -34,15 +34,15 @@ T.prototype = {
   },
 
   on () {
-    event(this.__templateHost).on(...arguments);
+    event(this.__templateHost || this).on(...arguments);
   },
 
   off () {
-    event(this.__templateHost).off(...arguments);
+    event(this.__templateHost || this).off(...arguments);
   },
 
   once () {
-    event(this.__templateHost).once(...arguments);
+    event(this.__templateHost || this).once(...arguments);
   },
 
   all (obj) {

@@ -1,52 +1,65 @@
-/* eslint-env mocha */
-
-import assert from 'assert';
-import xin from '../';
-import Fixture from '../components/fixture';
+import { define, Component } from '../';
+import { Fixture } from '../components/fixture';
 
 describe('xin', () => {
   it('define in window', () => {
-    assert('xin' in window);
+    expect('xin' in window).toBeTruthy();
   });
 
   describe('new component', () => {
-    it('new component with full slot', async () => {
-      xin.define('foo-1', class extends xin.Component {
-        get template () {
-          return 'foo <slot></slot> bar';
-        }
-      });
+    it('new component with full slot', async done => {
+      try {
+        define('foo-1', class extends Component {
+          get template () {
+            return 'foo <slot></slot> bar';
+          }
+        });
 
-      let fixture = Fixture.create(`
-        <foo-1 id="foo">baz</foo-1>
-      `);
+        let fixture = Fixture.create(`
+          <foo-1 id="foo">baz</foo-1>
+        `);
 
-      await fixture.waitConnected();
+        await fixture.waitConnected();
 
-      assert.equal(window.foo.textContent, 'foo baz bar');
+        await new Promise(resolve => {
+          setTimeout(resolve, 1);
+        });
 
-      fixture.dispose();
+        expect(window.foo.textContent).toEqual('foo baz bar');
+
+        fixture.dispose();
+
+        done();
+      } catch (err) {
+        done.fail(err);
+      }
     });
 
-    it('new component with name slot', async () => {
-      xin.define('foo-2', class extends xin.Component {
-        get template () {
-          return '<slot name="first"></slot> <slot name="last"></slot>';
-        }
-      });
+    it('new component with name slot', async done => {
+      try {
+        define('foo-2', class extends Component {
+          get template () {
+            return '<slot name="first"></slot> <slot name="last"></slot>';
+          }
+        });
 
-      let fixture = Fixture.create(`
-        <foo-2 id="foo">
-          <span slot="first">first</span>
-          <span slot="last">last</span>
-        </foo-2>
-      `);
+        let fixture = Fixture.create(`
+          <foo-2 id="foo">
+            <span slot="first">first</span>
+            <span slot="last">last</span>
+          </foo-2>
+        `);
 
-      await fixture.waitConnected();
+        await fixture.waitConnected();
 
-      assert.equal(window.foo.textContent, 'first last');
+        expect(window.foo.textContent).toEqual('first last');
 
-      fixture.dispose();
+        fixture.dispose();
+
+        done();
+      } catch (err) {
+        done.fail(err);
+      }
     });
   });
 });

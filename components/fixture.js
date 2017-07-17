@@ -1,7 +1,7 @@
 import { Component, define } from '../component';
 
 export class Fixture extends Component {
-  static create (template) {
+  static create (template, data = {}) {
     const t = `
       <xin-fixture>
         <template>
@@ -13,6 +13,10 @@ export class Fixture extends Component {
     d.innerHTML = t;
     const fixture = d.querySelector('xin-fixture');
 
+    for (let i in data) {
+      fixture[i] = data[i];
+    }
+
     document.body.appendChild(fixture);
 
     return fixture;
@@ -22,7 +26,10 @@ export class Fixture extends Component {
     super.attached();
     this.connected = true;
 
-    this.fire('connected');
+    // delay connected to make sure children is already connected
+    this.async(() => {
+      this.fire('connected');
+    });
   }
 
   detached () {
@@ -37,24 +44,34 @@ export class Fixture extends Component {
     this.connected = false;
   }
 
-  waitConnected () {
-    return new Promise(resolve => {
+  async waitConnected (timeout) {
+    await new Promise(resolve => {
       if (this.connected) {
         resolve();
       } else {
         this.once('connected', resolve);
       }
     });
+
+    await this.wait(timeout);
   }
 
-  waitDisconnected () {
+  wait (timeout = 0) {
     return new Promise(resolve => {
+      this.async(resolve, timeout);
+    });
+  }
+
+  async waitDisconnected (timeout) {
+    await new Promise(resolve => {
       if (this.connected) {
         this.once('disconnected', resolve);
       } else {
         resolve();
       }
     });
+
+    await this.wait(timeout);
   }
 }
 

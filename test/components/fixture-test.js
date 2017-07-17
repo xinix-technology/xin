@@ -1,21 +1,18 @@
-/* eslint-env mocha */
-
-import assert from 'assert';
 import xin from '../../';
-import Fixture from '../../components/fixture';
+import { Fixture } from '../../components/fixture';
 
 describe('Fixture', () => {
   it('defined', () => {
-    assert(xin.get('xin-fixture'));
+    expect(xin.get('xin-fixture')).toBeTruthy();
   });
 
   describe('.create()', () => {
     it('return fixture instance', () => {
       let fixture = Fixture.create('foo bar');
 
-      assert(fixture);
-      assert(document.querySelector('xin-fixture'));
-      assert.equal(document.querySelector('xin-fixture'), fixture);
+      expect(fixture).toBeTruthy();
+      expect(document.querySelector('xin-fixture')).toBeTruthy();
+      expect(document.querySelector('xin-fixture')).toEqual(fixture);
 
       fixture.dispose();
     });
@@ -25,28 +22,33 @@ describe('Fixture', () => {
     it('remove itself from dom', () => {
       let fixture = Fixture.create('foo bar');
 
-      assert(document.querySelector('xin-fixture'));
+      expect(document.querySelector('xin-fixture')).toBeTruthy();
 
       fixture.dispose();
 
-      assert.equal(document.querySelector('xin-fixture'), null);
+      expect(document.querySelector('xin-fixture')).toEqual(null);
     });
   });
 
   describe('#waitConnected()', () => {
     it('return promise instance', () => {
       let fixture = Fixture.create('foo bar');
-      assert(fixture.waitConnected() instanceof Promise);
+      expect(fixture.waitConnected()).toEqual(jasmine.any(Promise));
       fixture.dispose();
     });
 
-    it('has status connected after waitConnected and return immediate', async () => {
-      let fixture = Fixture.create('foo bar');
-      assert(!fixture.connected);
-      await fixture.waitConnected();
-      assert(fixture.connected);
-      fixture.waitConnected();
-      fixture.dispose();
+    it('has status connected after waitConnected and return immediate', async done => {
+      try {
+        let fixture = Fixture.create('foo bar');
+        expect(fixture.connected).toBeFalsy();
+        await fixture.waitConnected();
+        expect(fixture.connected).toBeTruthy();
+        fixture.waitConnected();
+        fixture.dispose();
+        done();
+      } catch (err) {
+        done.fail(err);
+      }
     });
   });
 
@@ -61,12 +63,17 @@ describe('Fixture', () => {
       });
     });
 
-    it('has status disconnected after waitDisconnected and return immediate', async () => {
-      let fixture = Fixture.create('foo bar');
-      await fixture.waitConnected();
-      fixture.dispose();
-      await fixture.waitDisconnected();
-      assert(!fixture.connected);
+    it('has status disconnected after waitDisconnected and return immediate', async done => {
+      try {
+        let fixture = Fixture.create('foo bar');
+        await fixture.waitConnected();
+        fixture.dispose();
+        await fixture.waitDisconnected();
+        expect(fixture.connected).toBeFalsy();
+        done();
+      } catch (err) {
+        done.fail(err);
+      }
     });
   });
 });

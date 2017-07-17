@@ -1,11 +1,8 @@
-/* eslint-env mocha */
-
-import assert from 'assert';
 import xin from '../../';
-import '../../components/view';
+import '../../views';
 
 describe('View', () => {
   it('defined', () => {
-    assert(xin.get('xin-view'));
+    expect(xin.get('xin-view')).toBeTruthy();
   });
 });

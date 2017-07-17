@@ -1,13 +1,8 @@
 {
-  "extends": "eslint-config-standard",
-  "installedESLint": true,
-  "plugins": [
-    "promise",
-    "standard"
-  ],
-  "rules": {
-    "semi": ["error", "always"],
-    "comma-dangle": ["error", "always-multiline"],
-    "require-await": ["error"]
+  "extends": "xinix",
+  "env": {
+    "browser": true,
+    "node": true,
+    "jasmine": true
   }
 }
