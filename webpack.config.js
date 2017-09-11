@@ -27,11 +27,6 @@ module.exports = function ({ mode = 'dist', target = 'latest', port = 8080, mini
           use: [ 'style-loader', 'css-loader' ],
         },
         {
-          test: /\.css$/,
-          include: /node_modules\/prismjs/,
-          use: [ 'style-loader', 'css-loader' ],
-        },
-        {
           test: /\.html$/,
           exclude: /node_modules/,
           use: 'html-loader',
@@ -44,11 +39,6 @@ module.exports = function ({ mode = 'dist', target = 'latest', port = 8080, mini
         {
           test: /\.js$/,
           exclude: /node_modules/,
-          use: getBabelLoader(env),
-        },
-        {
-          test: /\.js$/,
-          include: /node_modules\/template-binding/,
           use: getBabelLoader(env),
         },
       ],
@@ -68,10 +58,6 @@ function getBabelLoader ({ mode }) {
     // [ require.resolve('babel-plugin-__coverage__'), { 'ignore': 'node_modules' } ],
     // require.resolve('babel-plugin-syntax-dynamic-import'),
   ];
-
-  if (mode !== 'docs') {
-    plugins.push(require.resolve('babel-plugin-istanbul'));
-  }
 
   let presets = [
     // require.resolve('babel-preset-es2015'),
@@ -102,18 +88,6 @@ function getUrlLoader (name = '[name].[ext]') {
 function getPlugins ({ mode, minify }) {
   let plugins = [];
 
-  // if (mode === 'docs') {
-  //   plugins.push(function () {
-  //     this.plugin('emit', (x, callback) => {
-  //       let files = glob.sync('./_docs/pages/**/*.md');
-  //       files.forEach(file => {
-  //         fs.copySync(file, path.join(__dirname, 'docs', file.split('_docs/')[1]));
-  //       });
-  //       callback();
-  //     });
-  //   });
-  // }
-
   if (minify) {
     plugins.push(
       new BabiliPlugin()
@@ -124,10 +98,6 @@ function getPlugins ({ mode, minify }) {
 }
 
 function getBasePath ({ mode }) {
-  if (mode === 'docs') {
-    return path.join(__dirname, 'docs');
-  }
-
   return path.join(__dirname, 'dist');
 }
 
@@ -135,10 +105,6 @@ function getEntries ({ mode }) {
   const entries = {};
 
   switch (mode) {
-    case 'docs':
-      glob.sync('./_docs/*.js').forEach(file => (entries[file.match(/\/_docs\/(.*).js$/)[1]] = file));
-      glob.sync('./_docs/demo/**/*.js').forEach(file => (entries[file.match(/\/_docs\/(.*).js$/)[1]] = file));
-      break;
     case 'test':
       glob.sync('./test/**/*-test.js').forEach(file => (entries[file.match(/\/(test\/.*).js$/)[1]] = file));
       break;

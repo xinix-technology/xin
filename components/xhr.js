@@ -115,9 +115,9 @@ export class XHR extends Component {
       try {
         xhr.open(options.method, options.url, options.async || true);
         xhr.onload = () => {
-          var handleAs = options.as;
+          let handleAs = options.as;
           if (handleAs === 'intelligent') {
-            var contentType = xhr.getResponseHeader('Content-Type');
+            let contentType = xhr.getResponseHeader('Content-Type');
             if (contentType.indexOf('json') >= 0) {
               handleAs = 'json';
             } else if (contentType.indexOf('html') >= 0) {

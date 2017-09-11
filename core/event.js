@@ -153,8 +153,8 @@ function _removeHandler (delegator, event, selector, callback) {
     return;
   }
 
-    // if there are then loop through all the callbacks and if we find
-    // one that matches remove it from the array
+  // if there are then loop through all the callbacks and if we find
+  // one that matches remove it from the array
   for (let i = 0; i < _handlers[delegator.id][event][selector].length; i++) {
     if (_handlers[delegator.id][event][selector][i] === callback) {
       _handlers[delegator.id][event][selector].splice(i, 1);

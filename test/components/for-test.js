@@ -13,15 +13,14 @@ describe('For', () => {
 
   it('render to parent', async done => {
     try {
-      let fixture = Fixture.create(`
+      let template = `
         <xin-for items="[[items]]">
           <template>
             <span>[[item]]</span>
           </template>
         </xin-for>
-      `, {
-        items: ['foo', 'bar', 'baz'],
-      });
+      `;
+      let fixture = Fixture.create(template, { items: [ 'foo', 'bar', 'baz' ] });
 
       await fixture.waitConnected();
 
@@ -45,8 +44,8 @@ describe('For', () => {
           </template>
         </xin-for>
       `, {
-        items: ['foo', 'bar', 'baz'],
-      });
+          items: ['foo', 'bar', 'baz'],
+        });
 
       await fixture.waitConnected(100);
 
