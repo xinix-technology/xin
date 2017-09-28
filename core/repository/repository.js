@@ -7,6 +7,12 @@ export class Repository {
     this.fallbackScope = fallbackScope;
   }
 
+  rebootstrap (data = {}, fallbackScope = this.fallbackScope) {
+    console.info('Repository rebootstrapping ...');
+    this.data = Object.assign(this.data, data);
+    this.fallbackScope = fallbackScope;
+  }
+
   get (id) {
     if (!isNaN(id)) {
       return this.data[id];
