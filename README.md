@@ -1,11 +1,20 @@
 # xin
 
-Xin is Single Page Application framework using javascript.
+Xin is web components framework.
+Xin using webpack to build.
 
-![Xin](http://xinix.co.id/storage/uploads/xin.png "SPA Framework")
+![Xin](xin.png)
 
-## Install
+## Getting started
 
-Xin@next using Webpack 2 to build.
+For quick start you can use template provided by community. Just download or clone web example that already use xin from `https://github.com/reekoheek/xin-example`.
 
-Later, we will use yo generator. Any help to compose generator accepted. ;)
+```bash
+wget https://github.com/reekoheek/xin-example/archive/master.zip
+unzip master.zip
+cd xin-example-master
+npm i
+npm run dev
+```
+
+Any help to compose yo generator accepted. ;)
