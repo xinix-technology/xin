@@ -9,6 +9,10 @@ let _handlers = {};
 let _delegatorInstances = {};
 
 function _addEvent (delegator, type, callback) {
+  if (type === 'touchstart' || type === 'touchmove' || type === 'wheel' || type === 'mousewheel') {
+    delegator.element.addEventListener(type, callback, { passive: true });
+    return;
+  }
   // blur and focus do not bubble up but if you use event capturing
   // then you will get them
   let useCapture = type === 'blur' || type === 'focus';
