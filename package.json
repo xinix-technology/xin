@@ -1,6 +1,6 @@
 {
   "name": "@xinix/xin",
-  "version": "2.4.4",
+  "version": "2.4.5",
   "description": "Web component for the web",
   "repository": {
     "type": "git",
@@ -31,15 +31,15 @@
     "babel-preset-stage-3": "^6.22.0",
     "babili-webpack-plugin": "^0.1.2",
     "css-loader": "^0.28.7",
-    "eslint": "^4.7.2",
+    "eslint": "^4.9.0",
     "eslint-config-standard": "^10.2.1",
     "eslint-config-xinix": "^1.0.4",
-    "eslint-plugin-import": "^2.7.0",
-    "eslint-plugin-node": "^5.1.1",
-    "eslint-plugin-promise": "^3.5.0",
+    "eslint-plugin-import": "^2.8.0",
+    "eslint-plugin-node": "^5.2.0",
+    "eslint-plugin-promise": "^3.6.0",
     "eslint-plugin-standard": "^3.0.1",
     "extract-loader": "^1.0.1",
-    "file-loader": "^0.11.2",
+    "file-loader": "^1.1.5",
     "glob": "^7.1.2",
     "html-loader": "^0.5.1",
     "jasmine-core": "^2.8.0",
@@ -50,12 +50,12 @@
     "karma-jasmine-html-reporter": "^0.2.2",
     "karma-sourcemap-loader": "^0.3.7",
     "karma-spec-reporter": "0.0.31",
-    "karma-webpack": "^2.0.3",
+    "karma-webpack": "^2.0.5",
     "sprintf-js": "^1.0.3",
-    "style-loader": "^0.18.2",
-    "url-loader": "^0.5.8",
-    "webpack": "^3.6.0",
-    "webpack-dev-server": "^2.9.1"
+    "style-loader": "^0.19.0",
+    "url-loader": "^0.6.2",
+    "webpack": "^3.8.1",
+    "webpack-dev-server": "^2.9.3"
   },
   "dependencies": {}
 }
