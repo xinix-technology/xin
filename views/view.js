@@ -1,5 +1,5 @@
 import { deprecated } from '../core';
-import { View } from '../views';
+import { View } from '../components/view';
 
 deprecated('views/view', 'import { View } from \'@xinix/xin/components\'');
 
