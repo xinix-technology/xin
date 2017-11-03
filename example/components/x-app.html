@@ -2,22 +2,24 @@
 
 <xin-pager>
   <xin-view lazy-view uri="/">
-    <div class="padding">
-      <h1>xin</h1>
+    <template>
+      <div class="padding">
+        <h1>xin</h1>
 
-      <p>A WebComponents based framework</p>
+        <p>A WebComponents based framework</p>
 
-      <div class="list">
-        <a href="#!/intro">Intro</a>
-        <div class="list__separator">Components</div>
-        <a href="#!/app">xin-app</a>
-        <a href="#!/fixture">xin-fixture</a>
-        <a href="#!/for">xin-for</a>
-        <a href="#!/pager">xin-pager</a>
-        <a href="#!/repeat">xin-repeat</a>
-        <a href="#!/view">xin-view</a>
+        <div class="list">
+          <a href="#!/intro">Intro</a>
+          <div class="list__separator">Components</div>
+          <a href="#!/app">xin-app</a>
+          <a href="#!/fixture">xin-fixture</a>
+          <a href="#!/for">xin-for</a>
+          <a href="#!/pager">xin-pager</a>
+          <a href="#!/repeat">xin-repeat</a>
+          <a href="#!/view">xin-view</a>
+        </div>
       </div>
-    </div>
+    </template>
   </xin-view>
 
   <xin-view lazy-view uri="/intro">
@@ -51,4 +53,6 @@ npm run dev
       <div>[[foo]]</div>
     </div>
   </xin-view>
+
+  <x-for lazy-view uri="/for"></x-for>
 </xin-pager>

@@ -90,11 +90,11 @@ export function base (base) {
       // moved from attachedCallback
 
       // moved from createdCallback
+      this.__initListeners();
+
       this.__initTemplate();
 
       this.__initProps();
-
-      this.__initListeners();
       // moved from createdCallback
 
       this.__initPropValues();
