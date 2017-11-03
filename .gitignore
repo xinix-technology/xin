@@ -4,8 +4,9 @@
 # development files
 /node_modules
 /coverage
+.vscode
 
 # user specific files
 /*.sublime-*
 yarn.lock
-.vscode
+

@@ -37,10 +37,12 @@ export class LazyView extends Middleware {
       test: /^xin-/,
       load (view) {
         if (view.name === 'xin-view') {
-          return System.import('../../components/view');
+          return import('../../components/view');
         }
-        let name = view.name.match(/^xin-(.+)-view$/)[1];
-        return System.import(`../../views/${name}`);
+
+        // TODO: Official view will be only xin-view so there will be no need to have other type views
+        // let name = view.name.match(/^xin-(.+)-view$/)[1];
+        // return import(`../../${name}`);
       },
     });
   }

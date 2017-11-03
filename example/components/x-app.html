@@ -1,0 +1,54 @@
+<xin-lazy-view-middleware></xin-lazy-view-middleware>
+
+<xin-pager>
+  <xin-view lazy-view uri="/">
+    <div class="padding">
+      <h1>xin</h1>
+
+      <p>A WebComponents based framework</p>
+
+      <div class="list">
+        <a href="#!/intro">Intro</a>
+        <div class="list__separator">Components</div>
+        <a href="#!/app">xin-app</a>
+        <a href="#!/fixture">xin-fixture</a>
+        <a href="#!/for">xin-for</a>
+        <a href="#!/pager">xin-pager</a>
+        <a href="#!/repeat">xin-repeat</a>
+        <a href="#!/view">xin-view</a>
+      </div>
+    </div>
+  </xin-view>
+
+  <xin-view lazy-view uri="/intro">
+    <div class="padding">
+      <h2>Intro</h2>
+
+      <p>We love npm, webpack and ofcourse webcomponents specs.</p>
+
+      <h3>Getting Started</h3>
+
+      <p>For quick start you can use template provided by community. Just download or clone web example that already use xin from `https://github.com/reekoheek/xin-example`.</p>
+
+      <code><pre>
+wget https://github.com/reekoheek/xin-example/archive/master.zip
+unzip master.zip
+cd xin-example-master
+npm i
+npm run dev
+      </pre></code>
+
+      <p>Any help to compose yo generator accepted. ;)</p>
+
+      <h3>Binding</h3>
+
+      <code><pre>
+&lt;input type="text" value="{{foo}}"&gt;
+&lt;div&gt;[[foo]]&lt;/div&gt;
+      </pre></code>
+
+      <input type="text" value="{{foo}}">
+      <div>[[foo]]</div>
+    </div>
+  </xin-view>
+</xin-pager>

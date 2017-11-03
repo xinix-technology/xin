@@ -1,13 +1,16 @@
 const path = require('path');
-const glob = require('glob');
-const BabiliPlugin = require('babili-webpack-plugin');
+// const BabiliPlugin = require('babili-webpack-plugin');
+const HtmlWebpackPlugin = require('html-webpack-plugin');
 
 module.exports = function ({ mode = 'dist', target = 'latest', port = 8080, minify = false } = {}) {
   let env = { mode, port, minify };
   console.error('env=', env);
 
   return {
-    entry: getEntries(env),
+    context: getContext(env),
+    entry: {
+      'index': './index.js',
+    },
     output: {
       path: getBasePath(env),
       filename: `[name]${minify ? '.min' : ''}.js`,
@@ -23,7 +26,7 @@ module.exports = function ({ mode = 'dist', target = 'latest', port = 8080, mini
       rules: [
         {
           test: /\.css$/,
-          exclude: /node_modules/,
+          // exclude: /node_modules/,
           use: [ 'style-loader', 'css-loader' ],
         },
         {
@@ -54,9 +57,9 @@ module.exports = function ({ mode = 'dist', target = 'latest', port = 8080, mini
 
 function getBabelLoader ({ mode }) {
   let plugins = [
-    require.resolve('babel-plugin-transform-async-to-generator'),
+    require.resolve('babel-plugin-syntax-dynamic-import'),
+    // require.resolve('babel-plugin-transform-async-to-generator'),
     // [ require.resolve('babel-plugin-__coverage__'), { 'ignore': 'node_modules' } ],
-    // require.resolve('babel-plugin-syntax-dynamic-import'),
   ];
 
   let presets = [
@@ -88,29 +91,30 @@ function getUrlLoader (name = '[name].[ext]') {
 function getPlugins ({ mode, minify }) {
   let plugins = [];
 
-  if (minify) {
-    plugins.push(
-      new BabiliPlugin()
-    );
+  if (mode === 'example') {
+    plugins.push(new HtmlWebpackPlugin({
+      filename: 'index.html',
+      template: 'index.html',
+    }));
   }
+
+  // if (minify) {
+  //   plugins.push(
+  //     new BabiliPlugin()
+  //   );
+  // }
 
   return plugins;
 }
 
-function getBasePath ({ mode }) {
-  return path.join(__dirname, 'dist');
-}
-
-function getEntries ({ mode }) {
-  const entries = {};
-
-  switch (mode) {
-    case 'test':
-      glob.sync('./test/**/*-test.js').forEach(file => (entries[file.match(/\/(test\/.*).js$/)[1]] = file));
-      break;
-    default:
-      entries['xin'] = './index.js';
+function getContext ({ mode }) {
+  if (mode === 'example') {
+    return path.join(__dirname, mode);
   }
 
-  return entries;
+  return __dirname;
+}
+
+function getBasePath ({ mode }) {
+  return path.join(__dirname, 'dist', mode);
 }

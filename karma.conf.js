@@ -30,9 +30,7 @@ module.exports = function (config) {
     },
 
     webpack: {
-      devtool: 'source-map',
-      // resolve: webpackConfig.resolve,
-      // resolveLoader: webpackConfig.resolveLoader,
+      devtool: webpackConfig.devtool,
       plugins: webpackConfig.plugins,
       module: {
         rules: webpackConfig.module.rules,

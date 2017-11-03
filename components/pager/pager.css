@@ -3,6 +3,7 @@ xin-pager {
   display: block;
   position: relative;
   overflow: hidden;
+  height: 100%;
 }
 
 xin-pager .xin-view {
