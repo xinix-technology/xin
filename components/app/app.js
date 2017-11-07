@@ -184,7 +184,11 @@ export class App extends Component {
         this.__execute();
       }
     } else {
-      this.location.hash = this.hash + path;
+      if (options.replace) {
+        this.location.replace(this.hash + path);
+      } else {
+        this.location.hash = this.hash + path;
+      }
     }
     return this;
   }
