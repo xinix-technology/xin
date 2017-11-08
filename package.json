@@ -1,6 +1,6 @@
 {
   "name": "@xinix/xin",
-  "version": "2.4.7",
+  "version": "2.4.8",
   "description": "Web component for the web",
   "repository": {
     "type": "git",
@@ -52,7 +52,7 @@
     "karma-sourcemap-loader": "^0.3.7",
     "karma-spec-reporter": "0.0.31",
     "karma-webpack": "^2.0.5",
-    "sprintf-js": "^1.0.3",
+    "sprintf-js": "^1.1.1",
     "style-loader": "^0.19.0",
     "url-loader": "^0.6.2",
     "webpack": "^3.8.1",
