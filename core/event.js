@@ -215,7 +215,7 @@ function _handleEvent (id, e, type) {
   }
 }
 
-const aliases = new Map();
+const aliases = {};
 const aliasesDefaultTranslator = name => ([ name ]);
 const aliasesTranslators = {
   transitionend (name) {
@@ -237,12 +237,12 @@ const aliasesTranslators = {
 
 function _aliases (name) {
   let theAliases;
-  if (aliases.has(name)) {
-    theAliases = aliases.get(name);
+  if (name in aliases) {
+    theAliases = aliases[name];
   } else {
     let translator = aliasesTranslators[name] || aliasesDefaultTranslator;
     theAliases = translator(name);
-    aliases.set(name, theAliases);
+    aliases[name] = theAliases;
   }
 
   return theAliases;

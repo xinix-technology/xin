@@ -12,9 +12,10 @@ export class Title extends Middleware {
   }
 
   callback (options) {
-    return async (ctx, next) => {
+    const self = this;
+    return async function (ctx, next) {
       ctx.app.once('focus', (evt) => {
-        document.title = evt.target.title || this.defaultTitle;
+        document.title = evt.target.title || self.defaultTitle;
       });
 
       await next();

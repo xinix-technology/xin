@@ -87,8 +87,9 @@ export class LazyView extends Middleware {
   }
 
   callback (options) {
-    return async (ctx, next) => {
-      await this.ensure(ctx.app, ctx.uri);
+    const self = this;
+    return async function (ctx, next) {
+      await self.ensure(ctx.app, ctx.uri);
 
       await next();
     };
