@@ -21,6 +21,7 @@
     "lint": "eslint .",
     "test": "karma start --single-run",
     "dev": "webpack-dev-server",
+    "build": "webpack",
     "example": "webpack-dev-server --env.mode=example",
     "build:example": "webpack --env.mode=example"
   },
