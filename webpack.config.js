@@ -1,6 +1,6 @@
 const path = require('path');
-// const BabiliPlugin = require('babili-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
+const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
 
 module.exports = function ({ mode = 'dist', target = 'latest', port = 8080, minify = false } = {}) {
   let env = { mode, port, minify };
@@ -59,12 +59,16 @@ function getBabelLoader ({ mode }) {
   let plugins = [
     require.resolve('babel-plugin-syntax-dynamic-import'),
     // require.resolve('babel-plugin-transform-async-to-generator'),
-    // [ require.resolve('babel-plugin-__coverage__'), { 'ignore': 'node_modules' } ],
   ];
 
   let presets = [
-    // require.resolve('babel-preset-es2015'),
-    // require.resolve('babel-preset-stage-3'),
+    [
+      require.resolve('babel-preset-env'), {
+        'targets': {
+          'browsers': ['>= 5%'],
+        },
+      },
+    ],
   ];
 
   return {
@@ -98,21 +102,21 @@ function getPlugins ({ mode, minify }) {
     }));
   }
 
-  // if (minify) {
-  //   plugins.push(
-  //     new BabiliPlugin()
-  //   );
-  // }
+  if (minify) {
+    plugins.push(
+      new UglifyJsPlugin({
+        cache: true,
+        parallel: true,
+        sourceMap: true,
+      })
+    );
+  }
 
   return plugins;
 }
 
 function getContext ({ mode }) {
-  if (mode === 'example') {
-    return path.join(__dirname, mode);
-  }
-
-  return __dirname;
+  return mode ? path.join(__dirname, mode) : __dirname;
 }
 
 function getBasePath ({ mode }) {
