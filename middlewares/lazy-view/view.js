@@ -25,7 +25,7 @@ export class View {
   }
 
   load () {
-    return new Promise((resolve, reject) => {
+    return new Promise(async (resolve, reject) => {
       if (this.loaded) {
         return resolve();
       }
@@ -33,13 +33,20 @@ export class View {
       // use global event helper because element does not created yet at this time
       event(this.element).once('routed', () => {
         this._loaded = true;
-        resolve();
-      });
 
+        
+        // FIXME: hack to wait for sub views to be ready before routed
+        if (this.element.querySelector('.xin-view')) {
+          setTimeout(() => resolve(), 300);
+        } else {
+          resolve();
+        }
+      });
+      
       if (!this.loader) {
         throw new Error(`Cannot lazy load view: ${this.name}`);
       }
-
+      
       this.loader.load(this);
     });
   }
