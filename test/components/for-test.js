@@ -36,16 +36,19 @@ describe('For', () => {
 
   it('render to other dom', async done => {
     try {
-      let fixture = Fixture.create(`
-        <div id="here"></div>
-        <xin-for items="[[items]]" to="#here">
-          <template>
-            <span>[[item]]</span>
-          </template>
-        </xin-for>
-      `, {
+      let fixture = Fixture.create(
+        `
+          <div id="here"></div>
+          <xin-for items="[[items]]" to="#here">
+            <template>
+              <span>[[item]]</span>
+            </template>
+          </xin-for>
+        `,
+        {
           items: ['foo', 'bar', 'baz'],
-        });
+        }
+      );
 
       await fixture.waitConnected(100);
 
