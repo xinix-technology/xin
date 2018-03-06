@@ -1,14 +1,13 @@
 const path = require('path');
 const fs = require('fs');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
-const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
-const webpack = require('webpack');
 
 module.exports = function ({ mode = 'release', port = 8080, minify = false } = {}) {
   let env = { mode, port, minify };
   console.error('env=', env);
 
   return {
+    mode: 'production',
     context: getContext(env),
     entry: getEntry(env),
     output: {
@@ -100,23 +99,6 @@ function getPlugins ({ mode, minify }) {
       filename: 'index.html',
       template: 'index.html',
     }));
-  }
-
-  if (mode === 'release') {
-    plugins.push(new webpack.optimize.CommonsChunkPlugin({
-      name: 'index',
-      minChunks: Infinity,
-    }));
-  }
-
-  if (minify) {
-    plugins.push(
-      new UglifyJsPlugin({
-        cache: true,
-        parallel: true,
-        sourceMap: true,
-      })
-    );
   }
 
   return plugins;
