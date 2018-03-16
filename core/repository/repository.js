@@ -18,7 +18,7 @@ export class Repository {
       return this.data[id];
     }
 
-    if (this.data[id]) {
+    if (id in this.data) {
       return this.data[id];
     }
 

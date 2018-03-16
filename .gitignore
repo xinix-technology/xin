@@ -5,7 +5,6 @@
 node_modules
 /coverage
 /.vscode
-/dist
 
 # user specific files
 *.sublime-*
