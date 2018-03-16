@@ -1,6 +1,6 @@
 {
   "name": "@xinix/xin",
-  "version": "2.5.0",
+  "version": "2.5.1",
   "description": "Web component for the web",
   "repository": {
     "type": "git",
@@ -41,12 +41,13 @@
     "file-loader": "^1.1.11",
     "html-loader": "^0.5.5",
     "html-webpack-plugin": "^3.0.6",
+    "jasmine": "^3.1.0",
     "jasmine-core": "^3.1.0",
     "karma": "^2.0.0",
     "karma-chrome-launcher": "^2.0.0",
     "karma-coverage": "^1.1.1",
     "karma-jasmine": "^1.1.1",
-    "karma-jasmine-html-reporter": "^0.2.2",
+    "karma-jasmine-html-reporter": "^1.0.0",
     "karma-sourcemap-loader": "^0.3.7",
     "karma-spec-reporter": "0.0.32",
     "karma-webpack": "^2.0.13",

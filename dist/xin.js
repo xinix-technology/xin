@@ -4536,15 +4536,21 @@ class View {
         return resolve();
       }
 
+      if (!this.loader) {
+        return reject(new Error(`Cannot lazy load view: ${this.name}`));
+      }
+
       // use global event helper because element does not created yet at this time
       Object(_core__WEBPACK_IMPORTED_MODULE_0__["event"])(this.element).once('routed', () => {
         this._loaded = true;
-        resolve();
-      });
 
-      if (!this.loader) {
-        throw new Error(`Cannot lazy load view: ${this.name}`);
-      }
+        // FIXME: hack to wait for sub views to be ready before routed
+        if (this.element.querySelector('.xin-view')) {
+          setTimeout(() => resolve(), 300);
+        } else {
+          resolve();
+        }
+      });
 
       this.loader.load(this);
     });
