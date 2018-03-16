@@ -1,5 +1,8 @@
 # xin
 
+[![NPM](https://nodei.co/npm/@xinix/xin.png)](https://npmjs.org/package/@xinix/xin)
+[![](https://data.jsdelivr.com/v1/package/npm/@xinix/xin/badge)](https://www.jsdelivr.com/package/npm/@xinix/xin)
+
 Xin is web components framework.
 Xin using webpack to build.
 
