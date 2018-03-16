@@ -5,7 +5,7 @@ import { T } from './template';
 import { Expr } from './expr';
 import { Accessor } from './accessor';
 import { NotifyAnnotation } from './annotation';
-import { Async, Debounce } from '../fn';
+import { Async, Debounce } from '../core/fn';
 import { sprintf } from 'sprintf-js';
 
 const idGenerator = new IdGenerator('component');

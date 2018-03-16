@@ -1,4 +1,4 @@
-import { IdGenerator } from '../core';
+import { IdGenerator } from '../id-generator';
 
 const idGenerator = new IdGenerator('async');
 

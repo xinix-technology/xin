@@ -1,5 +1,5 @@
 import { event } from '../../core';
-import { Async } from '../../fn';
+import { Async } from '../fn';
 
 import './fx.css';
 
