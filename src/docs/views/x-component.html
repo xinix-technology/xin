@@ -1,0 +1,87 @@
+<div class="padding">
+  <h2>Component</h2>
+
+  <p>
+    Let say we want to create new component named `foo-bar`.
+    The component will be used inside web page as follows:
+  </p>
+
+  <code><pre>
+&lt;!DOCTYPE html&gt;
+&lt;html lang="en"&gt;
+&lt;body&gt;
+  &lt;foo-bar name="Ali"&gt;&lt;/foo-bar&gt;
+&lt;/body&gt;
+&lt;/html&gt;</pre></code>
+
+  <p>
+    Which will produce page as follows:
+  </p>
+
+  <code><pre>
+Foobar: Hello Ali</pre></code>
+
+  <p>
+    Write lines below to new file named `foo-bar.js`.
+  </p>
+
+  <code><pre>
+import { define, Component } from '@xinix/xin';
+
+// create new component class extend from Component
+class FooBar extends Component {
+  get template () {
+    return `Foobar: Hello &lt;span&gt;{{name}}&lt;/span&gt;`;
+  }
+
+  get props () {
+    return Object.assign({}, super.props, {
+      name: {
+        type: String,
+        value: 'Great Programmer',
+      },
+    });
+  }
+}
+
+// define component class as foo-bar tag in html.
+define('foo-bar', FooBar);</pre></code>
+
+  <h3>
+    System Properties
+  </h3>
+
+  <p>
+    Components can access several default system properties:
+  </p>
+
+  <ul>
+    <li>component.__app</li>
+    <li>component.__global</li>
+    <li>component.__setup</li>
+  </ul>
+
+  <h3>
+    Put reference to model
+  </h3>
+
+  <code><pre>
+&lt;foo-container id="container"&gt;
+  &lt;template&gt;
+    &lt;foo-object id="theFoo" ref="foo"&gt;&lt;/foo-object&gt;
+  &lt;/template&gt;
+&lt;/foo-container&gt;</pre></code>
+
+  <code><pre>
+let container = document.getElementById('container');
+
+if (container.foo === document.getElementById('theFoo')) {
+  console.log('Reference OK');
+}</pre></code>
+
+  <h3>Misc</h3>
+
+  <ul>
+    <li>.sprintf()</li>
+  </ul>
+</div>

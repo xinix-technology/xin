@@ -1,6 +1,6 @@
 {
   "name": "@xinix/xin",
-  "version": "2.5.1",
+  "version": "2.5.2",
   "description": "Web component for the web",
   "repository": {
     "type": "git",
@@ -22,7 +22,7 @@
     "test": "mocha test/**",
     "coverage": "nyc --reporter=lcov npm test",
     "dev": "webpack-dev-server --config webpack.config.docs.js",
-    "build": "webpack --mode development && webpack --mode production && webpack --config webpack.config.docs.js"
+    "build": "webpack --mode development && webpack --mode production && webpack --mode production --config webpack.config.docs.js"
   },
   "devDependencies": {
     "babel-core": "^6.26.0",
@@ -31,7 +31,7 @@
     "babel-plugin-syntax-dynamic-import": "^6.18.0",
     "babel-preset-env": "^1.6.1",
     "css-loader": "^0.28.11",
-    "eslint": "^4.19.0",
+    "eslint": "^4.19.1",
     "eslint-config-standard": "^11.0.0",
     "eslint-config-xinix": "^1.0.4",
     "eslint-plugin-import": "^2.9.0",
@@ -44,7 +44,7 @@
     "nyc": "^11.6.0",
     "puppeteer": "^1.2.0",
     "style-loader": "^0.20.3",
-    "webpack": "^4.1.1",
+    "webpack": "^4.2.0",
     "webpack-cli": "^2.0.12",
     "webpack-dev-server": "^3.1.1"
   },

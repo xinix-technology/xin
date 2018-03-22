@@ -1,5 +1,0 @@
-# Defer
-
-- Async
-- Debounce
-- NextFrame

@@ -6,14 +6,39 @@
   <p>Example,</p>
 
   <code><pre>
+&lt;div&gt;Input&lt;/div&gt;
 &lt;input type="text" id="input" value="{{foo}}"&gt;
+
+&lt;div&gt;Readonly&lt;/div&gt;
+&lt;input type="text" id="inputRo" value="[[foo]]"&gt;
+
 &lt;div id="result"&gt;[[foo]]&lt;/div&gt;</pre></code>
 
   <p>It will bind #input value to foo property of parent and update data to #result</p>
 
-  <input id="input" type="text" value="{{foo}}">
-  <div>
-    Result:
-    <span id="result">[[foo]]</span>
+  <div class="card">
+    <div>
+      <p>Input</p>
+      <input id="input" type="text" value="{{foo}}">
+    </div>
+
+    <div>
+      <p>Readonly Input</p>
+      <input id="inputRo" type="text" value="[[foo]]">
+    </div>
+
+    <div>
+      <p>Result</p>
+      <span id="result">[[foo]]</span>
+    </div>
   </div>
+
+  <h3>Concept</h3>
+
+  <ul>
+    <li>Binding to properties</li>
+    <li>Get set methods</li>
+    <li>Push splice methods</li>
+    <li>Listeners</li>
+  </ul>
 </div>
