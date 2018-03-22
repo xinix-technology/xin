@@ -1,13 +1,17 @@
-module.exports = function (_, { mode = 'production' }) {
+const path = require('path');
+
+module.exports = function (_, { mode = 'development' }) {
   return {
     mode,
+    context: path.join(__dirname, 'src'),
     entry: {
-      xin: './dist-src/xin.js',
+      xin: './xin.js',
     },
     output: {
-      filename: `./[name]${mode === 'production' ? '.min' : ''}.js`,
+      path: path.join(__dirname, 'dist'),
+      filename: `[name]${mode === 'production' ? '.min' : ''}.js`,
     },
-    devtool: 'sourcemap',
+    // devtool: 'sourcemap',
     module: {
       rules: [
         {

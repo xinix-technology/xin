@@ -1,4 +1,4 @@
-import { bootstrap } from '@xinix/xin/core';
+import { bootstrap } from '@xinix/xin';
 
 (async function () {
   // use below polyfill to support unsupported customElements v0

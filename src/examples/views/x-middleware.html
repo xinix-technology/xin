@@ -1,0 +1,56 @@
+<div class="padding">
+  <h2>Middleware</h2>
+
+  <p>
+    Middleware provide a convenient mechanism for filtering route requests entering your application.
+    For example, you can includes a middleware that verifies the user of your application is authenticated.
+    If the user is not authenticated, the middleware will redirect the user to the login screen.
+    However, if the user is authenticated, the middleware will allow the request to proceed further into the application.
+  </p>
+
+  <p>
+    Your application must use xin-app to use middleware to enable routing.
+  </p>
+
+  <p>
+    Write implementation of middleware as 'components/foo-middleware.js'
+  </p>
+
+  <code>
+    <pre>
+import { Middleware } from '@xinix/xin/components';
+
+class FooMiddleware extends Middleware {
+  callback (options) {
+    return async function (ctx, next) {
+      // do something here
+      await next();
+      // or do something after routed here
+    };
+  }
+}
+
+define('foo-middleware', FooMiddleware);</pre>
+  </code>
+
+  <p>
+    Use middleware in 'components/foo-app.js' like follows:
+  </p>
+
+  <code>
+    <pre>
+import './foo-middleware';
+
+class FooApp extends App {
+  get template () {
+    return `
+      &lt;foo-middleware&gt;&lt;/foo-middleware&gt;
+
+      ...
+    `;
+  }
+}
+
+define('foo-app', FooApp)</pre>
+  </code>
+</div>

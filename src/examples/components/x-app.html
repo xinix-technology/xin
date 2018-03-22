@@ -1,0 +1,42 @@
+<x-redirect-middleware></x-redirect-middleware>
+<xin-lazy-view-middleware></xin-lazy-view-middleware>
+
+<xin-pager>
+  <xin-view lazy-view uri="/">
+    <template>
+      <div class="padding">
+        <h1>xin</h1>
+
+        <p>A WebComponents based framework</p>
+        <p>We love npm, webpack and ofcourse webcomponents specs.</p>
+
+        <div class="list">
+          <a href="#!/intro">Intro</a>
+          <a href="#!/binding">Binding</a>
+          <a href="#!/app-route">App, views and routing</a>
+          <a href="#!/middleware">Middleware</a>
+          <div class="list__separator">Components</div>
+          <a href="#!/fixture">xin-fixture</a>
+          <a href="#!/for">xin-for</a>
+          <a href="#!/pager">xin-pager</a>
+          <a href="#!/repeat">xin-repeat</a>
+        </div>
+      </div>
+    </template>
+  </xin-view>
+  <x-intro lazy-view uri="/intro"></x-intro>
+  <x-binding lazy-view uri="/binding"></x-binding>
+  <x-app-route lazy-view uri="/app-route"></x-app-route>
+  <x-middleware lazy-view uri="/middleware"></x-middleware>
+  <x-for lazy-view uri="/for"></x-for>
+  <xin-view lazy-view uri="/not-found">
+    <div class="aligner">
+      <div class="aligner-item">
+        <p>
+          Oops, route not found. Sorry...
+        </p>
+        <a href="#!/">Home</a>
+      </div>
+    </div>
+  </xin-view>
+</xin-pager>

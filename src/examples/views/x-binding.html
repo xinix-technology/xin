@@ -1,0 +1,19 @@
+<div class="padding">
+  <h2>Binding</h2>
+
+  <p>Data binding connects data from a web component to a property or attribute of an element.</p>
+
+  <p>Example,</p>
+
+  <code><pre>
+&lt;input type="text" id="input" value="{{foo}}"&gt;
+&lt;div id="result"&gt;[[foo]]&lt;/div&gt;</pre></code>
+
+  <p>It will bind #input value to foo property of parent and update data to #result</p>
+
+  <input id="input" type="text" value="{{foo}}">
+  <div>
+    Result:
+    <span id="result">[[foo]]</span>
+  </div>
+</div>

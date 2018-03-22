@@ -1,13 +1,15 @@
 import { define } from '@xinix/xin';
 import { App } from '@xinix/xin/components';
 
-import html from './x-app.html';
-
 import '@xinix/xin/middlewares';
+
+import './x-app.css';
+
+import './x-redirect-middleware';
 
 class XApp extends App {
   get template () {
-    return html;
+    return require('./x-app.html');
   }
 }
 

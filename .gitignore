@@ -8,3 +8,4 @@ node_modules
 
 # user specific files
 *.sublime-*
+.nyc_output
