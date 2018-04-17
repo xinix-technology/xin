@@ -1,34 +1,41 @@
-const puppeteer = require('puppeteer');
-const BASE_URL = process.env.BASE_URL || 'http://localhost:8080';
-const assert = require('assert');
+import assert from 'assert';
+import XinFixture from '../components/fixture';
 
 describe('Binding', () => {
-  it('change data', async () => {
-    const browser = await puppeteer.launch();
+  it('change value', async () => {
+    let fixture = XinFixture.create(require('./binding.test.html'), {
+      value: 'original',
+    });
+
     try {
-      const page = await browser.newPage();
-      await page.goto(`${BASE_URL}/#!/binding`, { waitUntil: 'networkidle0' });
+      await fixture.waitConnected();
 
-      assert.equal(await page.evaluate(() => document.querySelector('x-binding').foo), '');
-      await page.evaluate(() => document.querySelector('x-binding').set('foo', 'foo'));
-      assert.equal(await page.evaluate(() => document.querySelector('x-binding').foo), 'foo');
+      assert.equal(fixture.value, 'original');
+      assert.equal(fixture.$.input.value, 'original');
+      assert.equal(fixture.$.textarea.value, 'original');
+      assert.equal(fixture.$.result.textContent.trim(), 'original');
 
-      await page.tap('x-binding #input');
-      await page.keyboard.press('Backspace');
-      await page.keyboard.press('Backspace');
-      await page.keyboard.press('Backspace');
-      await page.keyboard.type('bar');
-      assert.equal(await page.evaluate(() => document.querySelector('x-binding').foo), 'bar');
-      assert.equal(await page.evaluate(() => document.querySelector('x-binding #result').textContent), 'bar');
+      fixture.set('value', 'foo');
 
-      await page.tap('x-binding #inputRo');
-      await page.keyboard.press('Backspace');
-      await page.keyboard.type('z');
-      assert.equal(await page.evaluate(() => document.querySelector('x-binding').foo), 'bar');
-      assert.equal(await page.evaluate(() => document.querySelector('x-binding #result').textContent), 'bar');
-      assert.equal(await page.evaluate(() => document.querySelector('x-binding #inputRo').value), 'baz');
+      assert.equal(fixture.value, 'foo');
+      assert.equal(fixture.$.input.value, 'foo');
+      assert.equal(fixture.$.textarea.value, 'foo');
+      assert.equal(fixture.$.result.textContent, 'foo');
+
+      fixture.set('otherValue', '<i>baz</i>');
+      fixture.set('propValue', 'baz');
+
+      assert.equal(fixture.$.textEl.innerHTML, '&lt;i&gt;baz&lt;/i&gt;');
+      assert.equal(fixture.$.htmlEl.innerHTML, '<i>baz</i>');
+      assert.equal(fixture.$.propEl.getAttribute('prop-data'), 'baz');
+
+      fixture.set('foo', 1);
+      fixture.set('displayValue', 'none');
+
+      assert.equal(fixture.$.classEl.classList.contains('foo'), true);
+      assert.equal(fixture.$.styleEl.style.display, 'none');
     } finally {
-      await browser.close();
+      fixture.dispose();
     }
   });
 });

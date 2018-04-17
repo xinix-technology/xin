@@ -8,7 +8,6 @@ import { bootstrap } from '@xinix/xin';
 
   bootstrap({
     // 'customElements.version': 'v0',
-    // 'env.debug': true,
     'view.loaders': [
       {
         test: /^x-/,

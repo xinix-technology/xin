@@ -295,7 +295,6 @@ function _bind (events, selector, callback, remove) {
 
   for (i = 0; i < events.length; i++) {
     _aliases(events[i]).forEach(alias => {
-      // console.info('> ' + events[i] + ':' + alias);
       if (remove) {
         _removeHandler(this, alias, selector, callback);
         return;

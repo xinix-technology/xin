@@ -12,19 +12,19 @@ export class Fixture extends Component {
     const d = document.createElement('div');
     d.innerHTML = t;
     const fixture = d.querySelector('xin-fixture');
-
-    for (let i in data) {
-      fixture[i] = data[i];
-    }
+    fixture.__initialData = data;
 
     document.body.appendChild(fixture);
-
     return fixture;
   }
 
   attached () {
     super.attached();
     this.connected = true;
+
+    for (let i in this.__initialData) {
+      this.set(i, this.__initialData[i]);
+    }
 
     // delay connected to make sure children is already connected
     this.async(() => {

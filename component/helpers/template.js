@@ -6,7 +6,6 @@ function fix (template) {
 };
 
 function needFixImportNode () {
-  // console.log('needFixImportNode?');
   if (document.__importNode) {
     // already fixed
     return false;
@@ -18,7 +17,6 @@ function needFixImportNode () {
 }
 
 if (needFixImportNode()) {
-  // console.log('fixed importNode');
   document.__importNode = document.importNode;
   document.importNode = function (node, deep) {
     if (!deep) {

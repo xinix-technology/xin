@@ -489,12 +489,6 @@ T.prototype = {
     // annotate every paths
     let annotation = new Annotation(this, expr, accessor);
 
-    // TODO when the annotation to specific model, expr and accessor already exist
-    // do not reannotate, see repeat@_itemsChanged
-    // if (expr && expr.name === '_itemsChanged') {
-    //   console.log(annotation);
-    // }
-
     if (expr.type === 'm') {
       this.__templateGetBinding(expr.fn.name).annotate(annotation);
     }

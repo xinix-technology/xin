@@ -63,7 +63,7 @@ export class View extends Component {
     this.classList.remove('xin-view--visible');
 
     if (!this.__app) {
-      console.warn('Cannot route view to undefined app');
+      console.error('Cannot route view to undefined app');
       return;
     }
 

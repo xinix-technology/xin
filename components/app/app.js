@@ -4,6 +4,8 @@ import { Route } from './route';
 
 import './app.css';
 
+const debug = require('xin:components:app');
+
 export class App extends Component {
   get props () {
     return {
@@ -98,14 +100,14 @@ export class App extends Component {
 
     this.__listenNavigation();
 
-    console.info(`Starting ${this.is}:${this.__id} ...`);
+    debug(`Starting ${this.is}:${this.__id} ...`);
 
     this.__starting = true;
     let executed = await this.__execute();
     this.__starting = false;
 
     if (executed) {
-      console.info(`Started ${this.is}:${this.__id}`);
+      debug(`Started ${this.is}:${this.__id}`);
 
       this.__started = true;
 

@@ -1,14 +1,15 @@
+const debug = require('debug')('xin::core');
+
 export class Repository {
   constructor (data = {}, fallbackScope = window) {
     this.data = Object.assign({
-      'env.debug': false,
       'customElements.version': 'v1',
     }, data);
     this.fallbackScope = fallbackScope;
   }
 
   rebootstrap (data = {}, fallbackScope = this.fallbackScope) {
-    console.info('Repository rebootstrapping ...');
+    debug('Repository rebootstrapping ...');
     this.data = Object.assign(this.data, data);
     this.fallbackScope = fallbackScope;
   }

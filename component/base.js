@@ -8,6 +8,7 @@ import { NotifyAnnotation } from './annotation';
 import { Async, Debounce } from '../core/fn';
 import { sprintf } from 'sprintf-js';
 
+const debug = require('debug')('xin::component');
 const idGenerator = new IdGenerator('component');
 const baseComponents = {};
 
@@ -58,7 +59,7 @@ export function base (base) {
     detached () {}
 
     createdCallback () {
-      if (this.__repository.get('env.debug')) console.info(`CREATED ${this.is}`);
+      debug(`CREATED ${this.is}`);
 
       this.__id = idGenerator.next();
 
@@ -80,7 +81,7 @@ export function base (base) {
     readyCallback () {
       this.__componentReady = true;
 
-      if (this.__repository.get('env.debug')) console.info(`READY ${this.is}`);
+      debug(`READY ${this.is}`);
 
       // moved from attachedCallback
       if (!this.hasAttribute('xin-id')) {
@@ -135,7 +136,7 @@ export function base (base) {
       this.notify('__repository');
       this.notify('__app');
 
-      if (this.__repository.get('env.debug')) console.info(`ATTACHED ${this.is} ${this.__componentAttaching ? '(delayed)' : ''}`);
+      debug(`ATTACHED ${this.is} ${this.__componentAttaching ? '(delayed)' : ''}`);
 
       this.set('ref', this);
       this.attached();
@@ -426,14 +427,9 @@ export function base (base) {
 
 function parseListenerMetadata (key) {
   key = key.trim();
-
-  let splitted = key.split(' ');
-  let metadata = {
-    key: key,
-    eventName: splitted[0],
-    selector: splitted[1] ? splitted.slice(1).join(' ') : null,
-  };
-
+  let [ eventName, ...selectorArr ] = key.split(/\s+/);
+  let selector = selectorArr.length ? selectorArr.join(' ') : null;
+  let metadata = { key, eventName, selector };
   return metadata;
 }
 
