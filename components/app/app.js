@@ -4,7 +4,7 @@ import { Route } from './route';
 
 import './app.css';
 
-const debug = require('xin:components:app');
+const debug = require('debug')('xin:components:app');
 
 export class App extends Component {
   get props () {

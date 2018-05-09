@@ -1,6 +1,6 @@
 {
   "name": "@xinix/xin",
-  "version": "2.5.3",
+  "version": "2.5.4",
   "description": "Web component for the web",
   "repository": {
     "type": "git",
@@ -22,8 +22,8 @@
     "test": "karma start --single-run",
     "dev": "webpack-dev-server --config webpack.config.docs.js",
     "build": "webpack --mode development && webpack --mode production && webpack --mode production --config webpack.config.docs.js",
-    "precommit": "npm run lint && npm test",
-    "prepush": "npm run lint && npm test"
+    "precommit": "npm run lint",
+    "prepush": "npm run lint"
   },
   "devDependencies": {
     "babel-core": "^6.26.3",
