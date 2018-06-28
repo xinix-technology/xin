@@ -36,7 +36,7 @@ const registry = {
     return val;
   },
   string: val => String(val),
-  number: val => Number(val).toLocaleString(),
+  number: val => Number(val || 0).toLocaleString(),
   boolean: val => Boolean(val),
   default: (val, defVal) => (val || defVal),
   upper: val => String.prototype.toUpperCase.call(val || ''),
