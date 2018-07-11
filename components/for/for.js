@@ -1,8 +1,6 @@
 import { Component, define, T } from '../../component';
 import { Row } from './row';
 
-import './for.css';
-
 const FILTER_ALL = () => true;
 
 export class For extends Component {

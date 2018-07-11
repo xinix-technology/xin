@@ -1,4 +1,3 @@
-import { deprecated } from '../../core';
 import { define } from '../../component';
 import { Middleware } from '../../components';
 import { View } from './view';
@@ -11,11 +10,6 @@ export class LazyView extends Middleware {
         value: () => {
           if (this.__repository.get('view.loaders')) {
             return this.__repository.get('view.loaders');
-          }
-
-          if (this.__repository.get('viewLoaders')) {
-            deprecated('', 'Do not use configuration "viewLoaders". Please use "view.loaders" instead.');
-            return this.__repository.get('viewLoaders');
           }
 
           return [];

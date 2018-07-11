@@ -1,11 +1,11 @@
 import { Repository } from './repository';
 
-export function bootstrap (data, fallbackScope) {
+export function bootstrap (data) {
   let repository = window.xin;
   if (repository) {
-    repository.rebootstrap(data, fallbackScope);
+    repository.rebootstrap(data);
   } else {
-    window.xin = repository = new Repository(data, fallbackScope);
+    window.xin = repository = new Repository(data);
   }
   return repository;
 }

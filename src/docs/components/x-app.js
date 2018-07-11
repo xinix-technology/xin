@@ -2,9 +2,6 @@ import { define } from '@xinix/xin';
 import { App } from '@xinix/xin/components';
 
 import '@xinix/xin/middlewares';
-
-import './x-app.css';
-
 import './x-redirect-middleware';
 
 class XApp extends App {

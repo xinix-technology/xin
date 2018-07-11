@@ -1,8 +1,6 @@
 import { Component, define } from '../../component';
 import { Fx } from '../../core';
 
-import './view.css';
-
 export class View extends Component {
   get props () {
     const TRANSITION_IN = this.__repository.get('view.transitionIn') || this.__repository.get('view.transition') || 'slide';

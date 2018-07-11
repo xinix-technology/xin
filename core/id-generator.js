@@ -1,10 +1,6 @@
-export class IdGenerator {
-  constructor (key = '') {
-    this.key = key;
-    this.value = 0;
-  }
-
-  next () {
-    return this.value++;
-  }
+export function idGenerator () {
+  let value = 0;
+  return function next () {
+    return value++;
+  };
 }

@@ -1,8 +1,8 @@
 .xin-view {
   box-sizing: border-box;
   display: none;
-}
 
-.xin-view.xin-view--visible {
-  display: block;
+  &.xin-view--visible {
+    display: block;
+  }
 }

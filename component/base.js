@@ -1,4 +1,4 @@
-import { getInstance, IdGenerator, event } from '../core';
+import { getInstance, idGenerator, event } from '../core';
 import { dashify } from '../string';
 import { deserialize, val } from '../object';
 import { T } from './template';
@@ -9,7 +9,7 @@ import { Async, Debounce } from '../core/fn';
 import { sprintf } from 'sprintf-js';
 
 const debug = require('debug')('xin::component');
-const idGenerator = new IdGenerator('component');
+const nextId = idGenerator();
 const baseComponents = {};
 
 export function base (base) {
@@ -61,7 +61,7 @@ export function base (base) {
     createdCallback () {
       debug(`CREATED ${this.is}`);
 
-      this.__id = idGenerator.next();
+      this.__id = nextId();
 
       this.created();
 

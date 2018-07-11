@@ -1,8 +1,6 @@
 import { event } from '../../core';
 import { Async } from '../fn';
 
-import './fx.css';
-
 export class Fx {
   static add (name, transition) {
     adapters[name] = transition;

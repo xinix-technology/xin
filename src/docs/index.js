@@ -1,11 +1,7 @@
 import { bootstrap } from '@xinix/xin';
+import './scss/docs.scss';
 
 (async function () {
-  // use below polyfill to support unsupported customElements v0
-  // if (!document.registerElement) await import('webcomponentsjs/micro');
-  // use below polyfill to support unsupported customElements v1
-  // if (!window.customElements) await import('@webcomponents/webcomponentsjs/webcomponents-hi-sd-ce');
-
   bootstrap({
     // 'customElements.version': 'v0',
     'view.loaders': [

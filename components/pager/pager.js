@@ -1,8 +1,6 @@
 import { Component, define } from '../../component';
 import { Fx } from '../../core';
 
-import './pager.css';
-
 export class Pager extends Component {
   ready () {
     super.ready();

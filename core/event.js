@@ -1,6 +1,6 @@
-import { IdGenerator } from './id-generator';
+import { idGenerator } from './id-generator';
 
-const idGenerator = new IdGenerator('event');
+const nextId = idGenerator();
 
 let _matcher;
 let _level = 0;
@@ -278,7 +278,7 @@ function _bind (events, selector, callback, remove) {
     if (selector.hasAttribute('bind-event-id')) {
       id = selector.getAttribute('bind-event-id');
     } else {
-      id = idGenerator.next();
+      id = nextId();
       selector.setAttribute('bind-event-id', id);
     }
     selector = `[bind-event-id="${id}"]`;

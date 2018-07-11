@@ -2,8 +2,6 @@ import { event } from '../../core';
 import { Component, define } from '../../component';
 import { Route } from './route';
 
-import './app.css';
-
 const debug = require('debug')('xin:components:app');
 
 export class App extends Component {

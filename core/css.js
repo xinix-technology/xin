@@ -46,11 +46,3 @@ Css.prototype.set = function (key, value) {
 };
 
 export default Css;
-
-// -webkit-backface-visibility: hidden;
-// backface-visibility: hidden;
-// will-change: transform, -webkit-transform;
-// -webkit-transition: -webkit-transform 3s;
-// transition: transform 3s;
-// this.element.style.webkitTransform = 'translateX(100%)';
-// this.element.style.transform = 'translateX(100%)';

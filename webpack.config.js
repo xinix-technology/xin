@@ -1,4 +1,7 @@
 const path = require('path');
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+const OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin');
+const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
 
 module.exports = function (_, { mode = 'development' }) {
   return {
@@ -15,9 +18,24 @@ module.exports = function (_, { mode = 'development' }) {
     module: {
       rules: [
         {
-          test: /\.css$/,
-          use: [ 'style-loader', 'css-loader' ],
+          test: /\.s?css$/,
+          use: [ MiniCssExtractPlugin.loader, 'css-loader', 'sass-loader' ],
         },
+      ],
+    },
+    plugins: [
+      new MiniCssExtractPlugin({
+        filename: `[name]${mode === 'production' ? '.min' : ''}.css`,
+      }),
+    ],
+    optimization: {
+      minimizer: [
+        new UglifyJsPlugin({
+          cache: true,
+          parallel: true,
+          sourceMap: true, // set to true if you want JS source maps
+        }),
+        new OptimizeCSSAssetsPlugin({}),
       ],
     },
   };

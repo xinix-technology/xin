@@ -1,6 +1,6 @@
-import { IdGenerator } from '../id-generator';
+import { idGenerator } from '../id-generator';
 
-const idGenerator = new IdGenerator('async');
+const nextId = idGenerator();
 
 const requestAnimationFrame = (
   window.requestAnimationFrame ||
@@ -33,7 +33,7 @@ export class Async {
   }
 
   constructor (context) {
-    this.id = idGenerator.next();
+    this.id = nextId();
     this.context = context || null;
     this.handle = null;
     this.frameHandle = null;

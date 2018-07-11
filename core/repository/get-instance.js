@@ -1,15 +1,14 @@
 import { bootstrap } from './bootstrap';
-import { deprecated } from '../deprecated';
 
 export function getInstance () {
-  let { xin } = window;
-
-  if (!xin) {
-    xin = bootstrap(undefined, window);
-  } else if ('get' in xin === false) {
-    deprecated('', 'Do not use window.xin to set configuration. Please use bootstrap(config) instead.');
-    xin = bootstrap(xin, window);
+  let instance = window.xin;
+  if (!instance) {
+    instance = bootstrap();
   }
 
-  return xin;
+  if (typeof instance.rebootstrap !== 'function') {
+    throw new Error('Invalid global xin repository found!');
+  }
+
+  return instance;
 }
