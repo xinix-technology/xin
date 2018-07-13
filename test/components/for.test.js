@@ -29,6 +29,92 @@ describe('For', () => {
       fixture.set('rows', rows);
       await new Promise(resolve => setTimeout(resolve, 100));
       assert.equal(fixture.querySelectorAll('.child').length, rows.length);
+
+      fixture.set('rows', [{ name: 'zap' }]);
+      await new Promise(resolve => setTimeout(resolve, 100));
+      assert.equal(fixture.querySelectorAll('.child').length, 1);
+    } finally {
+      fixture.dispose();
+    }
+  });
+
+  it('render to nearest defined element from parent', async () => {
+    let fixture = Fixture.create(`
+      <div>
+        <table>
+          <tbody id="firstBody">
+          </tbody>
+        </table>
+      </div>
+      <div>
+        <table>
+          <tbody id="secondBody">
+          </tbody>
+        </table>
+
+        <xin-for items="[[rows]]" as="row" to="tbody">
+          <template>
+            <tr>
+              <td>[[row.name]]</td>
+            </tr>
+          </template>
+        </xin-for>
+      </div>
+    `);
+
+    try {
+      await fixture.waitConnected();
+      let rows = [
+        {
+          name: 'foo',
+        },
+        {
+          name: 'bar',
+        },
+        {
+          name: 'baz',
+        },
+      ];
+      fixture.set('rows', rows);
+      await new Promise(resolve => setTimeout(resolve, 100));
+
+      assert.equal(fixture.$.firstBody.children.length, 0);
+      assert.equal(fixture.$.secondBody.children.length, 3);
+    } finally {
+      fixture.dispose();
+    }
+  });
+
+  it('get item, index, and model for element', async () => {
+    let fixture = Fixture.create(`
+      <xin-for items="[[rows]]" as="row">
+        <template>
+          <div>
+            <span>[[row.name]]</span>
+          </div>
+        </template>
+      </xin-for>
+    `);
+
+    try {
+      await fixture.waitConnected();
+      let rows = [
+        {
+          name: 'foo',
+        },
+        {
+          name: 'bar',
+        },
+        {
+          name: 'baz',
+        },
+      ];
+      fixture.set('rows', rows);
+      await new Promise(resolve => setTimeout(resolve, 100));
+
+      assert.deepEqual(fixture.$$('xin-for').itemForElement(fixture.$$('span')), { name: 'foo' });
+      assert.equal(fixture.$$('xin-for').indexForElement(fixture.$$('span')), 0);
+      assert.equal(fixture.$$('xin-for').modelForElement(fixture.$$('span')).get('index'), 0);
     } finally {
       fixture.dispose();
     }

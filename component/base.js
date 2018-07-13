@@ -337,7 +337,8 @@ export function base (base) {
       }
 
       this.off(eventName, this.__componentNotifiers[eventName]);
-      this.__componentNotifiers[eventName] = null;
+
+      delete this.__componentNotifiers[eventName];
     }
 
     fire (type, detail, options) {

@@ -3,20 +3,23 @@ import { idGenerator } from '../id-generator';
 const nextId = idGenerator();
 
 const requestAnimationFrame = (
-  window.requestAnimationFrame ||
-  window.webkitRequestAnimationFrame ||
-  window.mozRequestAnimationFrame ||
-  window.oRequestAnimationFrame ||
+  window.requestAnimationFrame || /* istanbul ignore next */
+  window.webkitRequestAnimationFrame || /* istanbul ignore next */
+  window.mozRequestAnimationFrame || /* istanbul ignore next */
+  window.oRequestAnimationFrame || /* istanbul ignore next */
   window.msRequestAnimationFrame
 );
 
 const cancelAnimationFrame = (
-  window.cancelAnimationFrame ||
-  window.webkitCancelRequestAnimationFrame ||
-  window.webkitCancelAnimationFrame ||
-  window.mozCancelRequestAnimationFrame || window.mozCancelAnimationFrame ||
-  window.oCancelRequestAnimationFrame || window.oCancelAnimationFrame ||
-  window.msCancelRequestAnimationFrame || window.msCancelAnimationFrame
+  window.cancelAnimationFrame || /* istanbul ignore next */
+  window.webkitCancelRequestAnimationFrame || /* istanbul ignore next */
+  window.webkitCancelAnimationFrame || /* istanbul ignore next */
+  window.mozCancelRequestAnimationFrame || /* istanbul ignore next */
+  window.mozCancelAnimationFrame || /* istanbul ignore next */
+  window.oCancelRequestAnimationFrame || /* istanbul ignore next */
+  window.oCancelAnimationFrame || /* istanbul ignore next */
+  window.msCancelRequestAnimationFrame || /* istanbul ignore next */
+  window.msCancelAnimationFrame
 );
 
 export class Async {
@@ -34,9 +37,9 @@ export class Async {
 
   constructor (context) {
     this.id = nextId();
-    this.context = context || null;
-    this.handle = null;
-    this.frameHandle = null;
+    this.context = context;
+    // this.handle = null;
+    // this.frameHandle = null;
     this.cleared = true;
   }
 
@@ -50,8 +53,6 @@ export class Async {
     }
 
     this.cleared = false;
-
-    wait = wait || 0;
 
     let self = this;
     let context = this.context;
@@ -74,7 +75,7 @@ export class Async {
 
     cancelAnimationFrame(~~this.frameHandle);
     clearTimeout(~~this.handle);
-    this.handle = this.frameHandle = null;
+    this.handle = this.frameHandle = undefined;
   }
 
   cancel () {

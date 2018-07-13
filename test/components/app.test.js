@@ -4,8 +4,8 @@ import { Fixture } from '@xinix/xin/components';
 import '../../scss/xin.scss';
 import '../../scss/xin-components.scss';
 
-describe('View', () => {
-  it('render list', async () => {
+describe('App', () => {
+  it('run routes', async () => {
     let fixture = Fixture.create(`
       <xin-app>
         <xin-pager>
@@ -49,6 +49,40 @@ describe('View', () => {
 
       assert(fixture.$$('xin-view[uri="/foo"]').classList.contains('xin-view--visible'));
       assert(fixture.$$('xin-view[uri="/foo"]').classList.contains('xin-view--focus'));
+    } finally {
+      fixture.dispose();
+
+      location.href = '#';
+    }
+  }).timeout(5000);
+
+  it('run dynamic route', async () => {
+    let fixture = Fixture.create(`
+      <xin-app>
+        <xin-pager>
+          <xin-view uri="/">home</xin-view>
+          <xin-view uri="/foo/{name}">
+            <template>
+              foo <span>[[parameters.name]]</span>
+            </template>
+          </xin-view>
+        </xin-pager>
+      </xin-app>
+    `);
+
+    try {
+      await fixture.waitConnected();
+      await new Promise(resolve => setTimeout(resolve, 500));
+
+      fixture.$$('xin-app').navigate('/foo/bar');
+      await new Promise(resolve => setTimeout(resolve, 500));
+
+      assert(!fixture.$$('xin-view[uri="/"]').classList.contains('xin-view--visible'));
+      assert(!fixture.$$('xin-view[uri="/"]').classList.contains('xin-view--focus'));
+      assert(fixture.$$('xin-view[uri^="/foo"]').classList.contains('xin-view--visible'));
+      assert(fixture.$$('xin-view[uri^="/foo"]').classList.contains('xin-view--focus'));
+
+      assert(fixture.$$('xin-view[uri^="/foo"]').textContent.trim(), 'foo bar');
     } finally {
       fixture.dispose();
 

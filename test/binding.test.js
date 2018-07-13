@@ -194,4 +194,82 @@ describe('Binding', () => {
 
     await fixture.dispose();
   });
+
+  it('compute data', async () => {
+    define('test-binding-3', class extends Component {
+      get template () {
+        return '<span>[[full]]</span>';
+      }
+
+      get props () {
+        return Object.assign({}, super.props, {
+          first: {
+            type: String,
+          },
+
+          last: {
+            type: String,
+          },
+
+          full: {
+            type: String,
+            computed: '_computeFull(first, last)',
+          },
+        });
+      }
+
+      _computeFull (first, last) {
+        return `${first || ''} ${last || ''}`.trim();
+      }
+    });
+
+    let fixture = XinFixture.create(`
+      <test-binding-3 id="comp"></test-binding-3>
+    `);
+
+    try {
+      await fixture.waitConnected();
+
+      fixture.$.comp.set('first', 'foo');
+      fixture.$.comp.set('last', 'bar');
+
+      await new Promise(resolve => setTimeout(resolve, 100));
+      assert.equal(fixture.$.comp.full, 'foo bar');
+    } finally {
+      await fixture.dispose();
+    }
+  });
+
+  it('notify data', async () => {
+    define('test-binding-4', class extends Component {
+      get props () {
+        return Object.assign({}, super.props, {
+          value: {
+            type: String,
+            notify: true,
+          },
+        });
+      }
+    });
+
+    let fixture = XinFixture.create(`
+      <test-binding-4 id="comp" value="{{foo}}"></test-binding-4>
+    `);
+
+    try {
+      await fixture.waitConnected();
+
+      fixture.set('foo', 'foo');
+      await new Promise(resolve => setTimeout(resolve, 100));
+      assert.equal(fixture.foo, 'foo');
+      assert.equal(fixture.$.comp.value, 'foo');
+
+      fixture.$.comp.set('value', 'bar');
+      await new Promise(resolve => setTimeout(resolve, 100));
+      assert.equal(fixture.foo, 'bar');
+      assert.equal(fixture.$.comp.value, 'bar');
+    } finally {
+      await fixture.dispose();
+    }
+  });
 });

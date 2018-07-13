@@ -50,7 +50,7 @@ export class For extends Component {
     let marker = this;
     let toAttr = this.getAttribute('to');
     if (toAttr) {
-      let container = document.querySelector(toAttr);
+      let container = this.parentElement.querySelector(toAttr) || document.querySelector(toAttr);
       if (!container) {
         throw new Error(`xin-for render to unknown element ${toAttr}`);
       }
@@ -86,17 +86,11 @@ export class For extends Component {
   }
 
   itemForElement (element) {
-    while (element && !element.__repeatModel) {
-      element = element.parentElement;
-    }
-    return element.__repeatModel.get(this.as);
+    return this.modelForElement(element).get(this.as);
   }
 
   indexForElement (element) {
-    while (element && !element.__repeatModel) {
-      element = element.parentElement;
-    }
-    return element.__repeatModel.get(this.indexAs);
+    return this.modelForElement(element).get(this.indexAs);
   }
 
   modelForElement (element) {
@@ -106,6 +100,5 @@ export class For extends Component {
     return element.__repeatModel;
   }
 }
-define('xin-for', For);
 
-export default For;
+define('xin-for', For);
