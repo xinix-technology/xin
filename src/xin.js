@@ -1,10 +1,12 @@
-const lib = require('../');
-const xin = lib.getInstance();
-const proto = Object.getPrototypeOf(xin);
+if ('xin' in window) {
+  throw new Error('Xin already declared!');
+}
 
-Object.setPrototypeOf(proto, lib);
+const xin = window.xin = require('../');
 
-xin.component = require('../components');
-xin.middleware = require('../middlewares');
+xin.getInstance(); // force creating new instance of repository for the first time
+
+xin.components = require('../components');
+xin.middlewares = require('../middlewares');
 
 require('./xin.scss');

@@ -1,5 +1,5 @@
 import { define } from '../component';
-import { Middleware } from '../components';
+import { Middleware } from '../components/middleware';
 
 export class Title extends Middleware {
   get props () {

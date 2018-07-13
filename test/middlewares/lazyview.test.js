@@ -1,6 +1,7 @@
 import assert from 'assert';
 import { Fixture } from '@xinix/xin/components';
-import '@xinix/xin/middlewares';
+
+import '@xinix/xin/middlewares/lazy-view';
 
 import '../../scss/xin.scss';
 import '../../scss/xin-components.scss';

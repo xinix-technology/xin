@@ -1,11 +1,14 @@
 import { Repository } from './repository';
 
 export function bootstrap (data) {
-  let repository = window.xin;
-  if (repository) {
-    repository.rebootstrap(data);
+  window.xin = window.xin || {};
+
+  let instance = window.xin.__repository;
+  if (instance) {
+    instance.update(data);
   } else {
-    window.xin = repository = new Repository(data);
+    instance = window.xin.__repository = new Repository(data);
   }
-  return repository;
+
+  return instance;
 }

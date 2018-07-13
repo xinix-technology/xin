@@ -1,0 +1,43 @@
+html, body {
+  height: 100%;
+}
+
+body {
+  font-family: 'Courier New', Courier, monospace;
+  padding: 0;
+  margin: 0;
+}
+
+a, a:link, a:visited {
+  color: #00f;
+}
+
+nav {
+  border-bottom: 1px solid #999;
+  background-color: #eee;
+  padding: 5px;
+}
+
+nav a {
+  color: #666!important;
+  border: 1px solid #999;
+  text-decoration: none;
+  padding: 5px 10px;
+  display: inline-block;
+}
+
+h3 {
+  text-align: center;
+}
+
+.xin-view {
+  padding: 10px;
+}
+
+.foo-view {
+  background-color: #faa;
+}
+
+.bar-view {
+  background-color: #afa;
+}

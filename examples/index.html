@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Xin example without webpack</title>
+
+  <link rel="stylesheet" href="../dist/xin.min.css">
+  <link rel="stylesheet" href="./index.css">
+</head>
+<body>
+  <xin-app>
+    <template>
+      <nav>
+        <a href="#!/">Home</a>
+        <a href="#!/foo">Foo</a>
+        <a href="#!/bar">Bar</a>
+        <a href="#!/form">Form</a>
+      </nav>
+
+      <xin-pager>
+        <xin-view class="home-view" uri="/">
+          <h1>Welcome</h1>
+          <p>This is xin example without webpack</p>
+        </xin-view>
+        <xin-view class="foo-view" uri="/foo"><h3>Foo</h3></xin-view>
+        <xin-view class="bar-view" uri="/bar"><h3>Bar</h3></xin-view>
+        <x-form-view uri="/form"></x-form-view>
+      </xin-pager>
+    </template>
+  </xin-app>
+
+  <script src="../node_modules/@webcomponents/custom-elements/custom-elements.min.js"></script>
+  <script src="../dist/xin.min.js"></script>
+  <script src="./index.js"></script>
+</body>
+</html>

@@ -1,4 +1,5 @@
-import { event, idGenerator } from '../core';
+import { event } from '../core';
+import { idGenerator } from '../core/id-generator';
 import { Expr } from './expr';
 import { Binding } from './binding';
 import { Accessor } from './accessor';

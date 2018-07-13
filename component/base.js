@@ -1,4 +1,5 @@
-import { getInstance, idGenerator, event } from '../core';
+import { getInstance, event } from '../core';
+import { idGenerator } from '../core/id-generator';
 import { dashify } from '../core/string';
 import { deserialize, val } from './helpers';
 import { T } from './template';
@@ -6,7 +7,7 @@ import { Expr } from './expr';
 import { Accessor } from './accessor';
 import { NotifyAnnotation } from './annotation';
 import { Async, Debounce } from '../core/fn';
-import { sprintf } from 'sprintf-js';
+// import { sprintf } from 'sprintf-js';
 
 const debug = require('debug')('xin::component');
 const nextId = idGenerator();
@@ -365,9 +366,9 @@ export function base (base) {
       return Async.nextFrame(callback.bind(this));
     }
 
-    sprintf (...args) {
-      return sprintf(...args);
-    }
+    // sprintf (...args) {
+    //   return sprintf(...args);
+    // }
 
     // T overriden
     // -------------------------------------------------------------------------

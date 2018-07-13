@@ -19,9 +19,9 @@ describe('xin', () => {
     assert(imported.Filter);
   });
 
-  it('define global xin as repository', () => {
-    assert(typeof window.xin.get === 'function');
-    assert(typeof window.xin.put === 'function');
-    assert(typeof window.xin.rebootstrap === 'function');
+  it('define global xin repository', () => {
+    assert(typeof window.xin.__repository.get === 'function');
+    assert(typeof window.xin.__repository.put === 'function');
+    assert(typeof window.xin.__repository.update === 'function');
   });
 });

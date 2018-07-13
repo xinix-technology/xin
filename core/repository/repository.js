@@ -2,13 +2,14 @@ const debug = require('debug')('xin::core');
 
 export class Repository {
   constructor (data = {}) {
+    debug('Repository construct...');
     this.data = Object.assign({
       'customElements.version': 'v1',
     }, data);
   }
 
-  rebootstrap (data = {}) {
-    debug('Repository rebootstrapping ...');
+  update (data = {}) {
+    debug('Repository update data...');
     this.data = Object.assign(this.data, data);
   }
 

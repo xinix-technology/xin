@@ -1,12 +1,13 @@
 import { bootstrap } from './bootstrap';
+import { hasInstance } from './has-instance';
 
 export function getInstance () {
-  let instance = window.xin;
-  if (!instance) {
-    instance = bootstrap();
+  if (!hasInstance()) {
+    bootstrap();
   }
 
-  if (typeof instance.rebootstrap !== 'function') {
+  let instance = window.xin.__repository;
+  if (typeof instance.update !== 'function') {
     throw new Error('Invalid global xin repository found!');
   }
 

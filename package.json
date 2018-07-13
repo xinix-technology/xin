@@ -1,6 +1,6 @@
 {
   "name": "@xinix/xin",
-  "version": "2.5.5",
+  "version": "2.6.0",
   "description": "Web component for the web",
   "repository": {
     "type": "git",
@@ -63,7 +63,6 @@
     "webpack-dev-server": "^3.1.4"
   },
   "dependencies": {
-    "debug": "^3.1.0",
-    "sprintf-js": "^1.1.1"
+    "debug": "^3.1.0"
   }
 }
