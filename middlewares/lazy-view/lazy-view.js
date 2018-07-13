@@ -74,7 +74,7 @@ export class LazyView extends Middleware {
 
     let view = this.get(uri);
     if (!view) {
-      throw new Error('Unknown view for ' + uri);
+      return;
     }
 
     return view.load();

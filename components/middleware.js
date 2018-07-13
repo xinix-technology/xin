@@ -7,5 +7,3 @@ export class Middleware extends Component {
     this.__app.use(this.callback());
   }
 }
-
-export default Middleware;

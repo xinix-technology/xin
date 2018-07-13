@@ -96,24 +96,6 @@ module.exports = function (config) {
           '@xinix/xin': path.resolve('./'),
         },
       },
-      // module: {
-      //   loaders: [
-      //     {test: /\.css$/, loader: 'style!css'},
-      //     {test: /\.less$/, loader: 'style!css!less'},
-      //   ],
-      //   postLoaders: [{
-      //     test: /\.js/,
-      //     exclude: /(test|node_modules|bower_components)/,
-      //     loader: 'istanbul-instrumenter',
-      //   }],
-      // },
-      // resolve: {
-      //   modulesDirectories: [
-      //     '',
-      //     'src',
-      //     'node_modules',
-      //   ],
-      // },
     },
 
     webpackMiddleware: {

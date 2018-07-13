@@ -1,10 +1,10 @@
 import assert from 'assert';
-import XinFixture from '@xinix/xin/components/fixture';
+import { Fixture } from '@xinix/xin/components';
 import { define, Component } from '@xinix/xin';
 
 describe('Binding', () => {
   it('bind value from property', async () => {
-    let fixture = XinFixture.create(`<input id="el" type="text" value="[[value]]">`);
+    let fixture = Fixture.create(`<input id="el" type="text" value="[[value]]">`);
     try {
       await fixture.waitConnected();
       fixture.set('value', 'foo');
@@ -15,7 +15,7 @@ describe('Binding', () => {
   });
 
   it('bind value from text content', async () => {
-    let fixture = XinFixture.create(`<textarea id="el">[[value]]</textarea>`);
+    let fixture = Fixture.create(`<textarea id="el">[[value]]</textarea>`);
     try {
       await fixture.waitConnected();
       fixture.set('value', 'foo');
@@ -26,7 +26,7 @@ describe('Binding', () => {
   });
 
   it('bind text from text content', async () => {
-    let fixture = XinFixture.create(`<span id="el">[[value]]</span>`);
+    let fixture = Fixture.create(`<span id="el">[[value]]</span>`);
     try {
       await fixture.waitConnected();
       fixture.set('value', 'foo');
@@ -37,7 +37,7 @@ describe('Binding', () => {
   });
 
   it('bind text from attribute', async () => {
-    let fixture = XinFixture.create(`<span id="el" text="[[value]]"></span>`);
+    let fixture = Fixture.create(`<span id="el" text="[[value]]"></span>`);
     try {
       await fixture.waitConnected();
       fixture.set('value', 'foo');
@@ -48,7 +48,7 @@ describe('Binding', () => {
   });
 
   it('bind html from attribute', async () => {
-    let fixture = XinFixture.create(`<span id="el" html="[[value]]"></span>`);
+    let fixture = Fixture.create(`<span id="el" html="[[value]]"></span>`);
     try {
       await fixture.waitConnected();
       fixture.set('value', '<b>bold</b> <i>italic</i>');
@@ -60,7 +60,7 @@ describe('Binding', () => {
   });
 
   it('bind style from attribute', async () => {
-    let fixture = XinFixture.create(`<span id="el" style.border="[[value]]"></span>`);
+    let fixture = Fixture.create(`<span id="el" style.border="[[value]]"></span>`);
     try {
       await fixture.waitConnected();
       fixture.set('value', '1px solid red');
@@ -71,7 +71,7 @@ describe('Binding', () => {
   });
 
   it('bind class from attribute', async () => {
-    let fixture = XinFixture.create(`<span id="el" class.foo="[[value]]"></span>`);
+    let fixture = Fixture.create(`<span id="el" class.foo="[[value]]"></span>`);
     try {
       await fixture.waitConnected();
       fixture.set('value', true);
@@ -82,7 +82,7 @@ describe('Binding', () => {
   });
 
   it('bind attribute', async () => {
-    let fixture = XinFixture.create(`<span id="el" foo$="[[value]]"></span>`);
+    let fixture = Fixture.create(`<span id="el" foo$="[[value]]"></span>`);
     try {
       await fixture.waitConnected();
       fixture.set('value', 'bar');
@@ -94,7 +94,7 @@ describe('Binding', () => {
   });
 
   it('bind property', async () => {
-    let fixture = XinFixture.create(`<span id="el" foo="[[value]]"></span>`);
+    let fixture = Fixture.create(`<span id="el" foo="[[value]]"></span>`);
     try {
       await fixture.waitConnected();
       fixture.set('value', 'bar');
@@ -106,7 +106,7 @@ describe('Binding', () => {
   });
 
   it('change value', async () => {
-    let fixture = XinFixture.create(require('./binding.test.html'), {
+    let fixture = Fixture.create(require('./binding.test.html'), {
       value: 'original',
     });
 
@@ -157,7 +157,7 @@ describe('Binding', () => {
       }
     });
 
-    let fixture = XinFixture.create(`
+    let fixture = Fixture.create(`
       <test-binding-1 id="comp" foo="foo was here"></test-binding-1>
     `);
 
@@ -184,7 +184,7 @@ describe('Binding', () => {
       }
     });
 
-    let fixture = XinFixture.create(`
+    let fixture = Fixture.create(`
       <test-binding-2 id="comp"></test-binding-2>
     `);
 
@@ -223,7 +223,7 @@ describe('Binding', () => {
       }
     });
 
-    let fixture = XinFixture.create(`
+    let fixture = Fixture.create(`
       <test-binding-3 id="comp"></test-binding-3>
     `);
 
@@ -252,7 +252,7 @@ describe('Binding', () => {
       }
     });
 
-    let fixture = XinFixture.create(`
+    let fixture = Fixture.create(`
       <test-binding-4 id="comp" value="{{foo}}"></test-binding-4>
     `);
 

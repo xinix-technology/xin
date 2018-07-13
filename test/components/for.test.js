@@ -1,5 +1,5 @@
 import assert from 'assert';
-import Fixture from '@xinix/xin/components/fixture';
+import { Fixture } from '@xinix/xin/components/fixture';
 import '@xinix/xin/components/for';
 
 describe('For', () => {

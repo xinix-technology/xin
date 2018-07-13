@@ -1,6 +1,6 @@
-import Fixture from '@xinix/xin/components/fixture';
 import assert from 'assert';
 import { Filter } from '@xinix/xin';
+import { Fixture } from '@xinix/xin/components/fixture';
 
 describe('Filter', () => {
   it('format currency', async () => {

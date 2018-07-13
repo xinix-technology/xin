@@ -70,5 +70,3 @@ export class Fixture extends Component {
 }
 
 define('xin-fixture', Fixture);
-
-export default Fixture;

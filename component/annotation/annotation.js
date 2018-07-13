@@ -13,5 +13,3 @@ export class Annotation {
     }
   }
 }
-
-export default Annotation;

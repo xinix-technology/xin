@@ -1,3 +1,1 @@
-import { Pager } from './pager';
-export { Pager };
-export default Pager;
+export { Pager } from './pager';

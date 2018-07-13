@@ -1,12 +1,14 @@
 import { getInstance } from '../core';
 
+const debug = require('debug')('xin::core:define');
+
 export function define (name, Component, options) {
   const repository = getInstance();
 
   let ElementClass = repository.get(name);
 
   if (ElementClass) {
-    console.warn(`Duplicate registering ${name}`);
+    debug(`Duplicate registering "${name}"`);
     return ElementClass;
   }
 

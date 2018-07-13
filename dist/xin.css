@@ -77,3 +77,6 @@ xin-for {
   display: none;
   visibility: hidden; }
 
+[lazy-view] {
+  display: none; }
+
