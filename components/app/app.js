@@ -85,6 +85,13 @@ export class App extends Component {
     }, this.delay);
   }
 
+  detached () {
+    super.detached();
+
+    event(window).off('hashchange');
+    delete this.__navCallback;
+  }
+
   route (route, callback) {
     this.handlers.push(new Route(route, callback));
   }
@@ -114,12 +121,12 @@ export class App extends Component {
   }
 
   __listenNavigation () {
-    let callback = () => {
+    this.__navCallback = () => {
       this.__execute();
     };
 
     if (this.mode === 'history') {
-      event(window).on('popstate', callback);
+      event(window).on('popstate', this.__navCallback);
       event(document).on('click', evt => {
         if (!evt.defaultPrevented && evt.target.nodeName === 'A' && evt.target.target === '') {
           evt.preventDefault();
@@ -127,11 +134,11 @@ export class App extends Component {
           let state = { url: evt.target.getAttribute('href') };
           this.history.pushState(state, evt.target.innerHTML, evt.target.href);
 
-          callback();
+          this.__navCallback();
         }
       });
     } else {
-      event(window).on('hashchange', callback);
+      event(window).on('hashchange', this.__navCallback);
     }
   }
 

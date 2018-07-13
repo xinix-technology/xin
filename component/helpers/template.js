@@ -25,7 +25,7 @@ if (needFixImportNode()) {
 
     let sourceTpls = [].slice.call(node.querySelectorAll('template'));
     let imported = document.__importNode(node, deep);
-    [].forEach.call(imported.querySelectorAll('template'), (child, i) => {
+    imported.querySelectorAll('template').forEach((child, i) => {
       child.innerHTML = sourceTpls[i].innerHTML;
     });
 

@@ -315,7 +315,7 @@ T.prototype = {
 
     if (contentFragment && contentFragment instanceof window.DocumentFragment) {
       // try {
-      [].forEach.call(fragment.querySelectorAll('slot'), slot => {
+      fragment.querySelectorAll('slot').forEach(slot => {
         let name = slotName(slot);
         let parent = slot.parentElement || fragment;
         let marker = document.createComment(`slot ${name}`);
@@ -324,8 +324,7 @@ T.prototype = {
         parent.removeChild(slot);
 
         if (name) {
-          let node = contentFragment.querySelectorAll(`[slot="${name}"]`);
-          [].forEach.call(node, (node) => {
+          contentFragment.querySelectorAll(`[slot="${name}"]`).forEach(node => {
             parent.insertBefore(node, marker);
           });
         } else {
@@ -451,8 +450,8 @@ T.prototype = {
       }
     }
 
-    [].forEach.call(element.getElementsByTagName('slot'), slot => {
-      [].forEach.call(slot.childNodes, node => {
+    element.querySelectorAll('slot').forEach(slot => {
+      slot.childNodes.forEach(node => {
         annotated = this.__parseNodeAnnotations(node) || annotated;
       });
     });

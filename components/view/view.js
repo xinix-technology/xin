@@ -11,17 +11,15 @@ export class View extends Component {
         type: String,
         required: true,
       },
+
       transitionIn: {
         type: String,
         value: TRANSITION_IN,
       },
+
       transitionOut: {
         type: String,
         value: TRANSITION_OUT,
-      },
-      index: {
-        type: Number,
-        value: 0,
       },
     });
   }
@@ -96,7 +94,7 @@ export class View extends Component {
     }
 
     this.classList.remove('xin-view--visible');
-    [].forEach.call(this.querySelectorAll('.xin-view.xin-view--visible'), el => el.setVisible(visible));
+    this.querySelectorAll('.xin-view.xin-view--visible').forEach(el => el.setVisible(visible));
 
     this.fire('hide');
   }
@@ -110,7 +108,7 @@ export class View extends Component {
     }
 
     this.classList.remove('xin-view--focus');
-    [].forEach.call(this.querySelectorAll('.xin-view.xin-view--focus'), el => {
+    this.querySelectorAll('.xin-view.xin-view--focus').forEach(el => {
       if ('setFocus' in el.parentElement) {
         el.parentElement.setFocus(null);
       } else {

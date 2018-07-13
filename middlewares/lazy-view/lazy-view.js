@@ -62,7 +62,7 @@ export class LazyView extends Middleware {
 
   ensure (app, uri) {
     if (this.views.length === 0) {
-      [].forEach.call(app.querySelectorAll('[lazy-view]'), el => {
+      app.querySelectorAll('[lazy-view]').forEach(el => {
         let loader = this.loaders.find(loader => {
           return el.nodeName.toLowerCase().match(loader.test);
         });

@@ -1,7 +1,110 @@
 import assert from 'assert';
-import XinFixture from '../components/fixture';
+import XinFixture from '@xinix/xin/components/fixture';
+import { define, Component } from '@xinix/xin';
 
 describe('Binding', () => {
+  it('bind value from property', async () => {
+    let fixture = XinFixture.create(`<input id="el" type="text" value="[[value]]">`);
+    try {
+      await fixture.waitConnected();
+      fixture.set('value', 'foo');
+      assert.equal(fixture.$.el.value, 'foo');
+    } finally {
+      fixture.dispose();
+    }
+  });
+
+  it('bind value from text content', async () => {
+    let fixture = XinFixture.create(`<textarea id="el">[[value]]</textarea>`);
+    try {
+      await fixture.waitConnected();
+      fixture.set('value', 'foo');
+      assert.equal(fixture.$.el.value, 'foo');
+    } finally {
+      fixture.dispose();
+    }
+  });
+
+  it('bind text from text content', async () => {
+    let fixture = XinFixture.create(`<span id="el">[[value]]</span>`);
+    try {
+      await fixture.waitConnected();
+      fixture.set('value', 'foo');
+      assert.equal(fixture.$.el.textContent, 'foo');
+    } finally {
+      fixture.dispose();
+    }
+  });
+
+  it('bind text from attribute', async () => {
+    let fixture = XinFixture.create(`<span id="el" text="[[value]]"></span>`);
+    try {
+      await fixture.waitConnected();
+      fixture.set('value', 'foo');
+      assert.equal(fixture.$.el.textContent, 'foo');
+    } finally {
+      fixture.dispose();
+    }
+  });
+
+  it('bind html from attribute', async () => {
+    let fixture = XinFixture.create(`<span id="el" html="[[value]]"></span>`);
+    try {
+      await fixture.waitConnected();
+      fixture.set('value', '<b>bold</b> <i>italic</i>');
+      assert.equal(fixture.$.el.textContent, 'bold italic');
+      assert.equal(fixture.$.el.innerHTML, '<b>bold</b> <i>italic</i>');
+    } finally {
+      fixture.dispose();
+    }
+  });
+
+  it('bind style from attribute', async () => {
+    let fixture = XinFixture.create(`<span id="el" style.border="[[value]]"></span>`);
+    try {
+      await fixture.waitConnected();
+      fixture.set('value', '1px solid red');
+      assert.equal(fixture.$.el.style.border, '1px solid red');
+    } finally {
+      fixture.dispose();
+    }
+  });
+
+  it('bind class from attribute', async () => {
+    let fixture = XinFixture.create(`<span id="el" class.foo="[[value]]"></span>`);
+    try {
+      await fixture.waitConnected();
+      fixture.set('value', true);
+      assert(fixture.$.el.classList.contains('foo'));
+    } finally {
+      fixture.dispose();
+    }
+  });
+
+  it('bind attribute', async () => {
+    let fixture = XinFixture.create(`<span id="el" foo$="[[value]]"></span>`);
+    try {
+      await fixture.waitConnected();
+      fixture.set('value', 'bar');
+      assert.equal(fixture.$.el.getAttribute('foo'), 'bar');
+      assert.equal(fixture.$.el.foo, undefined);
+    } finally {
+      fixture.dispose();
+    }
+  });
+
+  it('bind property', async () => {
+    let fixture = XinFixture.create(`<span id="el" foo="[[value]]"></span>`);
+    try {
+      await fixture.waitConnected();
+      fixture.set('value', 'bar');
+      assert.equal(fixture.$.el.getAttribute('foo'), '[[value]]');
+      assert.equal(fixture.$.el.foo, 'bar');
+    } finally {
+      fixture.dispose();
+    }
+  });
+
   it('change value', async () => {
     let fixture = XinFixture.create(require('./binding.test.html'), {
       value: 'original',
@@ -37,5 +140,58 @@ describe('Binding', () => {
     } finally {
       fixture.dispose();
     }
+  });
+
+  it('initialize data from attribute', async () => {
+    define('test-binding-1', class extends Component {
+      get template () {
+        return '<span>[[foo]]</span>';
+      }
+
+      get props () {
+        return Object.assign({}, super.props, {
+          foo: {
+            type: String,
+          },
+        });
+      }
+    });
+
+    let fixture = XinFixture.create(`
+      <test-binding-1 id="comp" foo="foo was here"></test-binding-1>
+    `);
+
+    await fixture.waitConnected();
+
+    assert.equal(fixture.$.comp.textContent, 'foo was here');
+
+    await fixture.dispose();
+  });
+
+  it('initialize data from default value', async () => {
+    define('test-binding-2', class extends Component {
+      get template () {
+        return '<span>[[foo]]</span>';
+      }
+
+      get props () {
+        return Object.assign({}, super.props, {
+          foo: {
+            type: String,
+            value: 'default foo',
+          },
+        });
+      }
+    });
+
+    let fixture = XinFixture.create(`
+      <test-binding-2 id="comp"></test-binding-2>
+    `);
+
+    await fixture.waitConnected();
+
+    assert.equal(fixture.$.comp.textContent, 'default foo');
+
+    await fixture.dispose();
   });
 });

@@ -1,4 +1,4 @@
-import { event } from '../../core';
+import { event } from '../event';
 import { Async } from '../fn';
 
 export class Fx {

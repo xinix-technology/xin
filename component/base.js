@@ -1,6 +1,6 @@
 import { getInstance, idGenerator, event } from '../core';
-import { dashify } from '../string';
-import { deserialize, val } from '../object';
+import { dashify } from '../core/string';
+import { deserialize, val } from './helpers';
 import { T } from './template';
 import { Expr } from './expr';
 import { Accessor } from './accessor';

@@ -2,13 +2,7 @@ import { Component, define } from '../component';
 
 export class Fixture extends Component {
   static create (template, data = {}) {
-    const t = `
-      <xin-fixture>
-        <template>
-          ${template}
-        </template>
-      </xin-fixture>
-    `;
+    const t = `<xin-fixture><template>${template}</template></xin-fixture>`;
     const d = document.createElement('div');
     d.innerHTML = t;
     const fixture = d.querySelector('xin-fixture');

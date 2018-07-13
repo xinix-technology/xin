@@ -1,36 +1,19 @@
 const debug = require('debug')('xin::core');
 
 export class Repository {
-  constructor (data = {}, fallbackScope = window) {
+  constructor (data = {}) {
     this.data = Object.assign({
       'customElements.version': 'v1',
     }, data);
-    this.fallbackScope = fallbackScope;
   }
 
-  rebootstrap (data = {}, fallbackScope = this.fallbackScope) {
+  rebootstrap (data = {}) {
     debug('Repository rebootstrapping ...');
     this.data = Object.assign(this.data, data);
-    this.fallbackScope = fallbackScope;
   }
 
   get (id) {
-    if (!isNaN(id)) {
-      return this.data[id];
-    }
-
-    if (id in this.data) {
-      return this.data[id];
-    }
-
-    let idSplitted = id.split('.');
-    let scope = this.fallbackScope;
-    idSplitted.find(function (token) {
-      scope = scope[token];
-      return !scope;
-    });
-
-    return scope;
+    return this.data[id];
   }
 
   put (id, value) {

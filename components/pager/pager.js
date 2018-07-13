@@ -6,18 +6,14 @@ export class Pager extends Component {
     super.ready();
 
     for (let el = this.firstElementChild, i = 0; el; el = el.nextElementSibling, i++) {
-      if ('set' in el) {
-        el.set('index', i);
-      } else {
-        el.setAttribute('index', i);
-      }
+      el.setAttribute('index', i);
     }
   }
 
   setFocus (element) {
     if (element) {
-      let index = element.index;
-      let oldIndex = this.focused$ ? this.focused$.index : -1;
+      let index = element.getAttribute('index');
+      let oldIndex = this.focused$ ? this.focused$.getAttribute('index') : -1;
       if (oldIndex < index) {
         this.__transitionForward(this.focused$, element);
       } else if (oldIndex > index) {
