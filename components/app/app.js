@@ -31,9 +31,19 @@ export class App extends Component {
         value: '#!',
       },
 
-      delay: {
+      startDelay: {
         type: Number,
-        value: 1, // working for safari (delay=1), chrome (delay=0)
+        value: 100,
+      },
+
+      location: {
+        type: Object,
+        value: () => window.location,
+      },
+
+      history: {
+        type: Object,
+        value: () => window.history,
       },
     };
   }
@@ -58,12 +68,7 @@ export class App extends Component {
   }
 
   created () {
-    // removed putting app to core scope
-    // put('app', this);
-
     this.__appSignature = true;
-    this.location = window.location;
-    this.history = window.history;
 
     // default values
     this.handlers = [];
@@ -82,13 +87,19 @@ export class App extends Component {
 
     this.async(() => {
       this.start();
-    }, this.delay);
+    }, 1); // working for safari (delay=1), chrome (delay=0)
   }
 
   detached () {
     super.detached();
 
-    event(window).off('hashchange');
+    if (this.mode === 'history') {
+      event(window).off('popstate', this.__navCallback);
+      event(document).off('click', this.__clickCallback);
+      delete this.__clickCallback;
+    } else {
+      event(window).off('hashchange', this.__navCallback);
+    }
     delete this.__navCallback;
   }
 
@@ -109,15 +120,18 @@ export class App extends Component {
 
     this.__starting = true;
     let executed = await this.__execute();
-    this.__starting = false;
 
-    if (executed) {
-      debug(`Started ${this.is}:${this.__id}`);
+    this.async(() => {
+      this.__starting = false;
 
-      this.__started = true;
+      if (executed) {
+        debug(`Started ${this.is}:${this.__id}`);
 
-      this.fire('started');
-    }
+        this.__started = true;
+
+        this.fire('started');
+      }
+    }, this.startDelay);
   }
 
   __listenNavigation () {
@@ -126,8 +140,7 @@ export class App extends Component {
     };
 
     if (this.mode === 'history') {
-      event(window).on('popstate', this.__navCallback);
-      event(document).on('click', evt => {
+      this.__clickCallback = evt => {
         if (!evt.defaultPrevented && evt.target.nodeName === 'A' && evt.target.target === '') {
           evt.preventDefault();
 
@@ -136,7 +149,9 @@ export class App extends Component {
 
           this.__navCallback();
         }
-      });
+      };
+      event(window).on('popstate', this.__navCallback);
+      event(document).on('click', this.__clickCallback);
     } else {
       event(window).on('hashchange', this.__navCallback);
     }
@@ -177,6 +192,7 @@ export class App extends Component {
     }
 
     this.fire('navigated', context);
+
     return true;
   }
 

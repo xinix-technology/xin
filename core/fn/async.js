@@ -28,7 +28,9 @@ export class Async {
   }
 
   static sleep (wait) {
-    return new Promise(resolve => setTimeout(resolve, wait));
+    return new Promise(resolve => {
+      setTimeout(() => this.nextFrame(resolve), wait);
+    });
   }
 
   static run (callback, wait) {

@@ -359,6 +359,23 @@ Delegator.prototype.once = function (events, selector, callback) {
   return this.on(events, selector, proxyCallback);
 };
 
+Delegator.prototype.waitFor = function (events, timeout = 3000) {
+  return new Promise((resolve, reject) => {
+    let onResolve = evt => {
+      clearTimeout(t);
+      resolve(evt);
+    };
+    let t;
+    if (timeout > 0) {
+      t = setTimeout(() => {
+        this.off(events, onResolve);
+        reject(new Error('Event#waitFor got timeout'));
+      }, timeout);
+    }
+    this.once(events, onResolve);
+  });
+};
+
 Delegator.prototype.fire = function (type, detail, options) {
   options = options || {};
   detail = detail || {};

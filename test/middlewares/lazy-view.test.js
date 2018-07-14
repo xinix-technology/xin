@@ -8,8 +8,8 @@ import '../../scss/xin-components.scss';
 
 describe('<xin-lazy-view-middleware>', () => {
   it('import view lazily', async () => {
-    let fixture = Fixture.create(`
-      <xin-app>
+    let fixture = await Fixture.create(`
+      <xin-app id="app" manual="true">
         <template>
           <xin-lazy-view-middleware id="md"></xin-lazy-view-middleware>
           <xin-pager>
@@ -30,20 +30,21 @@ describe('<xin-lazy-view-middleware>', () => {
         },
       });
 
-      await new Promise(resolve => setTimeout(resolve, 500));
+      await fixture.$.app.start();
 
-      assert(!fixture.$.lazyView.classList.contains('xin-view--visible'));
-      assert(!fixture.$.lazyView.classList.contains('xin-view--focus'));
+      assert(!fixture.$.lazyView.classList.contains('xin-view--visible'), 'Lazy view should not visible');
+      assert(!fixture.$.lazyView.classList.contains('xin-view--focus'), 'Lazy view should not focused');
 
-      location.href = '#!/1';
-      await new Promise(resolve => setTimeout(resolve, 500));
+      location.hash = '#!/1';
+      await fixture.$.app.waitFor('navigated');
+      await fixture.$.lazyView.waitFor('focus');
 
-      assert(fixture.$.lazyView.classList.contains('xin-view--visible'));
-      assert(fixture.$.lazyView.classList.contains('xin-view--focus'));
+      assert(fixture.$.lazyView.classList.contains('xin-view--visible'), 'Lazy view should visible');
+      assert(fixture.$.lazyView.classList.contains('xin-view--focus'), 'Lazy view should focused');
     } finally {
       fixture.dispose();
 
-      location.href = '#';
+      location.hash = '#';
     }
-  }).timeout(5000);
+  });
 });

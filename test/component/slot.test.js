@@ -10,19 +10,17 @@ describe('<slot>', () => {
       }
     });
 
-    let fixture = Fixture.create(`
+    let fixture = await Fixture.create(`
       <test-component-slot-1 id="foo">baz</test-component-slot-1>
     `);
 
-    await fixture.waitConnected();
+    try {
+      await fixture.waitConnected();
 
-    await new Promise(resolve => {
-      setTimeout(resolve, 1);
-    });
-
-    assert.equal(window.foo.textContent, 'foo baz bar');
-
-    fixture.dispose();
+      assert.equal(window.foo.textContent, 'foo baz bar');
+    } finally {
+      fixture.dispose();
+    }
   });
 
   it('new component with name slot', async () => {
@@ -32,17 +30,19 @@ describe('<slot>', () => {
       }
     });
 
-    let fixture = Fixture.create(`
+    let fixture = await Fixture.create(`
       <test-component-slot-2 id="foo">
         <span slot="first">first</span>
         <span slot="last">last</span>
       </test-component-slot-2>
     `);
 
-    await fixture.waitConnected();
+    try {
+      await fixture.waitConnected();
 
-    assert.equal(window.foo.textContent, 'first last');
-
-    fixture.dispose();
+      assert.equal(window.foo.textContent, 'first last');
+    } finally {
+      fixture.dispose();
+    }
   });
 });

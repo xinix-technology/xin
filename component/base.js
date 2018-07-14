@@ -41,16 +41,6 @@ export function base (base) {
       return this.__templateHost.getElementsByTagName('*');
     }
 
-    get props () {
-      return {
-        ref: {
-          type: Object,
-          readonly: true,
-          notify: true,
-        },
-      };
-    }
-
     created () {}
 
     ready () {}
@@ -139,7 +129,6 @@ export function base (base) {
 
       debug(`ATTACHED ${this.is} ${this.__componentAttaching ? '(delayed)' : ''}`);
 
-      this.set('ref', this);
       this.attached();
 
       this.__componentAttaching = false;
@@ -149,7 +138,6 @@ export function base (base) {
       this.__repository.remove(this.__id);
 
       this.detached();
-      this.set('ref', null);
     }
 
     connectedCallback () {

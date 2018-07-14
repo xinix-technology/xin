@@ -8,7 +8,7 @@ import '../../scss/xin-components.scss';
 
 describe('<xin-title-middleware>', () => {
   it('change title', async () => {
-    let fixture = Fixture.create(`
+    let fixture = await Fixture.create(`
       <xin-app>
         <template>
           <xin-title-middleware></xin-title-middleware>
@@ -22,18 +22,17 @@ describe('<xin-title-middleware>', () => {
 
     try {
       await fixture.waitConnected();
-
-      await new Promise(resolve => setTimeout(resolve, 500));
+      await fixture.$$('xin-app').waitFor('started');
       assert(document.title, 'Home');
 
-      location.href = '#!/foo';
-      await new Promise(resolve => setTimeout(resolve, 500));
+      location.hash = '#!/foo';
+      await fixture.$$('xin-app').waitFor('navigated');
       assert(document.title, 'Foo');
     } finally {
       fixture.dispose();
 
       document.title = '';
-      location.href = '#';
+      location.hash = '#';
     }
-  }).timeout(5000);
+  });
 });

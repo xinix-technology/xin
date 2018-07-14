@@ -1,72 +1,54 @@
 import { Component, define } from '../component';
+import { Async } from '../core/fn/async';
 
 export class Fixture extends Component {
   static create (template, data = {}) {
-    const t = `<xin-fixture><template>${template}</template></xin-fixture>`;
     const d = document.createElement('div');
-    d.innerHTML = t;
-    const fixture = d.querySelector('xin-fixture');
+    d.innerHTML = `<xin-fixture><template>${template}</template></xin-fixture>`;
+    const fixture = d.firstElementChild;
     fixture.__initialData = data;
-
     document.body.appendChild(fixture);
-    return fixture;
+
+    // return as promised element because at v0 it wont be created yet!
+    return new Promise(resolve => resolve(fixture));
   }
 
   attached () {
     super.attached();
+    this.set(this.__initialData);
     this.connected = true;
 
-    for (let i in this.__initialData) {
-      this.set(i, this.__initialData[i]);
-    }
-
     // delay connected to make sure children is already connected
-    this.async(() => {
-      this.fire('connected');
-    });
+    // TODO: really need this?
+    this.async(() => this.fire('connected'));
   }
 
   detached () {
     super.detached();
-    this.connected = false;
 
+    this.connected = false;
     this.fire('disconnected');
   }
 
   dispose () {
     this.parentElement.removeChild(this);
-    this.connected = false;
   }
 
   async waitConnected (timeout) {
-    await new Promise(resolve => {
-      if (this.connected) {
-        resolve();
-      } else {
-        this.once('connected', resolve);
-      }
-    });
+    if (!this.connected) {
+      await this.waitFor('connected');
+    }
 
-    await this.wait(timeout);
+    await Async.sleep(timeout);
   }
 
-  wait (timeout = 0) {
-    return new Promise(resolve => {
-      this.async(resolve, timeout);
-    });
-  }
+  // async waitDisconnected (timeout) {
+  //   if (this.connected) {
+  //     await this.waitFor('disconnected');
+  //   }
 
-  async waitDisconnected (timeout) {
-    await new Promise(resolve => {
-      if (this.connected) {
-        this.once('disconnected', resolve);
-      } else {
-        resolve();
-      }
-    });
-
-    await this.wait(timeout);
-  }
+  //   await Async.sleep(timeout);
+  // }
 }
 
 define('xin-fixture', Fixture);

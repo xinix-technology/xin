@@ -4,7 +4,7 @@ import { Fixture } from '@xinix/xin/components/fixture';
 
 describe('Filter', () => {
   it('format currency', async () => {
-    let fixture = Fixture.create(`
+    let fixture = await Fixture.create(`
       <span id="val">[[money|currency]]</span>
     `);
 

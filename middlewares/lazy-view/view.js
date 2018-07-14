@@ -1,5 +1,6 @@
 import { event } from '../../core';
 import { Route } from '../../components/app/route';
+import { Async } from '../../core/fn/async';
 
 export class View {
   constructor (bag, element, loader) {
@@ -24,29 +25,23 @@ export class View {
     }
   }
 
-  load () {
-    return new Promise((resolve, reject) => {
-      if (this.loaded) {
-        return resolve();
-      }
+  async load () {
+    if (this.loaded) {
+      return;
+    }
 
-      if (!this.loader) {
-        return reject(new Error(`Cannot lazy load view: ${this.name}`));
-      }
+    if (!this.loader) {
+      throw new Error(`Cannot lazy load view: ${this.name}`);
+    }
 
-      // use global event helper because element does not created yet at this time
-      event(this.element).once('routed', () => {
-        this._loaded = true;
+    this.loader.load(this);
+    await event(this.element).waitFor('routed');
 
-        // FIXME: hack to wait for sub views to be ready before routed
-        if (this.element.querySelector('.xin-view')) {
-          setTimeout(() => resolve(), 300);
-        } else {
-          resolve();
-        }
-      });
+    this._loaded = true;
 
-      this.loader.load(this);
-    });
+    // FIXME: hack to wait for sub views to be ready before routed
+    if (this.element.querySelector('.xin-view')) {
+      await Async.sleep(300);
+    }
   }
 }

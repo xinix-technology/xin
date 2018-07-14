@@ -1,10 +1,11 @@
 import assert from 'assert';
 import { Fixture } from '@xinix/xin/components/fixture';
+import { Async } from '@xinix/xin/core/fn/async';
 import '@xinix/xin/components/for';
 
 describe('<xin-for>', () => {
   it('render list', async () => {
-    let fixture = Fixture.create(`
+    let fixture = await Fixture.create(`
       <div id="here">
         <xin-for items="[[rows]]" as="row">
           <template>
@@ -27,11 +28,11 @@ describe('<xin-for>', () => {
         },
       ];
       fixture.set('rows', rows);
-      await new Promise(resolve => setTimeout(resolve, 100));
+      await Async.sleep(50);
       assert.equal(fixture.querySelectorAll('.child').length, rows.length);
 
       fixture.set('rows', [{ name: 'zap' }]);
-      await new Promise(resolve => setTimeout(resolve, 100));
+      await Async.sleep(50);
       assert.equal(fixture.querySelectorAll('.child').length, 1);
     } finally {
       fixture.dispose();
@@ -39,7 +40,7 @@ describe('<xin-for>', () => {
   });
 
   it('render to nearest defined element from parent', async () => {
-    let fixture = Fixture.create(`
+    let fixture = await Fixture.create(`
       <div>
         <table>
           <tbody id="firstBody">
@@ -76,7 +77,7 @@ describe('<xin-for>', () => {
         },
       ];
       fixture.set('rows', rows);
-      await new Promise(resolve => setTimeout(resolve, 100));
+      await Async.sleep(50);
 
       assert.equal(fixture.$.firstBody.children.length, 0);
       assert.equal(fixture.$.secondBody.children.length, 3);
@@ -86,7 +87,7 @@ describe('<xin-for>', () => {
   });
 
   it('get item, index, and model for element', async () => {
-    let fixture = Fixture.create(`
+    let fixture = await Fixture.create(`
       <xin-for items="[[rows]]" as="row">
         <template>
           <div>
@@ -110,7 +111,7 @@ describe('<xin-for>', () => {
         },
       ];
       fixture.set('rows', rows);
-      await new Promise(resolve => setTimeout(resolve, 100));
+      await Async.sleep(50);
 
       assert.deepEqual(fixture.$$('xin-for').itemForElement(fixture.$$('span')), { name: 'foo' });
       assert.equal(fixture.$$('xin-for').indexForElement(fixture.$$('span')), 0);

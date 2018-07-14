@@ -6,7 +6,7 @@ import '../../scss/xin-components.scss';
 
 describe('<xin-app>', () => {
   it('run routes', async () => {
-    let fixture = Fixture.create(`
+    let fixture = await Fixture.create(`
       <xin-app>
         <xin-pager>
           <xin-view uri="/">home</xin-view>
@@ -23,41 +23,41 @@ describe('<xin-app>', () => {
       assert(fixture.$$('xin-pager').getAttribute('xin-id'));
       assert(fixture.$$('xin-view').getAttribute('xin-id'));
 
-      await new Promise(resolve => setTimeout(resolve, 500));
+      await fixture.$$('xin-app').waitFor('started');
 
       assert(fixture.$$('xin-view[uri="/"]').classList.contains('xin-view--visible'));
       assert(fixture.$$('xin-view[uri="/"]').classList.contains('xin-view--focus'));
 
       fixture.$$('xin-app').navigate('/foo');
-      await new Promise(resolve => setTimeout(resolve, 500));
+      await fixture.$$('xin-view[uri="/foo"]').waitFor('focus');
 
       assert(!fixture.$$('xin-view[uri="/"]').classList.contains('xin-view--visible'));
       assert(!fixture.$$('xin-view[uri="/"]').classList.contains('xin-view--focus'));
       assert(fixture.$$('xin-view[uri="/foo"]').classList.contains('xin-view--visible'));
       assert(fixture.$$('xin-view[uri="/foo"]').classList.contains('xin-view--focus'));
 
-      location.href = '#!/bar';
-      await new Promise(resolve => setTimeout(resolve, 500));
+      location.hash = '#!/bar';
+      await fixture.$$('xin-view[uri="/bar"]').waitFor('focus');
 
       assert(!fixture.$$('xin-view[uri="/foo"]').classList.contains('xin-view--visible'));
       assert(!fixture.$$('xin-view[uri="/foo"]').classList.contains('xin-view--focus'));
       assert(fixture.$$('xin-view[uri="/bar"]').classList.contains('xin-view--visible'));
       assert(fixture.$$('xin-view[uri="/bar"]').classList.contains('xin-view--focus'));
 
-      location.href = '#!/foo';
-      await new Promise(resolve => setTimeout(resolve, 500));
+      location.hash = '#!/foo';
+      await fixture.$$('xin-view[uri="/foo"]').waitFor('focus');
 
       assert(fixture.$$('xin-view[uri="/foo"]').classList.contains('xin-view--visible'));
       assert(fixture.$$('xin-view[uri="/foo"]').classList.contains('xin-view--focus'));
     } finally {
       fixture.dispose();
 
-      location.href = '#';
+      location.hash = '#';
     }
-  }).timeout(5000);
+  });
 
   it('run dynamic route', async () => {
-    let fixture = Fixture.create(`
+    let fixture = await Fixture.create(`
       <xin-app>
         <xin-pager>
           <xin-view uri="/">home</xin-view>
@@ -72,10 +72,10 @@ describe('<xin-app>', () => {
 
     try {
       await fixture.waitConnected();
-      await new Promise(resolve => setTimeout(resolve, 500));
+      await fixture.$$('xin-app').waitFor('started');
 
       fixture.$$('xin-app').navigate('/foo/bar');
-      await new Promise(resolve => setTimeout(resolve, 500));
+      await fixture.$$('xin-view[uri^="/foo"]').waitFor('focus');
 
       assert(!fixture.$$('xin-view[uri="/"]').classList.contains('xin-view--visible'));
       assert(!fixture.$$('xin-view[uri="/"]').classList.contains('xin-view--focus'));
@@ -86,7 +86,7 @@ describe('<xin-app>', () => {
     } finally {
       fixture.dispose();
 
-      location.href = '#';
+      location.hash = '#';
     }
-  }).timeout(5000);
+  });
 });

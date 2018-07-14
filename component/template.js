@@ -24,15 +24,16 @@ T.prototype = {
     return this.querySelector(selector);
   },
 
-  promised (eventName, selector) {
-    return new Promise(resolve => {
-      if (selector) {
-        this.once(eventName, selector, resolve);
-      } else {
-        this.once(eventName, resolve);
-      }
-    });
-  },
+  // replace with waitFor(eventName);
+  // promised (eventName, selector) {
+  //   return new Promise(resolve => {
+  //     if (selector) {
+  //       this.once(eventName, selector, resolve);
+  //     } else {
+  //       this.once(eventName, resolve);
+  //     }
+  //   });
+  // },
 
   on () {
     event(this.__templateHost || this).on(...arguments);
@@ -44,6 +45,10 @@ T.prototype = {
 
   once () {
     event(this.__templateHost || this).once(...arguments);
+  },
+
+  waitFor () {
+    return event(this.__templateHost || this).waitFor(...arguments);
   },
 
   all (obj) {
@@ -72,11 +77,12 @@ T.prototype = {
 
   set (path, value) {
     if (typeof path === 'object') {
-      let keys = Object.keys(path);
-      let values = Object.values(path);
-      keys.map((key, i) => {
-        this.set(key, values[i]);
-      });
+      let data = path;
+      for (let i in data) {
+        if (data.hasOwnProperty(i)) {
+          this.set(i, data[i]);
+        }
+      }
       return;
     }
 

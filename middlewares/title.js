@@ -14,7 +14,7 @@ export class Title extends Middleware {
   callback (options) {
     const self = this;
     return async function (ctx, next) {
-      ctx.app.once('focus', (evt) => {
+      ctx.app.once('focus', evt => {
         document.title = evt.target.title || self.defaultTitle;
       });
 

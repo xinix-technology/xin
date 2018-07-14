@@ -1,7 +1,8 @@
 // Karma configuration
 // Generated on Wed Apr 04 2018 09:55:19 GMT+0700 (WIB)
-
 const path = require('path');
+
+process.env.CHROME_BIN = require('puppeteer').executablePath();
 
 module.exports = function (config) {
   config.set({
@@ -15,6 +16,7 @@ module.exports = function (config) {
 
     // list of files / patterns to load in the browser
     files: [
+      'test/init.js',
       'test/**/*.test.js',
     ],
 
@@ -25,6 +27,7 @@ module.exports = function (config) {
     // preprocess matching files before serving them to the browser
     // available preprocessors: https://npmjs.org/browse/keyword/karma-preprocessor
     preprocessors: {
+      'test/init.js': ['webpack'],
       'test/**/*.test.js': ['webpack'],
     },
 
@@ -48,16 +51,15 @@ module.exports = function (config) {
 
     // start these browsers
     // available browser launchers: https://npmjs.org/browse/keyword/karma-launcher
-    browsers: ['ChromeCanary'],
-    // browsers: ['ChromeHeadless'],
+    browsers: [ 'Safari', 'FirefoxDeveloper', 'ChromeHeadless', 'ChromeCanary' ],
 
     // Continuous Integration mode
     // if true, Karma captures browsers, runs the tests and exits
-    singleRun: false,
+    singleRun: true,
 
     // Concurrency level
     // how many browser should be started simultaneous
-    concurrency: Infinity,
+    concurrency: 3, // Infinity,
 
     coverageReporter: {
       dir: 'coverage/',
@@ -71,6 +73,7 @@ module.exports = function (config) {
     webpack: {
       // webpack configuration
       mode: 'development',
+      devtool: 'inline-source-map',
       module: {
         rules: [
           {
@@ -79,7 +82,7 @@ module.exports = function (config) {
               loader: 'istanbul-instrumenter-loader',
               options: { esModules: true },
             },
-            exclude: /node_modules|\.test\.js$/,
+            exclude: /node_modules|\.test\.js|test\/init.js$/,
           },
           {
             test: /\.s?css$/,
@@ -109,6 +112,8 @@ module.exports = function (config) {
       require('karma-mocha'),
       require('karma-coverage'),
       require('karma-chrome-launcher'),
+      require('karma-safari-launcher'),
+      require('karma-firefox-launcher'),
       require('karma-spec-reporter'),
     ],
   });

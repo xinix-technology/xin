@@ -96,14 +96,14 @@ export class View extends Component {
     this.classList.remove('xin-view--visible');
     this.querySelectorAll('.xin-view.xin-view--visible').forEach(el => el.setVisible(visible));
 
-    this.fire('hide');
+    this.fire('hide', { view: this });
   }
 
   async setFocus (focus) {
     if (focus) {
       this.classList.add('xin-view--focus');
       await this.focused();
-      this.fire('focus');
+      this.fire('focus', { view: this });
       return;
     }
 
@@ -117,7 +117,7 @@ export class View extends Component {
     });
 
     await this.blurred();
-    this.fire('blur');
+    this.fire('blur', { view: this });
   }
 }
 

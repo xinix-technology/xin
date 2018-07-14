@@ -17,8 +17,6 @@ import './scss/docs.scss';
   await import('./components/x-app');
 
   document.addEventListener('started', () => {
-    setTimeout(() => {
-      document.body.removeAttribute('unresolved');
-    }, 100);
+    document.body.removeAttribute('unresolved');
   });
 })();
