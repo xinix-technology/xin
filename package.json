@@ -18,7 +18,7 @@
   "license": "MIT",
   "homepage": "http://xinix.co.id/p/product/xin",
   "scripts": {
-    "clean": "rm -rf dist docs",
+    "clean": "rm -rf dist docs coverage",
     "lint": "eslint .",
     "test": "karma start --single-run",
     "dev": "webpack-dev-server --config webpack.config.docs.js",

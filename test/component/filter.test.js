@@ -52,4 +52,12 @@ describe('Filter', () => {
     assert.equal(Filter.get('not').invoke(0), true);
     assert.equal(Filter.get('not').invoke('foo'), false);
   });
+
+  it('put new filter', () => {
+    Filter.put('bar', (v, ...args) => {
+      return `${v} ${args.toString()}`.trim();
+    });
+
+    assert.equal(Filter.get('bar:1,2,3').invoke('foo'), 'foo 1,2,3');
+  });
 });
