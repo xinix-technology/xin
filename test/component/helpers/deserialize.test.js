@@ -1,7 +1,7 @@
 import assert from 'assert';
 import { deserialize } from '../../../component/helpers';
 
-describe('deserialize', () => {
+describe('#deserialize()', () => {
   it('deserialize to number', () => {
     assert.equal(0, deserialize('', Number));
     assert.equal(0, deserialize('0', Number));

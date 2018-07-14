@@ -6,7 +6,7 @@ import '@xinix/xin/middlewares/title';
 import '../../scss/xin.scss';
 import '../../scss/xin-components.scss';
 
-describe('xin-title-middleware', () => {
+describe('<xin-title-middleware>', () => {
   it('change title', async () => {
     let fixture = Fixture.create(`
       <xin-app>

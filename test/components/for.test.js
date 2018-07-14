@@ -2,7 +2,7 @@ import assert from 'assert';
 import { Fixture } from '@xinix/xin/components/fixture';
 import '@xinix/xin/components/for';
 
-describe('For', () => {
+describe('<xin-for>', () => {
   it('render list', async () => {
     let fixture = Fixture.create(`
       <div id="here">

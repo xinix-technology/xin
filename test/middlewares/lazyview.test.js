@@ -6,7 +6,7 @@ import '@xinix/xin/middlewares/lazy-view';
 import '../../scss/xin.scss';
 import '../../scss/xin-components.scss';
 
-describe('xin-lazy-view-middleware', () => {
+describe('<xin-lazy-view-middleware>', () => {
   it('import view lazily', async () => {
     let fixture = Fixture.create(`
       <xin-app>

@@ -2,7 +2,7 @@ import { bootstrap, define, Component } from '@xinix/xin';
 import { Fixture } from '@xinix/xin/components/fixture';
 import assert from 'assert';
 
-describe('define', () => {
+describe('#define()', () => {
   after(() => {
     bootstrap({ 'customElements.version': 'v1' });
   });

@@ -53,6 +53,10 @@ describe('Filter', () => {
     assert.equal(Filter.get('not').invoke('foo'), false);
   });
 
+  it('format cssurl', () => {
+    assert.equal(Filter.get('cssurl').invoke('/foo'), 'url(/foo)');
+  });
+
   it('put new filter', () => {
     Filter.put('bar', (v, ...args) => {
       return `${v} ${args.toString()}`.trim();

@@ -4,7 +4,7 @@ import { Fixture } from '@xinix/xin/components';
 import '../../scss/xin.scss';
 import '../../scss/xin-components.scss';
 
-describe('App', () => {
+describe('<xin-app>', () => {
   it('run routes', async () => {
     let fixture = Fixture.create(`
       <xin-app>
