@@ -89,4 +89,39 @@ describe('<xin-app>', () => {
       location.hash = '#';
     }
   });
+
+  it('navigate with specified parameters', async () => {
+    let fixture = await Fixture.create(`
+      <xin-app>
+        <xin-pager>
+          <xin-view uri="/">home</xin-view>
+          <xin-view uri="/foo/{bar}">foo</xin-view>
+        </xin-pager>
+      </xin-app>
+    `);
+
+    try {
+      await fixture.waitConnected();
+      await fixture.$$('xin-app').waitFor('started');
+
+      fixture.$$('xin-app').navigate('/foo/bar', { parameters: { foo: 'fooz', bar: 'barz' } });
+      await fixture.$$('xin-app').waitFor('navigated');
+
+      assert.equal(fixture.$$('xin-view[uri^="/foo"]').parameters.foo, 'fooz');
+      assert.equal(fixture.$$('xin-view[uri^="/foo"]').parameters.bar, 'barz');
+
+      fixture.$$('xin-app').navigate('/');
+      await fixture.$$('xin-app').waitFor('navigated');
+
+      fixture.$$('xin-app').navigate('/foo/bar');
+      await fixture.$$('xin-app').waitFor('navigated');
+
+      assert.equal(fixture.$$('xin-view[uri^="/foo"]').parameters.foo, undefined);
+      assert.equal(fixture.$$('xin-view[uri^="/foo"]').parameters.bar, 'bar');
+    } finally {
+      fixture.dispose();
+
+      location.hash = '#';
+    }
+  });
 });

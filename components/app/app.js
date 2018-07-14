@@ -170,8 +170,11 @@ export class App extends Component {
   }
 
   async __execute () {
+    let navParameters = this.__navParameters;
+    delete this.__navParameters;
+
     let fragment = this.getFragment();
-    let context = { app: this, uri: fragment };
+    let context = { app: this, uri: fragment, navParameters };
 
     // run middleware chain then execute all executors
     let willContinue = await this.__middlewareChainRun(context, () => {
@@ -183,7 +186,8 @@ export class App extends Component {
       }
 
       executors.forEach(executor => {
-        executor.handler.callback(executor.args, context);
+        let parameters = Object.assign({}, executor.args, navParameters);
+        executor.handler.callback(parameters, context);
       });
     });
 
@@ -196,14 +200,15 @@ export class App extends Component {
     return true;
   }
 
-  navigate (path, options) {
-    path = path || '/';
-    options = options || {};
+  navigate (path = '/', options = {}) {
+    this.__navParameters = options.parameters;
 
     if (this.mode === 'history') {
       let url = this.rootUri + path.toString().replace(/\/$/, '').replace(/^\//, '');
       if (this.location.href.replace(this.location.origin, '') !== url) {
-        this.history[options.replace ? 'replaceState' : 'pushState']({}, document.title, url);
+        this.history[options.replace ? 'replaceState' : 'pushState'](
+          this.__navParameters, document.title, url
+        );
         this.__execute();
       }
     } else {
