@@ -21,6 +21,11 @@ export class View extends Component {
         type: String,
         value: TRANSITION_OUT,
       },
+
+      title: {
+        type: String,
+        value: () => `View ${this.uri}`,
+      },
     });
   }
 

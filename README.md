@@ -10,14 +10,31 @@ Xin using webpack to build.
 
 ## Getting started
 
-For quick start you can use template provided by community. Just download or clone web example that already use xin from `https://github.com/reekoheek/xin-example`.
+For quick start you can use templates provided by community:
 
-```bash
-wget https://github.com/reekoheek/xin-example/archive/master.zip
-unzip master.zip
-cd xin-example-master
-npm i
-npm run dev
+- https://github.com/reekoheek/xin-example
+- https://github.com/reekoheek/xin-bootstrap-example
+
+## Tested devices
+
+- Chrome
+- Safari
+- Firefox
+
+## Development
+
+Xin run unit test using Karma and Mocha.
+
+```sh
+npm test -- --browsers Firefox
+npm test -- --browsers FirefoxDevelopment
+npm test -- --browsers Chrome
+npm test -- --browsers ChromeCanary
+npm test -- --browsers Safari
 ```
 
-Any help to compose yo generator accepted. ;)
+To debug
+
+```sh
+npm test -- --browsers ChromeCanary --no-single-run
+```
