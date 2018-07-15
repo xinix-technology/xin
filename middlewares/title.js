@@ -6,7 +6,12 @@ export class Title extends Middleware {
     return Object.assign({}, super.props, {
       defaultTitle: {
         type: String,
-        value: 'Unknown',
+        value: 'Xin',
+      },
+
+      formatter: {
+        type: Function,
+        value: () => this._defaultFormatter,
       },
     });
   }
@@ -14,12 +19,16 @@ export class Title extends Middleware {
   callback (options) {
     const self = this;
     return async function (ctx, next) {
-      ctx.app.once('focus', evt => {
-        document.title = evt.target.title || self.defaultTitle;
+      ctx.app.once('focus', async evt => {
+        document.title = await self.formatter(evt.target) || self.defaultTitle;
       });
 
       await next();
     };
+  }
+
+  _defaultFormatter (el) {
+    return el.title;
   }
 }
 
