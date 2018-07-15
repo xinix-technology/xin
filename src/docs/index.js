@@ -4,6 +4,8 @@ import './scss/docs.scss';
 (async function () {
   bootstrap({
     // 'customElements.version': 'v0',
+    'view.transitionIn': 'fade',
+    'view.transitionOut': 'fade',
     'view.loaders': [
       {
         test: /^x-/,

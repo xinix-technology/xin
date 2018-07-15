@@ -21,14 +21,9 @@ class XFor extends View {
         value: () => ([]),
       },
 
-      events: {
-        type: Array,
-        value: () => ([]),
-      },
-
-      user: {
-        type: Object,
-        value: () => ({}),
+      foo: {
+        type: String,
+        value: 'FOO',
       },
     });
   }

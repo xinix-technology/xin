@@ -1,14 +1,18 @@
 
-<div class="padding">
+<div class="padding container">
   <h2>xin-for</h2>
 
   <p>Click product to delete</p>
 
+  <input type="text" value="{{foo}}">
+
   <ul>
-    <xin-for items="[[products]]" as="product">
+    <xin-for id="forFor" items="[[products]]" as="product">
       <template>
         <li (click)="deleteProduct(index)">
           <span>[[product.name]]</span>
+          -
+          <span>[[foo]]</span>
           <span style="float: right">[[formatPrice(product.price)]]</span>
         </li>
       </template>

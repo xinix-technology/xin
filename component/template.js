@@ -76,7 +76,7 @@ T.prototype = {
   },
 
   set (path, value) {
-    if (typeof path === 'object') {
+    if (arguments.length === 1 && typeof path === 'object') {
       let data = path;
       for (let i in data) {
         if (data.hasOwnProperty(i)) {
@@ -499,7 +499,9 @@ T.prototype = {
       this.__templateGetBinding(expr.fn.name).annotate(annotation);
     }
 
-    expr.vpaths.forEach(arg => this.__templateGetBinding(arg.name).annotate(annotation));
+    expr.vpaths.forEach(arg => {
+      this.__templateGetBinding(arg.name).annotate(annotation);
+    });
 
     return true;
   },

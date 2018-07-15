@@ -120,4 +120,47 @@ describe('<xin-for>', () => {
       fixture.dispose();
     }
   });
+
+  it.only('render list with data from parent', async () => {
+    let fixture = await Fixture.create(`
+      <div id="here">
+        <xin-for items="[[rows]]" as="row">
+          <template>
+            <div class="child">
+              <span>[[row.name]]</span>
+              <span class="parent-data">[[foo]]</span>
+            </div>
+          </template>
+        </xin-for>
+      </div>
+    `, { foo: 'foo' });
+    try {
+      await fixture.waitConnected();
+      let rows = [
+        {
+          name: 'foo',
+        },
+        {
+          name: 'bar',
+        },
+        {
+          name: 'baz',
+        },
+      ];
+      fixture.set('rows', rows);
+      await Async.sleep(50);
+
+      fixture.querySelectorAll('.child').forEach(child => {
+        assert.equal(child.querySelector('.parent-data').textContent, 'foo');
+      });
+
+      fixture.set('foo', 'bar');
+
+      fixture.querySelectorAll('.child').forEach(child => {
+        assert.equal(child.querySelector('.parent-data').textContent, 'bar');
+      });
+    } finally {
+      fixture.dispose();
+    }
+  }).timeout(100000);
 });

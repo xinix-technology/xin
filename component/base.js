@@ -110,6 +110,9 @@ export function base (base) {
       }
     }
 
+    // FIXME: note that connectedCallback can be called more than once, so any
+    // initialization work that is truly one-time will need a guard to prevent
+    // it from running twice.
     attachedCallback () {
       this.__repository.put(this.__id, this);
 
