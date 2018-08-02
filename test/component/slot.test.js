@@ -17,7 +17,7 @@ describe('<slot>', () => {
     try {
       await fixture.waitConnected();
 
-      assert.equal(window.foo.textContent, 'foo baz bar');
+      assert.strictEqual(window.foo.textContent, 'foo baz bar');
     } finally {
       fixture.dispose();
     }
@@ -40,7 +40,7 @@ describe('<slot>', () => {
     try {
       await fixture.waitConnected();
 
-      assert.equal(window.foo.textContent, 'first last');
+      assert.strictEqual(window.foo.textContent, 'first last');
     } finally {
       fixture.dispose();
     }

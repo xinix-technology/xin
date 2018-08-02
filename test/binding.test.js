@@ -8,7 +8,7 @@ describe('Binding', () => {
     try {
       await fixture.waitConnected();
       fixture.set('value', 'foo');
-      assert.equal(fixture.$.el.value, 'foo');
+      assert.strictEqual(fixture.$.el.value, 'foo');
     } finally {
       fixture.dispose();
     }
@@ -19,7 +19,7 @@ describe('Binding', () => {
     try {
       await fixture.waitConnected();
       fixture.set('value', 'foo');
-      assert.equal(fixture.$.el.value, 'foo');
+      assert.strictEqual(fixture.$.el.value, 'foo');
     } finally {
       fixture.dispose();
     }
@@ -30,7 +30,7 @@ describe('Binding', () => {
     try {
       await fixture.waitConnected();
       fixture.set('value', 'foo');
-      assert.equal(fixture.$.el.textContent, 'foo');
+      assert.strictEqual(fixture.$.el.textContent, 'foo');
     } finally {
       fixture.dispose();
     }
@@ -41,7 +41,7 @@ describe('Binding', () => {
     try {
       await fixture.waitConnected();
       fixture.set('value', 'foo');
-      assert.equal(fixture.$.el.textContent, 'foo');
+      assert.strictEqual(fixture.$.el.textContent, 'foo');
     } finally {
       fixture.dispose();
     }
@@ -52,8 +52,8 @@ describe('Binding', () => {
     try {
       await fixture.waitConnected();
       fixture.set('value', '<b>bold</b> <i>italic</i>');
-      assert.equal(fixture.$.el.textContent, 'bold italic');
-      assert.equal(fixture.$.el.innerHTML, '<b>bold</b> <i>italic</i>');
+      assert.strictEqual(fixture.$.el.textContent, 'bold italic');
+      assert.strictEqual(fixture.$.el.innerHTML, '<b>bold</b> <i>italic</i>');
     } finally {
       fixture.dispose();
     }
@@ -64,7 +64,7 @@ describe('Binding', () => {
     try {
       await fixture.waitConnected();
       fixture.set('value', '1px solid red');
-      assert.equal(fixture.$.el.style.border, '1px solid red');
+      assert.strictEqual(fixture.$.el.style.border, '1px solid red');
     } finally {
       fixture.dispose();
     }
@@ -86,8 +86,8 @@ describe('Binding', () => {
     try {
       await fixture.waitConnected();
       fixture.set('value', 'bar');
-      assert.equal(fixture.$.el.getAttribute('foo'), 'bar');
-      assert.equal(fixture.$.el.foo, undefined);
+      assert.strictEqual(fixture.$.el.getAttribute('foo'), 'bar');
+      assert.strictEqual(fixture.$.el.foo, undefined);
     } finally {
       fixture.dispose();
     }
@@ -98,8 +98,8 @@ describe('Binding', () => {
     try {
       await fixture.waitConnected();
       fixture.set('value', 'bar');
-      assert.equal(fixture.$.el.getAttribute('foo'), '[[value]]');
-      assert.equal(fixture.$.el.foo, 'bar');
+      assert.strictEqual(fixture.$.el.getAttribute('foo'), '[[value]]');
+      assert.strictEqual(fixture.$.el.foo, 'bar');
     } finally {
       fixture.dispose();
     }
@@ -113,30 +113,30 @@ describe('Binding', () => {
     try {
       await fixture.waitConnected();
 
-      assert.equal(fixture.value, 'original');
-      assert.equal(fixture.$.input.value, 'original');
-      assert.equal(fixture.$.textarea.value, 'original');
-      assert.equal(fixture.$.result.textContent.trim(), 'original');
+      assert.strictEqual(fixture.value, 'original');
+      assert.strictEqual(fixture.$.input.value, 'original');
+      assert.strictEqual(fixture.$.textarea.value, 'original');
+      assert.strictEqual(fixture.$.result.textContent.trim(), 'original');
 
       fixture.set('value', 'foo');
 
-      assert.equal(fixture.value, 'foo');
-      assert.equal(fixture.$.input.value, 'foo');
-      assert.equal(fixture.$.textarea.value, 'foo');
-      assert.equal(fixture.$.result.textContent, 'foo');
+      assert.strictEqual(fixture.value, 'foo');
+      assert.strictEqual(fixture.$.input.value, 'foo');
+      assert.strictEqual(fixture.$.textarea.value, 'foo');
+      assert.strictEqual(fixture.$.result.textContent, 'foo');
 
       fixture.set('otherValue', '<i>baz</i>');
       fixture.set('propValue', 'baz');
 
-      assert.equal(fixture.$.textEl.innerHTML, '&lt;i&gt;baz&lt;/i&gt;');
-      assert.equal(fixture.$.htmlEl.innerHTML, '<i>baz</i>');
-      assert.equal(fixture.$.propEl.getAttribute('prop-data'), 'baz');
+      assert.strictEqual(fixture.$.textEl.innerHTML, '&lt;i&gt;baz&lt;/i&gt;');
+      assert.strictEqual(fixture.$.htmlEl.innerHTML, '<i>baz</i>');
+      assert.strictEqual(fixture.$.propEl.getAttribute('prop-data'), 'baz');
 
       fixture.set('foo', 1);
       fixture.set('displayValue', 'none');
 
-      assert.equal(fixture.$.classEl.classList.contains('foo'), true);
-      assert.equal(fixture.$.styleEl.style.display, 'none');
+      assert.strictEqual(fixture.$.classEl.classList.contains('foo'), true);
+      assert.strictEqual(fixture.$.styleEl.style.display, 'none');
     } finally {
       fixture.dispose();
     }
@@ -163,7 +163,7 @@ describe('Binding', () => {
 
     await fixture.waitConnected();
 
-    assert.equal(fixture.$.comp.textContent, 'foo was here');
+    assert.strictEqual(fixture.$.comp.textContent, 'foo was here');
 
     await fixture.dispose();
   });
@@ -190,7 +190,7 @@ describe('Binding', () => {
 
     await fixture.waitConnected();
 
-    assert.equal(fixture.$.comp.textContent, 'default foo');
+    assert.strictEqual(fixture.$.comp.textContent, 'default foo');
 
     await fixture.dispose();
   });
@@ -233,7 +233,7 @@ describe('Binding', () => {
       fixture.$.comp.set('first', 'foo');
       fixture.$.comp.set('last', 'bar');
 
-      assert.equal(fixture.$.comp.full, 'foo bar');
+      assert.strictEqual(fixture.$.comp.full, 'foo bar');
     } finally {
       await fixture.dispose();
     }
@@ -259,12 +259,12 @@ describe('Binding', () => {
       await fixture.waitConnected();
 
       fixture.set('foo', 'foo');
-      assert.equal(fixture.foo, 'foo');
-      assert.equal(fixture.$.comp.value, 'foo');
+      assert.strictEqual(fixture.foo, 'foo');
+      assert.strictEqual(fixture.$.comp.value, 'foo');
 
       fixture.$.comp.set('value', 'bar');
-      assert.equal(fixture.foo, 'bar');
-      assert.equal(fixture.$.comp.value, 'bar');
+      assert.strictEqual(fixture.foo, 'bar');
+      assert.strictEqual(fixture.$.comp.value, 'bar');
     } finally {
       await fixture.dispose();
     }

@@ -1,6 +1,6 @@
 import assert from 'assert';
 import { Fixture } from '@xinix/xin/components/fixture';
-import { Async } from '@xinix/xin/core/fn/async';
+import { Async } from '@xinix/xin';
 import '@xinix/xin/components/for';
 
 describe('<xin-for>', () => {
@@ -29,11 +29,11 @@ describe('<xin-for>', () => {
       ];
       fixture.set('rows', rows);
       await Async.sleep(50);
-      assert.equal(fixture.querySelectorAll('.child').length, rows.length);
+      assert.strictEqual(fixture.querySelectorAll('.child').length, rows.length);
 
       fixture.set('rows', [{ name: 'zap' }]);
       await Async.sleep(50);
-      assert.equal(fixture.querySelectorAll('.child').length, 1);
+      assert.strictEqual(fixture.querySelectorAll('.child').length, 1);
     } finally {
       fixture.dispose();
     }
@@ -79,8 +79,8 @@ describe('<xin-for>', () => {
       fixture.set('rows', rows);
       await Async.sleep(50);
 
-      assert.equal(fixture.$.firstBody.children.length, 0);
-      assert.equal(fixture.$.secondBody.children.length, 3);
+      assert.strictEqual(fixture.$.firstBody.children.length, 0);
+      assert.strictEqual(fixture.$.secondBody.children.length, 3);
     } finally {
       fixture.dispose();
     }
@@ -113,15 +113,15 @@ describe('<xin-for>', () => {
       fixture.set('rows', rows);
       await Async.sleep(50);
 
-      assert.deepEqual(fixture.$$('xin-for').itemForElement(fixture.$$('span')), { name: 'foo' });
-      assert.equal(fixture.$$('xin-for').indexForElement(fixture.$$('span')), 0);
-      assert.equal(fixture.$$('xin-for').modelForElement(fixture.$$('span')).get('index'), 0);
+      assert.deepStrictEqual(fixture.$$('xin-for').itemForElement(fixture.$$('span')), { name: 'foo' });
+      assert.strictEqual(fixture.$$('xin-for').indexForElement(fixture.$$('span')), 0);
+      assert.strictEqual(fixture.$$('xin-for').modelForElement(fixture.$$('span')).get('index'), 0);
     } finally {
       fixture.dispose();
     }
   });
 
-  it.only('render list with data from parent', async () => {
+  it('render list with data from parent', async () => {
     let fixture = await Fixture.create(`
       <div id="here">
         <xin-for items="[[rows]]" as="row">
@@ -151,16 +151,16 @@ describe('<xin-for>', () => {
       await Async.sleep(50);
 
       fixture.querySelectorAll('.child').forEach(child => {
-        assert.equal(child.querySelector('.parent-data').textContent, 'foo');
+        assert.strictEqual(child.querySelector('.parent-data').textContent, 'foo');
       });
 
       fixture.set('foo', 'bar');
 
       fixture.querySelectorAll('.child').forEach(child => {
-        assert.equal(child.querySelector('.parent-data').textContent, 'bar');
+        assert.strictEqual(child.querySelector('.parent-data').textContent, 'bar');
       });
     } finally {
       fixture.dispose();
     }
-  }).timeout(100000);
+  });
 });

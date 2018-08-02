@@ -1,4 +1,5 @@
 import assert from 'assert';
+import { Async } from '@xinix/xin';
 import { Fixture } from '@xinix/xin/components';
 
 import '@xinix/xin/middlewares/title';
@@ -23,11 +24,12 @@ describe('<xin-title-middleware>', () => {
     try {
       await fixture.waitConnected();
       await fixture.$$('xin-app').waitFor('started');
-      assert(document.title, 'Home');
+      assert.strictEqual(document.title, 'Home');
 
       location.hash = '#!/foo';
       await fixture.$$('xin-app').waitFor('navigated');
-      assert(document.title, 'Foo');
+      await Async.sleep(400);
+      assert.strictEqual(document.title, 'Foo');
     } finally {
       fixture.dispose();
 

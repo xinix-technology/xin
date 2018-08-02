@@ -72,6 +72,8 @@ export function base (base) {
     readyCallback () {
       this.__componentReady = true;
 
+      this.fire('before-ready');
+
       debug(`READY ${this.is}`);
 
       // moved from attachedCallback
@@ -105,6 +107,8 @@ export function base (base) {
 
       this.ready();
 
+      this.fire('ready');
+
       if (this.__componentAttaching) {
         this.attachedCallback();
       }
@@ -120,7 +124,10 @@ export function base (base) {
 
       // moved from createdCallback
       if (!this.__componentReady) {
-        this.async(this.readyCallback);
+        if (!this.__componentBeforeReady) {
+          this.__componentBeforeReady = true;
+          this.async(this.readyCallback);
+        }
         return;
       }
       // moved from createdCallback
@@ -180,6 +187,7 @@ export function base (base) {
       this.__componentDebouncers = {};
       this.__componentNotifiers = {};
       this.__componentReady = false;
+      this.__componentBeforeReady = false;
       this.__componentAttaching = false;
       this.__componentInitialPropValues = {};
       this.__componentNotifiedProps = {};

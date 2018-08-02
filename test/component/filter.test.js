@@ -12,49 +12,49 @@ describe('Filter', () => {
 
     fixture.set('money', 12345);
 
-    assert.equal(fixture.$.val.textContent, '12,345.00');
+    assert.strictEqual(fixture.$.val.textContent, '12,345.00');
 
     fixture.dispose();
   });
 
   it('format string', () => {
-    assert.equal(Filter.get('string').invoke('foo'), 'foo');
-    assert.equal(Filter.get('string').invoke(undefined), '');
-    assert.equal(Filter.get('string').invoke(null), '');
-    assert.equal(Filter.get('string').invoke(true), 'true');
-    assert.equal(Filter.get('string').invoke(100), '100');
+    assert.strictEqual(Filter.get('string').invoke('foo'), 'foo');
+    assert.strictEqual(Filter.get('string').invoke(undefined), '');
+    assert.strictEqual(Filter.get('string').invoke(null), '');
+    assert.strictEqual(Filter.get('string').invoke(true), 'true');
+    assert.strictEqual(Filter.get('string').invoke(100), '100');
   });
 
   it('format number', () => {
-    assert.equal(Filter.get('number').invoke('1000'), '1,000');
+    assert.strictEqual(Filter.get('number').invoke('1000'), '1,000');
   });
 
   it('format boolean', () => {
-    assert.equal(Filter.get('boolean').invoke(true), 'true');
-    assert.equal(Filter.get('boolean').invoke(false), 'false');
+    assert.strictEqual(Filter.get('boolean').invoke(true), 'true');
+    assert.strictEqual(Filter.get('boolean').invoke(false), 'false');
   });
 
   it('format default', () => {
-    assert.equal(Filter.get('default:foo').invoke(0), 'foo');
-    assert.equal(Filter.get('default:foo').invoke('bar'), 'bar');
+    assert.strictEqual(Filter.get('default:foo').invoke(0), 'foo');
+    assert.strictEqual(Filter.get('default:foo').invoke('bar'), 'bar');
   });
 
   it('format upper', () => {
-    assert.equal(Filter.get('upper').invoke('foo'), 'FOO');
+    assert.strictEqual(Filter.get('upper').invoke('foo'), 'FOO');
   });
 
   it('format lower', () => {
-    assert.equal(Filter.get('lower').invoke('FOO'), 'foo');
+    assert.strictEqual(Filter.get('lower').invoke('FOO'), 'foo');
   });
 
   it('format not', () => {
-    assert.equal(Filter.get('not').invoke(''), true);
-    assert.equal(Filter.get('not').invoke(0), true);
-    assert.equal(Filter.get('not').invoke('foo'), false);
+    assert.strictEqual(Filter.get('not').invoke(''), true);
+    assert.strictEqual(Filter.get('not').invoke(0), true);
+    assert.strictEqual(Filter.get('not').invoke('foo'), false);
   });
 
   it('format cssurl', () => {
-    assert.equal(Filter.get('cssurl').invoke('/foo'), 'url(/foo)');
+    assert.strictEqual(Filter.get('cssurl').invoke('/foo'), 'url(/foo)');
   });
 
   it('put new filter', () => {
@@ -62,6 +62,6 @@ describe('Filter', () => {
       return `${v} ${args.toString()}`.trim();
     });
 
-    assert.equal(Filter.get('bar:1,2,3').invoke('foo'), 'foo 1,2,3');
+    assert.strictEqual(Filter.get('bar:1,2,3').invoke('foo'), 'foo 1,2,3');
   });
 });

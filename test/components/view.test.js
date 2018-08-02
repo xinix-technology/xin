@@ -19,9 +19,9 @@ describe('<xin-view>', () => {
     try {
       await fixture.waitConnected();
 
-      assert.equal(fixture.$$('xin-view[uri="/"]').title, 'View /');
-      assert.equal(fixture.$$('xin-view[uri="/foo"]').title, 'View /foo');
-      assert.equal(fixture.$$('xin-view[uri="/bar"]').title, 'Bar');
+      assert.strictEqual(fixture.$$('xin-view[uri="/"]').title, 'View /');
+      assert.strictEqual(fixture.$$('xin-view[uri="/foo"]').title, 'View /foo');
+      assert.strictEqual(fixture.$$('xin-view[uri="/bar"]').title, 'Bar');
     } finally {
       fixture.dispose();
       location.hash = '#';

@@ -113,4 +113,10 @@ export class Row extends T {
 
     return true;
   }
+
+  __templateUninitialize () {
+    super.__templateUninitialize();
+
+    // FIXME: remove annotation from templateHost or memory leak
+  }
 }
