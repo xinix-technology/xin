@@ -28,6 +28,7 @@ export class Token {
         this.type = 's';
         return;
       } catch (err) {
+        // noop
       }
     }
 

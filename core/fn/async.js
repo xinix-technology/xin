@@ -83,4 +83,4 @@ export class Async {
   cancel () {
     this.__clear();
   }
-};
+}

@@ -1,12 +1,13 @@
 # xin
 
-[![NPM](https://nodei.co/npm/@xinix/xin.png)](https://npmjs.org/package/@xinix/xin)
+[![npm version](https://badge.fury.io/js/xin.svg)](https://badge.fury.io/js/xin)
+[![GitHub license](https://img.shields.io/github/license/xinix-technology/xin.svg)](https://github.com/xinix-technology/xin/blob/master/LICENSE)
 [![](https://data.jsdelivr.com/v1/package/npm/@xinix/xin/badge)](https://www.jsdelivr.com/package/npm/@xinix/xin)
+
+![Xin](xin.png)
 
 Xin is web components framework.
 Xin using webpack to build.
-
-![Xin](xin.png)
 
 ## Getting started
 

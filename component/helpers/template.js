@@ -3,7 +3,7 @@ function fix (template) {
     window.HTMLTemplateElement.decorate(template);
   }
   return template;
-};
+}
 
 function needFixImportNode () {
   if (document.__importNode) {

@@ -23,6 +23,8 @@ export class View {
       this._loaded = true;
       return true;
     }
+
+    return false;
   }
 
   async load () {

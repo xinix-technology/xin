@@ -26,7 +26,9 @@ export class Filter {
     if (typeof callback !== 'function') {
       try {
         callback = require(`./filters/${key}`).default;
-      } catch (err) {}
+      } catch (err) {
+        // noop
+      }
     }
 
     if (!callback) {

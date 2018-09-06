@@ -3,4 +3,4 @@ export default function (val) {
     throw new Error('Value is required');
   }
   return val;
-};
+}
