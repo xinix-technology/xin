@@ -50,7 +50,7 @@ export function base (base) {
     detached () {}
 
     createdCallback () {
-      debug(`CREATED ${this.is}`);
+      if (debug.enabled) debug(`CREATED ${this.is}`);
 
       this.__id = nextId();
 
@@ -74,7 +74,7 @@ export function base (base) {
 
       this.fire('before-ready');
 
-      debug(`READY ${this.is}`);
+      if (debug.enabled) debug(`READY ${this.is}`);
 
       // moved from attachedCallback
       if (!this.hasAttribute('xin-id')) {
@@ -137,7 +137,7 @@ export function base (base) {
       this.notify('__repository');
       this.notify('__app');
 
-      debug(`ATTACHED ${this.is} ${this.__componentAttaching ? '(delayed)' : ''}`);
+      if (debug.enabled) debug(`ATTACHED ${this.is} ${this.__componentAttaching ? '(delayed)' : ''}`);
 
       this.attached();
 

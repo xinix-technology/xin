@@ -8,7 +8,7 @@ export function define (name, Component, options) {
   let ElementClass = repository.get(name);
 
   if (ElementClass) {
-    debug(`Duplicate registering "${name}"`);
+    if (debug.enabled) debug(`Duplicate registering "${name}"`);
     return ElementClass;
   }
 

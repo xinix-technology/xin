@@ -1,6 +1,8 @@
 import { event } from '../../core';
 import { Component, define } from '../../component';
 import { Route } from './route';
+import url from 'url';
+import qs from 'querystring';
 
 const debug = require('debug')('xin:components:app');
 
@@ -116,7 +118,7 @@ export class App extends Component {
 
     this.__listenNavigation();
 
-    debug(`Starting ${this.is}:${this.__id} ...`);
+    if (debug.enabled) debug(`Starting ${this.is}:${this.__id} ...`);
 
     this.__starting = true;
     let executed = await this.__execute();
@@ -125,7 +127,7 @@ export class App extends Component {
       this.__starting = false;
 
       if (executed) {
-        debug(`Started ${this.is}:${this.__id}`);
+        if (debug.enabled) debug(`Started ${this.is}:${this.__id}`);
 
         this.__started = true;
 
@@ -174,11 +176,14 @@ export class App extends Component {
     delete this.__navParameters;
 
     let fragment = this.getFragment();
-    let context = { app: this, uri: fragment, navParameters };
+    let { pathname, query } = url.parse(fragment);
+    let queryParameters = qs.parse(query);
+
+    let context = { app: this, uri: fragment, pathname, queryParameters, navParameters };
 
     // run middleware chain then execute all executors
     let willContinue = await this.__middlewareChainRun(context, () => {
-      let executors = this.getFragmentExecutors(context.uri);
+      let executors = this.getFragmentExecutors(context.pathname);
       if (executors.length === 0) {
         this.notFound(fragment);
         this.fire('route-not-found', fragment);
@@ -186,7 +191,7 @@ export class App extends Component {
       }
 
       executors.forEach(executor => {
-        let parameters = Object.assign({}, executor.args, navParameters);
+        let parameters = Object.assign({}, executor.args, queryParameters, navParameters);
         executor.handler.callback(parameters, context);
       });
     });
