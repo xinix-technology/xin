@@ -2,7 +2,7 @@
 // Generated on Wed Apr 04 2018 09:55:19 GMT+0700 (WIB)
 const path = require('path');
 
-process.env.CHROME_BIN = require('puppeteer').executablePath();
+// process.env.CHROME_BIN = require('puppeteer').executablePath();
 
 module.exports = function (config) {
   config.set({
@@ -51,7 +51,8 @@ module.exports = function (config) {
 
     // start these browsers
     // available browser launchers: https://npmjs.org/browse/keyword/karma-launcher
-    browsers: [ 'Safari', 'FirefoxDeveloper', 'ChromeHeadless', 'ChromeCanary' ],
+    browsers: [ 'ChromeCanary' ],
+    // browsers: [ 'Safari', 'FirefoxDeveloper', 'ChromeHeadless', 'ChromeCanary' ],
 
     // Continuous Integration mode
     // if true, Karma captures browsers, runs the tests and exits
@@ -112,8 +113,8 @@ module.exports = function (config) {
       require('karma-mocha'),
       require('karma-coverage'),
       require('karma-chrome-launcher'),
-      require('karma-safari-launcher'),
-      require('karma-firefox-launcher'),
+      // require('karma-safari-launcher'),
+      // require('karma-firefox-launcher'),
       require('karma-spec-reporter'),
     ],
   });

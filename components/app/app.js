@@ -1,10 +1,14 @@
 import { event } from '../../core';
 import { Component, define } from '../../component';
 import { Route } from './route';
-import url from 'url';
+import { URL } from 'url';
 import qs from 'querystring';
 
 const debug = require('debug')('xin:components:app');
+
+if (!URL) {
+  URL = window.URL;
+}
 
 export class App extends Component {
   get props () {
@@ -176,8 +180,11 @@ export class App extends Component {
     delete this.__navParameters;
 
     let fragment = this.getFragment();
-    let { pathname, query } = url.parse(fragment);
-    let queryParameters = qs.parse(query);
+    let { pathname, search } = new URL(fragment, 'http://localhost');
+    if (search[0] === '?') {
+      search = search.substr(1);
+    }
+    let queryParameters = qs.parse(search);
 
     let context = { app: this, uri: fragment, pathname, queryParameters, navParameters };
 

@@ -321,7 +321,8 @@ export function base (base) {
           return;
         }
 
-        evt.stopImmediatePropagation();
+        // TODO: ini buat apa ya dulu?
+        // evt.stopImmediatePropagation();
 
         if ('__componentNotifyKey' in element && '__componentNotifyAccessor' in element) {
           element.__templateModel.set(element.__componentNotifyKey, element[element.__componentNotifyAccessor]);

@@ -2,14 +2,18 @@ const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin');
-const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
+const TerserPlugin = require('terser-webpack-plugin');
+// const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
 
 module.exports = function (_, { mode = 'development' }) {
   return {
     mode,
     context: path.join(__dirname, 'src/docs'),
     entry: {
-      index: ['@webcomponents/custom-elements', './index.js'],
+      index: [
+        // '@webcomponents/custom-elements',
+        './index.js',
+      ],
     },
     output: {
       path: path.join(__dirname, 'docs'),
@@ -49,11 +53,12 @@ module.exports = function (_, { mode = 'development' }) {
     ],
     optimization: {
       minimizer: [
-        new UglifyJsPlugin({
-          cache: true,
-          parallel: true,
-          sourceMap: true,
-        }),
+        new TerserPlugin(),
+        // new UglifyJsPlugin({
+        //   cache: true,
+        //   parallel: true,
+        //   sourceMap: true,
+        // }),
         new OptimizeCSSAssetsPlugin({}),
       ],
     },

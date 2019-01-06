@@ -1,7 +1,7 @@
 const path = require('path');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin');
-const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
+const TerserPlugin = require('terser-webpack-plugin');
 
 module.exports = function (_, { mode = 'development' }) {
   return {
@@ -30,11 +30,12 @@ module.exports = function (_, { mode = 'development' }) {
     ],
     optimization: {
       minimizer: [
-        new UglifyJsPlugin({
-          cache: true,
-          parallel: true,
-          sourceMap: true, // set to true if you want JS source maps
-        }),
+        new TerserPlugin(),
+        // new UglifyJsPlugin({
+        //   cache: true,
+        //   parallel: true,
+        //   sourceMap: true, // set to true if you want JS source maps
+        // }),
         new OptimizeCSSAssetsPlugin({}),
       ],
     },
