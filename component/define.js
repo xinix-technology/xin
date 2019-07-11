@@ -17,8 +17,8 @@ export function define (name, Component, options) {
     ElementClass = Component;
     window.customElements.define(name, Component, options);
   } else {
-    let prototype = Object.create(Component.prototype, { is: { value: name } });
-    let ElementPrototype = { prototype };
+    const prototype = Object.create(Component.prototype, { is: { value: name } });
+    const ElementPrototype = { prototype };
 
     if (options && options.extends) {
       ElementPrototype.extends = options.extends;

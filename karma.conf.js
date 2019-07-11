@@ -51,7 +51,7 @@ module.exports = function (config) {
 
     // start these browsers
     // available browser launchers: https://npmjs.org/browse/keyword/karma-launcher
-    browsers: [ 'ChromeCanary' ],
+    browsers: ['ChromeCanary'],
     // browsers: [ 'Safari', 'FirefoxDeveloper', 'ChromeHeadless', 'ChromeCanary' ],
 
     // Continuous Integration mode
@@ -87,11 +87,11 @@ module.exports = function (config) {
           },
           {
             test: /\.s?css$/,
-            use: [ 'style-loader', 'css-loader', 'sass-loader' ],
+            use: ['style-loader', 'css-loader', 'sass-loader'],
           },
           {
             test: /\.html$/,
-            use: [ 'html-loader' ],
+            use: ['html-loader'],
           },
         ],
       },

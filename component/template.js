@@ -52,8 +52,8 @@ T.prototype = {
   },
 
   all (obj) {
-    for (let i in obj) {
-      if (obj.hasOwnProperty(i)) {
+    for (const i in obj) {
+      if (Object.prototype.hasOwnProperty.call(obj, i)) {
         this.set(i, obj[i]);
       }
     }
@@ -77,9 +77,9 @@ T.prototype = {
 
   set (path, value) {
     if (arguments.length === 1 && typeof path === 'object') {
-      let data = path;
-      for (let i in data) {
-        if (data.hasOwnProperty(i)) {
+      const data = path;
+      for (const i in data) {
+        if (Object.prototype.hasOwnProperty.call(data, i)) {
           this.set(i, data[i]);
         }
       }
@@ -88,7 +88,7 @@ T.prototype = {
 
     path = this.__templateGetPathAsArray(path);
 
-    let oldValue = this.get(path);
+    const oldValue = this.get(path);
 
     if (value === oldValue) {
       return;
@@ -107,7 +107,7 @@ T.prototype = {
       object = object[segment];
     });
 
-    let property = path.slice(-1).pop();
+    const property = path.slice(-1).pop();
 
     object[property] = value;
 
@@ -130,14 +130,14 @@ T.prototype = {
       object = object[segment];
     });
 
-    let property = path.slice(-1).pop();
+    const property = path.slice(-1).pop();
 
     if (!Array.isArray(object[property])) {
       object[property] = [];
     }
 
     object[property] = object[property].slice();
-    let result = object[property].push(...values);
+    const result = object[property].push(...values);
     this.notify(path, object[property]);
 
     // let index = object[property].length;
@@ -170,14 +170,14 @@ T.prototype = {
       object = object[segment];
     });
 
-    let property = path.slice(-1).pop();
+    const property = path.slice(-1).pop();
 
     if (!Array.isArray(object[property])) {
       object[property] = [];
     }
 
     object[property] = object[property].slice();
-    let result = object[property].pop();
+    const result = object[property].pop();
     this.notify(path, object[property]);
 
     // let index = object[property].length;
@@ -210,14 +210,14 @@ T.prototype = {
       object = object[segment];
     });
 
-    let property = path.slice(-1).pop();
+    const property = path.slice(-1).pop();
 
     if (!Array.isArray(object[property])) {
       object[property] = [];
     }
 
     object[property] = object[property].slice();
-    let result = object[property].splice(index, removeCount, ...values);
+    const result = object[property].splice(index, removeCount, ...values);
     this.notify(path, object[property]);
 
     // let addedCount = values.length;
@@ -244,7 +244,7 @@ T.prototype = {
       return;
     }
 
-    let binding = this.__templateGetBinding(path);
+    const binding = this.__templateGetBinding(path);
     if (binding) {
       if (value === undefined) {
         value = this.get(path);
@@ -317,15 +317,15 @@ T.prototype = {
       return;
     }
 
-    let fragment = this.__templateFragment;
+    const fragment = this.__templateFragment;
     this.__templateFragment = null;
 
     if (contentFragment && contentFragment instanceof window.DocumentFragment) {
       // try {
       fragment.querySelectorAll('slot').forEach(slot => {
-        let name = slotName(slot);
-        let parent = slot.parentElement || fragment;
-        let marker = document.createComment(`slot ${name}`);
+        const name = slotName(slot);
+        const parent = slot.parentElement || fragment;
+        const marker = document.createComment(`slot ${name}`);
 
         parent.insertBefore(marker, slot);
         parent.removeChild(slot);
@@ -370,12 +370,12 @@ T.prototype = {
   },
 
   __parseAnnotations () {
-    this.__templateChildNodes = [ ...this.__templateFragment.childNodes ];
+    this.__templateChildNodes = [...this.__templateFragment.childNodes];
 
-    let len = this.__templateChildNodes.length;
+    const len = this.__templateChildNodes.length;
 
     for (let i = 0; i < len; i++) {
-      let node = this.__templateChildNodes[i];
+      const node = this.__templateChildNodes[i];
 
       switch (node.nodeType) {
         case window.Node.ELEMENT_NODE:
@@ -390,15 +390,15 @@ T.prototype = {
 
   __parseEventAnnotations (element, attrName) {
     // bind event annotation
-    let attrValue = element.getAttribute(attrName);
+    const attrValue = element.getAttribute(attrName);
     let eventName = attrName.slice(1, -1);
     // let eventName = attrName.substr(3);
     if (eventName === 'tap') {
       eventName = 'click';
     }
 
-    let context = this;
-    let expr = Expr.getFn(attrValue, [], true);
+    const context = this;
+    const expr = Expr.getFn(attrValue, [], true);
 
     this.on(eventName, element, evt => {
       expr.invoke(context, { evt });
@@ -411,12 +411,12 @@ T.prototype = {
     // this hack to make sure when attribute removed the attributes index doesnt shift.
     let annotated = false;
 
-    let len = element.attributes.length;
+    const len = element.attributes.length;
 
     for (let i = 0; i < len; i++) {
-      let attr = element.attributes[i];
+      const attr = element.attributes[i];
 
-      let attrName = attr.name;
+      const attrName = attr.name;
 
       if (attrName === 'id' || attrName === 'class' || attrName === 'style') {
         continue;
@@ -449,8 +449,8 @@ T.prototype = {
     }
 
     if (element.childNodes && element.childNodes.length) {
-      let childNodes = [].slice.call(element.childNodes);
-      let childNodesLength = childNodes.length;
+      const childNodes = [].slice.call(element.childNodes);
+      const childNodesLength = childNodes.length;
 
       for (let i = 0; i < childNodesLength; i++) {
         annotated = this.__parseNodeAnnotations(childNodes[i]) || annotated;
@@ -476,8 +476,8 @@ T.prototype = {
   },
 
   __parseTextAnnotations (node) {
-    let expr = Expr.get(node.textContent);
-    let accessor = Accessor.get(node);
+    const expr = Expr.get(node.textContent);
+    const accessor = Accessor.get(node);
     return this.__templateAnnotate(expr, accessor);
   },
 
@@ -487,13 +487,13 @@ T.prototype = {
     }
 
     if (expr.constant) {
-      let val = expr.invoke(this);
+      const val = expr.invoke(this);
       accessor.set(val);
       return false;
     }
 
     // annotate every paths
-    let annotation = new Annotation(this, expr, accessor);
+    const annotation = new Annotation(this, expr, accessor);
 
     if (expr.type === 'm') {
       this.__templateGetBinding(expr.fn.name).annotate(annotation);
@@ -507,12 +507,12 @@ T.prototype = {
   },
 
   __templateGetBinding (path) {
-    let segments = path.split('.');
+    const segments = path.split('.');
     let bindings;
     let binding;
 
     for (let i = 0; i < segments.length; i++) {
-      let segment = segments[i];
+      const segment = segments[i];
 
       bindings = binding ? binding.paths : this.__templateBindings;
 

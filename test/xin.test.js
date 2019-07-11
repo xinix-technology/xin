@@ -2,7 +2,7 @@ import assert from 'assert';
 
 describe('xin', () => {
   it('has core functionalities', async () => {
-    let imported = await import('@xinix/xin');
+    const imported = await import('@xinix/xin');
 
     assert(typeof imported.bootstrap === 'function');
     assert(typeof imported.getInstance === 'function');
@@ -10,7 +10,7 @@ describe('xin', () => {
   });
 
   it('has component functionalities', async () => {
-    let imported = await import('@xinix/xin');
+    const imported = await import('@xinix/xin');
 
     assert(typeof imported.define === 'function');
     assert(typeof imported.base === 'function');

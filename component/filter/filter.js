@@ -8,7 +8,7 @@ export class Filter {
   }
 
   invoke (val) {
-    let args = [val];
+    const args = [val];
     [].push.apply(args, this.otherArgs);
     return this.callback.apply(null, args);
   }
@@ -18,9 +18,9 @@ export class Filter {
   }
 
   static get (name) {
-    let segments = name.split(':');
-    let args = segments.splice(1).join(':').split(',');
-    let key = segments.pop();
+    const segments = name.split(':');
+    const args = segments.splice(1).join(':').split(',');
+    const key = segments.pop();
 
     let callback = registry[key];
     if (typeof callback !== 'function') {

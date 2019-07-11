@@ -6,7 +6,7 @@ import '../../scss/xin-components.scss';
 
 describe('<xin-app>', () => {
   it('run routes', async () => {
-    let fixture = await Fixture.create(`
+    const fixture = await Fixture.create(`
       <xin-app>
         <xin-pager>
           <xin-view uri="/">home</xin-view>
@@ -57,7 +57,7 @@ describe('<xin-app>', () => {
   });
 
   it('run dynamic route', async () => {
-    let fixture = await Fixture.create(`
+    const fixture = await Fixture.create(`
       <xin-app>
         <xin-pager>
           <xin-view uri="/">home</xin-view>
@@ -91,7 +91,7 @@ describe('<xin-app>', () => {
   });
 
   it('navigate with specified parameters', async () => {
-    let fixture = await Fixture.create(`
+    const fixture = await Fixture.create(`
       <xin-app>
         <xin-pager>
           <xin-view uri="/">home</xin-view>

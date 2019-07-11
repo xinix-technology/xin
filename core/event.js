@@ -5,8 +5,8 @@ const nextEventId = idGenerator();
 let _matcher;
 let _level = 0;
 let _id = 0;
-let _handlers = {};
-let _delegatorInstances = {};
+const _handlers = {};
+const _delegatorInstances = {};
 
 function _addEvent (delegator, type, callback) {
   if (type === 'touchstart' || type === 'touchmove' || type === 'wheel' || type === 'mousewheel') {
@@ -15,7 +15,7 @@ function _addEvent (delegator, type, callback) {
   }
   // blur and focus do not bubble up but if you use event capturing
   // then you will get them
-  let useCapture = type === 'blur' || type === 'focus';
+  const useCapture = type === 'blur' || type === 'focus';
   delegator.element.addEventListener(type, callback, useCapture);
 }
 
@@ -127,8 +127,8 @@ function _removeHandler (delegator, event, selector, callback) {
   // if there is no event type specified then remove all events
   // example: Delegator(element).off()
   if (!event) {
-    for (let type in _handlers[delegator.id]) {
-      if (_handlers[delegator.id].hasOwnProperty(type)) {
+    for (const type in _handlers[delegator.id]) {
+      if (Object.prototype.hasOwnProperty.call(_handlers[delegator.id], type)) {
         _handlers[delegator.id][type] = {};
       }
     }
@@ -172,17 +172,17 @@ function _handleEvent (id, e, type) {
     return;
   }
 
-  let target = e.target || e.srcElement;
+  const target = e.target || e.srcElement;
   let selector;
   let match;
-  let matches = {};
+  const matches = {};
   let i = 0;
   let j = 0;
 
   // find all events that match
   _level = 0;
   for (selector in _handlers[id][type]) {
-    if (_handlers[id][type].hasOwnProperty(selector)) {
+    if (Object.prototype.hasOwnProperty.call(_handlers[id][type], selector)) {
       match = _matchesSelector(target, selector, _delegatorInstances[id].element);
 
       if (match && Delegator.matchesEvent(type, _delegatorInstances[id].element, match, selector === '_root', e)) {
@@ -216,18 +216,18 @@ function _handleEvent (id, e, type) {
 }
 
 const aliases = {};
-const aliasesDefaultTranslator = name => ([ name ]);
+const aliasesDefaultTranslator = name => ([name]);
 const aliasesTranslators = {
   transitionend (name) {
-    let el = document.createElement('fakeelement');
-    let transitions = {
-      'OTransition': 'oTransitionEnd',
-      'MozTransition': 'transitionend',
-      'WebkitTransition': 'webkitTransitionEnd',
-      'transition': 'transitionend',
+    const el = document.createElement('fakeelement');
+    const transitions = {
+      OTransition: 'oTransitionEnd',
+      MozTransition: 'transitionend',
+      WebkitTransition: 'webkitTransitionEnd',
+      transition: 'transitionend',
     };
 
-    for (let t in transitions) {
+    for (const t in transitions) {
       if (el.style[t] !== undefined) {
         return [transitions[t]];
       }
@@ -240,7 +240,7 @@ function _aliases (name) {
   if (name in aliases) {
     theAliases = aliases[name];
   } else {
-    let translator = aliasesTranslators[name] || aliasesDefaultTranslator;
+    const translator = aliasesTranslators[name] || aliasesDefaultTranslator;
     theAliases = translator(name);
     aliases[name] = theAliases;
   }
@@ -284,7 +284,7 @@ function _bind (events, selector, callback, remove) {
     selector = `[bind-event-id="${id}"]`;
   }
 
-  let id = this.id;
+  const id = this.id;
   let i;
 
   function _getGlobalCallback (type) {
@@ -361,7 +361,7 @@ Delegator.prototype.once = function (events, selector, callback) {
 
 Delegator.prototype.waitFor = function (events, timeout = 3000) {
   return new Promise((resolve, reject) => {
-    let onResolve = evt => {
+    const onResolve = evt => {
       clearTimeout(t);
       resolve(evt);
     };
@@ -381,8 +381,8 @@ Delegator.prototype.fire = function (type, detail, options) {
   detail = detail || {};
 
   let evt;
-  let bubbles = options.bubbles === undefined ? true : options.bubbles;
-  let cancelable = Boolean(options.cancelable);
+  const bubbles = options.bubbles === undefined ? true : options.bubbles;
+  const cancelable = Boolean(options.cancelable);
 
   switch (type) {
     case 'click':
@@ -425,7 +425,7 @@ export function event (element) {
   // multiple events from the same node
   //
   // for example: event(document).on(...
-  for (let key in _delegatorInstances) {
+  for (const key in _delegatorInstances) {
     if (_delegatorInstances[key].element === element) {
       return _delegatorInstances[key];
     }

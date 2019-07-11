@@ -4,7 +4,7 @@ import assert from 'assert';
 
 describe('component', () => {
   it('make sure invoke ready once when reattached', async () => {
-    let hits = {};
+    const hits = {};
     event(document.body).on('before-ready', evt => {
       hits[evt.target.nodeName] = hits[evt.target.nodeName] || 0;
       hits[evt.target.nodeName]++;
@@ -26,7 +26,7 @@ describe('component', () => {
       }
     });
 
-    let fixture = await Fixture.create(`
+    const fixture = await Fixture.create(`
       <test-component-component1>
         <test-component-component2></test-component-component2>
       </test-component-component1>
@@ -35,7 +35,7 @@ describe('component', () => {
     try {
       await fixture.waitConnected();
 
-      for (let k in hits) {
+      for (const k in hits) {
         assert.strictEqual(hits[k], 1);
       }
     } finally {

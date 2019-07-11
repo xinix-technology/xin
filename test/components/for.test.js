@@ -5,7 +5,7 @@ import '@xinix/xin/components/for';
 
 describe('<xin-for>', () => {
   it('render list', async () => {
-    let fixture = await Fixture.create(`
+    const fixture = await Fixture.create(`
       <div id="here">
         <xin-for items="[[rows]]" as="row">
           <template>
@@ -16,7 +16,7 @@ describe('<xin-for>', () => {
     `);
     try {
       await fixture.waitConnected();
-      let rows = [
+      const rows = [
         {
           name: 'foo',
         },
@@ -40,7 +40,7 @@ describe('<xin-for>', () => {
   });
 
   it('render to nearest defined element from parent', async () => {
-    let fixture = await Fixture.create(`
+    const fixture = await Fixture.create(`
       <div>
         <table>
           <tbody id="firstBody">
@@ -65,7 +65,7 @@ describe('<xin-for>', () => {
 
     try {
       await fixture.waitConnected();
-      let rows = [
+      const rows = [
         {
           name: 'foo',
         },
@@ -87,7 +87,7 @@ describe('<xin-for>', () => {
   });
 
   it('get item, index, and model for element', async () => {
-    let fixture = await Fixture.create(`
+    const fixture = await Fixture.create(`
       <xin-for items="[[rows]]" as="row">
         <template>
           <div>
@@ -99,7 +99,7 @@ describe('<xin-for>', () => {
 
     try {
       await fixture.waitConnected();
-      let rows = [
+      const rows = [
         {
           name: 'foo',
         },
@@ -122,7 +122,7 @@ describe('<xin-for>', () => {
   });
 
   it('render list with data from parent', async () => {
-    let fixture = await Fixture.create(`
+    const fixture = await Fixture.create(`
       <div id="here">
         <xin-for items="[[rows]]" as="row">
           <template>
@@ -136,7 +136,7 @@ describe('<xin-for>', () => {
     `, { foo: 'foo' });
     try {
       await fixture.waitConnected();
-      let rows = [
+      const rows = [
         {
           name: 'foo',
         },

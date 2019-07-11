@@ -9,7 +9,7 @@ import '../../scss/xin-components.scss';
 
 describe('<xin-title-middleware>', () => {
   it('change title', async () => {
-    let fixture = await Fixture.create(`
+    const fixture = await Fixture.create(`
       <xin-app>
         <template>
           <xin-title-middleware></xin-title-middleware>
@@ -33,7 +33,7 @@ describe('<xin-title-middleware>', () => {
     } finally {
       fixture.dispose();
 
-      document.title = '';
+      document.title = ''; // eslint-disable-line require-atomic-updates
       location.hash = '#';
     }
   });

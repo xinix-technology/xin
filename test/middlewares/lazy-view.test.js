@@ -8,7 +8,7 @@ import '../../scss/xin-components.scss';
 
 describe('<xin-lazy-view-middleware>', () => {
   it('import view lazily', async () => {
-    let fixture = await Fixture.create(`
+    const fixture = await Fixture.create(`
       <xin-app id="app" manual="true">
         <template>
           <xin-lazy-view-middleware id="md"></xin-lazy-view-middleware>

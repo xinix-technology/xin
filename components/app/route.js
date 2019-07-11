@@ -1,13 +1,13 @@
 export class Route {
   static routeRegExp (str) {
-    let chunks = str.split('[');
+    const chunks = str.split('[');
 
     if (chunks.length > 2) {
       throw new Error('Invalid use of optional params');
     }
 
-    let tokens = [];
-    let re = chunks[0].replace(/{([^}]+)}/g, function (g, token) {
+    const tokens = [];
+    const re = chunks[0].replace(/{([^}]+)}/g, function (g, token) {
       tokens.push(token);
       return '([^/]+)';
     }).replace(/\//g, '\\/');
@@ -16,13 +16,13 @@ export class Route {
 
     if (chunks[1]) {
       optRe = '(?:' + chunks[1].slice(0, -1).replace(/{([^}]+)}/g, function (g, token) {
-        let [ realToken, re = '[^/]+' ] = token.split(':');
+        const [realToken, re = '[^/]+'] = token.split(':');
         tokens.push(realToken);
         return `(${re})`;
       }).replace(/\//g, '\\/') + ')?';
     }
 
-    return [ new RegExp('^' + re + optRe + '$'), tokens ];
+    return [new RegExp('^' + re + optRe + '$'), tokens];
   }
 
   static isStatic (pattern) {
@@ -38,7 +38,7 @@ export class Route {
       this.pattern = null;
       this.args = [];
     } else {
-      let result = Route.routeRegExp(route);
+      const result = Route.routeRegExp(route);
       this.type = 'v';
       this.pattern = result[0];
       this.args = result[1];
@@ -51,7 +51,7 @@ export class Route {
         return { handler: this, args: {} };
       }
     } else if (this.type === 'v') {
-      let result = fragment.match(this.pattern);
+      const result = fragment.match(this.pattern);
       if (result) {
         return {
           handler: this,

@@ -42,7 +42,7 @@ export class LazyView extends Middleware {
   }
 
   get (uri) {
-    let view = this.views.find(view => view.uri === uri);
+    const view = this.views.find(view => view.uri === uri);
     if (view) {
       return view;
     }
@@ -63,16 +63,16 @@ export class LazyView extends Middleware {
   ensure (app, uri) {
     if (this.views.length === 0) {
       app.querySelectorAll('[lazy-view]').forEach(el => {
-        let loader = this.loaders.find(loader => {
+        const loader = this.loaders.find(loader => {
           return el.nodeName.toLowerCase().match(loader.test);
         });
 
-        let view = new View(this, el, loader);
+        const view = new View(this, el, loader);
         this.put(view);
       });
     }
 
-    let view = this.get(uri);
+    const view = this.get(uri);
     if (!view) {
       return;
     }

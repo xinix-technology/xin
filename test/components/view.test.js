@@ -6,7 +6,7 @@ import '../../scss/xin-components.scss';
 
 describe('<xin-view>', () => {
   it('set title', async () => {
-    let fixture = await Fixture.create(`
+    const fixture = await Fixture.create(`
       <xin-app>
         <xin-pager>
           <xin-view uri="/">home</xin-view>

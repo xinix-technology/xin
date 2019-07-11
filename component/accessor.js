@@ -19,7 +19,7 @@ const accessors = [
 ];
 export const Accessor = {
   get (node, name) {
-    let Accessor = accessors.find(accessor => accessor.test(node, name));
+    const Accessor = accessors.find(accessor => accessor.test(node, name));
     if (Accessor) {
       return new Accessor(node, name);
     }

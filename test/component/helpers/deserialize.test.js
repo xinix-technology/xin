@@ -32,7 +32,7 @@ describe('#deserialize()', () => {
   });
 
   it('deserialize to date', () => {
-    let dt = new Date();
+    const dt = new Date();
     assert.strictEqual(dt.toJSON(), deserialize(dt.toJSON(), Date).toJSON());
   });
 
@@ -41,7 +41,7 @@ describe('#deserialize()', () => {
   });
 
   it('deserialize to function', () => {
-    let fn = deserialize('return arguments[0] + arguments[1]', Function);
+    const fn = deserialize('return arguments[0] + arguments[1]', Function);
     assert(fn instanceof Function);
     assert.strictEqual(fn(1, 2), 3);
   });

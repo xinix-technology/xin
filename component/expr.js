@@ -2,23 +2,23 @@ import { Token } from './token';
 import { Filter } from './filter';
 
 const CACHE = {
-  's': {
+  s: {
     '[': {},
     '{': {},
   },
-  'v': {
+  v: {
     '[': {},
     '{': {},
   },
 };
 
 function _get (value, mode, type) {
-  let cache = CACHE[type][mode];
+  const cache = CACHE[type][mode];
   if (value in cache) {
     return cache[value];
   }
 
-  let expr = new Expr(value, mode, type);
+  const expr = new Expr(value, mode, type);
   if (type !== 's') {
     cache[value] = expr;
   }
@@ -38,7 +38,7 @@ export class Expr {
       return _get(value, '[', 'v');
     }
 
-    let mode = value[0];
+    const mode = value[0];
     if ((mode === '[' || mode === '{') && value[1] === mode) {
       value = value.slice(2, -2).trim();
       return _get(value, mode, 'v');
@@ -53,10 +53,10 @@ export class Expr {
 
   static rawTokenize (str) {
     let count = 0;
-    let tokens = [];
+    const tokens = [];
 
     while (str && count++ < 10) {
-      let matches = str.match(/^\s*("[^"]*"|[^,]+),?/);
+      const matches = str.match(/^\s*("[^"]*"|[^,]+),?/);
 
       str = str.substr(matches[0].length);
       tokens.push(matches[1].trim());
@@ -82,8 +82,8 @@ export class Expr {
       return;
     }
 
-    let tokens = value.split('|');
-    let token = tokens[0].trim();
+    const tokens = value.split('|');
+    const token = tokens[0].trim();
 
     this.filters = tokens.slice(1).map(word => {
       return Filter.get(word.trim());
@@ -98,7 +98,7 @@ export class Expr {
       this.mode = '[';
       this.type = 'm';
 
-      let matches = token.match(/([^(]+)\(([^)]*)\)/);
+      const matches = token.match(/([^(]+)\(([^)]*)\)/);
 
       this.name = matches[1].trim();
       this.fn = Token.get(this.name);
@@ -113,7 +113,7 @@ export class Expr {
 
   get vpaths () {
     if (!this._vpaths) {
-      let paths = [];
+      const paths = [];
       this.args.forEach(arg => {
         if (arg.type === 'v' && paths.indexOf(arg.name) === -1) {
           paths.push(arg);
@@ -127,11 +127,11 @@ export class Expr {
 
   invoke (context, otherArgs) {
     if (this.type === 'p') {
-      let val = this.args[0].value(context, otherArgs);
+      const val = this.args[0].value(context, otherArgs);
       return this.filters.reduce((val, filter) => filter.invoke(val), val);
     }
 
-    let args = this.args.map(arg => {
+    const args = this.args.map(arg => {
       return arg.value(context, otherArgs);
     });
 

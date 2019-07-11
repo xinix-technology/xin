@@ -39,9 +39,9 @@ export class Row extends T {
 
   set (path, value) {
     if (arguments.length === 1 && typeof path === 'object') {
-      let data = path;
-      for (let i in data) {
-        if (data.hasOwnProperty(i)) {
+      const data = path;
+      for (const i in data) {
+        if (Object.prototype.hasOwnProperty.call(data, i)) {
           this.set(i, data[i]);
         }
       }
@@ -86,12 +86,12 @@ export class Row extends T {
       return false;
     }
 
-    let path = this.__templateGetPathAsArray(expr.name);
+    const path = this.__templateGetPathAsArray(expr.name);
     if (path[0] === this.__repeatAs || path[0] === this.__repeatIndexAs) {
       return true;
     }
 
-    for (let i in this.__templateBindings) {
+    for (const i in this.__templateBindings) {
       if (i === path[0]) {
         delete this.__templateBindings[i];
       }
@@ -99,11 +99,11 @@ export class Row extends T {
 
     // annotate every paths
     if (expr.type === 'm') {
-      let annotation = new Annotation(this, expr, accessor);
+      const annotation = new Annotation(this, expr, accessor);
       this.__templateHost.__templateGetBinding(expr.fn.name).annotate(annotation);
     }
 
-    let annotation = new Annotation(this.__templateHost, expr, accessor);
+    const annotation = new Annotation(this.__templateHost, expr, accessor);
     expr.vpaths.forEach(arg => {
       this.__templateHost.__templateGetBinding(arg.name).annotate(annotation);
     });

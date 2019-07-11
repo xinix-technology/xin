@@ -21,7 +21,7 @@ describe('#define()', () => {
       }
     });
 
-    let fixture = await Fixture.create(`<test-define-v1 id="el"></test-define-v1>`);
+    const fixture = await Fixture.create(`<test-define-v1 id="el"></test-define-v1>`);
     try {
       await fixture.waitConnected();
       assert.strictEqual(fixture.$.el.textContent, 'define v1');
@@ -39,7 +39,7 @@ describe('#define()', () => {
       }
     });
 
-    let fixture = await Fixture.create(`<test-define-v0 id="el"></test-define-v0>`);
+    const fixture = await Fixture.create(`<test-define-v0 id="el"></test-define-v0>`);
     try {
       await fixture.waitConnected();
       assert.strictEqual(fixture.$.el.textContent, 'define v0');

@@ -12,8 +12,8 @@ export class Pager extends Component {
 
   setFocus (element) {
     if (element) {
-      let index = element.getAttribute('index');
-      let oldIndex = this.focused$ ? this.focused$.getAttribute('index') : -1;
+      const index = element.getAttribute('index');
+      const oldIndex = this.focused$ ? this.focused$.getAttribute('index') : -1;
       if (oldIndex < index) {
         this.__transitionForward(this.focused$, element);
       } else if (oldIndex > index) {
@@ -58,7 +58,7 @@ export class Pager extends Component {
         prevEl.outFx.stop();
       });
     } else {
-      let transitionFx = new Fx({
+      const transitionFx = new Fx({
         element: nextEl,
         transition: 'none',
       });

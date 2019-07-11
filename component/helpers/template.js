@@ -10,9 +10,9 @@ function needFixImportNode () {
     // already fixed
     return false;
   }
-  let template = document.createElement('template');
+  const template = document.createElement('template');
   template.innerHTML = '<template>i</template>';
-  let imported = document.importNode(template.content, true);
+  const imported = document.importNode(template.content, true);
   return !imported.firstChild.content.firstChild || imported.firstChild.content.firstChild.textContent !== 'i';
 }
 
@@ -23,8 +23,8 @@ if (needFixImportNode()) {
       return document.__importNode(node, deep);
     }
 
-    let sourceTpls = [].slice.call(node.querySelectorAll('template'));
-    let imported = document.__importNode(node, deep);
+    const sourceTpls = [].slice.call(node.querySelectorAll('template'));
+    const imported = document.__importNode(node, deep);
     imported.querySelectorAll('template').forEach((child, i) => {
       child.innerHTML = sourceTpls[i].innerHTML;
     });

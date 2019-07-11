@@ -1,7 +1,7 @@
-let camelized = {};
+const camelized = {};
 
 export function camelize (dash) {
-  let mapped = camelized[dash];
+  const mapped = camelized[dash];
   if (mapped) {
     return mapped;
   }

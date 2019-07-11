@@ -6,7 +6,7 @@ export function getInstance () {
     bootstrap();
   }
 
-  let instance = window.xin.__repository;
+  const instance = window.xin.__repository;
   if (typeof instance.update !== 'function') {
     throw new Error('Invalid global xin repository found!');
   }

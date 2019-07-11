@@ -2,7 +2,7 @@ import { Expr } from '../expr';
 
 export class NotifyAnnotation {
   constructor (model, name) {
-    let expr = Expr.get(model.getAttribute(name));
+    const expr = Expr.get(model.getAttribute(name));
     this.model = model;
     this.name = expr.name;
   }

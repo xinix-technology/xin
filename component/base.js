@@ -194,23 +194,23 @@ export function base (base) {
     }
 
     __initProps () {
-      let props = this.__getProps();
-      for (let propName in props) {
-        let property = props[propName];
-        let attrName = dashify(propName);
+      const props = this.__getProps();
+      for (const propName in props) {
+        const property = props[propName];
+        const attrName = dashify(propName);
 
         if ('computed' in property) {
-          let accessor = Accessor.get(this, propName);
-          let expr = Expr.getFn(property.computed, [], true);
+          const accessor = Accessor.get(this, propName);
+          const expr = Expr.getFn(property.computed, [], true);
           this.__templateAnnotate(expr, accessor);
 
           this.__componentInitialPropValues[propName] = () => expr.invoke(this);
         } else if (this.hasAttribute(attrName)) {
-          let attrVal = this.getAttribute(attrName);
+          const attrVal = this.getAttribute(attrName);
 
           // copy value from attribute to property
           // fallback to property.value
-          let expr = Expr.get(attrVal);
+          const expr = Expr.get(attrVal);
           if (expr.type === 's') {
             this.__componentInitialPropValues[propName] = () => deserialize(attrVal, property.type);
           } else {
@@ -223,7 +223,7 @@ export function base (base) {
         }
 
         if ('observer' in property) {
-          let expr = Expr.getFn(property.observer, [ propName ], true);
+          const expr = Expr.getFn(property.observer, [propName], true);
           this.__templateAnnotate(expr);
         }
       }
@@ -237,10 +237,10 @@ export function base (base) {
     }
 
     __initPropValues () {
-      let props = this.__getProps();
+      const props = this.__getProps();
 
-      for (let propName in props) {
-        let property = props[propName];
+      for (const propName in props) {
+        const property = props[propName];
 
         let propValue;
 
@@ -295,8 +295,8 @@ export function base (base) {
       }
 
       Object.keys(this.listeners).forEach(key => {
-        let meta = parseListenerMetadata(key);
-        let expr = Expr.getFn(this.listeners[key], [], true);
+        const meta = parseListenerMetadata(key);
+        const expr = Expr.getFn(this.listeners[key], [], true);
         if (meta.selector) {
           this.on(meta.eventName, meta.selector, evt => {
             expr.invoke(this, { evt });
@@ -315,7 +315,7 @@ export function base (base) {
       }
 
       this.__componentNotifiers[eventName] = (evt) => {
-        let element = evt.target;
+        const element = evt.target;
 
         if (element.__templateModel !== this) {
           return;
@@ -408,10 +408,10 @@ export function base (base) {
     }
   }
 
-  let tproto = T.prototype;
-  for (let key in tproto) {
+  const tproto = T.prototype;
+  for (const key in tproto) {
     // exclude __templateAnnotate because will be override
-    if (!tproto.hasOwnProperty(key)) {
+    if (!Object.prototype.hasOwnProperty.call(tproto, key)) {
       continue;
     }
 
@@ -429,9 +429,9 @@ export function base (base) {
 
 function parseListenerMetadata (key) {
   key = key.trim();
-  let [ eventName, ...selectorArr ] = key.split(/\s+/);
-  let selector = selectorArr.length ? selectorArr.join(' ') : null;
-  let metadata = { key, eventName, selector };
+  const [eventName, ...selectorArr] = key.split(/\s+/);
+  const selector = selectorArr.length ? selectorArr.join(' ') : null;
+  const metadata = { key, eventName, selector };
   return metadata;
 }
 

@@ -1,6 +1,7 @@
 import { BaseAccessor } from './base';
 
 const { TEXT_NODE, ELEMENT_NODE } = window.Node;
+
 export class ValueAccessor extends BaseAccessor {
   static test (node, name) {
     if (name === 'value' && node.nodeType === ELEMENT_NODE && node.nodeName === 'INPUT') {

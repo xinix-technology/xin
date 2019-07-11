@@ -40,13 +40,13 @@ export class Fx {
 
 // TODO: refactor adapters to each own file
 const adapters = {
-  'none': {
+  none: {
     async play () {},
 
     async stop () {},
   },
 
-  'slide': {
+  slide: {
     play (fx) {
       return new Promise(resolve => {
         event(fx.element).once('transitionend', () => {
@@ -73,7 +73,7 @@ const adapters = {
     },
   },
 
-  'fade': {
+  fade: {
     play (fx) {
       return new Promise(resolve => {
         event(fx.element).once('transitionend', () => {

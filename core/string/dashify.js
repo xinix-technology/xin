@@ -1,7 +1,7 @@
-let dashified = {};
+const dashified = {};
 
 export function dashify (camel) {
-  let mapped = dashified[camel];
+  const mapped = dashified[camel];
   if (mapped) {
     return mapped;
   }

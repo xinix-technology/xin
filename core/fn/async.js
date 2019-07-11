@@ -56,9 +56,9 @@ export class Async {
 
     this.cleared = false;
 
-    let self = this;
-    let context = this.context;
-    let boundCallback = function () {
+    const self = this;
+    const context = this.context;
+    const boundCallback = function () {
       self.frameHandle = requestAnimationFrame(() => {
         self.__clear();
         callback.call(context);

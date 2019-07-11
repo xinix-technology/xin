@@ -10,7 +10,7 @@ describe('<slot>', () => {
       }
     });
 
-    let fixture = await Fixture.create(`
+    const fixture = await Fixture.create(`
       <test-component-slot-1 id="foo">baz</test-component-slot-1>
     `);
 
@@ -30,7 +30,7 @@ describe('<slot>', () => {
       }
     });
 
-    let fixture = await Fixture.create(`
+    const fixture = await Fixture.create(`
       <test-component-slot-2 id="foo">
         <span slot="first">first</span>
         <span slot="last">last</span>

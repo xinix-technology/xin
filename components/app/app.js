@@ -1,14 +1,15 @@
 import { event } from '../../core';
 import { Component, define } from '../../component';
 import { Route } from './route';
-import { URL } from 'url';
+// import { URL } from 'url';
 import qs from 'querystring';
 
 const debug = require('debug')('xin:components:app');
 
-if (!URL) {
-  URL = window.URL;
-}
+const URL = window.URL;
+// if (!URL) {
+//   URL = window.URL;
+// }
 
 export class App extends Component {
   get props () {
@@ -125,7 +126,7 @@ export class App extends Component {
     if (debug.enabled) debug(`Starting ${this.is}:${this.__id} ...`);
 
     this.__starting = true;
-    let executed = await this.__execute();
+    const executed = await this.__execute();
 
     this.async(() => {
       this.__starting = false;
@@ -150,7 +151,7 @@ export class App extends Component {
         if (!evt.defaultPrevented && evt.target.nodeName === 'A' && evt.target.target === '') {
           evt.preventDefault();
 
-          let state = { url: evt.target.getAttribute('href') };
+          const state = { url: evt.target.getAttribute('href') };
           this.history.pushState(state, evt.target.innerHTML, evt.target.href);
 
           this.__navCallback();
@@ -169,28 +170,27 @@ export class App extends Component {
 
   getFragmentExecutors (fragment) {
     return this.handlers.reduce((executors, handler) => {
-      let executor = handler.getExecutorFor(fragment);
+      const executor = handler.getExecutorFor(fragment);
       if (executor) executors.push(executor);
       return executors;
     }, []);
   }
 
   async __execute () {
-    let navParameters = this.__navParameters;
+    const navParameters = this.__navParameters;
     delete this.__navParameters;
 
-    let fragment = this.getFragment();
-    let { pathname, search } = new URL(fragment, 'http://localhost');
-    if (search[0] === '?') {
-      search = search.substr(1);
-    }
-    let queryParameters = qs.parse(search);
+    const fragment = this.getFragment();
+    const { pathname, search } = new URL(fragment, 'http://localhost');
+    const mutableSearch = search[0] === '?' ? search.substr(1) : search;
 
-    let context = { app: this, uri: fragment, pathname, queryParameters, navParameters };
+    const queryParameters = qs.parse(mutableSearch);
+
+    const context = { app: this, uri: fragment, pathname, queryParameters, navParameters };
 
     // run middleware chain then execute all executors
-    let willContinue = await this.__middlewareChainRun(context, () => {
-      let executors = this.getFragmentExecutors(context.pathname);
+    const willContinue = await this.__middlewareChainRun(context, () => {
+      const executors = this.getFragmentExecutors(context.pathname);
       if (executors.length === 0) {
         this.notFound(fragment);
         this.fire('route-not-found', fragment);
@@ -198,7 +198,7 @@ export class App extends Component {
       }
 
       executors.forEach(executor => {
-        let parameters = Object.assign({}, executor.args, queryParameters, navParameters);
+        const parameters = Object.assign({}, executor.args, queryParameters, navParameters);
         executor.handler.callback(parameters, context);
       });
     });
@@ -216,7 +216,7 @@ export class App extends Component {
     this.__navParameters = options.parameters;
 
     if (this.mode === 'history') {
-      let url = this.rootUri + path.toString().replace(/\/$/, '').replace(/^\//, '');
+      const url = this.rootUri + path.toString().replace(/\/$/, '').replace(/^\//, '');
       if (this.location.href.replace(this.location.origin, '') !== url) {
         this.history[options.replace ? 'replaceState' : 'pushState'](
           this.__navParameters, document.title, url
@@ -245,7 +245,7 @@ export class App extends Component {
         fragment = fragment.replace(/\?(.*)$/, '');
         fragment = this.rootUri === '/' ? fragment : fragment.replace(this.rootUri, '');
       } else {
-        let match = this.location.href.match(this.hashRegexp);
+        const match = this.location.href.match(this.hashRegexp);
         fragment = match ? match[1] : '';
       }
 
@@ -265,7 +265,7 @@ export class App extends Component {
 define('xin-app', App);
 
 function compose (middlewares) {
-  for (let fn of middlewares) {
+  for (const fn of middlewares) {
     if (typeof fn !== 'function') {
       throw new TypeError('Middleware must be composed of functions!');
     }

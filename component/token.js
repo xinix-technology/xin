@@ -10,7 +10,7 @@ export class Token {
       return CACHE[name];
     }
 
-    let token = new Token(name);
+    const token = new Token(name);
     CACHE[name] = token;
     return token;
   }
@@ -33,7 +33,7 @@ export class Token {
     }
 
     if (this.type === 'v') {
-      let nameSegments = this.name.split('.');
+      const nameSegments = this.name.split('.');
       this.baseName = nameSegments.pop();
       this.contextName = nameSegments.join('.');
     }
@@ -44,12 +44,12 @@ export class Token {
       return this._value;
     }
 
-    for (let context of contexts) {
+    for (const context of contexts) {
       if (!context) {
         continue;
       }
 
-      let val = typeof context.get === 'function' ? context.get(this.name) : context[this.name];
+      const val = typeof context.get === 'function' ? context.get(this.name) : context[this.name];
       if (val !== undefined) {
         return val;
       }
@@ -62,17 +62,17 @@ export class Token {
     }
 
     if (this.type === 's') {
-      let [ context ] = contexts;
+      const [context] = contexts;
       throw new Error(`Method is not eligible, ${context.__templateHost.nodeName || '$anonymous'}#${this.name}`);
     }
 
-    for (let context of contexts) {
+    for (const context of contexts) {
       if (!context) {
         continue;
       }
 
       if (typeof context.get === 'function') {
-        let ctx = this.contextName ? context.get(this.contextName) : context;
+        const ctx = this.contextName ? context.get(this.contextName) : context;
         if (typeof ctx[this.baseName] === 'function') {
           return ctx[this.baseName](...args);
         }
@@ -81,7 +81,7 @@ export class Token {
       }
     }
 
-    let [ context ] = contexts;
+    const [context] = contexts;
     throw new Error(`Method is not eligible, ${context.__templateHost.nodeName || '$anonymous'}#${this.name}`);
   }
 }

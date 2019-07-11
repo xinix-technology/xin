@@ -1,9 +1,0 @@
-{
-  "parser": "babel-eslint",
-  "extends": "xinix",
-  "env": {
-    "browser": true,
-    "node": true,
-    "mocha": true
-  }
-}

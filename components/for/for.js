@@ -48,9 +48,9 @@ export class For extends Component {
     this.removeChild(this.__templateFor);
 
     let marker = this;
-    let toAttr = this.getAttribute('to');
+    const toAttr = this.getAttribute('to');
     if (toAttr) {
-      let container = this.parentElement.querySelector(toAttr) || document.querySelector(toAttr);
+      const container = this.parentElement.querySelector(toAttr) || document.querySelector(toAttr);
       if (!container) {
         throw new Error(`xin-for render to unknown element ${toAttr}`);
       }
@@ -66,7 +66,7 @@ export class For extends Component {
       let len = 0;
 
       if (items && items.length) {
-        let filter = this.filter || FILTER_ALL;
+        const filter = this.filter || FILTER_ALL;
         items.filter(filter).forEach((item, index) => {
           if (this.rows[index]) {
             this.rows[index].update(item, index);
