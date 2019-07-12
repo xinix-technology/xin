@@ -1,9 +1,9 @@
-import { getInstance } from '../core';
+import { Repository } from '../core';
 
 const debug = require('debug')('xin::core:define');
 
 export function define (name, Component, options) {
-  const repository = getInstance();
+  const repository = Repository.singleton();
 
   let ElementClass = repository.get(name);
 

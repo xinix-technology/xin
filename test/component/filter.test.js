@@ -2,7 +2,7 @@ import assert from 'assert';
 import { Filter } from '@xinix/xin';
 import { Fixture } from '@xinix/xin/components/fixture';
 
-describe('Filter', () => {
+describe('component/filter Filter', () => {
   it('format currency', async () => {
     const fixture = await Fixture.create(`
       <span id="val">[[money|currency]]</span>

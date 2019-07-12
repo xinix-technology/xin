@@ -2,7 +2,7 @@ import { define, Component, event } from '@xinix/xin';
 import { Fixture } from '@xinix/xin/components';
 import assert from 'assert';
 
-describe('component', () => {
+describe('component/component Component', () => {
   it('make sure invoke ready once when reattached', async () => {
     const hits = {};
     event(document.body).on('before-ready', evt => {

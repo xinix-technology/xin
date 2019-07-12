@@ -1,19 +1,19 @@
-import { bootstrap, getInstance, define, Component } from '@xinix/xin';
+import { Repository, define, Component } from '@xinix/xin';
 import { Fixture } from '@xinix/xin/components/fixture';
 import assert from 'assert';
 
-describe('#define()', () => {
+describe('core/define #define()', () => {
   let defaultVersion;
   before(() => {
-    defaultVersion = getInstance().get('customElements.version');
+    defaultVersion = Repository.singleton().get('customElements.version');
   });
 
   after(() => {
-    bootstrap({ 'customElements.version': defaultVersion });
+    Repository.bootstrap({ 'customElements.version': defaultVersion });
   });
 
   it('define new custom element v1', async () => {
-    bootstrap({ 'customElements.version': 'v1' });
+    Repository.bootstrap({ 'customElements.version': 'v1' });
 
     define('test-define-v1', class DefineV1 extends Component {
       get template () {
@@ -31,7 +31,7 @@ describe('#define()', () => {
   });
 
   it('define new custom element v0', async () => {
-    bootstrap({ 'customElements.version': 'v0' });
+    Repository.bootstrap({ 'customElements.version': 'v0' });
 
     define('test-define-v0', class DefineV0 extends Component {
       get template () {

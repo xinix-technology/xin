@@ -1,20 +1,21 @@
-import { getInstance, event } from '../core';
-import { idGenerator } from '../core/id-generator';
+import { Repository, event } from '../core';
 import { dashify } from '../core/string';
-import { deserialize, val } from './helpers';
-import { T } from './template';
+import { idGenerator, deserialize, val } from '../core/helpers';
+import { Template } from './template';
 import { Expr } from './expr';
-import { Accessor } from './accessor';
+import { accessorFactory } from './accessor';
 import { NotifyAnnotation } from './annotation';
 import { Async, Debounce } from '../core/fn';
-// import { sprintf } from 'sprintf-js';
 
 const debug = require('debug')('xin::component');
 const nextId = idGenerator();
 const baseComponents = {};
 
+const tProto = Template.prototype;
+const tProtoProps = Object.getOwnPropertyNames(tProto);
+
 export function base (base) {
-  const repository = getInstance();
+  const repository = Repository.singleton();
 
   if (baseComponents[base]) {
     return baseComponents[base];
@@ -57,16 +58,6 @@ export function base (base) {
       this.created();
 
       this.__initData();
-
-      // move to readyCallback
-      // this.__initProps();
-      //
-      // this.__initListeners();
-      // move to readyCallback
-
-      // move to attachedCallback
-      // this.async(this.readyCallback);
-      // move to attachedCallback
     }
 
     readyCallback () {
@@ -118,7 +109,7 @@ export function base (base) {
     // initialization work that is truly one-time will need a guard to prevent
     // it from running twice.
     attachedCallback () {
-      this.__repository.put(this.__id, this);
+      repository.put(this.__id, this);
 
       this.__componentAttaching = true;
 
@@ -133,9 +124,8 @@ export function base (base) {
       // moved from createdCallback
 
       // notify default props
-      this.notify('__global');
-      this.notify('__repository');
-      this.notify('__app');
+      this.notify('$global');
+      this.notify('$repository');
 
       if (debug.enabled) debug(`ATTACHED ${this.is} ${this.__componentAttaching ? '(delayed)' : ''}`);
 
@@ -145,7 +135,7 @@ export function base (base) {
     }
 
     detachedCallback () {
-      this.__repository.remove(this.__id);
+      repository.remove(this.__id);
 
       this.detached();
     }
@@ -158,27 +148,11 @@ export function base (base) {
       return this.detachedCallback();
     }
 
-    get __app () {
-      if (!this.__app$) {
-        if (this.__appSignature) {
-          this.__app$ = this;
-        } else {
-          let app = this.parentElement;
-          while (app && !app.__appSignature) {
-            app = app.parentElement;
-          }
-          this.__app$ = app;
-        }
-      }
-
-      return this.__app$;
-    }
-
-    get __global () {
+    get $global () {
       return window;
     }
 
-    get __repository () {
+    get $repository () {
       return repository;
     }
 
@@ -200,7 +174,7 @@ export function base (base) {
         const attrName = dashify(propName);
 
         if ('computed' in property) {
-          const accessor = Accessor.get(this, propName);
+          const accessor = accessorFactory(this, propName);
           const expr = Expr.getFn(property.computed, [], true);
           this.__templateAnnotate(expr, accessor);
 
@@ -274,16 +248,12 @@ export function base (base) {
     }
 
     __initTemplate () {
-      let template;
+      let template = this.template;
 
-      if (this.childElementCount === 1 && this.firstElementChild.nodeName === 'TEMPLATE' && !this.firstElementChild.hasAttribute('is')) {
+      if (this.childElementCount === 1 && this.firstElementChild.nodeName === 'TEMPLATE') {
         // when instance template exist detach from component content
         template = this.firstElementChild;
         this.removeChild(template);
-      } else if (this.template) {
-        // create new template based on template property
-        template = document.createElement('template');
-        template.innerHTML = this.template;
       }
 
       this.__templateInitialize(template, this);
@@ -366,16 +336,12 @@ export function base (base) {
       return Async.nextFrame(callback.bind(this));
     }
 
-    // sprintf (...args) {
-    //   return sprintf(...args);
-    // }
-
-    // T overriden
+    // Template overriden
     // -------------------------------------------------------------------------
     //
 
     __templateAnnotate (expr, accessor) {
-      if (!T.prototype.__templateAnnotate.call(this, expr, accessor)) {
+      if (!Template.prototype.__templateAnnotate.call(this, expr, accessor)) {
         return false;
       }
 
@@ -408,19 +374,14 @@ export function base (base) {
     }
   }
 
-  const tproto = T.prototype;
-  for (const key in tproto) {
-    // exclude __templateAnnotate because will be override
-    if (!Object.prototype.hasOwnProperty.call(tproto, key)) {
-      continue;
-    }
-
+  tProtoProps.forEach(key => {
+    // exclude $ and __templateAnnotate because will be override
     if (key === '$' || key === '__templateAnnotate') {
-      continue;
+      return;
     }
 
-    Component.prototype[key] = tproto[key];
-  }
+    Component.prototype[key] = tProto[key];
+  });
 
   baseComponents[base] = Component;
 

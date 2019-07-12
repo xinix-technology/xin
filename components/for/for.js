@@ -1,5 +1,7 @@
-import { Component, define, T } from '../../component';
+import { Component, define, Template } from '../../component';
 import { Row } from './row';
+
+import './for.scss';
 
 const FILTER_ALL = () => true;
 
@@ -58,7 +60,7 @@ export class For extends Component {
       container.appendChild(marker);
     }
 
-    T.prototype.__templateInitialize.call(this, null, this, marker);
+    Template.prototype.__templateInitialize.call(this, null, this, marker);
   }
 
   _itemsChanged (items, filter) {

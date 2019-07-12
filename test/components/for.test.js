@@ -3,7 +3,7 @@ import { Fixture } from '@xinix/xin/components/fixture';
 import { Async } from '@xinix/xin';
 import '@xinix/xin/components/for';
 
-describe('<xin-for>', () => {
+describe('components/for <xin-for>', () => {
   it('render list', async () => {
     const fixture = await Fixture.create(`
       <div id="here">
@@ -14,6 +14,7 @@ describe('<xin-for>', () => {
         </xin-for>
       </div>
     `);
+
     try {
       await fixture.waitConnected();
       const rows = [

@@ -1,7 +1,7 @@
-import { T } from '../../component';
+import { Template } from '../../component';
 import { Annotation } from '../../component/annotation';
 
-export class Row extends T {
+export class Row extends Template {
   constructor (template, host, item, index) {
     super();
 
@@ -9,7 +9,7 @@ export class Row extends T {
     this.__repeatAs = host.as;
     this.__repeatIndexAs = host.indexAs;
 
-    // override T constructor
+    // override Template constructor
     this.__templateInitialize(template, host.__templateModel, host.__templateMarker);
 
     this.is = '$repeat-row';
@@ -24,10 +24,6 @@ export class Row extends T {
     this.update(item, index);
 
     this.__templateRender();
-  }
-
-  get __app () {
-    return this.__templateHost.__app;
   }
 
   update (item, index) {
