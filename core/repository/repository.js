@@ -26,14 +26,14 @@ export class Repository {
   }
 
   constructor (data = {}) {
-    if (debug.enabled) debug('Repository construct...');
+    if (debug.enabled) /* istanbul ignore next */ debug('Repository construct...');
     this.data = Object.assign({
       'customElements.version': 'v1',
     }, data);
   }
 
   update (data = {}) {
-    if (debug.enabled) debug('Repository update data...');
+    if (debug.enabled) /* istanbul ignore next */ debug('Repository update data...');
     this.data = Object.assign(this.data, data);
   }
 
