@@ -71,6 +71,7 @@ export function base (base) {
       if (!this.hasAttribute('xin-id')) {
         // deferred set attributes until connectedCallback
         this.setAttribute('xin-id', this.__id);
+        repository.put(this.__id, this);
       }
       // moved from attachedCallback
 
@@ -84,17 +85,18 @@ export function base (base) {
 
       this.__initPropValues();
 
-      let contentFragment;
+      this.__mountTemplate();
+      // let contentFragment;
 
-      if (this.__template) {
-        contentFragment = document.createDocumentFragment();
-        [].slice.call(this.childNodes).forEach(node => {
-          if (node === this.__templateMarker) return;
-          contentFragment.appendChild(node);
-        });
-      }
+      // if (this.__template) {
+      //   contentFragment = document.createDocumentFragment();
+      //   [].slice.call(this.childNodes).forEach(node => {
+      //     if (node === this.__templateMarker) return;
+      //     contentFragment.appendChild(node);
+      //   });
+      // }
 
-      this.__templateRender(contentFragment);
+      // this.__templateRender(contentFragment);
 
       this.ready();
 
@@ -109,8 +111,6 @@ export function base (base) {
     // initialization work that is truly one-time will need a guard to prevent
     // it from running twice.
     attachedCallback () {
-      repository.put(this.__id, this);
-
       this.__componentAttaching = true;
 
       // moved from createdCallback
@@ -135,7 +135,7 @@ export function base (base) {
     }
 
     detachedCallback () {
-      repository.remove(this.__id);
+      // repository.remove(this.__id);
 
       this.detached();
     }
@@ -256,7 +256,12 @@ export function base (base) {
         this.removeChild(template);
       }
 
-      this.__templateInitialize(template, this);
+      // this.__templateInitialize(template, this);
+      this.__templateInitialize(template);
+    }
+
+    __mountTemplate () {
+      this.mount(this);
     }
 
     __initListeners () {

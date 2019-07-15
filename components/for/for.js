@@ -41,6 +41,22 @@ export class For extends Component {
     this.rows = [];
   }
 
+  attached () {
+    super.attached();
+
+    this._itemsChanged(this.items, this.filter);
+  }
+
+  detached () {
+    super.detached();
+
+    // on detached will remove rows
+    this.rows.forEach(row => {
+      row.__templateUninitialize();
+    });
+    this.rows = [];
+  }
+
   __initTemplate () {
     this.__templateFor = this.firstElementChild;
     if (!this.__templateFor) {
@@ -49,6 +65,10 @@ export class For extends Component {
     // this.__templateFor.__templateHost = this.__templateHost;
     this.removeChild(this.__templateFor);
 
+    Template.prototype.__templateInitialize.call(this);
+  }
+
+  __mountTemplate () {
     let marker = this;
     const toAttr = this.getAttribute('to');
     if (toAttr) {
@@ -60,7 +80,7 @@ export class For extends Component {
       container.appendChild(marker);
     }
 
-    Template.prototype.__templateInitialize.call(this, null, this, marker);
+    this.mount(this, marker);
   }
 
   _itemsChanged (items, filter) {
@@ -73,7 +93,9 @@ export class For extends Component {
           if (this.rows[index]) {
             this.rows[index].update(item, index);
           } else {
-            this.rows.push(new Row(this.__templateFor, this, item, index));
+            const row = new Row(this.__templateFor, this, item, index);
+            row.mount(this.__templateModel, this.__templateMarker);
+            this.rows.push(row);
           }
 
           len++;

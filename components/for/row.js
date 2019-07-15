@@ -8,9 +8,11 @@ export class Row extends Template {
     this.__repeat = host;
     this.__repeatAs = host.as;
     this.__repeatIndexAs = host.indexAs;
+    this.__repeatAnnotations = [];
 
     // override Template constructor
-    this.__templateInitialize(template, host.__templateModel, host.__templateMarker);
+    this.__templateInitialize(template);
+    // this.__templateInitialize(template, host.__templateModel, host.__templateMarker);
 
     this.is = '$repeat-row';
     this.__id = this.__templateId;
@@ -23,7 +25,7 @@ export class Row extends Template {
 
     this.update(item, index);
 
-    this.__templateRender();
+    // this.__templateRender();
   }
 
   update (item, index) {
@@ -77,8 +79,16 @@ export class Row extends Template {
   //   // return this.__templateHost.notify(path, value);
   // }
 
+  mount (host, marker) {
+    this.__templateHost = host;
+    this.__templateMarker = marker;
+
+    this.__templateRender();
+  }
+
   __templateAnnotate (expr, accessor) {
-    if (!super.__templateAnnotate(expr, accessor)) {
+    const annotated = super.__templateAnnotate(expr, accessor);
+    if (!annotated) {
       return false;
     }
 
@@ -93,19 +103,24 @@ export class Row extends Template {
       }
     }
 
+    this.__repeatAnnotations.push({ expr, accessor });
+    // console.log('!', this.__repeatAnnotations)
+
     // annotate every paths
     if (expr.type === 'm') {
+      // console.log('m');
       const annotation = new Annotation(this, expr, accessor);
-      this.__templateHost.__templateGetBinding(expr.fn.name).annotate(annotation);
+      this.__repeat.__templateModel.__templateGetBinding(expr.fn.name).annotate(annotation);
     }
 
-    const annotation = new Annotation(this.__templateHost, expr, accessor);
+    const annotation = new Annotation(this.__repeat.__templateModel, expr, accessor);
     expr.vpaths.forEach(arg => {
-      this.__templateHost.__templateGetBinding(arg.name).annotate(annotation);
+      // console.log('vpath');
+      this.__repeat.__templateModel.__templateGetBinding(arg.name).annotate(annotation);
     });
 
     // manually set by accessor to render
-    accessor.set(expr.invoke(this.__templateHost));
+    accessor.set(expr.invoke(this.__repeat.__templateModel));
 
     return true;
   }
@@ -113,6 +128,14 @@ export class Row extends Template {
   __templateUninitialize () {
     super.__templateUninitialize();
 
-    // FIXME: remove annotation from templateHost or memory leak
+    this.__repeatAnnotations.forEach(({ expr, accessor }) => {
+      if (expr.type === 'm') {
+        this.__repeat.__templateModel.__templateGetBinding(expr.fn.name).deannotate(this, expr, accessor);
+      }
+
+      expr.vpaths.forEach(arg => {
+        this.__repeat.__templateModel.__templateGetBinding(arg.name).deannotate(this.__repeat.__templateModel, expr, accessor);
+      });
+    });
   }
 }

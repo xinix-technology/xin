@@ -130,11 +130,19 @@ describe('components/for <xin-for>', () => {
             <div class="child">
               <span>[[row.name]]</span>
               <span class="parent-data">[[foo]]</span>
+              <span class="parent-data-with-fn">[[fnBar(baz)]]</span>
             </div>
           </template>
         </xin-for>
       </div>
-    `, { foo: 'foo' });
+    `, {
+      foo: 'foo',
+      fnBar (baz) {
+        return `${baz}-modified`;
+      },
+      baz: 'baz',
+    });
+
     try {
       await fixture.waitConnected();
       const rows = [
@@ -160,6 +168,43 @@ describe('components/for <xin-for>', () => {
       fixture.querySelectorAll('.child').forEach(child => {
         assert.strictEqual(child.querySelector('.parent-data').textContent, 'bar');
       });
+
+      fixture.set('rows', [{ name: 'other' }]);
+    } finally {
+      fixture.dispose();
+    }
+  });
+
+  it('uninitialize rows when disconnected (prevent leak)', async () => {
+    const fixture = await Fixture.create(`
+      <div id="here">
+        <xin-for id="theFor" items="[[rows]]" as="row">
+          <template>
+            <div class="child">[[row.name]]</div>
+          </template>
+        </xin-for>
+      </div>
+    `, {
+      rows: [
+        {
+          name: 'foo',
+        },
+        {
+          name: 'bar',
+        },
+        {
+          name: 'baz',
+        },
+      ],
+    });
+
+    try {
+      await fixture.waitConnected();
+      assert.strictEqual(fixture.querySelectorAll('.child').length, 3);
+
+      fixture.$.theFor.parentElement.removeChild(fixture.$.theFor);
+
+      assert.strictEqual(fixture.querySelectorAll('.child').length, 0);
     } finally {
       fixture.dispose();
     }
