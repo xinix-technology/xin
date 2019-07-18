@@ -5,34 +5,31 @@ export class Row extends Template {
   constructor (template, host, item, index) {
     super();
 
-    this.__repeat = host;
-    this.__repeatAs = host.as;
-    this.__repeatIndexAs = host.indexAs;
-    this.__repeatAnnotations = [];
+    this.__loopHost = host;
+    this.__loopAs = host.as;
+    this.__loopIndexAs = host.indexAs;
+    this.__loopAnnotations = [];
 
     // override Template constructor
     this.__templateInitialize(template);
-    // this.__templateInitialize(template, host.__templateModel, host.__templateMarker);
 
-    this.is = '$repeat-row';
+    this.is = '$for-row';
     this.__id = this.__templateId;
 
     this.__templateChildNodes.forEach(node => {
       if (node.nodeType === window.Node.ELEMENT_NODE) {
-        node.__repeatModel = this;
+        node.__loopModel = this;
       }
     });
 
     this.update(item, index);
-
-    // this.__templateRender();
   }
 
   update (item, index) {
-    this[this.__repeatAs] = item;
-    this[this.__repeatIndexAs] = index;
-    this.notify(this.__repeatAs, item);
-    this.notify(this.__repeatIndexAs, index);
+    this[this.__loopAs] = item;
+    this[this.__loopIndexAs] = index;
+    this.notify(this.__loopAs, item);
+    this.notify(this.__loopIndexAs, index);
   }
 
   set (path, value) {
@@ -48,7 +45,7 @@ export class Row extends Template {
 
     path = this.__templateGetPathAsArray(path);
 
-    if (path[0] === this.__repeatAs || path[0] === this.__repeatIndexAs) {
+    if (path[0] === this.__loopAs || path[0] === this.__loopIndexAs) {
       return super.set(path, value);
     }
 
@@ -60,24 +57,12 @@ export class Row extends Template {
   get (path) {
     path = this.__templateGetPathAsArray(path);
 
-    if (path[0] === this.__repeatAs || path[0] === this.__repeatIndexAs) {
+    if (path[0] === this.__loopAs || path[0] === this.__loopIndexAs) {
       return super.get(path);
     }
 
     return this.__templateHost.get(path);
   }
-
-  // notify (path, value) {
-  //   path = this.__templateGetPathAsArray(path);
-
-  //   if (path[0] === this.__repeatAs || path[0] === this.__repeatIndexAs) {
-  //     return super.notify(path, value);
-  //   }
-
-  //   // do not notify parent data
-  //   // parent data works stream down only
-  //   // return this.__templateHost.notify(path, value);
-  // }
 
   mount (host, marker) {
     this.__templateHost = host;
@@ -87,40 +72,44 @@ export class Row extends Template {
   }
 
   __templateAnnotate (expr, accessor) {
-    const annotated = super.__templateAnnotate(expr, accessor);
-    if (!annotated) {
+    if (expr.type === 's') {
+      return false;
+    }
+
+    if (expr.constant) {
+      accessor.set(expr.invoke(this.__loopHost.__templateModel));
       return false;
     }
 
     const path = this.__templateGetPathAsArray(expr.name);
-    if (path[0] === this.__repeatAs || path[0] === this.__repeatIndexAs) {
+    if (path[0] === this.__loopAs || path[0] === this.loopIndexAs) {
+      const annotation = new Annotation(this, expr, accessor);
+
+      if (expr.type === 'm') {
+        this.__templateGetBinding(expr.fn.name).annotate(annotation);
+      }
+
+      expr.vpaths.forEach(arg => {
+        this.__templateGetBinding(arg.name).annotate(annotation);
+      });
+
       return true;
     }
 
-    for (const i in this.__templateBindings) {
-      if (i === path[0]) {
-        delete this.__templateBindings[i];
-      }
-    }
-
-    this.__repeatAnnotations.push({ expr, accessor });
-    // console.log('!', this.__repeatAnnotations)
-
     // annotate every paths
+    this.__loopAnnotations.push({ expr, accessor });
+
     if (expr.type === 'm') {
-      // console.log('m');
       const annotation = new Annotation(this, expr, accessor);
-      this.__repeat.__templateModel.__templateGetBinding(expr.fn.name).annotate(annotation);
+      this.__loopHost.__templateModel.__templateGetBinding(expr.fn.name).annotate(annotation);
     }
 
-    const annotation = new Annotation(this.__repeat.__templateModel, expr, accessor);
+    const annotation = new Annotation(this.__loopHost.__templateModel, expr, accessor);
     expr.vpaths.forEach(arg => {
-      // console.log('vpath');
-      this.__repeat.__templateModel.__templateGetBinding(arg.name).annotate(annotation);
+      this.__loopHost.__templateModel.__templateGetBinding(arg.name).annotate(annotation);
     });
 
-    // manually set by accessor to render
-    accessor.set(expr.invoke(this.__repeat.__templateModel));
+    accessor.set(expr.invoke(this.__loopHost.__templateModel));
 
     return true;
   }
@@ -128,13 +117,13 @@ export class Row extends Template {
   __templateUninitialize () {
     super.__templateUninitialize();
 
-    this.__repeatAnnotations.forEach(({ expr, accessor }) => {
+    this.__loopAnnotations.forEach(({ expr, accessor }) => {
       if (expr.type === 'm') {
-        this.__repeat.__templateModel.__templateGetBinding(expr.fn.name).deannotate(this, expr, accessor);
+        this.__loopHost.__templateModel.__templateGetBinding(expr.fn.name).deannotate(this, expr, accessor);
       }
 
       expr.vpaths.forEach(arg => {
-        this.__repeat.__templateModel.__templateGetBinding(arg.name).deannotate(this.__repeat.__templateModel, expr, accessor);
+        this.__loopHost.__templateModel.__templateGetBinding(arg.name).deannotate(this.__loopHost.__templateModel, expr, accessor);
       });
     });
   }

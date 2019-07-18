@@ -1,8 +1,6 @@
 import { Component, define, Template } from '../../component';
 import { Row } from './row';
 
-import './for.scss';
-
 const FILTER_ALL = () => true;
 
 export class For extends Component {
@@ -10,7 +8,7 @@ export class For extends Component {
     return Object.assign({}, super.props, {
       items: {
         type: Array,
-        observer: '_itemsChanged(items, filter)',
+        observer: '__loopItemsChanged(items, filter)',
       },
 
       as: {
@@ -25,7 +23,7 @@ export class For extends Component {
 
       filter: {
         type: Function,
-        observer: '_itemsChanged(items, filter)',
+        observer: '__loopItemsChanged(items, filter)',
       },
 
       to: {
@@ -44,7 +42,7 @@ export class For extends Component {
   attached () {
     super.attached();
 
-    this._itemsChanged(this.items, this.filter);
+    this.__loopItemsChanged(this.items, this.filter);
   }
 
   detached () {
@@ -52,23 +50,23 @@ export class For extends Component {
 
     // on detached will remove rows
     this.rows.forEach(row => {
-      row.__templateUninitialize();
+      row.dismount();
     });
     this.rows = [];
   }
 
-  __initTemplate () {
-    this.__templateFor = this.firstElementChild;
-    if (!this.__templateFor) {
+  __componentInitTemplate () {
+    this.__loopTemplate = this.firstElementChild;
+    if (!this.__loopTemplate) {
       throw new Error('Invalid xin-for definition, must be <xin-for items="[[items]]"><template>...</template></xin-for>');
     }
-    // this.__templateFor.__templateHost = this.__templateHost;
-    this.removeChild(this.__templateFor);
+
+    this.removeChild(this.__loopTemplate);
 
     Template.prototype.__templateInitialize.call(this);
   }
 
-  __mountTemplate () {
+  __componentMountTemplate () {
     let marker = this;
     const toAttr = this.getAttribute('to');
     if (toAttr) {
@@ -83,8 +81,8 @@ export class For extends Component {
     this.mount(this, marker);
   }
 
-  _itemsChanged (items, filter) {
-    this.debounce('_itemsChanged', () => {
+  __loopItemsChanged (items, _) {
+    this.debounce('__loopItemsChanged', () => {
       let len = 0;
 
       if (items && items.length) {
@@ -93,7 +91,7 @@ export class For extends Component {
           if (this.rows[index]) {
             this.rows[index].update(item, index);
           } else {
-            const row = new Row(this.__templateFor, this, item, index);
+            const row = new Row(this.__loopTemplate, this, item, index);
             row.mount(this.__templateModel, this.__templateMarker);
             this.rows.push(row);
           }
@@ -102,9 +100,8 @@ export class For extends Component {
         });
       }
 
-      // move to detach
       this.rows.splice(len).forEach(row => {
-        row.__templateUninitialize();
+        row.dismount();
       });
     });
   }
@@ -118,10 +115,10 @@ export class For extends Component {
   }
 
   modelForElement (element) {
-    while (element && !element.__repeatModel) {
+    while (element && !element.__loopModel) {
       element = element.parentElement;
     }
-    return element.__repeatModel;
+    return element.__loopModel;
   }
 }
 

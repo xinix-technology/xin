@@ -1,6 +1,6 @@
 const path = require('path');
-const MiniCssExtractPlugin = require('mini-css-extract-plugin');
-const OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin');
+// const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+// const OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin');
 const TerserPlugin = require('terser-webpack-plugin');
 
 module.exports = function (_, { mode = 'development' }) {
@@ -15,28 +15,23 @@ module.exports = function (_, { mode = 'development' }) {
       filename: `[name]${mode === 'production' ? '.min' : ''}.js`,
     },
     // devtool: 'sourcemap',
-    module: {
-      rules: [
-        {
-          test: /\.s?css$/,
-          use: [MiniCssExtractPlugin.loader, 'css-loader', 'sass-loader'],
-        },
-      ],
-    },
-    plugins: [
-      new MiniCssExtractPlugin({
-        filename: `[name]${mode === 'production' ? '.min' : ''}.css`,
-      }),
-    ],
+    // module: {
+    //   rules: [
+    //     {
+    //       test: /\.s?css$/,
+    //       use: [MiniCssExtractPlugin.loader, 'css-loader', 'sass-loader'],
+    //     },
+    //   ],
+    // },
+    // plugins: [
+    //   new MiniCssExtractPlugin({
+    //     filename: `[name]${mode === 'production' ? '.min' : ''}.css`,
+    //   }),
+    // ],
     optimization: {
       minimizer: [
         new TerserPlugin(),
-        // new UglifyJsPlugin({
-        //   cache: true,
-        //   parallel: true,
-        //   sourceMap: true, // set to true if you want JS source maps
-        // }),
-        new OptimizeCSSAssetsPlugin({}),
+        // new OptimizeCSSAssetsPlugin({}),
       ],
     },
   };

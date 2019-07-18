@@ -57,7 +57,7 @@ export function base (base) {
 
       this.created();
 
-      this.__initData();
+      this.__componentInitData();
     }
 
     readyCallback () {
@@ -67,36 +67,21 @@ export function base (base) {
 
       if (debug.enabled) /* istanbul ignore next */ debug(`READY ${this.is}`);
 
-      // moved from attachedCallback
       if (!this.hasAttribute('xin-id')) {
         // deferred set attributes until connectedCallback
         this.setAttribute('xin-id', this.__id);
         repository.put(this.__id, this);
       }
-      // moved from attachedCallback
 
-      // moved from createdCallback
-      this.__initListeners();
+      this.__componentInitListeners();
 
-      this.__initTemplate();
+      this.__componentInitTemplate();
 
-      this.__initProps();
-      // moved from createdCallback
+      this.__componentInitProps();
 
-      this.__initPropValues();
+      this.__componentInitPropValues();
 
-      this.__mountTemplate();
-      // let contentFragment;
-
-      // if (this.__template) {
-      //   contentFragment = document.createDocumentFragment();
-      //   [].slice.call(this.childNodes).forEach(node => {
-      //     if (node === this.__templateMarker) return;
-      //     contentFragment.appendChild(node);
-      //   });
-      // }
-
-      // this.__templateRender(contentFragment);
+      this.__componentMountTemplate();
 
       this.ready();
 
@@ -113,7 +98,6 @@ export function base (base) {
     attachedCallback () {
       this.__componentAttaching = true;
 
-      // moved from createdCallback
       if (!this.__componentReady) {
         if (!this.__componentBeforeReady) {
           this.__componentBeforeReady = true;
@@ -121,7 +105,6 @@ export function base (base) {
         }
         return;
       }
-      // moved from createdCallback
 
       // notify default props
       this.notify('$global');
@@ -135,8 +118,6 @@ export function base (base) {
     }
 
     detachedCallback () {
-      // repository.remove(this.__id);
-
       this.detached();
     }
 
@@ -156,7 +137,7 @@ export function base (base) {
       return repository;
     }
 
-    __initData () {
+    __componentInitData () {
       this.__componentContent = [];
       this.__componentDebouncers = {};
       this.__componentNotifiers = {};
@@ -167,8 +148,8 @@ export function base (base) {
       this.__componentNotifiedProps = {};
     }
 
-    __initProps () {
-      const props = this.__getProps();
+    __componentInitProps () {
+      const props = this.__componentGetProps();
       for (const propName in props) {
         const property = props[propName];
         const attrName = dashify(propName);
@@ -203,15 +184,15 @@ export function base (base) {
       }
     }
 
-    __getProps () {
+    __componentGetProps () {
       if (!this._props) {
         this._props = this.props;
       }
       return this._props;
     }
 
-    __initPropValues () {
-      const props = this.__getProps();
+    __componentInitPropValues () {
+      const props = this.__componentGetProps();
 
       for (const propName in props) {
         const property = props[propName];
@@ -243,11 +224,7 @@ export function base (base) {
       }
     }
 
-    __isNotified (name) {
-      return (name in this.__componentNotifiedProps);
-    }
-
-    __initTemplate () {
+    __componentInitTemplate () {
       let template = this.template;
 
       if (this.childElementCount === 1 && this.firstElementChild.nodeName === 'TEMPLATE') {
@@ -256,15 +233,14 @@ export function base (base) {
         this.removeChild(template);
       }
 
-      // this.__templateInitialize(template, this);
       this.__templateInitialize(template);
     }
 
-    __mountTemplate () {
+    __componentMountTemplate () {
       this.mount(this);
     }
 
-    __initListeners () {
+    __componentInitListeners () {
       if (!this.listeners) {
         return;
       }

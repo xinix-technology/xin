@@ -1,4 +1,3 @@
-// import { BaseAccessor } from './accessors/base';
 import { AttributeAccessor } from './attribute';
 import { TextAccessor } from './text';
 import { HTMLAccessor } from './html';

@@ -114,8 +114,8 @@ module.exports = function (config) {
       require('karma-mocha'),
       require('karma-coverage'),
       require('karma-chrome-launcher'),
-      // require('karma-safari-launcher'),
-      // require('karma-firefox-launcher'),
+      require('karma-safari-launcher'),
+      require('karma-firefox-launcher'),
       require('karma-spec-reporter'),
     ],
   });

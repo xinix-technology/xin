@@ -21,7 +21,6 @@ export class Fixture extends Component {
     this.connected = true;
 
     // delay connected to make sure children is already connected
-    // TODO: really need this?
     this.async(() => this.fire('connected'));
   }
 

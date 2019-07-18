@@ -13,7 +13,7 @@ export function deserialize (value, type) {
         value = JSON.parse(value);
       } catch (err) {
         // allow non-JSON literals like Strings and Numbers
-        // console.warn('Failed decode json: "' + value + '" to Object');
+        console.warn(`Failed decode json: "${value}" to Object`);
       }
       break;
 
@@ -21,7 +21,7 @@ export function deserialize (value, type) {
       try {
         value = JSON.parse(value);
       } catch (err) {
-        // .console.warn('Failed decode json: "' + value + '" to Array');
+        console.warn(`Failed decode json: "${value}" to Array`);
         value = null;
       }
       break;

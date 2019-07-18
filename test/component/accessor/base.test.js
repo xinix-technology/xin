@@ -1,5 +1,4 @@
 import { BaseAccessor } from '@xinix/xin/component/accessor/base';
-// import { Fixture } from '@xinix/xin/components/fixture';
 import assert from 'assert';
 
 describe('component/accessor/base BaseAccessor', () => {

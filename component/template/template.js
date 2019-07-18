@@ -13,7 +13,6 @@ const nextId = idGenerator();
 export class Template {
   constructor (template) {
     this.__templateInitialize(template);
-    // this.__templateRender();
   }
 
   get $ () {
@@ -129,17 +128,6 @@ export class Template {
     const result = object[property].push(...values);
     this.notify(path, object[property]);
 
-    // let index = object[property].length;
-    // let removed = [];
-    // let addedCount = values.length;
-    // let result = object[property].push(...values);
-    //
-    // object = object[property];
-    //
-    // this.notifySplices(path, [
-    //   { index, removed, addedCount, object, type: 'splice' },
-    // ]);
-
     return result;
   }
 
@@ -168,17 +156,6 @@ export class Template {
     object[property] = object[property].slice();
     const result = object[property].pop();
     this.notify(path, object[property]);
-
-    // let index = object[property].length;
-    // let addedCount = 0;
-    // let result = object[property].pop();
-    // let removed = [ result ];
-    //
-    // object = object[property];
-    //
-    // this.notifySplices(path, [
-    //   { index, removed, addedCount, object, type: 'splice' },
-    // ]);
 
     return result;
   }
@@ -209,16 +186,6 @@ export class Template {
     const result = object[property].splice(index, removeCount, ...values);
     this.notify(path, object[property]);
 
-    // let addedCount = values.length;
-    // let result = object[property].splice(...values);
-    // let removed = result;
-    //
-    // object = object[property];
-    //
-    // this.notifySplices(path, [
-    //   { index, removed, addedCount, object, type: 'splice' },
-    // ]);
-
     return result;
   }
 
@@ -243,27 +210,9 @@ export class Template {
     }
   }
 
-  // notifySplices (path, splices) {
-  //   path = this.__templateGetPathAsString(path);
-  //
-  //   if (!this.__templateReady) {
-  //     if (this.__templateNotifyOnReady.indexOf(path) === -1) {
-  //       this.__templateNotifyOnReady.push(path);
-  //     }
-  //     return;
-  //   }
-  //
-  //   let binding = this.__templateGetBinding(path);
-  //   if (binding) {
-  //     binding.walkEffect('splice', splices);
-  //   }
-  // },
-
   __templateInitialize (template) {
     this.__templateId = nextId();
     this.__templateBindings = {};
-    // this.__templateHost = host || (template ? template.parentElement : null);
-    // this.__templateMarker = marker;
 
     this.__templateReady = false;
     this.__templateNotifyOnReady = [];
@@ -284,26 +233,16 @@ export class Template {
     this.__templateChildNodes = [];
 
     this.__templateFragment = document.importNode(this.__template.content, true);
-    this.__parseAnnotations();
-
-    // if (marker) {
-    //   return;
-    // }
-
-    // if (this.__template.parentElement === this.__templateHost) {
-    //   // when template parent is template host, it means that template is specific template
-    //   // then use template as marker
-    //   this.__templateMarker = this.__template;
-    // } else {
-    //   // when template is not child of host, put marker to host
-    //   this.__templateMarker = document.createComment(`marker-${this.__templateId}`);
-    //   this.__templateHost.appendChild(this.__templateMarker);
-    // }
+    this.__templateParseAnnotations();
   }
 
   mount (host, marker) {
     this.__templateHost = host;
     this.__templateMarker = marker;
+
+    if (!this.__template) {
+      return this.__templateRender();
+    }
 
     if (!marker) {
       if (this.__template && this.__template.parentElement === this.__templateHost) {
@@ -330,6 +269,10 @@ export class Template {
     this.__templateRender(contentFragment);
   }
 
+  dismount () {
+    this.__templateUninitialize();
+  }
+
   __templateRender (contentFragment) {
     this.__templateReady = true;
 
@@ -346,7 +289,6 @@ export class Template {
     this.__templateFragment = null;
 
     if (contentFragment && contentFragment instanceof window.DocumentFragment) {
-      // try {
       fragment.querySelectorAll('slot').forEach(slot => {
         const name = slotName(slot);
         const parent = slot.parentElement || fragment;
@@ -370,15 +312,13 @@ export class Template {
 
   __templateUninitialize () {
     this.__templateChildNodes.forEach(node => {
-      node.parentElement.removeChild(node);
+      if (node.parentElement) {
+        node.parentElement.removeChild(node);
+      }
     });
   }
 
   __templateGetPathAsArray (path) {
-    // if (!path) {
-    //   throw new Error(`Unknown path ${path} to set to ${this.is}`);
-    // }
-
     if (typeof path !== 'string') {
       return path;
     }
@@ -394,7 +334,7 @@ export class Template {
     return path.join('.');
   }
 
-  __parseAnnotations () {
+  __templateParseAnnotations () {
     this.__templateChildNodes = [...this.__templateFragment.childNodes];
 
     const len = this.__templateChildNodes.length;
@@ -404,20 +344,20 @@ export class Template {
 
       switch (node.nodeType) {
         case window.Node.ELEMENT_NODE:
-          this.__parseElementAnnotations(node);
+          this.__templateParseElementAnnotations(node);
           break;
         case window.Node.TEXT_NODE:
-          this.__parseTextAnnotations(node);
+          this.__templateParseTextAnnotations(node);
           break;
       }
     }
   }
 
-  __parseEventAnnotations (element, attrName) {
+  __templateParseEventAnnotations (element, attrName) {
     // bind event annotation
     const attrValue = element.getAttribute(attrName);
     let eventName = attrName.slice(1, -1);
-    // let eventName = attrName.substr(3);
+
     if (eventName === 'tap') {
       eventName = 'click';
     }
@@ -430,7 +370,7 @@ export class Template {
     });
   }
 
-  __parseAttributeAnnotations (element) {
+  __templateParseAttributeAnnotations (element) {
     // clone attributes to array first then foreach because we will remove
     // attribute later if already processed
     // this hack to make sure when attribute removed the attributes index doesnt shift.
@@ -448,7 +388,7 @@ export class Template {
       }
 
       if (attrName.indexOf('(') === 0) {
-        this.__parseEventAnnotations(element, attrName);
+        this.__templateParseEventAnnotations(element, attrName);
       } else {
         // bind property annotation
         annotated = this.__templateAnnotate(Expr.get(attr.value), accessorFactory(element, attrName)) || annotated;
@@ -458,7 +398,7 @@ export class Template {
     return annotated;
   }
 
-  __parseElementAnnotations (element) {
+  __templateParseElementAnnotations (element) {
     let annotated = false;
 
     // when element already has template model it means it already parsed, skip
@@ -470,7 +410,7 @@ export class Template {
     element.__templateModel = this;
 
     if (element.attributes && element.attributes.length) {
-      annotated = this.__parseAttributeAnnotations(element) || annotated;
+      annotated = this.__templateParseAttributeAnnotations(element) || annotated;
     }
 
     if (element.childNodes && element.childNodes.length) {
@@ -478,29 +418,29 @@ export class Template {
       const childNodesLength = childNodes.length;
 
       for (let i = 0; i < childNodesLength; i++) {
-        annotated = this.__parseNodeAnnotations(childNodes[i]) || annotated;
+        annotated = this.__templateParseNodeAnnotations(childNodes[i]) || annotated;
       }
     }
 
     element.querySelectorAll('slot').forEach(slot => {
       slot.childNodes.forEach(node => {
-        annotated = this.__parseNodeAnnotations(node) || annotated;
+        annotated = this.__templateParseNodeAnnotations(node) || annotated;
       });
     });
 
     return annotated;
   }
 
-  __parseNodeAnnotations (node) {
+  __templateParseNodeAnnotations (node) {
     switch (node.nodeType) {
       case window.Node.TEXT_NODE:
-        return this.__parseTextAnnotations(node);
+        return this.__templateParseTextAnnotations(node);
       case window.Node.ELEMENT_NODE:
-        return this.__parseElementAnnotations(node);
+        return this.__templateParseElementAnnotations(node);
     }
   }
 
-  __parseTextAnnotations (node) {
+  __templateParseTextAnnotations (node) {
     const expr = Expr.get(node.textContent);
     const accessor = accessorFactory(node);
     return this.__templateAnnotate(expr, accessor);
@@ -512,8 +452,7 @@ export class Template {
     }
 
     if (expr.constant) {
-      const val = expr.invoke(this);
-      accessor.set(val);
+      accessor.set(expr.invoke(this));
       return false;
     }
 

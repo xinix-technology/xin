@@ -40,8 +40,6 @@ export class Async {
   constructor (context) {
     this.id = nextId();
     this.context = context;
-    // this.handle = null;
-    // this.frameHandle = null;
     this.cleared = true;
   }
 
