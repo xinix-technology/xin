@@ -34,7 +34,7 @@ export class Transition extends Component {
   }
 
   async insertBefore (node, marker) {
-    const elements = [...node.children];
+    const elements = node instanceof DocumentFragment ? [...node.children] : [node];
     addClass(elements, this.enterClass);
 
     super.insertBefore(node, marker);

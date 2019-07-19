@@ -6,15 +6,17 @@ const TerserPlugin = require('terser-webpack-plugin');
 module.exports = function (_, { mode = 'development' }) {
   return {
     mode,
-    context: path.join(__dirname, 'src'),
+    context: __dirname,
     entry: {
-      xin: './xin.js',
+      xin: './index.js',
     },
     output: {
       path: path.join(__dirname, 'dist'),
       filename: `[name]${mode === 'production' ? '.min' : ''}.js`,
+      library: 'xin',
+      libraryTarget: 'umd',
     },
-    // devtool: 'sourcemap',
+    // devtool: 'cheap-source-map',
     // module: {
     //   rules: [
     //     {

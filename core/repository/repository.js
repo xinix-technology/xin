@@ -1,28 +1,26 @@
 const debug = require('debug')('xin::core');
 
-window.xin = window.xin || {};
-
 export class Repository {
   static bootstrap (data) {
-    if (window.xin.$repository) {
-      window.xin.$repository.update(data);
+    if (window.xin$repository) {
+      window.xin$repository.update(data);
     } else {
-      window.xin.$repository = new Repository(data);
+      window.xin$repository = new Repository(data);
     }
 
-    return window.xin.$repository;
+    return window.xin$repository;
   }
 
   static singleton () {
-    if (!window.xin.$repository) {
+    if (!window.xin$repository) {
       Repository.bootstrap();
     }
 
-    if (typeof window.xin.$repository.update !== 'function') {
+    if (typeof window.xin$repository.update !== 'function') {
       throw new Error('Invalid global xin repository found!');
     }
 
-    return window.xin.$repository;
+    return window.xin$repository;
   }
 
   constructor (data = {}) {
