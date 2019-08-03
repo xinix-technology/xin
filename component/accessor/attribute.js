@@ -10,12 +10,10 @@ export class AttributeAccessor extends BaseAccessor {
   }
 
   set (value) {
-    if (value) {
-      if (value !== this.node.getAttribute(this.name)) {
-        this.node.setAttribute(this.name, value);
-      }
-    } else {
+    if (value === undefined || value === null || value === '') {
       this.node.removeAttribute(this.name);
+    } else {
+      this.node.setAttribute(this.name, value);
     }
   }
 

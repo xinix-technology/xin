@@ -6,7 +6,11 @@ export class HTMLAccessor extends BaseAccessor {
   }
 
   set (value) {
-    this.node.innerHTML = value || '';
+    if (value === null || value === undefined) {
+      value = '';
+    }
+
+    this.node.innerHTML = value;
   }
 
   get () {

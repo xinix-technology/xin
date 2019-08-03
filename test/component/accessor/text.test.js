@@ -1,17 +1,17 @@
-import { HTMLAccessor } from '@xinix/xin/component/accessor/html';
+import { TextAccessor } from '@xinix/xin/component/accessor/text';
 import { Fixture } from '@xinix/xin/components/fixture';
 import assert from 'assert';
 
-describe('component/accessor/html HTMLAccessor', () => {
+describe('component/accessor/text TextAccessor', () => {
   describe('.test()', () => {
-    it('detect element with attribute name starts with html.', async () => {
+    it('detect element with attribute name starts with text.', async () => {
       const fixture = await Fixture.create(`
-        <div id="here"></div>
+        <div id="here">foo</div>
       `);
       try {
         await fixture.waitConnected();
 
-        assert.strictEqual(HTMLAccessor.test(fixture.$.here, 'html'), true);
+        assert.strictEqual(TextAccessor.test(fixture.$.here, 'text'), true);
       } finally {
         fixture.dispose();
       }
@@ -19,7 +19,7 @@ describe('component/accessor/html HTMLAccessor', () => {
   });
 
   describe('#set()', () => {
-    it('set value of html', async () => {
+    it('set value of text', async () => {
       const fixture = await Fixture.create(`
         <div id="here"></div>
       `);
@@ -27,7 +27,7 @@ describe('component/accessor/html HTMLAccessor', () => {
       try {
         await fixture.waitConnected();
 
-        const accessor = new HTMLAccessor(fixture.$.here, 'html');
+        const accessor = new TextAccessor(fixture.$.here, 'text');
         accessor.set('foo');
         assert.strictEqual(fixture.$.here.innerHTML, 'foo');
         accessor.set('');
@@ -45,7 +45,7 @@ describe('component/accessor/html HTMLAccessor', () => {
   });
 
   describe('#get()', () => {
-    it('get value of html throw error', async () => {
+    it('get value of text throw error', async () => {
       const fixture = await Fixture.create(`
         <div id="here"></div>
       `);
@@ -53,10 +53,10 @@ describe('component/accessor/html HTMLAccessor', () => {
       try {
         await fixture.waitConnected();
 
-        const accessor = new HTMLAccessor(fixture.$.here, 'html');
+        const accessor = new TextAccessor(fixture.$.here, 'text');
         assert.throws(() => {
           accessor.get();
-        }, /HTMLAccessor is write-only/);
+        }, /TextAccessor is write-only/);
       } finally {
         fixture.dispose();
       }

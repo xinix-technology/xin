@@ -16,9 +16,14 @@ export class TextAccessor extends BaseAccessor {
   }
 
   set (value) {
-    value = value || '';
-    if (value !== this.node.textContent) {
-      this.node.textContent = value;
+    if (value === null || value === undefined) {
+      value = '';
     }
+
+    this.node.textContent = value;
+  }
+
+  get () {
+    throw new Error('TextAccessor is write-only');
   }
 }

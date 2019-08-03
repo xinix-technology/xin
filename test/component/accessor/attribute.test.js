@@ -29,9 +29,21 @@ describe('component/accessor/attribute AttributeAccessor', () => {
         await fixture.waitConnected();
 
         const accessor = new AttributeAccessor(fixture.$.here, 'foo$');
-        accessor.set('23');
 
+        accessor.set('23');
         assert.strictEqual(fixture.$.here.getAttribute('foo'), '23');
+        accessor.set(undefined);
+        assert.strictEqual(fixture.$.here.getAttribute('foo'), null);
+        accessor.set(null);
+        assert.strictEqual(fixture.$.here.getAttribute('foo'), null);
+        accessor.set('');
+        assert.strictEqual(fixture.$.here.getAttribute('foo'), null);
+        accessor.set(0);
+        assert.strictEqual(fixture.$.here.getAttribute('foo'), '0');
+        accessor.set(true);
+        assert.strictEqual(fixture.$.here.getAttribute('foo'), 'true');
+        accessor.set(false);
+        assert.strictEqual(fixture.$.here.getAttribute('foo'), 'false');
       } finally {
         fixture.dispose();
       }
