@@ -1,6 +1,6 @@
 {
   "name": "@xinix/xin",
-  "version": "3.1.0",
+  "version": "3.1.1",
   "description": "Custom elements sugar for the web",
   "repository": {
     "type": "git",
@@ -27,7 +27,7 @@
     "babel-eslint": "^10.0.3",
     "eslint": "^6.2.2",
     "eslint-config-standard": "^14.0.1",
-    "eslint-config-xinix": "^1.1.6",
+    "eslint-config-xinix": "^1.1.7",
     "eslint-plugin-import": "^2.18.2",
     "eslint-plugin-node": "^9.1.0",
     "eslint-plugin-promise": "^4.2.1",

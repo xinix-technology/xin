@@ -268,11 +268,10 @@ export class Template {
       return;
     }
 
+    this.__templateHost = host;
+    this.__templateStartEventListeners();
+
     if (this.__template) {
-      this.__templateHost = host;
-
-      this.__templateStartEventListeners();
-
       if (!marker) {
         if (this.__template.parentElement === this.__templateHost) {
           // when template parent is template host, it means that template is specific template
@@ -303,13 +302,10 @@ export class Template {
     this.__templateMounted = false;
     this.__templateNotifyOnMounted = [];
 
-    if (!this.__template) {
-      return;
-    }
-
     this.__templateStopEventListeners();
 
     if (
+      this.__templateMarker &&
       this.__templateMarker.parentElement === this.__templateHost &&
       this.__templateMarker.nodeType === Node.COMMENT_NODE &&
       this.__templateMarker.data === `marker-${this.__templateId}`
@@ -320,7 +316,9 @@ export class Template {
     this.__templateHost = undefined;
     this.__templateMarker = undefined;
 
-    this.__templateUnrender();
+    if (this.__template) {
+      this.__templateUnrender();
+    }
   }
 
   __templateStartEventListeners () {
