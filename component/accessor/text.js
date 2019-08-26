@@ -1,6 +1,6 @@
 import { BaseAccessor } from './base';
 
-const { TEXT_NODE, ELEMENT_NODE } = window.Node;
+const { TEXT_NODE, ELEMENT_NODE } = Node;
 
 export class TextAccessor extends BaseAccessor {
   static test (node, name) {

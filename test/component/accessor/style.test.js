@@ -2,7 +2,7 @@ import { StyleAccessor } from '@xinix/xin/component/accessor/style';
 import { Fixture } from '@xinix/xin/components/fixture';
 import assert from 'assert';
 
-describe('component/accessor/style StyleAccessor', () => {
+describe('component:accessor:style StyleAccessor', () => {
   describe('.test()', () => {
     it('detect element with attribute name starts with style.', async () => {
       const fixture = await Fixture.create(`

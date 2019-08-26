@@ -2,7 +2,7 @@ import { ClassAccessor } from '@xinix/xin/component/accessor/class';
 import { Fixture } from '@xinix/xin/components/fixture';
 import assert from 'assert';
 
-describe('component/accessor/class ClassAccessor', () => {
+describe('component:accessor:class ClassAccessor', () => {
   describe('.test()', () => {
     it('detect element with attribute name starts with class.', async () => {
       const fixture = await Fixture.create(`

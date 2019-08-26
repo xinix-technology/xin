@@ -1,4 +1,4 @@
-import { Component, define, Template } from '../../component';
+import { Component, define } from '../../component';
 import { Row } from './row';
 
 const FILTER_ALL = () => true;
@@ -45,28 +45,22 @@ export class For extends Component {
     this.__loopItemsChanged(this.items, this.filter);
   }
 
-  detached () {
-    super.detached();
-
-    // on detached will remove rows
-    this.rows.forEach(row => {
-      row.dismount();
-    });
-    this.rows = [];
-  }
-
   __componentInitTemplate () {
     this.__loopTemplate = this.firstElementChild;
     if (!this.__loopTemplate) {
-      throw new Error('Invalid xin-for definition, must be <xin-for items="[[items]]"><template>...</template></xin-for>');
+      throw new Error(`Invalid xin-for definition,
+must be:
+<xin-for items="[[items]]">
+  <template>...</template>
+</xin-for>`);
     }
 
     this.removeChild(this.__loopTemplate);
 
-    Template.prototype.__templateInitialize.call(this);
+    super.__componentInitTemplate();
   }
 
-  __componentMountTemplate () {
+  __componentMount () {
     let marker = this;
     const toAttr = this.getAttribute('to');
     if (toAttr) {
@@ -74,11 +68,25 @@ export class For extends Component {
       if (!container) {
         throw new Error(`xin-for render to unknown element ${toAttr}`);
       }
-      marker = document.createComment(`marker-for`);
+      marker = document.createComment('marker-for');
       container.appendChild(marker);
     }
 
-    this.mount(this, marker);
+    this.__loopHost = marker.parentElement;
+    this.__loopMarker = marker;
+
+    this.mount(this.__loopHost, this.__loopMarker);
+  }
+
+  __componentUnmount () {
+    this.rows.forEach(row => {
+      row.unmount();
+      row.dispose();
+    });
+
+    this.rows = [];
+
+    super.__componentUnmount();
   }
 
   __loopItemsChanged (items, _) {
@@ -92,7 +100,7 @@ export class For extends Component {
             this.rows[index].update(item, index);
           } else {
             const row = new Row(this.__loopTemplate, this, item, index);
-            row.mount(this.__templateModel, this.__templateMarker);
+            row.mount(this.__loopHost, this.__loopMarker);
             this.rows.push(row);
           }
 
@@ -101,7 +109,8 @@ export class For extends Component {
       }
 
       this.rows.splice(len).forEach(row => {
-        row.dismount();
+        row.unmount();
+        row.dispose();
       });
     });
   }

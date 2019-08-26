@@ -1,7 +1,7 @@
 import { camelize } from '../../core/string';
 import { BaseAccessor } from './base';
 
-const { ELEMENT_NODE } = window.Node;
+const { ELEMENT_NODE } = Node;
 
 export class PropertyAccessor extends BaseAccessor {
   static test (node, _) {

@@ -2,9 +2,16 @@ import assert from 'assert';
 import { Fixture } from '@xinix/xin/components';
 import { define, Component } from '@xinix/xin';
 
-describe('cases/binding', () => {
+describe('cases:binding', () => {
   it('bind value from property', async () => {
-    const fixture = await Fixture.create(`<input id="el" type="text" value="[[value]]">`);
+    const fixture = await Fixture.create(`
+    <input id="el" type="text" value="[[value]]">
+    <div>[[foo.bar]]</div>
+    `, {
+      foo: {
+        bar: 'baz',
+      },
+    });
     try {
       await fixture.waitConnected();
       fixture.set('value', 'foo');
@@ -15,7 +22,7 @@ describe('cases/binding', () => {
   });
 
   it('bind value from text content', async () => {
-    const fixture = await Fixture.create(`<textarea id="el">[[value]]</textarea>`);
+    const fixture = await Fixture.create('<textarea id="el">[[value]]</textarea>');
     try {
       await fixture.waitConnected();
       fixture.set('value', 'foo');
@@ -26,7 +33,7 @@ describe('cases/binding', () => {
   });
 
   it('bind text from text content', async () => {
-    const fixture = await Fixture.create(`<span id="el">[[value]]</span>`);
+    const fixture = await Fixture.create('<span id="el">[[value]]</span>');
     try {
       await fixture.waitConnected();
       fixture.set('value', 'foo');
@@ -37,7 +44,7 @@ describe('cases/binding', () => {
   });
 
   it('bind text from attribute', async () => {
-    const fixture = await Fixture.create(`<span id="el" text="[[value]]"></span>`);
+    const fixture = await Fixture.create('<span id="el" text="[[value]]"></span>');
     try {
       await fixture.waitConnected();
       fixture.set('value', 'foo');
@@ -48,7 +55,7 @@ describe('cases/binding', () => {
   });
 
   it('bind html from attribute', async () => {
-    const fixture = await Fixture.create(`<span id="el" html="[[value]]"></span>`);
+    const fixture = await Fixture.create('<span id="el" html="[[value]]"></span>');
     try {
       await fixture.waitConnected();
       fixture.set('value', '<b>bold</b> <i>italic</i>');
@@ -60,7 +67,7 @@ describe('cases/binding', () => {
   });
 
   it('bind style from attribute', async () => {
-    const fixture = await Fixture.create(`<span id="el" style.border="[[value]]"></span>`);
+    const fixture = await Fixture.create('<span id="el" style.border="[[value]]"></span>');
     try {
       await fixture.waitConnected();
       fixture.set('value', '1px solid red');
@@ -71,7 +78,7 @@ describe('cases/binding', () => {
   });
 
   it('bind class from attribute', async () => {
-    const fixture = await Fixture.create(`<span id="el" class.foo="[[value]]"></span>`);
+    const fixture = await Fixture.create('<span id="el" class.foo="[[value]]"></span>');
     try {
       await fixture.waitConnected();
       fixture.set('value', true);
@@ -82,7 +89,7 @@ describe('cases/binding', () => {
   });
 
   it('bind attribute', async () => {
-    const fixture = await Fixture.create(`<span id="el" foo$="[[value]]"></span>`);
+    const fixture = await Fixture.create('<span id="el" foo$="[[value]]"></span>');
     try {
       await fixture.waitConnected();
       fixture.set('value', 'bar');
@@ -94,7 +101,7 @@ describe('cases/binding', () => {
   });
 
   it('bind property', async () => {
-    const fixture = await Fixture.create(`<span id="el" foo="[[value]]"></span>`);
+    const fixture = await Fixture.create('<span id="el" foo="[[value]]"></span>');
     try {
       await fixture.waitConnected();
       fixture.set('value', 'bar');
@@ -219,7 +226,7 @@ describe('cases/binding', () => {
       }
 
       _computeFull (first, last) {
-        return `${first || ''} ${last || ''}`.trim();
+        return `${first} ${last}`.trim();
       }
     });
 

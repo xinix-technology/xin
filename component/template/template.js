@@ -1,3 +1,4 @@
+// eslint-disable-line max-lines
 import { event } from '../../core';
 import { idGenerator } from '../../core/helpers/id-generator';
 import { Expr } from '../expr';
@@ -11,8 +12,13 @@ import { slotName } from './slot';
 const nextId = idGenerator();
 
 export class Template {
-  constructor (template) {
+  constructor (template, data = {}) {
+    if (!template) {
+      return;
+    }
+
     this.__templateInitialize(template);
+    this.all(data);
   }
 
   get $ () {
@@ -20,23 +26,31 @@ export class Template {
   }
 
   $$ (selector) {
-    return this.querySelector(selector);
+    return this.__templateHost.querySelector(selector);
+  }
+
+  dispose () {
+    this.__templateUninitialize();
   }
 
   on () {
-    event(this.__templateHost || this).on(...arguments);
+    event(this.__templateHost).on(...arguments);
   }
 
   off () {
-    event(this.__templateHost || this).off(...arguments);
+    event(this.__templateHost).off(...arguments);
   }
 
   once () {
-    event(this.__templateHost || this).once(...arguments);
+    event(this.__templateHost).once(...arguments);
   }
 
   waitFor () {
-    return event(this.__templateHost || this).waitFor(...arguments);
+    return event(this.__templateHost).waitFor(...arguments);
+  }
+
+  fire (type, detail, options) {
+    return event(this.__templateHost).fire(type, detail, options);
   }
 
   all (obj) {
@@ -160,7 +174,7 @@ export class Template {
     return result;
   }
 
-  splice (path, index, removeCount, ...values) {
+  splice (path, index, removeCount, ...values) { // eslint-disable-line max-params
     path = this.__templateGetPathAsArray(path);
 
     let object = this;
@@ -192,10 +206,10 @@ export class Template {
   notify (path, value) {
     path = this.__templateGetPathAsString(path);
 
-    if (!this.__templateReady) {
-      this.__templateNotifyOnReady = this.__templateNotifyOnReady || [];
-      if (this.__templateNotifyOnReady.indexOf(path) === -1) {
-        this.__templateNotifyOnReady.push(path);
+    if (!this.__templateMounted) {
+      this.__templateNotifyOnMounted = this.__templateNotifyOnMounted || [];
+      if (this.__templateNotifyOnMounted.indexOf(path) === -1) {
+        this.__templateNotifyOnMounted.push(path);
       }
       return;
     }
@@ -206,16 +220,17 @@ export class Template {
         value = this.get(path);
       }
 
-      binding.walkEffect('set', value);
+      binding.dispatchEffect({ model: this, value });
     }
   }
 
   __templateInitialize (template) {
     this.__templateId = nextId();
-    this.__templateBindings = {};
+    this.__templateBinding = new Binding();
+    this.__templateEventListeners = [];
 
-    this.__templateReady = false;
-    this.__templateNotifyOnReady = [];
+    this.__templateMounted = false;
+    this.__templateNotifyOnMounted = [];
 
     if (!template) {
       return;
@@ -232,85 +247,121 @@ export class Template {
     this.__template = fix(template);
     this.__templateChildNodes = [];
 
-    this.__templateFragment = document.importNode(this.__template.content, true);
     this.__templateParseAnnotations();
   }
 
+  __templateUninitialize () {
+    this.__templateRemoveEventListener();
+
+    if (this.__templateMounted) {
+      this.unmount();
+    }
+
+    this.__templateBinding.dispose();
+    this.__templateChildNodes = undefined;
+    this.__template = undefined;
+  }
+
   mount (host, marker) {
-    this.__templateHost = host;
-    this.__templateMarker = marker;
-
-    if (!this.__template) {
-      return this.__templateRender();
+    if (this.__templateMounted) {
+      console.warn('Template already mounted');
+      return;
     }
-
-    if (!marker) {
-      if (this.__template && this.__template.parentElement === this.__templateHost) {
-        // when template parent is template host, it means that template is specific template
-        // then use template as marker
-        this.__templateMarker = this.__template;
-      } else {
-        // when template is not child of host, put marker to host
-        this.__templateMarker = document.createComment(`marker-${this.__templateId}`);
-        this.__templateHost.appendChild(this.__templateMarker);
-      }
-    }
-
-    let contentFragment;
 
     if (this.__template) {
-      contentFragment = document.createDocumentFragment();
-      [].slice.call(host.childNodes).forEach(node => {
-        if (node === this.__templateMarker) return;
-        contentFragment.appendChild(node);
-      });
+      this.__templateHost = host;
+
+      this.__templateStartEventListeners();
+
+      if (!marker) {
+        if (this.__template.parentElement === this.__templateHost) {
+          // when template parent is template host, it means that template is specific template
+          // then use template as marker
+          marker = this.__template;
+        } else {
+          // when template is not child of host, put marker to host
+          marker = document.createComment(`marker-${this.__templateId}`);
+          this.__templateHost.appendChild(marker);
+        }
+      }
+      this.__templateMarker = marker;
+
+      this.__templateRender();
     }
 
-    this.__templateRender(contentFragment);
+    this.__templateMounted = true;
+    this.__templateNotifyOnMounted.forEach(key => this.notify(key, this.get(key)));
+    this.__templateNotifyOnMounted = [];
   }
 
-  dismount () {
-    this.__templateUninitialize();
-  }
+  unmount () {
+    if (!this.__templateMounted) {
+      console.warn('Template already unmounted');
+      return;
+    }
 
-  __templateRender (contentFragment) {
-    this.__templateReady = true;
-
-    this.__templateNotifyOnReady.forEach(key => {
-      this.notify(key, this.get(key));
-    });
-    this.__templateNotifyOnReady = [];
+    this.__templateMounted = false;
+    this.__templateNotifyOnMounted = [];
 
     if (!this.__template) {
       return;
     }
 
-    const fragment = this.__templateFragment;
-    this.__templateFragment = null;
+    this.__templateStopEventListeners();
 
-    if (contentFragment && contentFragment instanceof window.DocumentFragment) {
-      fragment.querySelectorAll('slot').forEach(slot => {
-        const name = slotName(slot);
-        const parent = slot.parentElement || fragment;
-        const marker = document.createComment(`slot ${name}`);
-
-        parent.insertBefore(marker, slot);
-        parent.removeChild(slot);
-
-        if (name) {
-          contentFragment.querySelectorAll(`[slot="${name}"]`).forEach(node => {
-            parent.insertBefore(node, marker);
-          });
-        } else {
-          parent.insertBefore(contentFragment, marker);
-        }
-      });
+    if (
+      this.__templateMarker.parentElement === this.__templateHost &&
+      this.__templateMarker.nodeType === Node.COMMENT_NODE &&
+      this.__templateMarker.data === `marker-${this.__templateId}`
+    ) {
+      this.__templateHost.removeChild(this.__templateMarker);
     }
 
-    this.__templateMarker.parentElement.insertBefore(fragment, this.__templateMarker);
+    this.__templateHost = undefined;
+    this.__templateMarker = undefined;
+
+    this.__templateUnrender();
   }
 
-  __templateUninitialize () {
+  __templateStartEventListeners () {
+    this.__templateEventListeners.forEach(({ name, selector, listener }) => this.on(name, selector, listener));
+  }
+
+  __templateStopEventListeners () {
+    this.__templateEventListeners.forEach(({ name, selector, listener }) => this.off(name, selector, listener));
+  }
+
+  __templateRender () {
+    const contentFragment = document.createDocumentFragment();
+    [...this.__templateHost.childNodes].forEach(node => {
+      if (node === this.__templateMarker) return;
+      contentFragment.appendChild(node);
+    });
+
+    const templateFragment = document.createDocumentFragment();
+    this.__templateChildNodes.forEach(node => templateFragment.appendChild(node));
+
+    templateFragment.querySelectorAll('slot').forEach(slot => {
+      const name = slotName(slot);
+      const parent = slot.parentElement || templateFragment;
+      const marker = document.createComment(`slot ${name}`);
+
+      parent.insertBefore(marker, slot);
+      parent.removeChild(slot);
+
+      if (name) {
+        contentFragment.querySelectorAll(`[slot="${name}"]`).forEach(node => {
+          parent.insertBefore(node, marker);
+        });
+      } else {
+        parent.insertBefore(contentFragment, marker);
+      }
+    });
+
+    this.__templateMarker.parentElement.insertBefore(templateFragment, this.__templateMarker);
+  }
+
+  __templateUnrender () {
     this.__templateChildNodes.forEach(node => {
       if (node.parentElement) {
         node.parentElement.removeChild(node);
@@ -335,39 +386,32 @@ export class Template {
   }
 
   __templateParseAnnotations () {
-    this.__templateChildNodes = [...this.__templateFragment.childNodes];
+    const templateFragment = document.importNode(this.__template.content, true);
+    this.__templateChildNodes = [...templateFragment.childNodes];
 
     const len = this.__templateChildNodes.length;
 
     for (let i = 0; i < len; i++) {
       const node = this.__templateChildNodes[i];
 
-      switch (node.nodeType) {
-        case window.Node.ELEMENT_NODE:
-          this.__templateParseElementAnnotations(node);
-          break;
-        case window.Node.TEXT_NODE:
-          this.__templateParseTextAnnotations(node);
-          break;
-      }
+      this.__templateParseNodeAnnotations(node);
     }
   }
 
   __templateParseEventAnnotations (element, attrName) {
     // bind event annotation
     const attrValue = element.getAttribute(attrName);
-    let eventName = attrName.slice(1, -1);
+    let name = attrName.slice(1, -1);
 
-    if (eventName === 'tap') {
-      eventName = 'click';
+    if (name === 'tap') {
+      name = 'click';
     }
 
-    const context = this;
     const expr = Expr.getFn(attrValue, [], true);
+    const selector = element;
+    const listener = evt => expr.invoke(this, { evt });
 
-    this.on(eventName, element, evt => {
-      expr.invoke(context, { evt });
-    });
+    this.__templateAddEventListener({ name, selector, listener });
   }
 
   __templateParseAttributeAnnotations (element) {
@@ -390,8 +434,13 @@ export class Template {
       if (attrName.indexOf('(') === 0) {
         this.__templateParseEventAnnotations(element, attrName);
       } else {
+        const expr = Expr.get(attr.value);
+        if (expr.type === Expr.STATIC) {
+          continue;
+        }
+
         // bind property annotation
-        annotated = this.__templateAnnotate(Expr.get(attr.value), accessorFactory(element, attrName)) || annotated;
+        annotated = this.__templateAnnotate(expr, accessorFactory(element, attrName)) || annotated;
       }
     }
 
@@ -433,22 +482,25 @@ export class Template {
 
   __templateParseNodeAnnotations (node) {
     switch (node.nodeType) {
-      case window.Node.TEXT_NODE:
+      case Node.TEXT_NODE:
         return this.__templateParseTextAnnotations(node);
-      case window.Node.ELEMENT_NODE:
+      case Node.ELEMENT_NODE:
         return this.__templateParseElementAnnotations(node);
     }
   }
 
   __templateParseTextAnnotations (node) {
     const expr = Expr.get(node.textContent);
-    const accessor = accessorFactory(node);
-    return this.__templateAnnotate(expr, accessor);
+    if (expr.type === Expr.STATIC) {
+      return false;
+    }
+
+    return this.__templateAnnotate(expr, accessorFactory(node));
   }
 
   __templateAnnotate (expr, accessor) {
-    if (expr.type === 's') {
-      return false;
+    if (expr.type === Expr.STATIC) {
+      throw new Error('Do not annotate static expr');
     }
 
     if (expr.constant) {
@@ -456,37 +508,83 @@ export class Template {
       return false;
     }
 
-    // annotate every paths
-    const annotation = new Annotation(this, expr, accessor);
+    this.__templateAnnotateRead(expr, accessor);
 
-    if (expr.type === 'm') {
+    // register event notifier
+    if (expr.mode === Expr.READWRITE && expr.type === Expr.PROPERTY && accessor.node instanceof HTMLElement) {
+      this.__templateAnnotateWrite(expr, accessor);
+    }
+
+    return true;
+  }
+
+  __templateAnnotateRead (expr, accessor) {
+    // annotate every paths
+    const annotation = new Annotation(expr, accessor);
+
+    if (expr.type === Expr.METHOD) {
       this.__templateGetBinding(expr.fn.name).annotate(annotation);
     }
 
     expr.vpaths.forEach(arg => {
       this.__templateGetBinding(arg.name).annotate(annotation);
     });
+  }
 
-    return true;
+  __templateAnnotateWrite (expr, accessor) {
+    const { node } = accessor;
+    const { nodeName } = node;
+
+    const selector = node;
+    const listener = evt => this.set(expr.name, accessor.get());
+
+    if (nodeName === 'INPUT') {
+      const inputType = node.getAttribute('type');
+      if (inputType === 'radio' || inputType === 'checkbox') {
+        throw new Error('Unimplemented yet');
+      } else {
+        this.__templateAddEventListener({ name: 'input', selector, listener });
+      }
+    } else if (nodeName === 'TEXTAREA') {
+      this.__templateAddEventListener({ name: 'input', selector, listener });
+    } else if (nodeName === 'SELECT') {
+      this.__templateAddEventListener({ name: 'change', selector, listener });
+    }
+  }
+
+  __templateAddEventListener ({ name, selector, listener }) {
+    if (!name) {
+      throw new Error('Event listener must define name');
+    }
+
+    if (!listener) {
+      throw new Error('Event listener must define listener callback');
+    }
+
+    this.__templateEventListeners.push({ name, selector, listener });
+  }
+
+  __templateRemoveEventListener ({ name, selector, listener } = {}) {
+    this.__templateEventListeners = this.__templateEventListeners.filter(el => {
+      if (name === undefined) {
+        return false;
+      }
+
+      if (name === el.name && selector === undefined) {
+        return false;
+      }
+
+      if (name === el.name && selector === el.selector && (listener === undefined || el.listener === listener)) {
+        return false;
+      }
+
+      return true;
+    });
   }
 
   __templateGetBinding (path) {
-    const segments = path.split('.');
-    let bindings;
-    let binding;
+    const segments = this.__templateGetPathAsArray(path);
 
-    for (let i = 0; i < segments.length; i++) {
-      const segment = segments[i];
-
-      bindings = binding ? binding.paths : this.__templateBindings;
-
-      if (!bindings[segment]) {
-        bindings[segment] = new Binding(this, segment);
-      }
-
-      binding = bindings[segment];
-    }
-
-    return binding;
+    return segments.reduce((binding, segment) => binding.getChild(segment), this.__templateBinding);
   }
 }

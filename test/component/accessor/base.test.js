@@ -1,7 +1,7 @@
 import { BaseAccessor } from '@xinix/xin/component/accessor/base';
 import assert from 'assert';
 
-describe('component/accessor/base BaseAccessor', () => {
+describe('component:accessor:base BaseAccessor', () => {
   describe('#set()', () => {
     it('set value of object by setter', () => {
       let k;

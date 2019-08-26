@@ -1,13 +1,14 @@
 import { Template } from '../../component';
 import { Annotation } from '../../component/annotation';
+import { Expr } from '../../component/expr';
 
 export class Row extends Template {
-  constructor (template, host, item, index) {
+  constructor (template, instance, item, index) { // eslint-disable-line max-params
     super();
 
-    this.__loopHost = host;
-    this.__loopAs = host.as;
-    this.__loopIndexAs = host.indexAs;
+    this.__loopInstance = instance;
+    this.__loopAs = instance.as;
+    this.__loopIndexAs = instance.indexAs;
     this.__loopAnnotations = [];
 
     // override Template constructor
@@ -17,7 +18,7 @@ export class Row extends Template {
     this.__id = this.__templateId;
 
     this.__templateChildNodes.forEach(node => {
-      if (node.nodeType === window.Node.ELEMENT_NODE) {
+      if (node.nodeType === Node.ELEMENT_NODE) {
         node.__loopModel = this;
       }
     });
@@ -32,60 +33,53 @@ export class Row extends Template {
     this.notify(this.__loopIndexAs, index);
   }
 
-  set (path, value) {
-    if (arguments.length === 1 && typeof path === 'object') {
-      const data = path;
-      for (const i in data) {
-        if (Object.prototype.hasOwnProperty.call(data, i)) {
-          this.set(i, data[i]);
-        }
-      }
-      return;
-    }
+  // set (path, value) {
+  //   if (arguments.length === 1 && typeof path === 'object') {
+  //     const data = path;
+  //     for (const i in data) {
+  //       if (Object.prototype.hasOwnProperty.call(data, i)) {
+  //         this.set(i, data[i]);
+  //       }
+  //     }
+  //     return;
+  //   }
 
-    path = this.__templateGetPathAsArray(path);
+  //   path = this.__templateGetPathAsArray(path);
 
-    if (path[0] === this.__loopAs || path[0] === this.__loopIndexAs) {
-      return super.set(path, value);
-    }
+  //   if (path[0] === this.__loopAs || path[0] === this.__loopIndexAs) {
+  //     return super.set(path, value);
+  //   }
 
-    // do not change parent data
-    // parent data works stream down only
-    // return this.__templateHost.set(path, value);
+  //   // do not change parent data
+  //   // parent data works stream down only
+  //   // return this.__templateHost.set(path, value);
+  // }
+
+  // get (path) {
+  //   path = this.__templateGetPathAsArray(path);
+
+  //   if (path[0] === this.__loopAs || path[0] === this.__loopIndexAs) {
+  //     return super.get(path);
+  //   }
+
+  //   return this.__templateHost.get(path);
+  // }
+
+  __templateRender () {
+    const templateFragment = document.createDocumentFragment();
+    this.__templateChildNodes.forEach(node => templateFragment.appendChild(node));
+    this.__templateMarker.parentElement.insertBefore(templateFragment, this.__templateMarker);
   }
 
-  get (path) {
-    path = this.__templateGetPathAsArray(path);
+  __templateAnnotateRead (expr, accessor) {
+    const model = this.__loopInstance.__templateModel;
 
-    if (path[0] === this.__loopAs || path[0] === this.__loopIndexAs) {
-      return super.get(path);
-    }
-
-    return this.__templateHost.get(path);
-  }
-
-  mount (host, marker) {
-    this.__templateHost = host;
-    this.__templateMarker = marker;
-
-    this.__templateRender();
-  }
-
-  __templateAnnotate (expr, accessor) {
-    if (expr.type === 's') {
-      return false;
-    }
-
-    if (expr.constant) {
-      accessor.set(expr.invoke(this.__loopHost.__templateModel));
-      return false;
-    }
+    const annotation = new Annotation(expr, accessor);
 
     const path = this.__templateGetPathAsArray(expr.name);
-    if (path[0] === this.__loopAs || path[0] === this.loopIndexAs) {
-      const annotation = new Annotation(this, expr, accessor);
 
-      if (expr.type === 'm') {
+    if (path[0] === this.__loopAs || path[0] === this.loopIndexAs) {
+      if (expr.type === Expr.METHOD) {
         this.__templateGetBinding(expr.fn.name).annotate(annotation);
       }
 
@@ -93,37 +87,63 @@ export class Row extends Template {
         this.__templateGetBinding(arg.name).annotate(annotation);
       });
 
-      return true;
+      return;
     }
 
-    // annotate every paths
-    this.__loopAnnotations.push({ expr, accessor });
+    this.__loopAnnotations.push(annotation);
 
-    if (expr.type === 'm') {
-      const annotation = new Annotation(this, expr, accessor);
-      this.__loopHost.__templateModel.__templateGetBinding(expr.fn.name).annotate(annotation);
+    if (expr.type === Expr.METHOD) {
+      model.__templateGetBinding(expr.fn.name).annotate(annotation);
     }
 
-    const annotation = new Annotation(this.__loopHost.__templateModel, expr, accessor);
     expr.vpaths.forEach(arg => {
-      this.__loopHost.__templateModel.__templateGetBinding(arg.name).annotate(annotation);
+      model.__templateGetBinding(arg.name).annotate(annotation);
     });
 
-    accessor.set(expr.invoke(this.__loopHost.__templateModel));
+    accessor.set(expr.invoke(model));
+  }
 
-    return true;
+  __templateAnnotateWrite (expr, accessor) {
+    const path = this.__templateGetPathAsArray(expr.name);
+
+    if (path[0] === this.__loopAs || path[0] === this.loopIndexAs) {
+      return;
+    }
+
+    const model = this.__loopInstance.__templateModel;
+
+    const { node } = accessor;
+    const { nodeName } = node;
+
+    const selector = node;
+    const listener = evt => model.set(expr.name, accessor.get());
+
+    if (nodeName === 'INPUT') {
+      const inputType = node.getAttribute('type');
+      if (inputType === 'radio' || inputType === 'checkbox') {
+        throw new Error('Unimplemented yet');
+      } else {
+        this.__templateAddEventListener({ name: 'input', selector, listener });
+      }
+    } else if (nodeName === 'TEXTAREA') {
+      this.__templateAddEventListener({ name: 'input', selector, listener });
+    } else if (nodeName === 'SELECT') {
+      this.__templateAddEventListener({ name: 'change', selector, listener });
+    }
   }
 
   __templateUninitialize () {
     super.__templateUninitialize();
 
-    this.__loopAnnotations.forEach(({ expr, accessor }) => {
-      if (expr.type === 'm') {
-        this.__loopHost.__templateModel.__templateGetBinding(expr.fn.name).deannotate(this, expr, accessor);
+    const model = this.__loopInstance.__templateModel;
+
+    this.__loopAnnotations.forEach(annotation => {
+      if (annotation.expr.type === Expr.METHOD) {
+        model.__templateGetBinding(annotation.expr.fn.name).deannotate(annotation);
       }
 
-      expr.vpaths.forEach(arg => {
-        this.__loopHost.__templateModel.__templateGetBinding(arg.name).deannotate(this.__loopHost.__templateModel, expr, accessor);
+      annotation.expr.vpaths.forEach(arg => {
+        model.__templateGetBinding(arg.name).deannotate(annotation);
       });
     });
   }

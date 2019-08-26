@@ -3,11 +3,14 @@ import { Fixture } from '@xinix/xin/components/fixture';
 import { Async } from '@xinix/xin';
 import '@xinix/xin/components/if';
 
-describe('components/if <xin-if>', () => {
+describe('components:if <xin-if>', () => {
   it('render', async () => {
     const fixture = await Fixture.create(`
       <div>
         <button (click)="doToggle(evt)">Toggle</button>
+      </div>
+      <div>
+        <input type="text" value="{{name}}">
       </div>
       <xin-if condition="[[show]]">
         <template>
@@ -15,6 +18,9 @@ describe('components/if <xin-if>', () => {
           <p>
             hello <span>[[name]]</span>
           </p>
+          <div>
+            <input type="text" value="{{name}}">
+          </div>
         </template>
         <template else>
           <h3>else</h3>

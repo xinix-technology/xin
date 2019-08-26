@@ -3,7 +3,7 @@ import { Async } from '@xinix/xin';
 import '@xinix/xin/components/if';
 import '@xinix/xin/components/transition';
 
-describe('components/transition <xin-transition>', () => {
+describe('components:transition <xin-transition>', () => {
   it('render', async () => {
     const fixture = await Fixture.create(`
       <style>

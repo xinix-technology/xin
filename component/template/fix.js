@@ -1,8 +1,8 @@
 
 export function fix (template) {
   /* istanbul ignore if */
-  if (!template.content && window.HTMLTemplateElement && window.HTMLTemplateElement.decorate) {
-    window.HTMLTemplateElement.decorate(template);
+  if (!template.content && HTMLTemplateElement && HTMLTemplateElement.decorate) {
+    HTMLTemplateElement.decorate(template);
   }
   return template;
 }

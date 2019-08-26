@@ -5,7 +5,7 @@ const SLOT_SUPPORTED = (() => {
 
   return (
     'HTMLUnknownElement' in window &&
-    !(document.createElement('slot') instanceof window.HTMLUnknownElement)
+    !(document.createElement('slot') instanceof HTMLUnknownElement)
   );
 })();
 

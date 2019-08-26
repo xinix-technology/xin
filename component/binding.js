@@ -1,28 +1,47 @@
 export class Binding {
-  constructor (context, model) {
-    this.context = context;
-    this.model = model;
-    this.paths = {};
+  constructor (name) {
+    this.name = name;
+    this.children = {};
     this.annotations = [];
+  }
+
+  getChild (name) {
+    if (!this.children[name]) {
+      this.children[name] = new Binding(name);
+    }
+
+    return this.children[name];
   }
 
   annotate (annotation) {
     this.annotations.push(annotation);
   }
 
-  deannotate (model, expr, accessor) {
-    this.annotations = this.annotations.filter(annotation => {
-      return annotation.model !== model || annotation.expr !== expr || annotation.accessor !== accessor;
+  deannotate (annotation) {
+    const index = this.annotations.indexOf(annotation);
+    if (index !== -1) {
+      this.annotations.splice(index, 1);
+    }
+  }
+
+  dispatchEffect ({ model }) {
+    this.annotations.forEach(annotation => {
+      annotation.effect({ model });
+    });
+
+    Object.keys(this.children).forEach(i => {
+      this.children[i].dispatchEffect({ model });
     });
   }
 
-  walkEffect (type, value) {
-    this.annotations.forEach(annotation => {
-      annotation.effect(type, value/* , this.model */);
+  dispose () {
+    Object.keys(this.children).forEach(i => {
+      this.children[i].dispose();
     });
+    this.children = {};
 
-    Object.keys(this.paths).forEach(i => {
-      this.paths[i].walkEffect(type, value);
+    this.annotations.forEach(annotation => {
+      this.deannotate(annotation);
     });
   }
 }

@@ -4,7 +4,7 @@ const path = require('path');
 
 // process.env.CHROME_BIN = require('puppeteer').executablePath();
 
-module.exports = function (config) {
+module.exports = function (config) { // eslint-disable-line max-lines-per-function
   config.set({
 
     // base path that will be used to resolve all patterns (eg. files, exclude)

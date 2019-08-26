@@ -1,5 +1,6 @@
 import { Component, define } from '../component';
 import { Async } from '../core/fn/async';
+import { event } from '../core/event';
 
 export class Fixture extends Component {
   static create (template, data = {}) {
@@ -33,11 +34,13 @@ export class Fixture extends Component {
 
   dispose () {
     this.parentElement.removeChild(this);
+
+    super.dispose();
   }
 
   async waitConnected (timeout) {
     if (!this.connected) {
-      await this.waitFor('connected');
+      await event(this).waitFor('connected');
     }
 
     await Async.sleep(timeout);

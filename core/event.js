@@ -1,3 +1,4 @@
+// eslint-disable-line max-lines
 import { idGenerator } from './helpers/id-generator';
 
 const nextEventId = idGenerator();
@@ -101,7 +102,7 @@ function _matchesSelector (element, selector, boundElement) {
   }
 }
 
-function _addHandler (delegator, event, selector, callback) {
+function _addHandler (delegator, event, selector, callback) { // eslint-disable-line max-params
   if (!_handlers[delegator.id]) {
     _handlers[delegator.id] = {};
   }
@@ -117,7 +118,7 @@ function _addHandler (delegator, event, selector, callback) {
   _handlers[delegator.id][event][selector].push(callback);
 }
 
-function _removeHandler (delegator, event, selector, callback) {
+function _removeHandler (delegator, event, selector, callback) { // eslint-disable-line max-params
   // if there are no events tied to this element at all
   // then don't do anything
   if (!_handlers[delegator.id]) {
@@ -200,16 +201,18 @@ function _handleEvent (id, e, type) {
   };
 
   for (i = 0; i <= _level; i++) {
-    if (matches[i]) {
-      for (j = 0; j < matches[i].length; j++) {
-        if (matches[i][j].call(matches[i].match, e) === false) {
-          Delegator.cancel(e);
-          return;
-        }
+    if (!matches[i]) {
+      continue;
+    }
 
-        if (e.cancelBubble) {
-          return;
-        }
+    for (j = 0; j < matches[i].length; j++) {
+      if (matches[i][j].call(matches[i].match, e) === false) {
+        Delegator.cancel(e);
+        return;
+      }
+
+      if (e.cancelBubble) {
+        return;
       }
     }
   }
@@ -257,12 +260,15 @@ function _aliases (name) {
  * @param {boolean=} remove
  * @returns {Object}
  */
-function _bind (events, selector, callback, remove) {
+function _bind (events, selector, callback, remove) { // eslint-disable-line max-params
   // fail silently if you pass null or undefined as an alement
   // in the Delegator constructor
   if (!this.element) {
-    return;
+    throw new Error('Cannot bind event to undefined element');
+    // return;
   }
+
+  selector = selector || '_root';
 
   if (!(events instanceof Array)) {
     events = [events];
@@ -273,7 +279,7 @@ function _bind (events, selector, callback, remove) {
     selector = '_root';
   }
 
-  if (selector instanceof window.Element) {
+  if (selector instanceof Element) {
     let id;
     if (selector.hasAttribute('bind-event-id')) {
       id = selector.getAttribute('bind-event-id');
@@ -346,6 +352,8 @@ Delegator.prototype.off = function (events, selector, callback) {
 };
 
 Delegator.prototype.once = function (events, selector, callback) {
+  selector = selector || '_root';
+
   if (!callback && typeof (selector) === 'function') {
     callback = selector;
     selector = '_root';
@@ -386,7 +394,7 @@ Delegator.prototype.fire = function (type, detail, options) {
 
   switch (type) {
     case 'click':
-      evt = new window.Event(type, {
+      evt = new Event(type, {
         bubbles: bubbles,
         cancelable: cancelable,
         // XXX is it ok to have detail here?
@@ -398,7 +406,7 @@ Delegator.prototype.fire = function (type, detail, options) {
       // evt.initEvent(type, true, false);
       break;
     default:
-      evt = new window.CustomEvent(type, {
+      evt = new CustomEvent(type, {
         bubbles: Boolean(bubbles),
         cancelable: cancelable,
         detail: detail,
@@ -420,6 +428,9 @@ Delegator.matchesEvent = function () {
 };
 
 export function event (element) {
+  if (!element) {
+    throw new Error('Cannot create event delegator for unknown element');
+  }
   // only keep one Delegator instance per node to make sure that
   // we don't create a ton of new objects if you want to delegate
   // multiple events from the same node

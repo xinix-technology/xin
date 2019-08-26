@@ -19,14 +19,14 @@ function _get (value, mode, type) {
   }
 
   const expr = new Expr(value, mode, type);
-  if (type !== 's') {
+  if (type !== Expr.STATIC) {
     cache[value] = expr;
   }
 
   return expr;
 }
 
-export class Expr {
+class Expr {
   static get CACHE () {
     return CACHE;
   }
@@ -35,16 +35,16 @@ export class Expr {
     value = (value || '').trim();
 
     if (unwrapped) {
-      return _get(value, '[', 'v');
+      return _get(value, Expr.READONLY, 'v');
     }
 
     const mode = value[0];
-    if ((mode === '[' || mode === '{') && value[1] === mode) {
+    if ((mode === Expr.READONLY || mode === Expr.READWRITE) && value[1] === mode) {
       value = value.slice(2, -2).trim();
       return _get(value, mode, 'v');
     }
 
-    return _get(value, '[', 's');
+    return _get(value, Expr.READONLY, Expr.STATIC);
   }
 
   static getFn (value, args, unwrapped) {
@@ -78,7 +78,7 @@ export class Expr {
     this.filters = [];
     this.value = value;
 
-    if (type === 's') {
+    if (type === Expr.STATIC) {
       return;
     }
 
@@ -89,14 +89,14 @@ export class Expr {
       return Filter.get(word.trim());
     });
 
-    if (token.indexOf('(') < 0) {
-      this.type = 'p';
+    if (token.indexOf('(') === -1) {
+      this.type = Expr.PROPERTY;
       this.name = token;
       this.args.push(Token.get(token));
     } else {
-      // force mode to '[' when type is !p
-      this.mode = '[';
-      this.type = 'm';
+      // force mode to Expr.READONLY when type is not Expr.PROPERTY
+      this.mode = Expr.READONLY;
+      this.type = Expr.METHOD;
 
       const matches = token.match(/([^(]+)\(([^)]*)\)/);
 
@@ -108,7 +108,7 @@ export class Expr {
   }
 
   get constant () {
-    return this.type !== 'm' && this.vpaths.length !== this.args.length;
+    return this.type !== Expr.METHOD && this.vpaths.length !== this.args.length;
   }
 
   get vpaths () {
@@ -125,16 +125,24 @@ export class Expr {
     return this._vpaths;
   }
 
-  invoke (context, otherArgs) {
-    if (this.type === 'p') {
-      const val = this.args[0].value(context, otherArgs);
+  invoke (model, otherArgs) {
+    if (this.type === Expr.PROPERTY) {
+      const val = this.args[0].value(model, otherArgs);
       return this.filters.reduce((val, filter) => filter.invoke(val), val);
     }
 
     const args = this.args.map(arg => {
-      return arg.value(context, otherArgs);
+      return arg.value(model, otherArgs);
     });
 
-    return this.fn.invoke(args, context, context.__templateHost);
+    return this.fn.invoke(args, model, model.__templateHost);
   }
 }
+
+Expr.STATIC = 's';
+Expr.METHOD = 'm';
+Expr.PROPERTY = 'p';
+Expr.READONLY = '[';
+Expr.READWRITE = '{';
+
+export { Expr };

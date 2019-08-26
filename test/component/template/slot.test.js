@@ -2,7 +2,7 @@ import { define, Component } from '@xinix/xin';
 import { Fixture } from '@xinix/xin/components/fixture';
 import assert from 'assert';
 
-describe('component/template/slot', () => {
+describe('component:template:slot', () => {
   it('new component with full slot', async () => {
     define('test-component-slot-1', class extends Component {
       get template () {

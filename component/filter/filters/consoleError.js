@@ -1,1 +1,4 @@
-export default val => console.error(val);
+export default val => {
+  console.error('consoleError filtered:', val);
+  return val;
+};

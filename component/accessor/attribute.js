@@ -2,7 +2,7 @@ import { BaseAccessor } from './base';
 
 export class AttributeAccessor extends BaseAccessor {
   static test (node, name) {
-    return node.nodeType === window.Node.ELEMENT_NODE && name.endsWith('$');
+    return node.nodeType === Node.ELEMENT_NODE && name.endsWith('$');
   }
 
   constructor (node, name) {

@@ -1,10 +1,11 @@
+// eslint-disable-line max-lines
 import { Repository, event } from '../core';
 import { dashify } from '../core/string';
 import { idGenerator, deserialize, val } from '../core/helpers';
 import { Template } from './template';
 import { Expr } from './expr';
 import { accessorFactory } from './accessor';
-import { NotifyAnnotation } from './annotation';
+import { Annotation } from './annotation';
 import { Async, Debounce } from '../core/fn';
 
 const debug = require('debug')('xin::component');
@@ -63,7 +64,7 @@ export function base (base) {
     readyCallback () {
       this.__componentReady = true;
 
-      this.fire('before-ready');
+      event(this).fire('before-ready');
 
       if (debug.enabled) /* istanbul ignore next */ debug(`READY ${this.is}`);
 
@@ -73,44 +74,43 @@ export function base (base) {
         repository.put(this.__id, this);
       }
 
-      this.__componentInitListeners();
-
       this.__componentInitTemplate();
-
+      this.__componentInitListeners();
       this.__componentInitProps();
-
       this.__componentInitPropValues();
-
-      this.__componentMountTemplate();
 
       this.ready();
 
-      this.fire('ready');
+      event(this).fire('ready');
 
       if (this.__componentAttaching) {
         this.attachedCallback();
       }
     }
 
-    // FIXME: note that connectedCallback can be called more than once, so any
+    // note that connectedCallback can be called more than once, so any
     // initialization work that is truly one-time will need a guard to prevent
     // it from running twice.
     attachedCallback () {
       this.__componentAttaching = true;
 
       if (!this.__componentReady) {
-        if (!this.__componentBeforeReady) {
-          this.__componentBeforeReady = true;
+        if (!this.__componentReadyInvoked) {
+          this.__componentReadyInvoked = true;
           this.async(this.readyCallback);
         }
         return;
       }
 
+      this.__componentMount();
+
       // notify default props
       this.notify('$global');
       this.notify('$repository');
 
-      if (debug.enabled) /* istanbul ignore next */ debug(`ATTACHED ${this.is} ${this.__componentAttaching ? '(delayed)' : ''}`);
+      if (debug.enabled) { /* istanbul ignore next */
+        debug(`ATTACHED ${this.is} ${this.__componentAttaching ? '(delayed)' : ''}`);
+      }
 
       this.attached();
 
@@ -119,6 +119,8 @@ export function base (base) {
 
     detachedCallback () {
       this.detached();
+
+      this.__componentUnmount();
     }
 
     connectedCallback () {
@@ -138,14 +140,11 @@ export function base (base) {
     }
 
     __componentInitData () {
-      this.__componentContent = [];
       this.__componentDebouncers = {};
-      this.__componentNotifiers = {};
       this.__componentReady = false;
-      this.__componentBeforeReady = false;
+      this.__componentReadyInvoked = false;
       this.__componentAttaching = false;
       this.__componentInitialPropValues = {};
-      this.__componentNotifiedProps = {};
     }
 
     __componentInitProps () {
@@ -155,40 +154,38 @@ export function base (base) {
         const attrName = dashify(propName);
 
         if ('computed' in property) {
-          const accessor = accessorFactory(this, propName);
           const expr = Expr.getFn(property.computed, [], true);
-          this.__templateAnnotate(expr, accessor);
+          this.__templateAnnotate(expr, accessorFactory(this, propName));
 
           this.__componentInitialPropValues[propName] = () => expr.invoke(this);
-        } else if (this.hasAttribute(attrName)) {
-          const attrVal = this.getAttribute(attrName);
-
-          // copy value from attribute to property
-          // fallback to property.value
-          const expr = Expr.get(attrVal);
-          if (expr.type === 's') {
-            this.__componentInitialPropValues[propName] = () => deserialize(attrVal, property.type);
-          } else {
-            if ('notify' in property && expr.mode === '{') {
-              this.__componentNotifiedProps[propName] = true;
-              this.__templateGetBinding(propName).annotate(new NotifyAnnotation(this, propName));
-            }
-            this.__componentInitialPropValues[propName] = () => expr.invoke(this.__templateModel);
-          }
         }
 
         if ('observer' in property) {
           const expr = Expr.getFn(property.observer, [propName], true);
           this.__templateAnnotate(expr);
         }
+
+        if (this.hasAttribute(attrName)) {
+          const attrVal = this.getAttribute(attrName);
+          const expr = Expr.get(attrVal);
+
+          if ('notify' in property && expr.mode === Expr.READWRITE) {
+            const accessor = accessorFactory(value => this.__templateModel.set(expr.name, value));
+            this.__templateGetBinding(propName).annotate(new Annotation(Expr.get(propName, true), accessor));
+          }
+
+          this.__componentInitialPropValues[propName] = expr.type === Expr.STATIC
+            ? () => deserialize(attrVal, property.type)
+            : () => expr.invoke(this.__templateModel);
+        }
       }
     }
 
     __componentGetProps () {
-      if (!this._props) {
-        this._props = this.props;
+      if (!this.__componentProps) {
+        this.__componentProps = this.props || {};
       }
-      return this._props;
+      return this.__componentProps;
     }
 
     __componentInitPropValues () {
@@ -236,10 +233,6 @@ export function base (base) {
       this.__templateInitialize(template);
     }
 
-    __componentMountTemplate () {
-      this.mount(this);
-    }
-
     __componentInitListeners () {
       if (!this.listeners) {
         return;
@@ -248,60 +241,28 @@ export function base (base) {
       Object.keys(this.listeners).forEach(key => {
         const meta = parseListenerMetadata(key);
         const expr = Expr.getFn(this.listeners[key], [], true);
-        if (meta.selector) {
-          this.on(meta.eventName, meta.selector, evt => {
-            expr.invoke(this, { evt });
-          });
-        } else {
-          this.on(meta.eventName, evt => {
-            expr.invoke(this, { evt });
-          });
-        }
+
+        this.__templateAddEventListener({
+          name: meta.eventName,
+          selector: meta.selector,
+          listener: evt => expr.invoke(this, { evt }),
+        });
       });
     }
 
-    __addNotifier (eventName) {
-      if (this.__componentNotifiers[eventName]) {
-        return;
-      }
-
-      this.__componentNotifiers[eventName] = (evt) => {
-        const element = evt.target;
-
-        if (element.__templateModel !== this) {
-          return;
-        }
-
-        // TODO: ini buat apa ya dulu?
-        // evt.stopImmediatePropagation();
-
-        if ('__componentNotifyKey' in element && '__componentNotifyAccessor' in element) {
-          element.__templateModel.set(element.__componentNotifyKey, element[element.__componentNotifyAccessor]);
-        }
-      };
-
-      this.on(eventName, this.__componentNotifiers[eventName]);
+    __componentMount () {
+      this.mount(this);
     }
 
-    __removeNotifier (eventName) {
-      if (!this.__componentNotifiers[eventName]) {
-        return;
-      }
-
-      this.off(eventName, this.__componentNotifiers[eventName]);
-
-      delete this.__componentNotifiers[eventName];
-    }
-
-    fire (type, detail, options) {
-      return event(this).fire(type, detail, options);
+    __componentUnmount () {
+      this.unmount();
     }
 
     async (callback, waitTime) {
       return (new Async(this)).start(callback, waitTime);
     }
 
-    debounce (job, callback, wait, immediate) {
+    debounce (job, callback, wait, immediate) { // eslint-disable-line max-params
       let debouncer = this.__componentDebouncers[job];
       if (debouncer && debouncer.running) {
         debouncer.cancel();
@@ -316,48 +277,10 @@ export function base (base) {
     nextFrame (callback) {
       return Async.nextFrame(callback.bind(this));
     }
-
-    // Template overriden
-    // -------------------------------------------------------------------------
-    //
-
-    __templateAnnotate (expr, accessor) {
-      if (!Template.prototype.__templateAnnotate.call(this, expr, accessor)) {
-        return false;
-      }
-
-      // register event notifier
-      if (expr.mode === '{' && expr.type === 'p' && accessor.node instanceof window.HTMLElement) {
-        const node = accessor.node;
-        const nodeName = node.nodeName;
-
-        const startNotify = (name) => {
-          node.__componentNotifyKey = expr.name;
-          node.__componentNotifyAccessor = accessor.name;
-          this.__addNotifier(name);
-        };
-
-        if (nodeName === 'INPUT') {
-          const inputType = node.getAttribute('type');
-          if (inputType === 'radio' || inputType === 'checkbox') {
-            throw new Error('Unimplemented yet');
-          } else {
-            startNotify('input');
-          }
-        } else if (nodeName === 'TEXTAREA') {
-          startNotify('input');
-        } else if (nodeName === 'SELECT') {
-          startNotify('change');
-        }
-      }
-
-      return true;
-    }
   }
 
   tProtoProps.forEach(key => {
-    // exclude $ and __templateAnnotate because will be override
-    if (key === '$' || key === '__templateAnnotate') {
+    if (key === '$') {
       return;
     }
 

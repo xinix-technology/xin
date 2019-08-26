@@ -35,7 +35,7 @@ export function deserialize (value, type) {
       break;
 
     case Function:
-      value = new Function(value); // eslint-disable-line
+      value = new Function(value); // eslint-disable-line no-new-func
       break;
 
     // behave like default for now

@@ -1,7 +1,7 @@
 import assert from 'assert';
 import { Repository, bootstrap } from '@xinix/xin/core/repository';
 
-describe('core/repository/bootstrap bootstrap()', () => {
+describe('core:repository:bootstrap bootstrap()', () => {
   it('rebootstrap with data', () => {
     const repo = Repository.singleton();
 

@@ -2,7 +2,7 @@ import { define, Component, event } from '@xinix/xin';
 import { Fixture } from '@xinix/xin/components';
 import assert from 'assert';
 
-describe('component/component Component', () => {
+describe('component:component Component', () => {
   it('make sure invoke ready once when reattached', async () => {
     const hits = {};
     event(document.body).on('before-ready', evt => {
@@ -22,7 +22,9 @@ describe('component/component Component', () => {
 
     define('test-component-component2', class extends Component {
       get template () {
-        return `ini component 2`;
+        return `
+          ini component 2
+        `;
       }
     });
 
@@ -42,6 +44,40 @@ describe('component/component Component', () => {
       await fixture.dispose();
 
       event(document.body).off('before-ready');
+    }
+  });
+
+  it('register listeners', async () => {
+    let hit = false;
+    define('test-component-component3', class extends Component {
+      get template () {
+        return `
+          <div id="foo"></div>
+        `;
+      }
+
+      get listeners () {
+        return {
+          'click #foo': 'doSomething',
+        };
+      }
+
+      doSomething () {
+        hit = true;
+      }
+    });
+
+    const fixture = await Fixture.create(`
+    <test-component-component3></test-component-component3>
+    `);
+
+    try {
+      await fixture.waitConnected();
+
+      event(fixture.$.foo).fire('click');
+      assert(hit);
+    } finally {
+      await fixture.dispose();
     }
   });
 });

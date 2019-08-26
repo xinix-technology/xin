@@ -5,8 +5,10 @@ import { ValueAccessor } from './value';
 import { ClassAccessor } from './class';
 import { StyleAccessor } from './style';
 import { PropertyAccessor } from './property';
+import { CallbackAccessor } from './callback';
 
 const accessors = [
+  CallbackAccessor,
   ValueAccessor,
   TextAccessor,
   HTMLAccessor,

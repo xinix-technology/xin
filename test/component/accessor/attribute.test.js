@@ -2,7 +2,7 @@ import { AttributeAccessor } from '@xinix/xin/component/accessor/attribute';
 import { Fixture } from '@xinix/xin/components/fixture';
 import assert from 'assert';
 
-describe('component/accessor/attribute AttributeAccessor', () => {
+describe('component:accessor:attribute AttributeAccessor', () => {
   describe('.test()', () => {
     it('detect element with attribute name ends with dollar sign', async () => {
       const fixture = await Fixture.create(`

@@ -2,7 +2,7 @@ import { TextAccessor } from '@xinix/xin/component/accessor/text';
 import { Fixture } from '@xinix/xin/components/fixture';
 import assert from 'assert';
 
-describe('component/accessor/text TextAccessor', () => {
+describe('component:accessor:text TextAccessor', () => {
   describe('.test()', () => {
     it('detect element with attribute name starts with text.', async () => {
       const fixture = await Fixture.create(`

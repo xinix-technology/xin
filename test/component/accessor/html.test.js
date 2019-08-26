@@ -2,7 +2,7 @@ import { HTMLAccessor } from '@xinix/xin/component/accessor/html';
 import { Fixture } from '@xinix/xin/components/fixture';
 import assert from 'assert';
 
-describe('component/accessor/html HTMLAccessor', () => {
+describe('component:accessor:html HTMLAccessor', () => {
   describe('.test()', () => {
     it('detect element with attribute name starts with html.', async () => {
       const fixture = await Fixture.create(`

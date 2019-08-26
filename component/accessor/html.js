@@ -2,7 +2,7 @@ import { BaseAccessor } from './base';
 
 export class HTMLAccessor extends BaseAccessor {
   static test (node, name) {
-    return name === 'html' && node.nodeType === window.Node.ELEMENT_NODE;
+    return name === 'html' && node.nodeType === Node.ELEMENT_NODE;
   }
 
   set (value) {
