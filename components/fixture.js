@@ -6,7 +6,7 @@ export class Fixture extends Component {
   static create (template, data = {}) {
     const d = document.createElement('div');
     d.innerHTML = `<xin-fixture><template>${template}</template></xin-fixture>`;
-    const fixture = d.firstElementChild;
+    const fixture = window.fixture = d.firstElementChild;
     fixture.__fixtureInitialData = data;
     document.body.appendChild(fixture);
 

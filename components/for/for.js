@@ -72,7 +72,7 @@ must be:
       container.appendChild(marker);
     }
 
-    this.__loopHost = marker.parentElement;
+    this.__loopHost = this.__templateModel;
     this.__loopMarker = marker;
 
     this.mount(this.__loopHost, this.__loopMarker);

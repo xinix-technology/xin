@@ -181,11 +181,12 @@ describe('components:for <xin-for>', () => {
       <div id="here">
         <xin-for id="theFor" items="[[rows]]" as="row">
           <template>
-            <div class="child">[[row.name]]</div>
+            <div class="child"><span>[[other]]</span> <span>[[row.name]]</span></div>
           </template>
         </xin-for>
       </div>
     `, {
+      other: 'foo',
       rows: [
         {
           name: 'foo',
@@ -203,9 +204,49 @@ describe('components:for <xin-for>', () => {
       await fixture.waitConnected();
       assert.strictEqual(fixture.querySelectorAll('.child').length, 3);
 
+      fixture.pop('rows');
+      await Async.sleep(50);
+
+      assert.strictEqual(fixture.__templateBinding.children.other.annotations.length, 2);
+
       fixture.$.theFor.parentElement.removeChild(fixture.$.theFor);
 
       assert.strictEqual(fixture.querySelectorAll('.child').length, 0);
+    } finally {
+      fixture.dispose();
+    }
+  });
+
+  it('delegate event to template host', async () => {
+    const hits = [];
+
+    const fixture = await Fixture.create(`
+      <div id="here">
+        <xin-for id="loop" items="[[items]]">
+          <template>
+            <a href="#" (click)="clickMe(evt, item)">[[item]]</a>
+          </template>
+        </xin-for>
+      </div>
+    `, {
+      items: [
+        'one',
+        'two',
+        'three',
+      ],
+      clickMe (evt, item) {
+        evt.preventDefault();
+        hits.push(item);
+        // console.log('xxx', evt, item);
+      },
+    });
+
+    try {
+      await fixture.waitConnected();
+
+      fixture.querySelectorAll('a').forEach(el => el.click());
+
+      assert.deepStrictEqual(hits, ['one', 'two', 'three']);
     } finally {
       fixture.dispose();
     }

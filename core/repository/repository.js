@@ -11,6 +11,11 @@ export class Repository {
     return window.xin$repository;
   }
 
+  /**
+   * Get singleton instance of repository
+   *
+   * @returns {Repository}
+   */
   static singleton () {
     if (!window.xin$repository) {
       Repository.bootstrap();

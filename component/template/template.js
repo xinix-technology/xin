@@ -263,6 +263,7 @@ export class Template {
   }
 
   mount (host, marker) {
+    // console.log('host', host)
     if (this.__templateMounted) {
       console.warn('Template already mounted');
       return;

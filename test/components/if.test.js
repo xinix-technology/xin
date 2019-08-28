@@ -7,28 +7,30 @@ describe('components:if <xin-if>', () => {
   it('render', async () => {
     const fixture = await Fixture.create(`
       <div>
-        <button (click)="doToggle(evt)">Toggle</button>
+        <div>
+          <button (click)="doToggle(evt)">Toggle</button>
+        </div>
+        <div>
+          <input type="text" value="{{name}}">
+        </div>
+        <xin-if condition="[[show]]">
+          <template>
+            <h3>if</h3>
+            <p>
+              hello <span>[[name]]</span>
+            </p>
+            <div>
+              <input type="text" value="{{name}}">
+            </div>
+          </template>
+          <template else>
+            <h3>else</h3>
+            <p>
+              bye <span>[[name]]</span>
+            </p>
+          </template>
+        </xin-if>
       </div>
-      <div>
-        <input type="text" value="{{name}}">
-      </div>
-      <xin-if condition="[[show]]">
-        <template>
-          <h3>if</h3>
-          <p>
-            hello <span>[[name]]</span>
-          </p>
-          <div>
-            <input type="text" value="{{name}}">
-          </div>
-        </template>
-        <template else>
-          <h3>else</h3>
-          <p>
-            bye <span>[[name]]</span>
-          </p>
-        </template>
-      </xin-if>
     `, {
       show: false,
       name: 'Ganesha',
