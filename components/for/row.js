@@ -1,5 +1,5 @@
 import { Template } from '../../component';
-import { Annotation } from '../../component/annotation';
+// import { Annotation } from '../../component/annotation';
 import { Expr } from '../../component/expr';
 
 export class Row extends Template {
@@ -14,9 +14,6 @@ export class Row extends Template {
     // override Template constructor
     this.__templateInitialize(template);
 
-    this.is = '$for-row';
-    this.__id = this.__templateId;
-
     this.__templateChildNodes.forEach(node => {
       if (node.nodeType === Node.ELEMENT_NODE) {
         node.__loopModel = this;
@@ -24,6 +21,10 @@ export class Row extends Template {
     });
 
     this.update(item, index);
+  }
+
+  get is () {
+    return '$for-row';
   }
 
   update (item, index) {
@@ -59,7 +60,9 @@ export class Row extends Template {
   //   path = this.__templateGetPathAsArray(path);
 
   //   if (path[0] === this.__loopAs || path[0] === this.__loopIndexAs) {
-  //     return super.get(path);
+  //     const value = super.get(path);
+  //     console.log('.', path, value)
+  //     return value;
   //   }
 
   //   return this.__templateHost.get(path);
@@ -71,37 +74,37 @@ export class Row extends Template {
     this.__templateMarker.parentElement.insertBefore(templateFragment, this.__templateMarker);
   }
 
-  __templateAnnotateRead (expr, accessor) {
-    const model = this.__loopInstance.__templateModel;
+  // __templateAnnotateRead (expr, accessor) {
+  //   const model = this.__loopInstance.__templateModel;
 
-    const annotation = new Annotation(expr, accessor);
+  //   const annotation = new Annotation(expr, accessor);
 
-    const path = this.__templateGetPathAsArray(expr.name);
+  //   const path = this.__templateGetPathAsArray(expr.name);
 
-    if (path[0] === this.__loopAs || path[0] === this.loopIndexAs) {
-      if (expr.type === Expr.METHOD) {
-        this.__templateGetBinding(expr.fn.name).annotate(annotation);
-      }
+  //   if (path[0] === this.__loopAs || path[0] === this.loopIndexAs) {
+  //     if (expr.type === Expr.METHOD) {
+  //       this.__templateGetBinding(expr.fn.name).annotate(annotation);
+  //     }
 
-      expr.vpaths.forEach(arg => {
-        this.__templateGetBinding(arg.name).annotate(annotation);
-      });
+  //     expr.varArgs.forEach(arg => {
+  //       this.__templateGetBinding(arg.name).annotate(annotation);
+  //     });
 
-      return;
-    }
+  //     return;
+  //   }
 
-    this.__loopAnnotations.push(annotation);
+  //   this.__loopAnnotations.push(annotation);
 
-    if (expr.type === Expr.METHOD) {
-      model.__templateGetBinding(expr.fn.name).annotate(annotation);
-    }
+  //   if (expr.type === Expr.METHOD) {
+  //     model.__templateGetBinding(expr.fn.name).annotate(annotation);
+  //   }
 
-    expr.vpaths.forEach(arg => {
-      model.__templateGetBinding(arg.name).annotate(annotation);
-    });
+  //   expr.varArgs.forEach(arg => {
+  //     model.__templateGetBinding(arg.name).annotate(annotation);
+  //   });
 
-    accessor.set(expr.invoke(model));
-  }
+  //   accessor.set(expr.invoke(model));
+  // }
 
   __templateAnnotateWrite (expr, accessor) {
     const path = this.__templateGetPathAsArray(expr.name);
@@ -142,7 +145,7 @@ export class Row extends Template {
         model.__templateGetBinding(annotation.expr.fn.name).deannotate(annotation);
       }
 
-      annotation.expr.vpaths.forEach(arg => {
+      annotation.expr.varArgs.forEach(arg => {
         model.__templateGetBinding(arg.name).deannotate(annotation);
       });
     });

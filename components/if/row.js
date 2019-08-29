@@ -6,19 +6,20 @@ export class Row extends Template {
   constructor (template, instance) {
     super();
 
-    this.is = '$if-row';
     this.__ifInstance = instance;
     this.__ifAnnotations = [];
 
     this.__templateInitialize(template);
-
-    this.__id = this.__templateId;
 
     this.__templateChildNodes.forEach(node => {
       if (node.nodeType === Node.ELEMENT_NODE) {
         node.__ifModel = this;
       }
     });
+  }
+
+  get is () {
+    return '$if-row';
   }
 
   // get (path) {
@@ -60,7 +61,7 @@ export class Row extends Template {
       model.__templateGetBinding(expr.fn.name).annotate(annotation);
     }
 
-    expr.vpaths.forEach(arg => {
+    expr.varArgs.forEach(arg => {
       model.__templateGetBinding(arg.name).annotate(annotation);
     });
 
@@ -110,7 +111,7 @@ export class Row extends Template {
         model.__templateGetBinding(annotation.expr.fn.name).deannotate(annotation);
       }
 
-      annotation.expr.vpaths.forEach(arg => {
+      annotation.expr.varArgs.forEach(arg => {
         model.__templateGetBinding(arg.name).deannotate(annotation);
       });
     });

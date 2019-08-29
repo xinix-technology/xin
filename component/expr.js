@@ -77,6 +77,7 @@ class Expr {
     this.args = [];
     this.filters = [];
     this.value = value;
+    this.varArgs = [];
 
     if (type === Expr.STATIC) {
       return;
@@ -102,27 +103,20 @@ class Expr {
 
       this.name = matches[1].trim();
       this.fn = Token.get(this.name);
-
       this.args = Expr.tokenize(matches[2]);
     }
+
+    this.varArgs = this.args.reduce((varArgs, arg) => {
+      if (arg.type === 'v' && varArgs.indexOf(arg.name) === -1) {
+        varArgs.push(arg);
+      }
+
+      return varArgs;
+    }, []);
   }
 
   get constant () {
-    return this.type !== Expr.METHOD && this.vpaths.length !== this.args.length;
-  }
-
-  get vpaths () {
-    if (!this._vpaths) {
-      const paths = [];
-      this.args.forEach(arg => {
-        if (arg.type === 'v' && paths.indexOf(arg.name) === -1) {
-          paths.push(arg);
-        }
-      });
-      this._vpaths = paths;
-    }
-
-    return this._vpaths;
+    return this.type !== Expr.METHOD && this.varArgs.length !== this.args.length;
   }
 
   invoke (model, otherArgs) {

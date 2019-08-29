@@ -1,11 +1,11 @@
 // eslint-disable-line max-lines
 import { idGenerator } from './helpers/id-generator';
 
+const nextSelectorId = idGenerator();
 const nextEventId = idGenerator();
 
 let _matcher;
 let _level = 0;
-let _id = 0;
 const _handlers = {};
 const _delegatorInstances = {};
 
@@ -280,14 +280,14 @@ function _bind (events, selector, callback, remove) { // eslint-disable-line max
   }
 
   if (selector instanceof Element) {
-    let id;
-    if (selector.hasAttribute('bind-event-id')) {
-      id = selector.getAttribute('bind-event-id');
+    let selectorId;
+    if (selector.hasAttribute('event-selector-id')) {
+      selectorId = selector.getAttribute('event-selector-id');
     } else {
-      id = nextEventId();
-      selector.setAttribute('bind-event-id', id);
+      selectorId = nextSelectorId();
+      selector.setAttribute('event-selector-id', selectorId);
     }
-    selector = `[bind-event-id="${id}"]`;
+    selector = `[event-selector-id="${selectorId}"]`;
   }
 
   const id = this.id;
@@ -442,8 +442,8 @@ export function event (element) {
     }
   }
 
-  _id++;
-  _delegatorInstances[_id] = new Delegator(element, _id);
+  const id = nextEventId();
+  _delegatorInstances[id] = new Delegator(element, id);
 
-  return _delegatorInstances[_id];
+  return _delegatorInstances[id];
 }

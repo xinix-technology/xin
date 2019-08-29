@@ -12,17 +12,20 @@ import { slotName } from './slot';
 const nextId = idGenerator();
 
 export class Template {
-  constructor (template, data = {}) {
+  constructor (template) {
     if (!template) {
       return;
     }
 
     this.__templateInitialize(template);
-    this.all(data);
   }
 
   get $ () {
     return this.__templateHost.getElementsByTagName('*');
+  }
+
+  get $global () {
+    return window;
   }
 
   $$ (selector) {
@@ -53,10 +56,10 @@ export class Template {
     return event(this.__templateHost).fire(type, detail, options);
   }
 
-  all (obj) {
-    for (const i in obj) {
-      if (Object.prototype.hasOwnProperty.call(obj, i)) {
-        this.set(i, obj[i]);
+  all (data) {
+    for (const i in data) {
+      if (Object.prototype.hasOwnProperty.call(data, i)) {
+        this.set(i, data[i]);
       }
     }
   }
@@ -96,6 +99,12 @@ export class Template {
       return;
     }
 
+    this.__templateWalkSet(path, value);
+
+    this.notify(path, value);
+  }
+
+  __templateWalkSet (path, value) {
     let object = this;
 
     path.slice(0, -1).forEach(segment => {
@@ -112,8 +121,6 @@ export class Template {
     const property = path.slice(-1).pop();
 
     object[property] = value;
-
-    this.notify(path, value);
   }
 
   push (path, ...values) {
@@ -216,11 +223,11 @@ export class Template {
 
     const binding = this.__templateGetBinding(path);
     if (binding) {
-      if (value === undefined) {
-        value = this.get(path);
-      }
-
-      binding.dispatchEffect({ model: this, value });
+      // if (value === undefined) {
+      //   value = this.get(path);
+      // }
+      // binding.dispatchEffect({ model: this, value });
+      binding.dispatchEffect({ model: this });
     }
   }
 
@@ -292,6 +299,8 @@ export class Template {
     this.__templateMounted = true;
     this.__templateNotifyOnMounted.forEach(key => this.notify(key, this.get(key)));
     this.__templateNotifyOnMounted = [];
+
+    this.notify('$global');
   }
 
   unmount () {
@@ -525,7 +534,7 @@ export class Template {
       this.__templateGetBinding(expr.fn.name).annotate(annotation);
     }
 
-    expr.vpaths.forEach(arg => {
+    expr.varArgs.forEach(arg => {
       this.__templateGetBinding(arg.name).annotate(annotation);
     });
   }
@@ -581,6 +590,12 @@ export class Template {
     });
   }
 
+  /**
+   * Get binding object
+   *
+   * @param {string|array} path
+   * @returns {Binding}
+   */
   __templateGetBinding (path) {
     const segments = this.__templateGetPathAsArray(path);
 

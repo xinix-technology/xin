@@ -3,21 +3,22 @@ import { Fixture } from '@xinix/xin/components';
 import { define, Component } from '@xinix/xin';
 
 describe('cases:binding', () => {
-  it('bind value from property', async () => {
+  it.only('bind value from property', async () => {
     const fixture = await Fixture.create(`
-    <input id="el" type="text" value="[[value]]">
-    <div>[[foo.bar]]</div>
+      <input id="el" type="text" value="[[value]]">
+      <!--div>[[foo.bar]]</div-->
     `, {
       foo: {
         bar: 'baz',
       },
     });
+
     try {
       await fixture.waitConnected();
       fixture.set('value', 'foo');
       assert.strictEqual(fixture.$.el.value, 'foo');
     } finally {
-      fixture.dispose();
+      // fixture.dispose();
     }
   });
 

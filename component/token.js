@@ -39,49 +39,48 @@ export class Token {
     }
   }
 
-  value (...contexts) {
+  value (...models) {
     if (this.type === 's') {
       return this._value;
     }
 
-    for (const context of contexts) {
-      if (!context) {
+    for (const model of models) {
+      if (!model) {
         continue;
       }
 
-      const val = typeof context.get === 'function' ? context.get(this.name) : context[this.name];
+      const val = typeof model.get === 'function' ? model.get(this.name) : model[this.name];
       if (val !== undefined) {
         return val;
       }
     }
   }
 
-  invoke (args, ...contexts) {
-    if (contexts.length === 0) {
-      throw new Error(`Cannot invoke method ${this.name} of undefined context`);
+  invoke (args, ...models) {
+    if (models.length === 0) {
+      throw new Error(`Cannot invoke method ${this.name} of undefined model`);
     }
 
     if (this.type === 's') {
-      const [context] = contexts;
-      throw new Error(`Method is not eligible, ${context.__templateHost.nodeName || '$anonymous'}#${this.name}`);
+      const [model] = models;
+      throw new Error(`Method is not eligible, ${model.__templateHost.nodeName || '$anonymous'}#${this.name}`);
     }
 
-    for (const context of contexts) {
-      if (!context) {
+    for (const model of models) {
+      if (!model) {
         continue;
       }
 
-      if (typeof context.get === 'function') {
-        const ctx = this.contextName ? context.get(this.contextName) : context;
+      if (typeof model.get === 'function') {
+        const ctx = this.contextName ? model.get(this.contextName) : model;
         if (typeof ctx[this.baseName] === 'function') {
           return ctx[this.baseName](...args);
         }
-      } else if (typeof context[this.name] === 'function') {
-        return context[this.name].apply(context, args);
+      } else if (typeof model[this.name] === 'function') {
+        return model[this.name].apply(model, args);
       }
     }
 
-    const [context] = contexts;
-    throw new Error(`Method is not eligible, ${context.__templateHost.nodeName || '$anonymous'}#${this.name}`);
+    throw new Error(`Method is not eligible, ${models[0].__templateHost.nodeName || '$anonymous'}#${this.name}`);
   }
 }

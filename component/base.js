@@ -1,7 +1,7 @@
 // eslint-disable-line max-lines
 import { Repository, event } from '../core';
 import { dashify } from '../core/string';
-import { idGenerator, deserialize, val } from '../core/helpers';
+import { deserialize, val } from '../core/helpers';
 import { Template } from './template';
 import { Expr } from './expr';
 import { accessorFactory } from './accessor';
@@ -9,7 +9,6 @@ import { Annotation } from './annotation';
 import { Async, Debounce } from '../core/fn';
 
 const debug = require('debug')('xin::component');
-const nextId = idGenerator();
 const baseComponents = {};
 
 const tProto = Template.prototype;
@@ -34,13 +33,23 @@ export function base (base) {
     constructor () {
       super();
 
-      this.is = this.nodeName.toLowerCase();
-
       this.createdCallback();
+    }
+
+    get is () {
+      return this.nodeName.toLowerCase();
     }
 
     get $ () {
       return this.__templateHost.getElementsByTagName('*');
+    }
+
+    get $global () {
+      return window;
+    }
+
+    get $repository () {
+      return repository;
     }
 
     created () {}
@@ -54,8 +63,6 @@ export function base (base) {
     createdCallback () {
       if (debug.enabled) /* istanbul ignore next */ debug(`CREATED ${this.is}`);
 
-      this.__id = nextId();
-
       this.created();
 
       this.__componentInitData();
@@ -67,12 +74,6 @@ export function base (base) {
       event(this).fire('before-ready');
 
       if (debug.enabled) /* istanbul ignore next */ debug(`READY ${this.is}`);
-
-      if (!this.hasAttribute('xin-id')) {
-        // deferred set attributes until connectedCallback
-        this.setAttribute('xin-id', this.__id);
-        repository.put(this.__id, this);
-      }
 
       this.__componentInitTemplate();
       this.__componentInitListeners();
@@ -105,7 +106,6 @@ export function base (base) {
       this.__componentMount();
 
       // notify default props
-      this.notify('$global');
       this.notify('$repository');
 
       if (debug.enabled) { /* istanbul ignore next */
@@ -129,14 +129,6 @@ export function base (base) {
 
     disconnectedCallback () {
       return this.detachedCallback();
-    }
-
-    get $global () {
-      return window;
-    }
-
-    get $repository () {
-      return repository;
     }
 
     __componentInitData () {
@@ -208,7 +200,7 @@ export function base (base) {
 
         // when property is undefined, log error when property is required otherwise assign to default value
         if (property.required && propValue === undefined /* (propValue === undefined || propValue === null) */) {
-          throw new Error(`${this.is}:${this.__id} missing required ${propName}`);
+          throw new Error(`${this.is}:${this.__templateId} missing required ${propName}`);
         }
 
         // set and force notify for the first time
@@ -231,6 +223,12 @@ export function base (base) {
       }
 
       this.__templateInitialize(template);
+
+      if (!this.hasAttribute('xin-id')) {
+        // deferred set attributes until connectedCallback
+        this.setAttribute('xin-id', this.__templateId);
+        repository.put(this.__templateId, this);
+      }
     }
 
     __componentInitListeners () {
@@ -280,7 +278,7 @@ export function base (base) {
   }
 
   tProtoProps.forEach(key => {
-    if (key === '$') {
+    if (key === '$' || key === '$global') {
       return;
     }
 

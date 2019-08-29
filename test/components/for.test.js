@@ -1,7 +1,7 @@
 import assert from 'assert';
-import { Fixture } from '@xinix/xin/components/fixture';
-import { Async } from '@xinix/xin';
-import '@xinix/xin/components/for';
+import { Fixture } from '../../components/fixture';
+import { define, Component, Async } from '../..';
+import '../../components/for';
 
 describe('components:for <xin-for>', () => {
   it('render list', async () => {
@@ -120,6 +120,52 @@ describe('components:for <xin-for>', () => {
       assert.strictEqual(fixture.$$('xin-for').modelForElement(fixture.$$('span')).get('index'), 0);
     } finally {
       fixture.dispose();
+    }
+  });
+
+  it('bind item and index from row model', async () => {
+    define('test-for-bind', class extends Component {
+      get template () {
+        return `
+          <div id="container">
+            <xin-for id="loop" items="[[rows]]" as="row" index-as="idx">
+              <template>
+                <div>
+                  <span>[[outer]]</span>
+                  <span>[[$global.document.title]]</span>
+                  <span>[[idx]]</span>
+                  <span>[[row.name]]</span> =>
+                  <span>[[doSomethingWithName(row.name, "processed:")]]</span>
+                </div>
+              </template>
+            </xin-for>
+          </div>
+        `;
+      }
+
+      attached () {
+        super.attached();
+
+        this.set('outer', 'outer');
+        this.set('rows', [
+          { name: 'foo' },
+          // { name: 'bar' },
+        ]);
+      }
+
+      doSomethingWithName (name, prefix) {
+        return `${prefix}${name}`;
+      }
+    });
+
+    const fixture = await Fixture.create(`
+      <test-for-bind id="placeholder"></test-for-bind>
+    `);
+
+    try {
+      await fixture.waitConnected();
+    } finally {
+      // fixture.dispose();
     }
   });
 
