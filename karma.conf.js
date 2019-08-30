@@ -16,9 +16,8 @@ module.exports = function (config) { // eslint-disable-line max-lines-per-functi
 
     // list of files / patterns to load in the browser
     files: [
-      // 'test/init.js',
-      // 'test/**/*.test.js',
-      'test/cases/binding.test.js',
+      'test/init.js',
+      'test/**/*.test.js',
     ],
 
     // list of files to exclude

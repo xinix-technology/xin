@@ -1,6 +1,6 @@
 // eslint-disable-line max-lines
 import { event } from '../../core';
-import { idGenerator } from '../../core/helpers/id-generator';
+import { idGenerator, val } from '../../core/helpers';
 import { Expr } from '../expr';
 import { Binding } from '../binding';
 import { accessorFactory } from '../accessor';
@@ -12,12 +12,13 @@ import { slotName } from './slot';
 const nextId = idGenerator();
 
 export class Template {
-  constructor (template) {
+  constructor (template, props = {}) {
+    // if template is not specified you must call __templateInitialize yourself
     if (!template) {
       return;
     }
 
-    this.__templateInitialize(template);
+    this.__templateInitialize(template, props);
   }
 
   get $ () {
@@ -101,7 +102,7 @@ export class Template {
 
     this.__templateWalkSet(path, value);
 
-    this.notify(path, value);
+    this.notify(path);
   }
 
   __templateWalkSet (path, value) {
@@ -147,7 +148,7 @@ export class Template {
 
     object[property] = object[property].slice();
     const result = object[property].push(...values);
-    this.notify(path, object[property]);
+    this.notify(path);
 
     return result;
   }
@@ -176,7 +177,7 @@ export class Template {
 
     object[property] = object[property].slice();
     const result = object[property].pop();
-    this.notify(path, object[property]);
+    this.notify(path);
 
     return result;
   }
@@ -205,12 +206,12 @@ export class Template {
 
     object[property] = object[property].slice();
     const result = object[property].splice(index, removeCount, ...values);
-    this.notify(path, object[property]);
+    this.notify(path);
 
     return result;
   }
 
-  notify (path, value) {
+  notify (path) {
     path = this.__templateGetPathAsString(path);
 
     if (!this.__templateMounted) {
@@ -223,21 +224,21 @@ export class Template {
 
     const binding = this.__templateGetBinding(path);
     if (binding) {
-      // if (value === undefined) {
-      //   value = this.get(path);
-      // }
-      // binding.dispatchEffect({ model: this, value });
       binding.dispatchEffect({ model: this });
     }
   }
 
-  __templateInitialize (template) {
+  __templateInitialize (template, props = {}) {
     this.__templateId = nextId();
     this.__templateBinding = new Binding();
     this.__templateEventListeners = [];
+    this.__templateDelegator = this;
 
     this.__templateMounted = false;
     this.__templateNotifyOnMounted = [];
+
+    this.__templateInitProps(props);
+    this.__templateInitValues();
 
     if (!template) {
       return;
@@ -257,6 +258,62 @@ export class Template {
     this.__templateParseAnnotations();
   }
 
+  __templateInitProps (props = {}) {
+    this.__templateProps = { ...props };
+    this.__templateInitialValues = {};
+
+    props = this.__templateProps;
+    for (const propKey in props) {
+      this.__templateInitProp(propKey, props[propKey]);
+    }
+  }
+
+  __templateInitProp (propKey, prop) {
+    if ('computed' in prop) {
+      const expr = Expr.getFn(prop.computed, [], true);
+      this.__templateAnnotate(expr, accessorFactory(this, propKey));
+
+      this.__templateInitialValues[propKey] = () => expr.invoke(this);
+    }
+
+    if ('observer' in prop) {
+      const expr = Expr.getFn(prop.observer, [propKey], true);
+      this.__templateAnnotate(expr);
+    }
+  }
+
+  __templateInitValues () {
+    const props = this.__templateProps;
+    for (const propKey in props) {
+      const prop = props[propKey];
+
+      let propValue;
+
+      if (this.__templateInitialValues[propKey]) {
+        propValue = this.__templateInitialValues[propKey]();
+      } else {
+        propValue = this[propKey];
+      }
+
+      if ('value' in prop && isUndefinedPropValue(propKey, propValue)) {
+        propValue = val(prop.value);
+      }
+
+      // when property is undefined, throw error when property is required
+      if (prop.required && propValue === undefined) {
+        throw new Error(`${this.is}:${this.__templateId} missing required ${propKey}`);
+      }
+
+      // set and force notify for the first time
+      this[propKey] = propValue;
+
+      // only notify if propValue already defined otherwise undefined value will be propagated to model
+      if (propValue !== undefined) {
+        this.notify(propKey);
+      }
+    }
+  }
+
   __templateUninitialize () {
     this.__templateRemoveEventListener();
 
@@ -267,13 +324,16 @@ export class Template {
     this.__templateBinding.dispose();
     this.__templateChildNodes = undefined;
     this.__template = undefined;
+    this.__templateDelegator = undefined;
   }
 
   mount (host, marker) {
-    // console.log('host', host)
     if (this.__templateMounted) {
-      console.warn('Template already mounted');
-      return;
+      throw new Error('Template already mounted');
+    }
+
+    if (!host) {
+      throw new Error('Cannot mount to unknown host');
     }
 
     this.__templateHost = host;
@@ -297,7 +357,7 @@ export class Template {
     }
 
     this.__templateMounted = true;
-    this.__templateNotifyOnMounted.forEach(key => this.notify(key, this.get(key)));
+    this.__templateNotifyOnMounted.forEach(key => this.notify(key));
     this.__templateNotifyOnMounted = [];
 
     this.notify('$global');
@@ -305,8 +365,7 @@ export class Template {
 
   unmount () {
     if (!this.__templateMounted) {
-      console.warn('Template already unmounted');
-      return;
+      throw new Error('Template already unmounted');
     }
 
     this.__templateMounted = false;
@@ -419,7 +478,7 @@ export class Template {
     const selector = element;
     const listener = evt => expr.invoke(this, { evt });
 
-    this.__templateAddEventListener({ name, selector, listener });
+    this.__templateAddEventListener({ name, selector, listener, expr });
   }
 
   __templateParseAttributeAnnotations (element) {
@@ -530,12 +589,12 @@ export class Template {
     // annotate every paths
     const annotation = new Annotation(expr, accessor);
 
-    if (expr.type === Expr.METHOD) {
-      this.__templateGetBinding(expr.fn.name).annotate(annotation);
+    if (annotation.expr.type === Expr.METHOD) {
+      this.__templateAddAnnotationBinding(annotation.expr.fn.name, annotation);
     }
 
-    expr.varArgs.forEach(arg => {
-      this.__templateGetBinding(arg.name).annotate(annotation);
+    annotation.expr.varArgs.forEach(arg => {
+      this.__templateAddAnnotationBinding(arg.name, annotation);
     });
   }
 
@@ -560,16 +619,17 @@ export class Template {
     }
   }
 
-  __templateAddEventListener ({ name, selector, listener }) {
-    if (!name) {
+  // FIXME: change signature
+  __templateAddEventListener (handler) {
+    if (!handler.name) {
       throw new Error('Event listener must define name');
     }
 
-    if (!listener) {
+    if (!handler.listener) {
       throw new Error('Event listener must define listener callback');
     }
 
-    this.__templateEventListeners.push({ name, selector, listener });
+    this.__templateEventListeners.push(handler);
   }
 
   __templateRemoveEventListener ({ name, selector, listener } = {}) {
@@ -597,8 +657,26 @@ export class Template {
    * @returns {Binding}
    */
   __templateGetBinding (path) {
+    if (!path) {
+      return this.__templateBinding;
+    }
+
     const segments = this.__templateGetPathAsArray(path);
 
     return segments.reduce((binding, segment) => binding.getChild(segment), this.__templateBinding);
   }
+
+  __templateAddCallbackBinding (propKey, callback) {
+    const annotation = new Annotation(Expr.get(propKey, true), accessorFactory(callback));
+    this.__templateGetBinding(propKey).annotate(annotation);
+    return annotation;
+  }
+
+  __templateAddAnnotationBinding (propKey, annotation) {
+    this.__templateGetBinding(propKey).annotate(annotation);
+  }
+}
+
+function isUndefinedPropValue (propName, propValue) {
+  return propValue === undefined || (propName === 'title' && !propValue);
 }

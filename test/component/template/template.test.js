@@ -1,6 +1,5 @@
-import { Template } from '@xinix/xin/component/template';
+import { Template, Async } from '../../..';
 import assert from 'assert';
-import { Async } from '@xinix/xin/core';
 
 import '@xinix/xin/components/for';
 

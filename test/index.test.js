@@ -19,9 +19,10 @@ describe('xin', () => {
   });
 
   it('define global xin repository', () => {
-    assert.strictEqual(window.xin$repository.constructor.name, 'Repository');
-    assert(typeof window.xin$repository.get === 'function');
-    assert(typeof window.xin$repository.put === 'function');
-    assert(typeof window.xin$repository.update === 'function');
+    const repo = window.xin$repository;
+    assert.strictEqual(repo.constructor.name, 'Repository');
+    assert(typeof repo.get === 'function');
+    assert(typeof repo.put === 'function');
+    assert(typeof repo.update === 'function');
   });
 });

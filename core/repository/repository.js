@@ -2,13 +2,14 @@ const debug = require('debug')('xin::core');
 
 export class Repository {
   static bootstrap (data) {
-    if (window.xin$repository) {
-      window.xin$repository.update(data);
+    let repo = window.xin$repository;
+    if (repo) {
+      repo.update(data);
     } else {
-      window.xin$repository = new Repository(data);
+      repo = window.xin$repository = new Repository(data);
     }
 
-    return window.xin$repository;
+    return repo;
   }
 
   /**
@@ -17,22 +18,24 @@ export class Repository {
    * @returns {Repository}
    */
   static singleton () {
-    if (!window.xin$repository) {
-      Repository.bootstrap();
+    let repo = window.xin$repository;
+    if (!repo) {
+      repo = Repository.bootstrap();
     }
 
-    if (typeof window.xin$repository.update !== 'function') {
+    if (typeof repo.update !== 'function') {
       throw new Error('Invalid global xin repository found!');
     }
 
-    return window.xin$repository;
+    return repo;
   }
 
   constructor (data = {}) {
     if (debug.enabled) /* istanbul ignore next */ debug('Repository construct...');
-    this.data = Object.assign({
+    this.data = {
       'customElements.version': 'v1',
-    }, data);
+      ...data,
+    };
   }
 
   update (data = {}) {

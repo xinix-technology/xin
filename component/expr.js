@@ -129,7 +129,7 @@ class Expr {
       return arg.value(model, otherArgs);
     });
 
-    return this.fn.invoke(args, model, model.__templateHost);
+    return this.fn.invoke(args, model);
   }
 }
 

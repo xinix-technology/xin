@@ -1,3 +1,5 @@
+import { Expr } from './expr';
+
 export class Binding {
   constructor (name) {
     this.name = name;
@@ -11,6 +13,27 @@ export class Binding {
     }
 
     return this.children[name];
+  }
+
+  getAnnotatedPaths ({ excludeMethods = false } = {}) {
+    const paths = [];
+
+    for (const key in this.children) {
+      const child = this.children[key];
+      child.getAnnotatedPaths({ excludeMethods }).forEach(path => {
+        paths.push(this.name ? `${this.name}.${path}` : path);
+      });
+    }
+
+    if (this.annotations.length && (!excludeMethods || !this.hasMethodAnnotation())) {
+      paths.push(this.name);
+    }
+
+    return paths;
+  }
+
+  hasMethodAnnotation () {
+    return Boolean(this.annotations.find(({ expr }) => expr.type === Expr.METHOD && expr.name === this.name));
   }
 
   annotate (annotation) {

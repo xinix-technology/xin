@@ -15,7 +15,7 @@ export function define (name, Component, options) {
   if (repository.get('customElements.version') === 'v1') {
     // v1 the element class is the component itself
     ElementClass = Component;
-    window.customElements.define(name, Component, options);
+    customElements.define(name, Component, options);
   } else {
     const prototype = Object.create(Component.prototype, { is: { value: name } });
     const ElementPrototype = { prototype };

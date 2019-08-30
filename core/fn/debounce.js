@@ -1,8 +1,7 @@
 import { Async } from './async';
 
 export class Debounce {
-  constructor (context, immediate) {
-    this.context = context;
+  constructor (immediate) {
     this.immediate = Boolean(immediate);
     this.async = null;
     this.running = false;
@@ -13,10 +12,14 @@ export class Debounce {
       throw new Error('Unimplemented yet!');
     }
 
+    if (this.running) {
+      this.cancel();
+    }
+
     this.running = true;
-    this.async = new Async(this.context);
+    this.async = new Async();
     this.async.start(() => {
-      callback.call(this.context);
+      callback();
       this.running = false;
       this.async = null;
     }, wait);

@@ -17,7 +17,7 @@ describe('component:template:slot', () => {
     try {
       await fixture.waitConnected();
 
-      assert.strictEqual(window.foo.textContent, 'foo baz bar');
+      assert.strictEqual(fixture.$.foo.textContent, 'foo baz bar');
     } finally {
       fixture.dispose();
     }
@@ -40,7 +40,7 @@ describe('component:template:slot', () => {
     try {
       await fixture.waitConnected();
 
-      assert.strictEqual(window.foo.textContent, 'first last');
+      assert.strictEqual(fixture.$.foo.textContent, 'first last');
     } finally {
       fixture.dispose();
     }

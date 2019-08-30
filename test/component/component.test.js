@@ -41,7 +41,7 @@ describe('component:component Component', () => {
         assert.strictEqual(hits[k], 1);
       }
     } finally {
-      await fixture.dispose();
+      fixture.dispose();
 
       event(document.body).off('before-ready');
     }
@@ -77,7 +77,7 @@ describe('component:component Component', () => {
       event(fixture.$.foo).fire('click');
       assert(hit);
     } finally {
-      await fixture.dispose();
+      fixture.dispose();
     }
   });
 });

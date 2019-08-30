@@ -34,12 +34,19 @@ export class Async {
   }
 
   static run (callback, wait) {
-    return (new Async()).start(callback, wait);
+    const async = new Async();
+    async.start(callback, wait);
+    return async;
   }
 
-  constructor (context) {
+  static cancel (async) {
+    if (async && typeof async.cancel === 'function') {
+      async.cancel();
+    }
+  }
+
+  constructor () {
     this.id = nextId();
-    this.context = context;
     this.cleared = true;
   }
 
@@ -55,11 +62,10 @@ export class Async {
     this.cleared = false;
 
     const self = this;
-    const context = this.context;
     const boundCallback = function () {
       self.frameHandle = requestAnimationFrame(() => {
-        self.__clear();
-        callback.call(context);
+        self.cancel();
+        callback();
       });
     };
 
@@ -70,15 +76,10 @@ export class Async {
     }
   }
 
-  __clear () {
+  cancel () {
     this.cleared = true;
-
     cancelAnimationFrame(~~this.frameHandle);
     clearTimeout(~~this.handle);
     this.handle = this.frameHandle = undefined;
-  }
-
-  cancel () {
-    this.__clear();
   }
 }

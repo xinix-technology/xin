@@ -68,7 +68,7 @@ describe('components:transition <xin-transition>', () => {
     try {
       await fixture.waitConnected();
 
-      await Async.sleep(50);
+      await Async.sleep();
 
       await new Promise(resolve => {
         function onTransitionEnd (evt) {

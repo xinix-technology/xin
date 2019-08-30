@@ -1,6 +1,5 @@
 import { Component, define } from '../component';
-import { Async } from '../core/fn/async';
-import { event } from '../core/event';
+import { event, Async } from '../core';
 
 export class Fixture extends Component {
   static create (template, data = {}) {
@@ -22,7 +21,7 @@ export class Fixture extends Component {
     this.connected = true;
 
     // delay connected to make sure children is already connected
-    this.async(() => this.fire('connected'));
+    Async.run(() => this.fire('connected'));
   }
 
   detached () {

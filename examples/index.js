@@ -17,7 +17,8 @@ class XFormView extends View {
   }
 
   get props () {
-    return Object.assign({}, super.props, {
+    return {
+      ...super.props,
       op1: {
         type: Number,
         value: 0,
@@ -27,7 +28,7 @@ class XFormView extends View {
         type: Number,
         value: 0,
       },
-    });
+    };
   }
 
   attached () {

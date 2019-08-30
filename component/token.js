@@ -56,31 +56,22 @@ export class Token {
     }
   }
 
-  invoke (args, ...models) {
-    if (models.length === 0) {
-      throw new Error(`Cannot invoke method ${this.name} of undefined model`);
-    }
-
+  invoke (args, model) {
     if (this.type === 's') {
-      const [model] = models;
-      throw new Error(`Method is not eligible, ${model.__templateHost.nodeName || '$anonymous'}#${this.name}`);
+      throw new Error(`Method is not eligible, ${model.is}:${model.__templateId}#${this.name}`);
     }
 
-    for (const model of models) {
-      if (!model) {
-        continue;
-      }
+    const delegator = model.__templateDelegator;
 
-      if (typeof model.get === 'function') {
-        const ctx = this.contextName ? model.get(this.contextName) : model;
-        if (typeof ctx[this.baseName] === 'function') {
-          return ctx[this.baseName](...args);
-        }
-      } else if (typeof model[this.name] === 'function') {
-        return model[this.name].apply(model, args);
+    if (typeof delegator.get === 'function') {
+      const ctx = this.contextName ? delegator.get(this.contextName) : delegator;
+      if (typeof ctx[this.baseName] === 'function') {
+        return ctx[this.baseName](...args);
       }
+    } else if (typeof delegator[this.name] === 'function') {
+      return delegator[this.name](...args);
     }
 
-    throw new Error(`Method is not eligible, ${models[0].__templateHost.nodeName || '$anonymous'}#${this.name}`);
+    throw new Error(`Method is not eligible, ${model.is}:${model.__templateId}#${this.name}`);
   }
 }

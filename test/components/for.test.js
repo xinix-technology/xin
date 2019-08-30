@@ -7,35 +7,32 @@ describe('components:for <xin-for>', () => {
   it('render list', async () => {
     const fixture = await Fixture.create(`
       <div id="here">
-        <xin-for items="[[rows]]" as="row">
+        <xin-for id="loop" items="{{rows}}" as="row">
           <template>
-            <div class="child">[[row.name]]</div>
+            <div class="child">[[row]]</div>
           </template>
         </xin-for>
       </div>
-    `);
+    `, {
+      rows: ['foo', 'bar', 'baz'],
+    });
 
     try {
-      window.fixture = fixture;
       await fixture.waitConnected();
-      const rows = [
-        {
-          name: 'foo',
-        },
-        {
-          name: 'bar',
-        },
-        {
-          name: 'baz',
-        },
-      ];
-      fixture.set('rows', rows);
-      await Async.sleep(50);
-      assert.strictEqual(fixture.querySelectorAll('.child').length, rows.length);
 
-      fixture.set('rows', [{ name: 'zap' }]);
-      await Async.sleep(50);
+      assert.strictEqual(fixture.$.loop.__loopRows[0].__templateModel, fixture.$.loop);
+
+      assert.strictEqual(fixture.querySelectorAll('.child').length, 3);
+
+      fixture.set('rows', ['zap']);
+      await Async.sleep();
+      assert.strictEqual(fixture.$.loop.items[0], 'zap');
+      assert.strictEqual(fixture.$.loop.__loopRows[0].row, 'zap');
       assert.strictEqual(fixture.querySelectorAll('.child').length, 1);
+
+      fixture.$.loop.__loopRows[0].set('row', 'update from row');
+      assert.strictEqual(fixture.$.loop.items[0], 'update from row');
+      assert.strictEqual(fixture.rows[0], 'update from row');
     } finally {
       fixture.dispose();
     }
@@ -79,7 +76,7 @@ describe('components:for <xin-for>', () => {
         },
       ];
       fixture.set('rows', rows);
-      await Async.sleep(50);
+      await Async.sleep();
 
       assert.strictEqual(fixture.$.firstBody.children.length, 0);
       assert.strictEqual(fixture.$.secondBody.children.length, 3);
@@ -90,7 +87,7 @@ describe('components:for <xin-for>', () => {
 
   it('get item, index, and model for element', async () => {
     const fixture = await Fixture.create(`
-      <xin-for items="[[rows]]" as="row">
+      <xin-for id="loop" items="[[rows]]" as="row">
         <template>
           <div>
             <span>[[row.name]]</span>
@@ -105,15 +102,15 @@ describe('components:for <xin-for>', () => {
         {
           name: 'foo',
         },
-        {
-          name: 'bar',
-        },
-        {
-          name: 'baz',
-        },
+        // {
+        //   name: 'bar',
+        // },
+        // {
+        //   name: 'baz',
+        // },
       ];
       fixture.set('rows', rows);
-      await Async.sleep(50);
+      await Async.sleep();
 
       assert.deepStrictEqual(fixture.$$('xin-for').itemForElement(fixture.$$('span')), { name: 'foo' });
       assert.strictEqual(fixture.$$('xin-for').indexForElement(fixture.$$('span')), 0);
@@ -130,12 +127,11 @@ describe('components:for <xin-for>', () => {
           <div id="container">
             <xin-for id="loop" items="[[rows]]" as="row" index-as="idx">
               <template>
-                <div>
-                  <span>[[outer]]</span>
-                  <span>[[$global.document.title]]</span>
-                  <span>[[idx]]</span>
-                  <span>[[row.name]]</span> =>
-                  <span>[[doSomethingWithName(row.name, "processed:")]]</span>
+                <div index$="[[idx]]">
+                  <span class="outer">[[outer.child]]</span>
+                  <span class="idx">[[idx]]</span>
+                  <span class="rowName">[[row.name]]</span> =>
+                  <span class="processed">[[doSomethingWithName(row.name, "processed:")]]</span>
                 </div>
               </template>
             </xin-for>
@@ -146,10 +142,12 @@ describe('components:for <xin-for>', () => {
       attached () {
         super.attached();
 
-        this.set('outer', 'outer');
+        this.set('outer', {
+          child: 'outer',
+        });
         this.set('rows', [
           { name: 'foo' },
-          // { name: 'bar' },
+          { name: 'bar' },
         ]);
       }
 
@@ -164,15 +162,26 @@ describe('components:for <xin-for>', () => {
 
     try {
       await fixture.waitConnected();
+
+      await Async.sleep();
+      assert.strictEqual(fixture.$$('[index="0"] .outer').textContent, 'outer');
+      assert.strictEqual(fixture.$$('[index="0"] .idx').textContent, '0');
+      assert.strictEqual(fixture.$$('[index="0"] .rowName').textContent, 'foo');
+      assert.strictEqual(fixture.$$('[index="0"] .processed').textContent, 'processed:foo');
+
+      assert.strictEqual(fixture.$$('[index="1"] .outer').textContent, 'outer');
+      assert.strictEqual(fixture.$$('[index="1"] .idx').textContent, '1');
+      assert.strictEqual(fixture.$$('[index="1"] .rowName').textContent, 'bar');
+      assert.strictEqual(fixture.$$('[index="1"] .processed').textContent, 'processed:bar');
     } finally {
-      // fixture.dispose();
+      fixture.dispose();
     }
   });
 
   it('render list with data from parent', async () => {
     const fixture = await Fixture.create(`
       <div id="here">
-        <xin-for items="[[rows]]" as="row">
+        <xin-for id="loop" items="[[rows]]" as="row">
           <template>
             <div class="child">
               <span>[[row.name]]</span>
@@ -204,7 +213,10 @@ describe('components:for <xin-for>', () => {
         },
       ];
       fixture.set('rows', rows);
-      await Async.sleep(50);
+      await Async.sleep();
+
+      assert.strictEqual(fixture.$.loop.__loopRows[0].foo, 'foo');
+      assert.strictEqual(fixture.$.loop.foo, 'foo');
 
       fixture.querySelectorAll('.child').forEach(child => {
         assert.strictEqual(child.querySelector('.parent-data').textContent, 'foo');
@@ -225,7 +237,7 @@ describe('components:for <xin-for>', () => {
   it('uninitialize rows when disconnected (prevent leak)', async () => {
     const fixture = await Fixture.create(`
       <div id="here">
-        <xin-for id="theFor" items="[[rows]]" as="row">
+        <xin-for id="loop" items="[[rows]]" as="row">
           <template>
             <div class="child"><span>[[other]]</span> <span>[[row.name]]</span></div>
           </template>
@@ -251,12 +263,13 @@ describe('components:for <xin-for>', () => {
       assert.strictEqual(fixture.querySelectorAll('.child').length, 3);
 
       fixture.pop('rows');
-      await Async.sleep(50);
+      await Async.sleep();
 
-      assert.strictEqual(fixture.__templateBinding.children.other.annotations.length, 2);
+      assert.strictEqual(fixture.__templateBinding.children.other.annotations.length, 1);
 
-      fixture.$.theFor.parentElement.removeChild(fixture.$.theFor);
+      fixture.$.loop.parentElement.removeChild(fixture.$.loop);
 
+      assert.strictEqual(fixture.__templateBinding.children.other.annotations.length, 0);
       assert.strictEqual(fixture.querySelectorAll('.child').length, 0);
     } finally {
       fixture.dispose();
@@ -289,10 +302,52 @@ describe('components:for <xin-for>', () => {
 
     try {
       await fixture.waitConnected();
+      await Async.sleep();
 
       fixture.querySelectorAll('a').forEach(el => el.click());
 
       assert.deepStrictEqual(hits, ['one', 'two', 'three']);
+    } finally {
+      fixture.dispose();
+    }
+  });
+
+  it('render nested for', async () => {
+    const fixture = await Fixture.create(`
+      <div id="here">
+        <xin-for id="loop" items="[[rows]]" as="row">
+          <template>
+            <div id="rowLine">loop <span>[[outer]]</span></div>
+            <xin-for id="loop2" items="[[row.children]]" as="child">
+              <template>
+                <div id="childLine">
+                  <span>[[outer]]</span>
+                  <span>[[row.name]]</span>
+                  <span>[[child]]</span>
+                </div>
+              </template>
+            </xin-for>
+          </template>
+        </xin-for>
+      </div>
+    `, {
+      outer: 'outer',
+      rows: [
+        {
+          name: 'foo',
+          children: [
+            'foo1',
+          ],
+        },
+      ],
+    });
+
+    try {
+      await fixture.waitConnected();
+      await Async.sleep(50);
+
+      assert.strictEqual(fixture.$.rowLine.textContent, 'loop outer');
+      assert.strictEqual(fixture.$.childLine.textContent.trim().replace(/\s+/g, ' '), 'outer foo foo1');
     } finally {
       fixture.dispose();
     }

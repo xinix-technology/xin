@@ -1,6 +1,12 @@
 import { Component, define } from '../../component';
 import { Row } from './row';
-// import { Async } from '../core/fn/async';
+
+const ERR_INVALID_DEFINITION = `Invalid xin-if definition,
+must be:
+<xin-if items="[[items]]">
+  <template>...</template>
+  <template else>...</template>
+</xin-if>`;
 
 export class If extends Component {
   get props () {
@@ -9,7 +15,7 @@ export class If extends Component {
 
       condition: {
         type: Boolean,
-        observer: 'observeCondition(condition)',
+        observer: '__observeCondition(condition)',
       },
 
       to: {
@@ -19,68 +25,129 @@ export class If extends Component {
     };
   }
 
+  attached () {
+    super.attached();
+
+    this.__ifSetupExternals();
+    this.__observeCondition(this.condition);
+  }
+
+  detached () {
+    super.detached();
+
+    this.__ifThenRow.dispose();
+    this.__ifElseRow.dispose();
+    this.__ifThenRow = undefined;
+    this.__ifElseRow = undefined;
+
+    this.__ifTeardownExternals();
+  }
+
+  __ifSetupExternals () {
+    this.__ifThenRow = new Row(this.__ifThenTemplate, this);
+    if (this.__ifElseTemplate) {
+      this.__ifElseRow = new Row(this.__ifElseTemplate, this);
+    }
+
+    this.__ifExternalAnnotations = [];
+
+    const row = this.__ifThenRow;
+    const paths = row.__templateGetBinding().getAnnotatedPaths({ excludeMethods: true });
+
+    paths.forEach(path => {
+      const pathArr = this.__templateGetPathAsArray(path);
+      this.__ifAddExternalAnnotation(pathArr[0]);
+      if (path !== pathArr[0]) {
+        this.__ifAddExternalAnnotation(path);
+      }
+    });
+  }
+
+  __ifAddExternalAnnotation (path) {
+    if (this.__ifExternalAnnotations.find(ea => ea.path === path)) {
+      return;
+    }
+
+    const update = value => {
+      this.set(path, value);
+      this.__ifThenRow.set(path, value);
+      if (this.__ifElseRow) {
+        this.__ifElseRow.set(path, value);
+      }
+    };
+
+    const annotation = this.__templateModel.__templateAddCallbackBinding(path, update);
+    update(this.__templateModel.get(path));
+
+    this.__ifExternalAnnotations.push({ path, annotation });
+  }
+
+  __ifTeardownExternals () {
+    this.__ifExternalAnnotations.forEach(({ path, annotation }) => {
+      this.__templateModel.__templateGetBinding(path).deannotate(annotation);
+    });
+    this.__ifExternalAnnotations = [];
+  }
+
   __componentInitTemplate () {
     const children = this.children;
-
-    if (children.length < 1 || children.length > 2 || children[0].nodeName !== 'TEMPLATE') {
-      throw new Error('Invalid xin-if definition, must be <xin-if items="[[items]]"><template>...</template></xin-if>');
+    if (this.children.length < 1 || this.children.length > 2 || this.firstElementChild.nodeName !== 'TEMPLATE') {
+      throw new Error(ERR_INVALID_DEFINITION);
     }
 
-    this.__ifThenTemplate = children[0];
-    this.removeChild(this.__ifThenTemplate);
+    this.__ifThenTemplate = this.firstElementChild;
+    this.removeChild(this.firstElementChild);
 
-    if (children.length === 1) {
-      if (children[0].nodeName !== 'TEMPLATE') {
-        throw new Error(`Invalid xin-if definition,
-must be:
-<xin-if items="[[items]]">
-  <template>...</template>
-  <template else>...</template>
-</xin-if>`);
-      }
-
-      this.__ifElseTemplate = children[0];
-      this.removeChild(this.__ifElseTemplate);
+    if (children.length !== 1 || this.firstElementChild.nodeName !== 'TEMPLATE') {
+      throw new Error(ERR_INVALID_DEFINITION);
     }
+
+    this.__ifElseTemplate = this.firstElementChild;
+    this.removeChild(this.firstElementChild);
 
     super.__componentInitTemplate();
   }
 
   __componentMount () {
-    let marker = this;
+    this.__ifHost = this.__templateModel;
+    this.__ifSetupMarker();
+    this.mount(this, this.__ifMarker);
+  }
+
+  __componentUnmount () {
+    super.__componentUnmount();
+    this.__ifTeardownMarker();
+    this.__ifHost = undefined;
+  }
+
+  __ifSetupMarker () {
     const toAttr = this.getAttribute('to');
     if (toAttr) {
       const container = this.parentElement.querySelector(toAttr) || document.querySelector(toAttr);
       if (!container) {
-        throw new Error(`xin-for render to unknown element ${toAttr}`);
+        throw new Error(`xin-if render to unknown element ${toAttr}`);
       }
-      marker = document.createComment('marker-for');
-      container.appendChild(marker);
+
+      this.__ifMarker = document.createComment('marker-if');
+      container.appendChild(this.__ifMarker);
+
+      return;
     }
 
-    this.__ifHost = marker.parentElement;
-    this.__ifMarker = marker;
-
-    this.mount(this.__ifHost, this.__ifMarker);
+    this.__ifMarker = this;
   }
 
-  __componentUnmount () {
-    this.__ifThenRow.dispose();
-    this.__ifElseRow.dispose();
+  __ifTeardownMarker () {
+    if (this.__ifMarker !== this) {
+      this.__ifMarker.parentElement.removeChild(this.__ifMarker);
+    }
 
-    this.__ifThenRow = undefined;
-    this.__ifElseRow = undefined;
-
-    super.__componentUnmount();
+    this.__ifMarker = undefined;
   }
 
-  observeCondition (condition) {
+  __observeCondition (condition) {
     if (!this.__ifThenRow) {
-      this.__ifThenRow = new Row(this.__ifThenTemplate, this);
-
-      if (this.__ifElseTemplate) {
-        this.__ifElseRow = new Row(this.__ifElseTemplate, this);
-      }
+      return;
     }
 
     if (condition) {

@@ -129,7 +129,7 @@ function whenTransitionEnds (elements, expectedType, cb) {
 }
 
 function getTransitionInfo (el, expectedType) {
-  const styles = window.getComputedStyle(el);
+  const styles = getComputedStyle(el);
   // JSDOM may return undefined for transition properties
   const transitionDelays = (styles[transitionProp + 'Delay'] || '').split(', ');
   const transitionDurations = (styles[transitionProp + 'Duration'] || '').split(', ');

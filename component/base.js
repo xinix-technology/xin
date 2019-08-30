@@ -1,12 +1,9 @@
 // eslint-disable-line max-lines
-import { Repository, event } from '../core';
+import { Repository, event, Async } from '../core';
 import { dashify } from '../core/string';
-import { deserialize, val } from '../core/helpers';
+import { deserialize } from '../core/helpers';
 import { Template } from './template';
 import { Expr } from './expr';
-import { accessorFactory } from './accessor';
-import { Annotation } from './annotation';
-import { Async, Debounce } from '../core/fn';
 
 const debug = require('debug')('xin::component');
 const baseComponents = {};
@@ -14,6 +11,12 @@ const baseComponents = {};
 const tProto = Template.prototype;
 const tProtoProps = Object.getOwnPropertyNames(tProto);
 
+/**
+ * Create base element
+ *
+ * @param {Element} base
+ * @returns {BaseComponent}
+ */
 export function base (base) {
   const repository = Repository.singleton();
 
@@ -29,7 +32,7 @@ export function base (base) {
     BaseElement.prototype = Object.create(window[base].prototype);
   }
 
-  class Component extends BaseElement {
+  class BaseComponent extends BaseElement {
     constructor () {
       super();
 
@@ -61,11 +64,15 @@ export function base (base) {
     detached () {}
 
     createdCallback () {
-      if (debug.enabled) /* istanbul ignore next */ debug(`CREATED ${this.is}`);
+      if (debug.enabled) /* istanbul ignore next */ debug(`CREATED ${this.is}:${this.__templateId}`);
 
       this.created();
 
-      this.__componentInitData();
+      this.__componentReady = false;
+      this.__componentReadyInvoked = false;
+      this.__componentAttaching = false;
+      this.__componentInitialPropValues = {};
+      this.__componentProps = null;
     }
 
     readyCallback () {
@@ -73,12 +80,10 @@ export function base (base) {
 
       event(this).fire('before-ready');
 
-      if (debug.enabled) /* istanbul ignore next */ debug(`READY ${this.is}`);
+      if (debug.enabled) /* istanbul ignore next */ debug(`READY ${this.is}:${this.__templateId}`);
 
       this.__componentInitTemplate();
       this.__componentInitListeners();
-      this.__componentInitProps();
-      this.__componentInitPropValues();
 
       this.ready();
 
@@ -98,7 +103,7 @@ export function base (base) {
       if (!this.__componentReady) {
         if (!this.__componentReadyInvoked) {
           this.__componentReadyInvoked = true;
-          this.async(this.readyCallback);
+          Async.run(() => this.readyCallback());
         }
         return;
       }
@@ -109,7 +114,7 @@ export function base (base) {
       this.notify('$repository');
 
       if (debug.enabled) { /* istanbul ignore next */
-        debug(`ATTACHED ${this.is} ${this.__componentAttaching ? '(delayed)' : ''}`);
+        debug(`ATTACHED ${this.is}:${this.__templateId} ${this.__componentAttaching ? '(delayed)' : ''}`);
       }
 
       this.attached();
@@ -131,86 +136,24 @@ export function base (base) {
       return this.detachedCallback();
     }
 
-    __componentInitData () {
-      this.__componentDebouncers = {};
-      this.__componentReady = false;
-      this.__componentReadyInvoked = false;
-      this.__componentAttaching = false;
-      this.__componentInitialPropValues = {};
-    }
+    __templateInitProp (propKey, prop) {
+      Template.prototype.__templateInitProp.call(this, propKey, prop);
 
-    __componentInitProps () {
-      const props = this.__componentGetProps();
-      for (const propName in props) {
-        const property = props[propName];
-        const attrName = dashify(propName);
-
-        if ('computed' in property) {
-          const expr = Expr.getFn(property.computed, [], true);
-          this.__templateAnnotate(expr, accessorFactory(this, propName));
-
-          this.__componentInitialPropValues[propName] = () => expr.invoke(this);
-        }
-
-        if ('observer' in property) {
-          const expr = Expr.getFn(property.observer, [propName], true);
-          this.__templateAnnotate(expr);
-        }
-
-        if (this.hasAttribute(attrName)) {
-          const attrVal = this.getAttribute(attrName);
-          const expr = Expr.get(attrVal);
-
-          if ('notify' in property && expr.mode === Expr.READWRITE) {
-            const accessor = accessorFactory(value => this.__templateModel.set(expr.name, value));
-            this.__templateGetBinding(propName).annotate(new Annotation(Expr.get(propName, true), accessor));
-          }
-
-          this.__componentInitialPropValues[propName] = expr.type === Expr.STATIC
-            ? () => deserialize(attrVal, property.type)
-            : () => expr.invoke(this.__templateModel);
-        }
+      const attrName = dashify(propKey);
+      if (!this.hasAttribute(attrName)) {
+        return;
       }
-    }
 
-    __componentGetProps () {
-      if (!this.__componentProps) {
-        this.__componentProps = this.props || {};
+      const attrVal = this.getAttribute(attrName);
+      const expr = Expr.get(attrVal);
+
+      if ('notify' in prop && expr.mode === Expr.READWRITE) {
+        this.__templateAddCallbackBinding(propKey, value => this.__templateModel.set(expr.name, value));
       }
-      return this.__componentProps;
-    }
 
-    __componentInitPropValues () {
-      const props = this.__componentGetProps();
-
-      for (const propName in props) {
-        const property = props[propName];
-
-        let propValue;
-
-        if (this.__componentInitialPropValues[propName]) {
-          propValue = this.__componentInitialPropValues[propName]();
-        } else {
-          propValue = this[propName];
-        }
-
-        if ('value' in property && isUndefinedPropValue(propName, propValue)) {
-          propValue = val(property.value);
-        }
-
-        // when property is undefined, log error when property is required otherwise assign to default value
-        if (property.required && propValue === undefined /* (propValue === undefined || propValue === null) */) {
-          throw new Error(`${this.is}:${this.__templateId} missing required ${propName}`);
-        }
-
-        // set and force notify for the first time
-        this[propName] = propValue;
-
-        // only notify if propValue already defined otherwise undefined value will be propagated to model
-        if (propValue !== undefined) {
-          this.notify(propName, propValue);
-        }
-      }
+      this.__templateInitialValues[propKey] = expr.type === Expr.STATIC
+        ? () => deserialize(attrVal, prop.type)
+        : () => expr.invoke(this.__templateModel);
     }
 
     __componentInitTemplate () {
@@ -222,7 +165,7 @@ export function base (base) {
         this.removeChild(template);
       }
 
-      this.__templateInitialize(template);
+      this.__templateInitialize(template, this.props);
 
       if (!this.hasAttribute('xin-id')) {
         // deferred set attributes until connectedCallback
@@ -253,41 +196,25 @@ export function base (base) {
     }
 
     __componentUnmount () {
-      this.unmount();
-    }
-
-    async (callback, waitTime) {
-      return (new Async(this)).start(callback, waitTime);
-    }
-
-    debounce (job, callback, wait, immediate) { // eslint-disable-line max-params
-      let debouncer = this.__componentDebouncers[job];
-      if (debouncer && debouncer.running) {
-        debouncer.cancel();
-      } else {
-        debouncer = this.__componentDebouncers[job] = new Debounce(this, immediate);
+      if (!this.__componentReady) {
+        return;
       }
-      debouncer.start(callback, wait);
 
-      return debouncer;
-    }
-
-    nextFrame (callback) {
-      return Async.nextFrame(callback.bind(this));
+      this.unmount();
     }
   }
 
   tProtoProps.forEach(key => {
-    if (key === '$' || key === '$global') {
+    if (key === '$' || key === '$global' || key === '__templateInitProp') {
       return;
     }
 
-    Component.prototype[key] = tProto[key];
+    BaseComponent.prototype[key] = tProto[key];
   });
 
-  baseComponents[base] = Component;
+  baseComponents[base] = BaseComponent;
 
-  return Component;
+  return BaseComponent;
 }
 
 function parseListenerMetadata (key) {
@@ -296,8 +223,4 @@ function parseListenerMetadata (key) {
   const selector = selectorArr.length ? selectorArr.join(' ') : null;
   const metadata = { key, eventName, selector };
   return metadata;
-}
-
-function isUndefinedPropValue (propName, propValue) {
-  return propValue === undefined || (propName === 'title' && !propValue);
 }

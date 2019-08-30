@@ -3,22 +3,19 @@ import { Fixture } from '@xinix/xin/components';
 import { define, Component } from '@xinix/xin';
 
 describe('cases:binding', () => {
-  it.only('bind value from property', async () => {
+  it('bind value from property', async () => {
     const fixture = await Fixture.create(`
-      <input id="el" type="text" value="[[value]]">
-      <!--div>[[foo.bar]]</div-->
-    `, {
-      foo: {
-        bar: 'baz',
-      },
-    });
+      <input id="el1" type="text" value="[[value]]">
+      <div id="el2">[[value]]</div>
+    `);
 
     try {
       await fixture.waitConnected();
       fixture.set('value', 'foo');
-      assert.strictEqual(fixture.$.el.value, 'foo');
+      assert.strictEqual(fixture.$.el1.value, 'foo');
+      assert.strictEqual(fixture.$.el2.innerText, 'foo');
     } finally {
-      // fixture.dispose();
+      fixture.dispose();
     }
   });
 
@@ -157,11 +154,12 @@ describe('cases:binding', () => {
       }
 
       get props () {
-        return Object.assign({}, super.props, {
+        return {
+          ...super.props,
           foo: {
             type: String,
           },
-        });
+        };
       }
     });
 
@@ -173,7 +171,7 @@ describe('cases:binding', () => {
 
     assert.strictEqual(fixture.$.comp.textContent, 'foo was here');
 
-    await fixture.dispose();
+    fixture.dispose();
   });
 
   it('initialize data from default value', async () => {
@@ -183,12 +181,13 @@ describe('cases:binding', () => {
       }
 
       get props () {
-        return Object.assign({}, super.props, {
+        return {
+          ...super.props,
           foo: {
             type: String,
             value: 'default foo',
           },
-        });
+        };
       }
     });
 
@@ -200,7 +199,7 @@ describe('cases:binding', () => {
 
     assert.strictEqual(fixture.$.comp.textContent, 'default foo');
 
-    await fixture.dispose();
+    fixture.dispose();
   });
 
   it('compute data', async () => {
@@ -210,7 +209,8 @@ describe('cases:binding', () => {
       }
 
       get props () {
-        return Object.assign({}, super.props, {
+        return {
+          ...super.props,
           first: {
             type: String,
           },
@@ -223,7 +223,7 @@ describe('cases:binding', () => {
             type: String,
             computed: '_computeFull(first, last)',
           },
-        });
+        };
       }
 
       _computeFull (first, last) {
@@ -243,19 +243,20 @@ describe('cases:binding', () => {
 
       assert.strictEqual(fixture.$.comp.full, 'foo bar');
     } finally {
-      await fixture.dispose();
+      fixture.dispose();
     }
   });
 
   it('notify data', async () => {
     define('test-binding-4', class extends Component {
       get props () {
-        return Object.assign({}, super.props, {
+        return {
+          ...super.props,
           value: {
             type: String,
             notify: true,
           },
-        });
+        };
       }
     });
 
@@ -274,7 +275,7 @@ describe('cases:binding', () => {
       assert.strictEqual(fixture.foo, 'bar');
       assert.strictEqual(fixture.$.comp.value, 'bar');
     } finally {
-      await fixture.dispose();
+      fixture.dispose();
     }
   });
 });
