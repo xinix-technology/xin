@@ -66,5 +66,6 @@ export class Binding {
     this.annotations.forEach(annotation => {
       this.deannotate(annotation);
     });
+    this.annotations = [];
   }
 }

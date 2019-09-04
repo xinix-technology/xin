@@ -1,5 +1,5 @@
 import assert from 'assert';
-import { Fixture } from '@xinix/xin/components/fixture';
+import { Fixture } from '../../components/fixture';
 
 describe('components:fixture <xin-fixture>', () => {
   it('render list', async () => {

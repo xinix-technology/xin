@@ -287,31 +287,35 @@ export class Template {
     for (const propKey in props) {
       const prop = props[propKey];
 
-      let propValue;
-
-      if (this.__templateInitialValues[propKey]) {
-        propValue = this.__templateInitialValues[propKey]();
-      } else {
-        propValue = this[propKey];
-      }
-
-      if ('value' in prop && isUndefinedPropValue(propKey, propValue)) {
-        propValue = val(prop.value);
-      }
-
-      // when property is undefined, throw error when property is required
-      if (prop.required && propValue === undefined) {
-        throw new Error(`${this.is}:${this.__templateId} missing required ${propKey}`);
-      }
-
       // set and force notify for the first time
-      this[propKey] = propValue;
+      this[propKey] = this.__templateGetInitialValue(propKey, prop);
 
       // only notify if propValue already defined otherwise undefined value will be propagated to model
-      if (propValue !== undefined) {
+      if (this[propKey] !== undefined) {
         this.notify(propKey);
       }
     }
+  }
+
+  __templateGetInitialValue (propKey, prop) {
+    let propValue;
+
+    if (this.__templateInitialValues[propKey]) {
+      propValue = this.__templateInitialValues[propKey]();
+    } else {
+      propValue = this[propKey];
+    }
+
+    if ('value' in prop && isUndefinedPropValue(propKey, propValue)) {
+      propValue = val(prop.value);
+    }
+
+    // when property is undefined, throw error when property is required
+    if (prop.required && propValue === undefined) {
+      throw new Error(`${this.is}:${this.__templateId} missing required ${propKey}`);
+    }
+
+    return propValue;
   }
 
   __templateUninitialize () {
@@ -322,6 +326,7 @@ export class Template {
     }
 
     this.__templateBinding.dispose();
+    this.__templateBinding = undefined;
     this.__templateChildNodes = undefined;
     this.__template = undefined;
     this.__templateDelegator = undefined;
@@ -373,20 +378,22 @@ export class Template {
 
     this.__templateStopEventListeners();
 
-    if (
-      this.__templateMarker &&
-      this.__templateMarker.parentElement === this.__templateHost &&
-      this.__templateMarker.nodeType === Node.COMMENT_NODE &&
-      this.__templateMarker.data === `marker-${this.__templateId}`
-    ) {
-      this.__templateHost.removeChild(this.__templateMarker);
-    }
+    this.__templateRemoveGeneratedMarker();
 
     this.__templateHost = undefined;
     this.__templateMarker = undefined;
 
     if (this.__template) {
       this.__templateUnrender();
+    }
+  }
+
+  __templateRemoveGeneratedMarker () {
+    if (this.__templateMarker &&
+      this.__templateMarker.parentElement === this.__templateHost &&
+      this.__templateMarker.nodeType === Node.COMMENT_NODE &&
+      this.__templateMarker.data === `marker-${this.__templateId}`) {
+      this.__templateHost.removeChild(this.__templateMarker);
     }
   }
 
@@ -468,12 +475,7 @@ export class Template {
   __templateParseEventAnnotations (element, attrName) {
     // bind event annotation
     const attrValue = element.getAttribute(attrName);
-    let name = attrName.slice(1, -1);
-
-    if (name === 'tap') {
-      name = 'click';
-    }
-
+    const name = attrName.slice(1, -1);
     const expr = Expr.getFn(attrValue, [], true);
     const selector = element;
     const listener = evt => expr.invoke(this, { evt });
@@ -485,8 +487,6 @@ export class Template {
     // clone attributes to array first then foreach because we will remove
     // attribute later if already processed
     // this hack to make sure when attribute removed the attributes index doesnt shift.
-    let annotated = false;
-
     const len = element.attributes.length;
 
     for (let i = 0; i < len; i++) {
@@ -494,7 +494,7 @@ export class Template {
 
       const attrName = attr.name;
 
-      if (attrName === 'id' || attrName === 'class' || attrName === 'style') {
+      if (['id', 'class', 'style'].indexOf(attrName) !== -1) {
         continue;
       }
 
@@ -507,44 +507,38 @@ export class Template {
         }
 
         // bind property annotation
-        annotated = this.__templateAnnotate(expr, accessorFactory(element, attrName)) || annotated;
+        this.__templateAnnotate(expr, accessorFactory(element, attrName));
       }
     }
-
-    return annotated;
   }
 
   __templateParseElementAnnotations (element) {
-    let annotated = false;
-
     // when element already has template model it means it already parsed, skip
     // parsing that element
     if (element.__templateModel) {
-      return annotated;
+      return;
     }
 
     element.__templateModel = this;
 
-    if (element.attributes && element.attributes.length) {
-      annotated = this.__templateParseAttributeAnnotations(element) || annotated;
+    if (notEmpty(element.attributes)) {
+      this.__templateParseAttributeAnnotations(element);
     }
 
-    if (element.childNodes && element.childNodes.length) {
+    if (notEmpty(element.childNodes)) {
       const childNodes = [].slice.call(element.childNodes);
       const childNodesLength = childNodes.length;
 
       for (let i = 0; i < childNodesLength; i++) {
-        annotated = this.__templateParseNodeAnnotations(childNodes[i]) || annotated;
+        this.__templateParseNodeAnnotations(childNodes[i]);
       }
     }
 
     element.querySelectorAll('slot').forEach(slot => {
       slot.childNodes.forEach(node => {
-        annotated = this.__templateParseNodeAnnotations(node) || annotated;
+        this.__templateParseNodeAnnotations(node);
       });
     });
-
-    return annotated;
   }
 
   __templateParseNodeAnnotations (node) {
@@ -619,7 +613,6 @@ export class Template {
     }
   }
 
-  // FIXME: change signature
   __templateAddEventListener (handler) {
     if (!handler.name) {
       throw new Error('Event listener must define name');
@@ -633,20 +626,12 @@ export class Template {
   }
 
   __templateRemoveEventListener ({ name, selector, listener } = {}) {
+    const matchName = elName => name === undefined || name === elName;
+    const matchSelector = elSelector => selector === undefined || selector === elSelector;
+    const matchListener = elListener => listener === undefined || listener === elListener;
+
     this.__templateEventListeners = this.__templateEventListeners.filter(el => {
-      if (name === undefined) {
-        return false;
-      }
-
-      if (name === el.name && selector === undefined) {
-        return false;
-      }
-
-      if (name === el.name && selector === el.selector && (listener === undefined || el.listener === listener)) {
-        return false;
-      }
-
-      return true;
+      return !(matchName(el.name) && matchSelector(el.selector) && matchListener(el.listener));
     });
   }
 
@@ -679,4 +664,8 @@ export class Template {
 
 function isUndefinedPropValue (propName, propValue) {
   return propValue === undefined || (propName === 'title' && !propValue);
+}
+
+function notEmpty (iter) {
+  return iter && iter.length;
 }

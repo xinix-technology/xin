@@ -7,7 +7,6 @@ export class Row extends Template {
     this.__loopInstance = instance;
     this.__loopAs = instance.as;
     this.__loopIndexAs = instance.indexAs;
-    this.__loopAnnotations = [];
 
     // override Template constructor
     this.__templateInitialize(template);
@@ -46,5 +45,14 @@ export class Row extends Template {
     const templateFragment = document.createDocumentFragment();
     this.__templateChildNodes.forEach(node => templateFragment.appendChild(node));
     this.__templateMarker.parentElement.insertBefore(templateFragment, this.__templateMarker);
+  }
+
+  dispose () {
+    this.__templateModel = undefined;
+    this.__loopInstance = undefined;
+    this.__loopAs = undefined;
+    this.__loopIndexAs = undefined;
+
+    super.dispose();
   }
 }

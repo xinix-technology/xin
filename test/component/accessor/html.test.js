@@ -1,5 +1,5 @@
-import { HTMLAccessor } from '@xinix/xin/component/accessor/html';
-import { Fixture } from '@xinix/xin/components/fixture';
+import { HTMLAccessor } from '../../../component/accessor/html';
+import { Fixture } from '../../../components/fixture';
 import assert from 'assert';
 
 describe('component:accessor:html HTMLAccessor', () => {

@@ -1,5 +1,5 @@
-import { Repository, define, Component } from '@xinix/xin';
-import { Fixture } from '@xinix/xin/components/fixture';
+import { Repository, define, Component } from '../..';
+import { Fixture } from '../../components/fixture';
 import assert from 'assert';
 
 describe('core:define #define()', () => {

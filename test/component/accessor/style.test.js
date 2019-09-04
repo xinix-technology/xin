@@ -1,5 +1,5 @@
-import { StyleAccessor } from '@xinix/xin/component/accessor/style';
-import { Fixture } from '@xinix/xin/components/fixture';
+import { StyleAccessor } from '../../../component/accessor/style';
+import { Fixture } from '../../../components/fixture';
 import assert from 'assert';
 
 describe('component:accessor:style StyleAccessor', () => {

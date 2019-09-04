@@ -1,4 +1,4 @@
-import { BaseAccessor } from '@xinix/xin/component/accessor/base';
+import { BaseAccessor } from '../../../component/accessor/base';
 import assert from 'assert';
 
 describe('component:accessor:base BaseAccessor', () => {

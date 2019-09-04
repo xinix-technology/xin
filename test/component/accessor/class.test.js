@@ -1,5 +1,5 @@
-import { ClassAccessor } from '@xinix/xin/component/accessor/class';
-import { Fixture } from '@xinix/xin/components/fixture';
+import { ClassAccessor } from '../../../component/accessor/class';
+import { Fixture } from '../../../components/fixture';
 import assert from 'assert';
 
 describe('component:accessor:class ClassAccessor', () => {

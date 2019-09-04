@@ -10,14 +10,13 @@ export class Fx {
     return adapters[name] || adapters.none;
   }
 
-  constructor (options) {
-    options = options || {};
-    this.element = options.element;
-    this.duration = options.duration || 0;
-    this.transition = options.transition || 'none';
-    this.method = options.method || '';
+  constructor ({ element, duration = 0, transition = 'none', method = '', adapter } = {}) {
+    this.element = element;
+    this.duration = duration;
+    this.transition = transition;
+    this.method = method;
 
-    this.adapter = options.adapter || Fx.get(this.transition);
+    this.adapter = adapter || Fx.get(this.transition);
 
     this.running = false;
     this.direction = 0;

@@ -1,6 +1,6 @@
 module.exports = {
   rules: {
     'max-lines': 'off',
-    'max-nested-callbacks': ['error', 4],
+    'max-nested-callbacks': 'off',
   },
 };

@@ -1,5 +1,5 @@
-import { define, Component } from '@xinix/xin';
-import { Fixture } from '@xinix/xin/components/fixture';
+import { define, Component } from '../../..';
+import { Fixture } from '../../../components/fixture';
 import assert from 'assert';
 
 describe('component:template:slot', () => {

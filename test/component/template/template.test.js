@@ -1,7 +1,7 @@
 import { Template, Async } from '../../..';
 import assert from 'assert';
 
-import '@xinix/xin/components/for';
+import '../../../components/for';
 
 describe('component:template:template Template', () => {
   it('bind value', () => {

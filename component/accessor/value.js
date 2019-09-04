@@ -4,11 +4,11 @@ const { TEXT_NODE, ELEMENT_NODE } = Node;
 
 export class ValueAccessor extends BaseAccessor {
   static test (node, name) {
-    if (name === 'value' && node.nodeType === ELEMENT_NODE && node.nodeName === 'INPUT') {
+    if (name === 'value' && isInput(node)) {
       return true;
     }
 
-    if (node.nodeType === TEXT_NODE && node.parentElement && node.parentElement.nodeName === 'TEXTAREA') {
+    if (isTextareaText(node)) {
       return true;
     }
   }
@@ -16,7 +16,7 @@ export class ValueAccessor extends BaseAccessor {
   constructor (node) {
     super(node, 'value');
 
-    if (node.nodeType === TEXT_NODE && node.parentElement && node.parentElement.nodeName === 'TEXTAREA') {
+    if (isTextareaText(node)) {
       this.node = node.parentElement;
     }
   }
@@ -26,4 +26,12 @@ export class ValueAccessor extends BaseAccessor {
       super.set(value);
     }
   }
+}
+
+function isInput (node) {
+  return node.nodeType === ELEMENT_NODE && node.nodeName === 'INPUT';
+}
+
+function isTextareaText (node) {
+  return node.nodeType === TEXT_NODE && node.parentElement && node.parentElement.nodeName === 'TEXTAREA';
 }

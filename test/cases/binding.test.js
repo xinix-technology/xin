@@ -1,6 +1,6 @@
 import assert from 'assert';
-import { Fixture } from '@xinix/xin/components';
-import { define, Component } from '@xinix/xin';
+import { Fixture } from '../../components';
+import { define, Component } from '../..';
 
 describe('cases:binding', () => {
   it('bind value from property', async () => {

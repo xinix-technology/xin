@@ -15,7 +15,7 @@ export class If extends Component {
 
       condition: {
         type: Boolean,
-        observer: '__observeCondition(condition)',
+        observer: '__ifObserveCondition(condition)',
       },
 
       to: {
@@ -29,7 +29,7 @@ export class If extends Component {
     super.attached();
 
     this.__ifSetupExternals();
-    this.__observeCondition(this.condition);
+    this.__ifObserveCondition(this.condition);
   }
 
   detached () {
@@ -145,27 +145,29 @@ export class If extends Component {
     this.__ifMarker = undefined;
   }
 
-  __observeCondition (condition) {
+  __ifObserveCondition (condition) {
     if (!this.__ifThenRow) {
       return;
     }
 
     if (condition) {
-      if (!this.__ifThenRow.__templateMounted) {
-        this.__ifThenRow.mount(this.__ifHost, this.__ifMarker);
-      }
-
-      if (this.__ifElseRow && this.__ifElseRow.__templateMounted) {
-        this.__ifElseRow.unmount();
-      }
+      this.__ifMount(this.__ifThenRow);
+      this.__ifUnmount(this.__ifElseRow);
     } else {
-      if (this.__ifThenRow.__templateMounted) {
-        this.__ifThenRow.unmount();
-      }
+      this.__ifMount(this.__ifElseRow);
+      this.__ifUnmount(this.__ifThenRow);
+    }
+  }
 
-      if (this.__ifElseRow && !this.__ifElseRow.__templateMounted) {
-        this.__ifElseRow.mount(this.__ifHost, this.__ifMarker);
-      }
+  __ifMount (row) {
+    if (row && !row.__templateMounted) {
+      row.mount(this.__ifHost, this.__ifMarker);
+    }
+  }
+
+  __ifUnmount (row) {
+    if (row && row.__templateMounted) {
+      row.unmount();
     }
   }
 }

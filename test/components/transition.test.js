@@ -1,7 +1,7 @@
-import { Fixture } from '@xinix/xin/components/fixture';
-import { Async } from '@xinix/xin';
-import '@xinix/xin/components/if';
-import '@xinix/xin/components/transition';
+import { Async } from '../..';
+import { Fixture } from '../../components/fixture';
+import '../../components/if';
+import '../../components/transition';
 
 describe('components:transition <xin-transition>', () => {
   it('render', async () => {

@@ -128,7 +128,7 @@ function whenTransitionEnds (elements, expectedType, cb) {
   });
 }
 
-function getTransitionInfo (el, expectedType) {
+function getTransitionInfo (el, expectedType) { // eslint-disable-line complexity
   const styles = getComputedStyle(el);
   // JSDOM may return undefined for transition properties
   const transitionDelays = (styles[transitionProp + 'Delay'] || '').split(', ');

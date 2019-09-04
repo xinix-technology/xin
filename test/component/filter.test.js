@@ -1,6 +1,6 @@
 import assert from 'assert';
-import { Filter } from '@xinix/xin';
-import { Fixture } from '@xinix/xin/components/fixture';
+import { Filter } from '../..';
+import { Fixture } from '../../components/fixture';
 
 describe('component:filter Filter', () => {
   it('format currency', async () => {
@@ -8,13 +8,15 @@ describe('component:filter Filter', () => {
       <span id="val">[[money|currency]]</span>
     `);
 
-    await fixture.waitConnected();
+    try {
+      await fixture.waitConnected();
 
-    fixture.set('money', 12345);
+      fixture.set('money', 12345);
 
-    assert.strictEqual(fixture.$.val.textContent, '12,345.00');
-
-    fixture.dispose();
+      assert.strictEqual(fixture.$.val.textContent, '12,345.00');
+    } finally {
+      fixture.dispose();
+    }
   });
 
   it('format string', () => {

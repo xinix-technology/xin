@@ -1,5 +1,5 @@
-import { AttributeAccessor } from '@xinix/xin/component/accessor/attribute';
-import { Fixture } from '@xinix/xin/components/fixture';
+import { AttributeAccessor } from '../../../component/accessor/attribute';
+import { Fixture } from '../../../components/fixture';
 import assert from 'assert';
 
 describe('component:accessor:attribute AttributeAccessor', () => {

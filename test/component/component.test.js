@@ -1,5 +1,5 @@
-import { define, Component, event } from '@xinix/xin';
-import { Fixture } from '@xinix/xin/components';
+import { define, Component, event } from '../..';
+import { Fixture } from '../../components';
 import assert from 'assert';
 
 describe('component:component Component', () => {

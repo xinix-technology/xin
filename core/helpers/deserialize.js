@@ -1,47 +1,64 @@
-export function deserialize (value, type) {
-  switch (type) {
-    case Number:
-      value = Number(value);
-      break;
-
-    case Boolean:
-      value = Boolean(value === '' || value === 'true' || value === '1' || value === 'on');
-      break;
-
-    case Object:
+const handlers = [
+  {
+    type: Number,
+    value (value) {
+      return Number(value);
+    },
+  },
+  {
+    type: Boolean,
+    value (value) {
+      return Boolean(value === '' || value === 'true' || value === '1' || value === 'on');
+    },
+  },
+  {
+    type: Object,
+    value (value) {
       try {
-        value = JSON.parse(value);
+        return JSON.parse(value);
       } catch (err) {
         // allow non-JSON literals like Strings and Numbers
         console.warn(`Failed decode json: "${value}" to Object`);
+        return null;
       }
-      break;
-
-    case Array:
+    },
+  },
+  {
+    type: Array,
+    value (value) {
       try {
-        value = JSON.parse(value);
+        return JSON.parse(value);
       } catch (err) {
         console.warn(`Failed decode json: "${value}" to Array`);
-        value = null;
+        return null;
       }
-      break;
+    },
+  },
+  {
+    type: Date,
+    value (value) {
+      return new Date(value);
+    },
+  },
+  {
+    type: RegExp,
+    value (value) {
+      return new RegExp(value);
+    },
+  },
+  {
+    type: Function,
+    value (value) {
+      return new Function(value); // eslint-disable-line no-new-func
+    },
+  },
+];
 
-    case Date:
-      value = new Date(value);
-      break;
-
-    case RegExp:
-      value = new RegExp(value);
-      break;
-
-    case Function:
-      value = new Function(value); // eslint-disable-line no-new-func
-      break;
-
-    // behave like default for now
-    // case String:
-    default:
-      break;
+export function deserialize (value, type) {
+  const handler = handlers.find(handler => handler.type === type);
+  if (!handler) {
+    return value;
   }
-  return value;
+
+  return handler.value(value);
 }

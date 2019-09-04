@@ -1,5 +1,5 @@
-import { TextAccessor } from '@xinix/xin/component/accessor/text';
-import { Fixture } from '@xinix/xin/components/fixture';
+import { TextAccessor } from '../../../component/accessor/text';
+import { Fixture } from '../../../components/fixture';
 import assert from 'assert';
 
 describe('component:accessor:text TextAccessor', () => {

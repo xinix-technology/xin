@@ -296,7 +296,6 @@ describe('components:for <xin-for>', () => {
       clickMe (evt, item) {
         evt.preventDefault();
         hits.push(item);
-        // console.log('xxx', evt, item);
       },
     });
 

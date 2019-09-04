@@ -170,7 +170,9 @@ export function base (base) {
       if (!this.hasAttribute('xin-id')) {
         // deferred set attributes until connectedCallback
         this.setAttribute('xin-id', this.__templateId);
-        repository.put(this.__templateId, this);
+
+        // XXX: cause leak here :(
+        // repository.put(this.__templateId, this);
       }
     }
 
