@@ -1,6 +1,5 @@
-// eslint-disable-line max-lines
-import { event } from '../../core';
 import { idGenerator, val } from '../../core/helpers';
+import { Repository, event } from '../../core';
 import { Expr } from '../expr';
 import { Binding } from '../binding';
 import { accessorFactory } from '../accessor';
@@ -13,6 +12,8 @@ const nextId = idGenerator();
 
 export class Template {
   constructor (template, props = {}) {
+    this.__templateAssignId();
+
     // if template is not specified you must call __templateInitialize yourself
     if (!template) {
       return;
@@ -27,6 +28,10 @@ export class Template {
 
   get $global () {
     return window;
+  }
+
+  get $repository () {
+    return Repository.singleton();
   }
 
   $$ (selector) {
@@ -228,8 +233,13 @@ export class Template {
     }
   }
 
+  __templateAssignId () {
+    if (this.__id === undefined) {
+      this.__id = nextId();
+    }
+  }
+
   __templateInitialize (template, props = {}) {
-    this.__templateId = nextId();
     this.__templateBinding = new Binding();
     this.__templateEventListeners = [];
     this.__templateDelegator = this;
@@ -312,7 +322,7 @@ export class Template {
 
     // when property is undefined, throw error when property is required
     if (prop.required && propValue === undefined) {
-      throw new Error(`${this.is}:${this.__templateId} missing required ${propKey}`);
+      throw new Error(`${this.is}:${this.__id} missing required ${propKey}`);
     }
 
     return propValue;
@@ -352,7 +362,7 @@ export class Template {
           marker = this.__template;
         } else {
           // when template is not child of host, put marker to host
-          marker = document.createComment(`marker-${this.__templateId}`);
+          marker = document.createComment(`marker-${this.__id}`);
           this.__templateHost.appendChild(marker);
         }
       }
@@ -366,6 +376,7 @@ export class Template {
     this.__templateNotifyOnMounted = [];
 
     this.notify('$global');
+    this.notify('$repository');
   }
 
   unmount () {
@@ -392,7 +403,7 @@ export class Template {
     if (this.__templateMarker &&
       this.__templateMarker.parentElement === this.__templateHost &&
       this.__templateMarker.nodeType === Node.COMMENT_NODE &&
-      this.__templateMarker.data === `marker-${this.__templateId}`) {
+      this.__templateMarker.data === `marker-${this.__id}`) {
       this.__templateHost.removeChild(this.__templateMarker);
     }
   }

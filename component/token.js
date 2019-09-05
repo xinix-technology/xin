@@ -58,7 +58,7 @@ export class Token {
 
   invoke (args, model) {
     if (this.type === 's') {
-      throw new Error(`Method is not eligible, ${model.is}:${model.__templateId}#${this.name}`);
+      throw new Error(`Method is not eligible, ${model.is}:${model.__id}#${this.name}`);
     }
 
     const delegator = model.__templateDelegator;
@@ -72,6 +72,6 @@ export class Token {
       return delegator[this.name](...args);
     }
 
-    throw new Error(`Method is not eligible, ${model.is}:${model.__templateId}#${this.name}`);
+    throw new Error(`Method is not eligible, ${model.is}:${model.__id}#${this.name}`);
   }
 }

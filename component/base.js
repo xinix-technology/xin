@@ -1,4 +1,3 @@
-// eslint-disable-line max-lines
 import { Repository, event, Async } from '../core';
 import { dashify } from '../core/string';
 import { deserialize } from '../core/helpers';
@@ -64,7 +63,9 @@ export function base (base) {
     detached () {}
 
     createdCallback () {
-      if (debug.enabled) /* istanbul ignore next */ debug(`CREATED ${this.is}:${this.__templateId}`);
+      this.__templateAssignId();
+
+      if (debug.enabled) /* istanbul ignore next */ debug(`CREATED ${this.is}:${this.__id}`);
 
       this.created();
 
@@ -80,7 +81,15 @@ export function base (base) {
 
       event(this).fire('before-ready');
 
-      if (debug.enabled) /* istanbul ignore next */ debug(`READY ${this.is}:${this.__templateId}`);
+      if (!this.hasAttribute('xin-id')) {
+        // deferred set attributes until readyCallback
+        this.setAttribute('xin-id', this.__id);
+
+        // XXX: cause leak here :(
+        // repository.put(this.__id, this);
+      }
+
+      if (debug.enabled) /* istanbul ignore next */ debug(`READY ${this.is}:${this.__id}`);
 
       this.__componentInitTemplate();
       this.__componentInitListeners();
@@ -110,11 +119,8 @@ export function base (base) {
 
       this.__componentMount();
 
-      // notify default props
-      this.notify('$repository');
-
       if (debug.enabled) { /* istanbul ignore next */
-        debug(`ATTACHED ${this.is}:${this.__templateId} ${this.__componentAttaching ? '(delayed)' : ''}`);
+        debug(`ATTACHED ${this.is}:${this.__id} ${this.__componentAttaching ? '(delayed)' : ''}`);
       }
 
       this.attached();
@@ -166,14 +172,6 @@ export function base (base) {
       }
 
       this.__templateInitialize(template, this.props);
-
-      if (!this.hasAttribute('xin-id')) {
-        // deferred set attributes until connectedCallback
-        this.setAttribute('xin-id', this.__templateId);
-
-        // XXX: cause leak here :(
-        // repository.put(this.__templateId, this);
-      }
     }
 
     __componentInitListeners () {
@@ -207,7 +205,7 @@ export function base (base) {
   }
 
   tProtoProps.forEach(key => {
-    if (key === '$' || key === '$global' || key === '__templateInitProp') {
+    if (key === '$' || key === '$global' || key === '$repository' || key === '__templateInitProp') {
       return;
     }
 
