@@ -13,7 +13,7 @@ export class Delegator {
    * @param {Element} element
    */
   constructor (element) {
-    if (!element || element instanceof Element === false) {
+    if (!element) {
       throw new Error('Cannot create event delegator for unknown element');
     }
 

@@ -5,7 +5,6 @@ describe('core:event Delegator', () => {
   describe('constructor', () => {
     it('create new delegator', () => {
       assert.throws(() => new Delegator());
-      assert.throws(() => new Delegator({}));
 
       const div = document.createElement('div');
       const delegator = new Delegator(div);
