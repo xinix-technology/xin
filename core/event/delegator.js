@@ -158,7 +158,7 @@ export class Delegator {
       for (const i in listener.handlers) {
         const { selector, callback } = listener.handlers[i];
 
-        if (!selector || matches(target, selector)) {
+        if (this.__eventTargetMatchesSelector(target, selector)) {
           if (callback(evt) === false) {
             evt.preventDefault();
             evt.stopPropagation();
@@ -171,6 +171,26 @@ export class Delegator {
     this.listeners[type] = listener;
 
     this.element.addEventListener(type, listener, getOptions(type));
+  }
+
+  __eventTargetMatchesSelector (target, selector) {
+    if (!selector) {
+      return true;
+    }
+
+    if (target === this.element) {
+      return false;
+    }
+
+    if (matches(target, selector)) {
+      return true;
+    }
+
+    if (target.parentElement) {
+      return this.__eventTargetMatchesSelector(target.parentElement, selector);
+    }
+
+    return false;
   }
 
   __eventRemoveListener (type) {

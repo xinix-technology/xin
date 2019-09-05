@@ -46,6 +46,30 @@ describe('core:event Delegator', () => {
         delegator.dispose();
       }
     });
+
+    it('register new event listener with selector', () => {
+      const div = document.createElement('div');
+      div.innerHTML = `
+        <div id="catcher">
+          <a id="button" href="#">
+            <span id="inside">foo</span>
+          </a>
+        </div>
+      `;
+
+      const catcher = div.querySelector('#catcher');
+      const inside = div.querySelector('#inside');
+      const delegator = new Delegator(catcher);
+
+      try {
+        let hit = 0;
+        delegator.on('click', '#button', evt => hit++);
+        inside.click();
+        assert.strictEqual(hit, 1);
+      } finally {
+        delegator.dispose();
+      }
+    });
   });
 
   describe('#off()', () => {
