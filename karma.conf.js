@@ -18,7 +18,7 @@ module.exports = function (config) { // eslint-disable-line max-lines-per-functi
     files: [
       'test/init.js',
       'test/**/*.test.js',
-      // 'test/core/event/**/*.test.js',
+      // 'test/**/if.test.js',
     ],
 
     // list of files to exclude
@@ -30,7 +30,7 @@ module.exports = function (config) { // eslint-disable-line max-lines-per-functi
     preprocessors: {
       'test/init.js': ['webpack'],
       'test/**/*.test.js': ['webpack'],
-      // 'test/core/event/**/*.test.js': ['webpack'],
+      // 'test/**/if.test.js': ['webpack'],
     },
 
     // test results reporter to use

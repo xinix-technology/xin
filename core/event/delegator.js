@@ -77,10 +77,10 @@ export class Delegator {
       selector = '';
     }
 
-    const proxyCallback = (...args) => {
+    const proxyCallback = () => {
       this.off(types, selector, proxyCallback);
       this.proxies.delete(proxyCallback);
-      return callback(...args); // eslint-disable-line standard/no-callback-literal
+      return callback.apply(null, arguments);
     };
 
     this.proxies.set(callback, proxyCallback);
@@ -205,17 +205,18 @@ export class Delegator {
   }
 }
 
-function getOptions (type) { // eslint-disable-line complexity
-  switch (type) {
-    case 'touchstart':
-    case 'touchmove':
-    case 'wheel':
-    case 'mousewheel':
-      return { passive: true };
-    case 'blur':
-    case 'focus':
-      return true;
-    default:
-      return false;
+function getOptions (type) {
+  if (isTouchAndMouseEventType(type)) {
+    return { passive: true };
   }
+
+  if (type === 'blur' || type === 'focus') {
+    return true;
+  }
+
+  return false;
+}
+
+function isTouchAndMouseEventType (type) {
+  return ['touchstart', 'touchmove', 'wheel', 'mousewheel'].indexOf(type) !== -1;
 }

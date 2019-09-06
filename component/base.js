@@ -150,7 +150,7 @@ export function base (base) {
         return;
       }
 
-      const attrVal = this.getAttribute(attrName);
+      const attrVal = fixAttrValue(this.getAttribute(attrName), prop.type);
       const expr = Expr.get(attrVal);
 
       if ('notify' in prop && expr.mode === Expr.READWRITE) {
@@ -223,4 +223,12 @@ function parseListenerMetadata (key) {
   const selector = selectorArr.length ? selectorArr.join(' ') : null;
   const metadata = { key, eventName, selector };
   return metadata;
+}
+
+function fixAttrValue (value, type) {
+  if (type === Boolean && value === '') {
+    return 'on';
+  }
+
+  return value;
 }

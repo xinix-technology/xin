@@ -12,11 +12,11 @@ describe('core:helpers:deserialize #deserialize()', () => {
   });
 
   it('deserialize to boolean', () => {
-    assert.strictEqual(true, deserialize('', Boolean));
     assert.strictEqual(true, deserialize('true', Boolean));
     assert.strictEqual(true, deserialize('1', Boolean));
     assert.strictEqual(true, deserialize('on', Boolean));
 
+    assert.strictEqual(false, deserialize('', Boolean));
     assert.strictEqual(false, deserialize('false', Boolean));
     assert.strictEqual(false, deserialize('0', Boolean));
     assert.strictEqual(false, deserialize('off', Boolean));

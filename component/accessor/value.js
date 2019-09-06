@@ -23,7 +23,11 @@ export class ValueAccessor extends BaseAccessor {
 
   set (value) {
     if (document.activeElement !== this.node) {
-      super.set(value);
+      if (value === null || value === undefined) {
+        value = '';
+      }
+
+      this.node.value = value;
     }
   }
 }

@@ -1,4 +1,4 @@
-import { idGenerator, val } from '../../core/helpers';
+import { idGenerator, val, deserialize } from '../../core/helpers';
 import { Repository, event } from '../../core';
 import { Expr } from '../expr';
 import { Binding } from '../binding';
@@ -12,13 +12,6 @@ const nextId = idGenerator();
 
 export class Template {
   constructor (template, props = {}) {
-    this.__templateAssignId();
-
-    // if template is not specified you must call __templateInitialize yourself
-    if (!template) {
-      return;
-    }
-
     this.__templateInitialize(template, props);
   }
 
@@ -62,13 +55,13 @@ export class Template {
     return event(this.__templateHost).fire(type, detail, options);
   }
 
-  all (data) {
-    for (const i in data) {
-      if (Object.prototype.hasOwnProperty.call(data, i)) {
-        this.set(i, data[i]);
-      }
-    }
-  }
+  // all (data) {
+  //   for (const i in data) {
+  //     if (Object.prototype.hasOwnProperty.call(data, i)) {
+  //       this.set(i, data[i]);
+  //     }
+  //   }
+  // }
 
   get (path) {
     let object = this;
@@ -99,6 +92,8 @@ export class Template {
 
     path = this.__templateGetPathAsArray(path);
 
+    value = this.__templatePropCasting(path, value);
+
     const oldValue = this.get(path);
 
     if (value === oldValue) {
@@ -108,6 +103,19 @@ export class Template {
     this.__templateWalkSet(path, value);
 
     this.notify(path);
+  }
+
+  __templatePropCasting (path, value) {
+    if (!this.__templateProps) {
+      return value;
+    }
+
+    const prop = this.__templateProps[path[0]];
+    if (!prop) {
+      return value;
+    }
+
+    return deserialize(value, prop.type);
   }
 
   __templateWalkSet (path, value) {
@@ -240,6 +248,8 @@ export class Template {
   }
 
   __templateInitialize (template, props = {}) {
+    this.__templateAssignId();
+
     this.__templateBinding = new Binding();
     this.__templateEventListeners = [];
     this.__templateDelegator = this;
