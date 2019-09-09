@@ -1,4 +1,4 @@
-import { camelize } from '../../core/string';
+import { camelize } from '../../helpers';
 import { BaseAccessor } from './base';
 
 const { ELEMENT_NODE } = Node;

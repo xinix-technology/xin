@@ -1,5 +1,5 @@
 import { Component, define } from '../component';
-import { Async } from '../core/fn/async';
+import { Async } from '../core';
 
 const TRANSITION = 'transition';
 const ANIMATION = 'animation';

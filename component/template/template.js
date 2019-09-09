@@ -1,12 +1,10 @@
-import { idGenerator, val, deserialize } from '../../core/helpers';
+import { idGenerator, val, deserialize, pathArray, pathString, pathGet, pathSet } from '../../helpers';
 import { Repository, event } from '../../core';
 import { Expr } from '../expr';
 import { Binding } from '../binding';
 import { accessorFactory } from '../accessor';
 import { Annotation } from '../annotation';
-
-import { fix } from './fix';
-import { slotName } from './slot';
+import { fix, slotName } from './helpers';
 
 const nextId = idGenerator();
 
@@ -55,90 +53,33 @@ export class Template {
     return event(this.__templateHost).fire(type, detail, options);
   }
 
-  // all (data) {
-  //   for (const i in data) {
-  //     if (Object.prototype.hasOwnProperty.call(data, i)) {
-  //       this.set(i, data[i]);
-  //     }
-  //   }
-  // }
-
   get (path) {
-    let object = this;
-
-    this.__templateGetPathAsArray(path).some(segment => {
-      if (object === undefined || object === null) {
-        object = undefined;
-        return true;
-      }
-
-      object = object[segment];
-      return false;
-    });
-
-    return object;
+    return pathGet(this, path);
   }
 
   set (path, value) {
     if (arguments.length === 1 && typeof path === 'object') {
       const data = path;
-      for (const i in data) {
-        if (Object.prototype.hasOwnProperty.call(data, i)) {
-          this.set(i, data[i]);
+      for (const key in data) {
+        if (Object.prototype.hasOwnProperty.call(data, key)) {
+          this.set(key, data[key]);
         }
       }
       return;
     }
 
-    path = this.__templateGetPathAsArray(path);
-
     value = this.__templatePropCasting(path, value);
-
-    const oldValue = this.get(path);
-
-    if (value === oldValue) {
+    if (value === this.get(path)) {
       return;
     }
 
-    this.__templateWalkSet(path, value);
+    pathSet(this, path, value);
 
     this.notify(path);
   }
 
-  __templatePropCasting (path, value) {
-    if (!this.__templateProps) {
-      return value;
-    }
-
-    const prop = this.__templateProps[path[0]];
-    if (!prop) {
-      return value;
-    }
-
-    return deserialize(value, prop.type);
-  }
-
-  __templateWalkSet (path, value) {
-    let object = this;
-
-    path.slice(0, -1).forEach(segment => {
-      if (!object) {
-        return;
-      }
-      if (object[segment] === undefined || object[segment] === null) {
-        object[segment] = {};
-      }
-
-      object = object[segment];
-    });
-
-    const property = path.slice(-1).pop();
-
-    object[property] = value;
-  }
-
   push (path, ...values) {
-    path = this.__templateGetPathAsArray(path);
+    path = pathArray(path);
 
     let object = this;
 
@@ -167,7 +108,7 @@ export class Template {
   }
 
   pop (path) {
-    path = this.__templateGetPathAsArray(path);
+    path = pathArray(path);
 
     let object = this;
 
@@ -196,7 +137,7 @@ export class Template {
   }
 
   splice (path, index, removeCount, ...values) { // eslint-disable-line max-params
-    path = this.__templateGetPathAsArray(path);
+    path = pathArray(path);
 
     let object = this;
 
@@ -225,7 +166,7 @@ export class Template {
   }
 
   notify (path) {
-    path = this.__templateGetPathAsString(path);
+    path = pathString(path);
 
     if (!this.__templateMounted) {
       this.__templateNotifyOnMounted = this.__templateNotifyOnMounted || [];
@@ -241,22 +182,92 @@ export class Template {
     }
   }
 
-  __templateAssignId () {
-    if (this.__id === undefined) {
-      this.__id = nextId();
+  mount (host, marker) {
+    if (this.__templateMounted) {
+      throw new Error('Template already mounted');
     }
+
+    if (!host) {
+      throw new Error('Cannot mount to unknown host');
+    }
+
+    this.__templateHost = host;
+    this.__templateStartListening();
+
+    if (this.__template) {
+      if (!marker) {
+        if (this.__template.parentElement === this.__templateHost) {
+          // when template parent is template host, it means that template is specific template
+          // then use template as marker
+          marker = this.__template;
+        } else {
+          // when template is not child of host, put marker to host
+          marker = document.createComment(`marker-${this.__id}`);
+          this.__templateHost.appendChild(marker);
+        }
+      }
+      this.__templateMarker = marker;
+
+      this.__templateRender();
+    }
+
+    this.__templateMounted = true;
+    this.__templateNotifyOnMounted.forEach(key => this.notify(key));
+    this.__templateNotifyOnMounted = [];
+
+    this.notify('$global');
+    this.notify('$repository');
   }
 
-  __templateInitialize (template, props = {}) {
-    this.__templateAssignId();
-
-    this.__templateBinding = new Binding();
-    this.__templateEventListeners = [];
-    this.__templateDelegator = this;
+  unmount () {
+    if (!this.__templateMounted) {
+      throw new Error('Template already unmounted');
+    }
 
     this.__templateMounted = false;
     this.__templateNotifyOnMounted = [];
 
+    this.__templateStopListening();
+    this.__templateRemoveGeneratedMarker();
+
+    this.__templateHost = undefined;
+    this.__templateMarker = undefined;
+
+    if (this.__template) {
+      this.__templateUnrender();
+    }
+  }
+
+  __templatePropCasting (path, value) {
+    if (!this.__templateProps) {
+      return value;
+    }
+
+    path = pathArray(path);
+
+    const prop = this.__templateProps[path[0]];
+    if (!prop) {
+      return value;
+    }
+
+    return deserialize(value, prop.type);
+  }
+
+  __templateInitData () {
+    if (this.__id !== undefined) {
+      return;
+    }
+
+    this.__id = nextId();
+    this.__templateBinding = new Binding();
+    this.__templateListeners = [];
+    this.__templateDelegator = this;
+    this.__templateMounted = false;
+    this.__templateNotifyOnMounted = [];
+  }
+
+  __templateInitialize (template, props = {}) {
+    this.__templateInitData();
     this.__templateInitProps(props);
     this.__templateInitValues();
 
@@ -345,68 +356,15 @@ export class Template {
       this.unmount();
     }
 
+    this.__templateUninitData();
+  }
+
+  __templateUninitData () {
     this.__templateBinding.dispose();
     this.__templateBinding = undefined;
     this.__templateChildNodes = undefined;
     this.__template = undefined;
     this.__templateDelegator = undefined;
-  }
-
-  mount (host, marker) {
-    if (this.__templateMounted) {
-      throw new Error('Template already mounted');
-    }
-
-    if (!host) {
-      throw new Error('Cannot mount to unknown host');
-    }
-
-    this.__templateHost = host;
-    this.__templateStartEventListeners();
-
-    if (this.__template) {
-      if (!marker) {
-        if (this.__template.parentElement === this.__templateHost) {
-          // when template parent is template host, it means that template is specific template
-          // then use template as marker
-          marker = this.__template;
-        } else {
-          // when template is not child of host, put marker to host
-          marker = document.createComment(`marker-${this.__id}`);
-          this.__templateHost.appendChild(marker);
-        }
-      }
-      this.__templateMarker = marker;
-
-      this.__templateRender();
-    }
-
-    this.__templateMounted = true;
-    this.__templateNotifyOnMounted.forEach(key => this.notify(key));
-    this.__templateNotifyOnMounted = [];
-
-    this.notify('$global');
-    this.notify('$repository');
-  }
-
-  unmount () {
-    if (!this.__templateMounted) {
-      throw new Error('Template already unmounted');
-    }
-
-    this.__templateMounted = false;
-    this.__templateNotifyOnMounted = [];
-
-    this.__templateStopEventListeners();
-
-    this.__templateRemoveGeneratedMarker();
-
-    this.__templateHost = undefined;
-    this.__templateMarker = undefined;
-
-    if (this.__template) {
-      this.__templateUnrender();
-    }
   }
 
   __templateRemoveGeneratedMarker () {
@@ -418,12 +376,12 @@ export class Template {
     }
   }
 
-  __templateStartEventListeners () {
-    this.__templateEventListeners.forEach(({ name, selector, listener }) => this.on(name, selector, listener));
+  __templateStartListening () {
+    this.__templateListeners.forEach(({ name, selector, listener }) => this.on(name, selector, listener));
   }
 
-  __templateStopEventListeners () {
-    this.__templateEventListeners.forEach(({ name, selector, listener }) => this.off(name, selector, listener));
+  __templateStopListening () {
+    this.__templateListeners.forEach(({ name, selector, listener }) => this.off(name, selector, listener));
   }
 
   __templateRender () {
@@ -462,22 +420,6 @@ export class Template {
         node.parentElement.removeChild(node);
       }
     });
-  }
-
-  __templateGetPathAsArray (path) {
-    if (typeof path !== 'string') {
-      return path;
-    }
-
-    return path.split('.');
-  }
-
-  __templateGetPathAsString (path) {
-    if (typeof path === 'string') {
-      return path;
-    }
-
-    return path.join('.');
   }
 
   __templateParseAnnotations () {
@@ -643,7 +585,7 @@ export class Template {
       throw new Error('Event listener must define listener callback');
     }
 
-    this.__templateEventListeners.push(handler);
+    this.__templateListeners.push(handler);
   }
 
   __templateRemoveEventListener ({ name, selector, listener } = {}) {
@@ -651,7 +593,7 @@ export class Template {
     const matchSelector = elSelector => selector === undefined || selector === elSelector;
     const matchListener = elListener => listener === undefined || listener === elListener;
 
-    this.__templateEventListeners = this.__templateEventListeners.filter(el => {
+    this.__templateListeners = this.__templateListeners.filter(el => {
       return !(matchName(el.name) && matchSelector(el.selector) && matchListener(el.listener));
     });
   }
@@ -667,7 +609,7 @@ export class Template {
       return this.__templateBinding;
     }
 
-    const segments = this.__templateGetPathAsArray(path);
+    const segments = pathArray(path);
 
     return segments.reduce((binding, segment) => binding.getChild(segment), this.__templateBinding);
   }

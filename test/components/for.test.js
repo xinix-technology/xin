@@ -102,12 +102,6 @@ describe('components:for <xin-for>', () => {
         {
           name: 'foo',
         },
-        // {
-        //   name: 'bar',
-        // },
-        // {
-        //   name: 'baz',
-        // },
       ];
       fixture.set('rows', rows);
       await Async.sleep();

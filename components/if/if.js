@@ -1,5 +1,6 @@
 import { Component, define } from '../../component';
 import { Row } from './row';
+import { pathArray } from '../../helpers';
 
 const ERR_INVALID_DEFINITION = `Invalid xin-if definition,
 must be:
@@ -55,7 +56,7 @@ export class If extends Component {
     const paths = row.__templateGetBinding().getAnnotatedPaths({ excludeMethods: true });
 
     paths.forEach(path => {
-      const pathArr = this.__templateGetPathAsArray(path);
+      const pathArr = pathArray(path);
       this.__ifAddExternalAnnotation(pathArr[0]);
       if (path !== pathArr[0]) {
         this.__ifAddExternalAnnotation(path);

@@ -73,30 +73,4 @@ export class Row extends Template {
       this.__templateAddEventListener({ name: 'change', selector, listener });
     }
   }
-
-  // __templateStartEventListeners () {
-  //   const model = this.__ifInstance.__templateModel;
-  //   this.__templateEventListeners.forEach(({ name, selector, listener }) => model.on(name, selector, listener));
-  // }
-
-  // __templateStopEventListeners () {
-  //   const model = this.__ifInstance.__templateModel;
-  //   this.__templateEventListeners.forEach(({ name, selector, listener }) => model.off(name, selector, listener));
-  // }
-
-  // __templateUninitialize () {
-  //   super.__templateUninitialize();
-
-  //   const model = this.__ifInstance.__templateModel;
-
-  //   this.__ifAnnotations.forEach(annotation => {
-  //     if (annotation.expr.type === Expr.METHOD) {
-  //       model.__templateGetBinding(annotation.expr.fn.name).deannotate(annotation);
-  //     }
-
-  //     annotation.expr.varArgs.forEach(arg => {
-  //       model.__templateGetBinding(arg.name).deannotate(annotation);
-  //     });
-  //   });
-  // }
 }

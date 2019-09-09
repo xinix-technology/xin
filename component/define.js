@@ -1,6 +1,6 @@
 import { Repository } from '../core';
 
-const debug = require('debug')('xin::core:define');
+const debug = require('debug')('xin:core:define');
 
 export function define (name, Component, options) {
   const repository = Repository.singleton();

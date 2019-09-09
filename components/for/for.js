@@ -1,6 +1,7 @@
 import { Component, define } from '../../component';
 import { Row } from './row';
 import { Async } from '../../core';
+import { pathArray } from '../../helpers';
 
 const ERR_INVALID_DEFINITION = `Invalid xin-for definition,
 must be:
@@ -64,7 +65,7 @@ export class For extends Component {
     const row = new Row(this.__loopTemplate, this);
 
     const paths = row.__templateGetBinding().getAnnotatedPaths({ excludeMethods: true }).filter(path => {
-      const pathArr = this.__templateGetPathAsArray(path);
+      const pathArr = pathArray(path);
       if (pathArr[0] === this.as || pathArr[0] === this.indexAs) {
         return false;
       }
@@ -73,7 +74,7 @@ export class For extends Component {
     });
 
     paths.forEach(path => {
-      const pathArr = this.__templateGetPathAsArray(path);
+      const pathArr = pathArray(path);
       this.__loopAddExternalAnnotation(pathArr[0]);
       if (path !== pathArr[0]) {
         this.__loopAddExternalAnnotation(path);

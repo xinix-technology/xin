@@ -1,4 +1,4 @@
-const debug = require('debug')('xin::core');
+const debug = require('debug')('xin:core');
 
 export class Repository {
   static bootstrap (data) {

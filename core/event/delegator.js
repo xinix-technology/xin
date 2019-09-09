@@ -1,6 +1,5 @@
-import { idGenerator } from '../../core/helpers/id-generator';
+import { idGenerator, matches } from '../../helpers';
 import { prepareArgs } from './helpers/prepare-args';
-import { matches } from './helpers/matches';
 
 const WAIT_TIMEOUT = 3000;
 

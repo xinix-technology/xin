@@ -2,14 +2,14 @@ import assert from 'assert';
 
 describe('xin', () => {
   it('has core functionalities', async () => {
-    const imported = await import('@xinix/xin');
+    const imported = await import('..');
 
     assert(typeof imported.bootstrap === 'function');
     assert(imported.Repository);
   });
 
   it('has component functionalities', async () => {
-    const imported = await import('@xinix/xin');
+    const imported = await import('..');
 
     assert(typeof imported.define === 'function');
     assert(typeof imported.base === 'function');

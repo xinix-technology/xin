@@ -1,3 +1,5 @@
+import { pathArray } from '../helpers';
+
 const CACHE = {};
 
 export class Token {
@@ -19,7 +21,7 @@ export class Token {
     this.name = name;
     this.contextName = '';
     this.baseName = '';
-    this._value = null;
+    this._value = undefined;
     this.type = 'v';
 
     if (!this.name.match(/^[a-zA-Z_]/)) {
@@ -33,9 +35,9 @@ export class Token {
     }
 
     if (this.type === 'v') {
-      const nameSegments = this.name.split('.');
-      this.baseName = nameSegments.pop();
-      this.contextName = nameSegments.join('.');
+      const pathArr = pathArray(this.name);
+      this.baseName = pathArr.pop();
+      this.contextName = pathArr.join('.');
     }
   }
 

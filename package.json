@@ -1,6 +1,6 @@
 {
   "name": "@xinix/xin",
-  "version": "3.1.7",
+  "version": "3.1.8",
   "description": "Custom elements sugar for the web",
   "repository": {
     "type": "git",
@@ -47,10 +47,10 @@
     "karma-webpack": "^4.0.2",
     "mocha": "^6.2.0",
     "nyc": "^14.1.1",
-    "terser-webpack-plugin": "^1.4.1",
+    "terser-webpack-plugin": "^2.0.1",
     "webcomponents.js": "^0.7.24",
     "webpack": "^4.39.3",
-    "webpack-cli": "^3.3.7",
+    "webpack-cli": "^3.3.8",
     "webpack-dev-server": "^3.8.0"
   },
   "dependencies": {

@@ -1,4 +1,4 @@
-import { idGenerator } from '../helpers/id-generator';
+import { idGenerator } from '../helpers';
 
 const nextId = idGenerator();
 

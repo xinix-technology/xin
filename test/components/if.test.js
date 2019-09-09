@@ -43,13 +43,9 @@ describe('components:if <xin-if>', () => {
       await fixture.waitConnected();
 
       fixture.set('show', false);
-      // await Async.sleep();
-
       assert.strictEqual(fixture.$$('h3').textContent.trim(), 'else');
 
       fixture.set('show', true);
-      // await Async.sleep();
-
       assert.strictEqual(fixture.$$('h3').textContent.trim(), 'if');
     } finally {
       fixture.dispose();

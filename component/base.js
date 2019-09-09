@@ -1,10 +1,9 @@
 import { Repository, event, Async } from '../core';
-import { dashify } from '../core/string';
-import { deserialize } from '../core/helpers';
+import { deserialize, dashify } from '../helpers';
 import { Template } from './template';
 import { Expr } from './expr';
 
-const debug = require('debug')('xin::component');
+const debug = require('debug')('xin:component');
 const baseComponents = {};
 
 const tProto = Template.prototype;
@@ -63,7 +62,7 @@ export function base (base) {
     detached () {}
 
     createdCallback () {
-      this.__templateAssignId();
+      this.__templateInitData();
 
       if (debug.enabled) /* istanbul ignore next */ debug(`CREATED ${this.is}:${this.__id}`);
 
@@ -73,7 +72,7 @@ export function base (base) {
       this.__componentReadyInvoked = false;
       this.__componentAttaching = false;
       this.__componentInitialPropValues = {};
-      this.__componentProps = null;
+      this.__componentProps = undefined;
     }
 
     readyCallback () {
