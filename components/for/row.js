@@ -2,20 +2,17 @@ import { Template } from '../../component';
 
 export class Row extends Template {
   constructor (template, instance) {
-    super();
+    super(template);
 
     this.__loopInstance = instance;
     this.__loopAs = instance.as;
     this.__loopIndexAs = instance.indexAs;
 
-    // override Template constructor
-    this.__templateInitialize(template);
-    this.__templateDelegator = instance.__templateModel;
+    this.__templateInvoker = instance.__templateParent;
 
-    // hardcode model as loop instance
-    this.__templateModel = instance;
+    this.__templateParent = instance;
 
-    this.__templateAddCallbackBinding(this.__loopAs, value => {
+    this.__templateBinding.bindFunction(this.__loopAs, value => {
       instance.items[this[this.__loopIndexAs]] = value;
       // instance.set('items', [...instance.items]);
     });
@@ -48,7 +45,7 @@ export class Row extends Template {
   }
 
   dispose () {
-    this.__templateModel = undefined;
+    this.__templateParent = undefined;
     this.__loopInstance = undefined;
     this.__loopAs = undefined;
     this.__loopIndexAs = undefined;

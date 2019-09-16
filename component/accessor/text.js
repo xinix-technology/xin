@@ -1,4 +1,5 @@
 import { BaseAccessor } from './base';
+import { nothing } from '../../helpers';
 
 const { TEXT_NODE, ELEMENT_NODE } = Node;
 
@@ -15,15 +16,11 @@ export class TextAccessor extends BaseAccessor {
     super(node, 'textContent');
   }
 
-  set (value) {
-    if (value === null || value === undefined) {
+  write (value) {
+    if (nothing(value)) {
       value = '';
     }
 
     this.node.textContent = value;
-  }
-
-  get () {
-    throw new Error('TextAccessor is write-only');
   }
 }

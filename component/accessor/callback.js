@@ -7,12 +7,8 @@ export class CallbackAccessor {
     this.callback = callback;
   }
 
-  set (value) {
+  write (value) {
     const callback = this.callback;
     callback(value);
-  }
-
-  get () {
-    throw new Error('CallbackAccessor is write-only');
   }
 }

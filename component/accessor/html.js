@@ -1,19 +1,16 @@
 import { BaseAccessor } from './base';
+import { nothing } from '../../helpers';
 
 export class HTMLAccessor extends BaseAccessor {
   static test (node, name) {
     return name === 'html' && node.nodeType === Node.ELEMENT_NODE;
   }
 
-  set (value) {
-    if (value === null || value === undefined) {
+  write (value) {
+    if (nothing(value)) {
       value = '';
     }
 
     this.node.innerHTML = value;
-  }
-
-  get () {
-    throw new Error('HTMLAccessor is write-only');
   }
 }

@@ -4,19 +4,11 @@ export class BaseAccessor {
     this.name = name;
   }
 
-  set (value) {
-    if (typeof this.node.set === 'function') {
-      this.node.set(this.name, value);
-    } else {
-      this.node[this.name] = value;
-    }
+  write (value) {
+    throw new Error(`${this.constructor.name} #write() unimplemented`);
   }
 
-  get () {
-    if (typeof this.node.get === 'function') {
-      return this.node.get(this.name);
-    } else {
-      return this.node[this.name];
-    }
+  read () {
+    throw new Error(`${this.constructor.name} #read() unimplemented`);
   }
 }

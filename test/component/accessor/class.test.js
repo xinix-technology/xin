@@ -18,8 +18,8 @@ describe('component:accessor:class ClassAccessor', () => {
     });
   });
 
-  describe('#set()', () => {
-    it('set value of class', async () => {
+  describe('#write()', () => {
+    it('write value of class', async () => {
       const fixture = await Fixture.create(`
         <div id="here"></div>
       `);
@@ -29,29 +29,10 @@ describe('component:accessor:class ClassAccessor', () => {
 
         const accessor = new ClassAccessor(fixture.$.here, 'class.foo');
         assert.strictEqual(fixture.$.here.classList.contains('foo'), false);
-        accessor.set(1);
+        accessor.write(1);
         assert.strictEqual(fixture.$.here.classList.contains('foo'), true);
-        accessor.set(0);
+        accessor.write(0);
         assert.strictEqual(fixture.$.here.classList.contains('foo'), false);
-      } finally {
-        fixture.dispose();
-      }
-    });
-  });
-
-  describe('#get()', () => {
-    it('get value of class throw error', async () => {
-      const fixture = await Fixture.create(`
-        <div id="here"></div>
-      `);
-
-      try {
-        await fixture.waitConnected();
-
-        const accessor = new ClassAccessor(fixture.$.here, 'class.foo');
-        assert.throws(() => {
-          accessor.get();
-        }, /ClassAccessor is write-only/);
       } finally {
         fixture.dispose();
       }

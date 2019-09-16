@@ -15,20 +15,20 @@ describe('component:accessor:value ValueAccessor', () => {
     });
   });
 
-  describe('#set()', () => {
-    it('set value of value', () => {
+  describe('#write()', () => {
+    it('write value of value', () => {
       const node = createNode();
 
       const accessor = new ValueAccessor(node, 'value');
-      accessor.set('foo');
+      accessor.write('foo');
       assert.strictEqual(node.value, 'foo');
-      accessor.set('');
+      accessor.write('');
       assert.strictEqual(node.value, '');
-      accessor.set(0);
+      accessor.write(0);
       assert.strictEqual(node.value, '0');
-      accessor.set(null);
+      accessor.write(null);
       assert.strictEqual(node.value, '');
-      accessor.set(undefined);
+      accessor.write(undefined);
       assert.strictEqual(node.value, '');
     });
   });

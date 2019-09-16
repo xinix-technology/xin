@@ -12,7 +12,7 @@ const CACHE = {
   },
 };
 
-function _get (value, mode, type) {
+function _create (value, mode, type) {
   const cache = CACHE[type][mode];
   if (value in cache) {
     return cache[value];
@@ -31,24 +31,24 @@ class Expr {
     return CACHE;
   }
 
-  static get (value, unwrapped) {
+  static create (value, unwrapped) {
     value = (value || '').trim();
 
     if (unwrapped) {
-      return _get(value, Expr.READONLY, 'v');
+      return _create(value, Expr.READONLY, 'v');
     }
 
     const mode = value[0];
     if ((mode === Expr.READONLY || mode === Expr.READWRITE) && value[1] === mode) {
       value = value.slice(2, -2).trim();
-      return _get(value, mode, 'v');
+      return _create(value, mode, 'v');
     }
 
-    return _get(value, Expr.READONLY, Expr.STATIC);
+    return _create(value, Expr.READONLY, Expr.STATIC);
   }
 
-  static getFn (value, args, unwrapped) {
-    return Expr.get(value.indexOf('(') === -1 ? `${value}(${args.join(', ')})` : value, unwrapped);
+  static createFn (value, args, unwrapped) {
+    return Expr.create(value.indexOf('(') === -1 ? `${value}(${args.join(', ')})` : value, unwrapped);
   }
 
   static rawTokenize (str) {
@@ -115,8 +115,16 @@ class Expr {
     }, []);
   }
 
-  get constant () {
-    return this.type !== Expr.METHOD && this.varArgs.length !== this.args.length;
+  // get constant () {
+  //   return this.type !== Expr.METHOD && this.varArgs.length !== this.args.length;
+  // }
+
+  returnValue (model, otherArgs) {
+    if (this.type === Expr.STATIC) {
+      return this.value;
+    }
+
+    return this.invoke(model, otherArgs);
   }
 
   invoke (model, otherArgs) {

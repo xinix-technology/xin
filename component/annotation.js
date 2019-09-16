@@ -5,10 +5,10 @@ export class Annotation {
   }
 
   effect ({ model }) {
-    const value = this.expr.invoke(model);
+    const value = this.expr.returnValue(model);
 
     if (this.accessor) {
-      this.accessor.set(value);
+      this.accessor.write(value);
     }
   }
 }

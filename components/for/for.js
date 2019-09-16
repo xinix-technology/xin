@@ -64,7 +64,7 @@ export class For extends Component {
 
     const row = new Row(this.__loopTemplate, this);
 
-    const paths = row.__templateGetBinding().getAnnotatedPaths({ excludeMethods: true }).filter(path => {
+    const paths = row.__templateBinding.getAnnotatedPaths({ excludeMethods: true }).filter(path => {
       const pathArr = pathArray(path);
       if (pathArr[0] === this.as || pathArr[0] === this.indexAs) {
         return false;
@@ -94,15 +94,15 @@ export class For extends Component {
         this.__loopRows.forEach(update);
       }
     };
-    const annotation = this.__templateModel.__templateAddCallbackBinding(path, update);
-    update(this.__templateModel.get(path));
+    const annotation = this.__templateParent.__templateBinding.bindFunction(path, update);
+    update(this.__templateParent.get(path));
 
     this.__loopExternalAnnotations.push({ path, annotation });
   }
 
   __loopTeardownExternals () {
     this.__loopExternalAnnotations.forEach(({ path, annotation }) => {
-      this.__templateModel.__templateGetBinding(path).deannotate(annotation);
+      this.__templateParent.__templateBinding.deannotate(path, annotation);
     });
     this.__loopExternalAnnotations = [];
   }
@@ -119,7 +119,7 @@ export class For extends Component {
   }
 
   __componentMount () {
-    this.__loopHost = this.__templateModel;
+    this.__loopHost = this.__templateParent;
     this.__loopSetupMarker();
     this.mount(this, this.__loopMarker);
   }

@@ -53,7 +53,7 @@ export class If extends Component {
     this.__ifExternalAnnotations = [];
 
     const row = this.__ifThenRow;
-    const paths = row.__templateGetBinding().getAnnotatedPaths({ excludeMethods: true });
+    const paths = row.__templateBinding.getAnnotatedPaths({ excludeMethods: true });
 
     paths.forEach(path => {
       const pathArr = pathArray(path);
@@ -77,15 +77,15 @@ export class If extends Component {
       }
     };
 
-    const annotation = this.__templateModel.__templateAddCallbackBinding(path, update);
-    update(this.__templateModel.get(path));
+    const annotation = this.__templateParent.__templateBinding.bindFunction(path, update);
+    update(this.__templateParent.get(path));
 
     this.__ifExternalAnnotations.push({ path, annotation });
   }
 
   __ifTeardownExternals () {
     this.__ifExternalAnnotations.forEach(({ path, annotation }) => {
-      this.__templateModel.__templateGetBinding(path).deannotate(annotation);
+      this.__templateParent.__templateBinding.deannotate(path, annotation);
     });
     this.__ifExternalAnnotations = [];
   }
@@ -110,7 +110,7 @@ export class If extends Component {
   }
 
   __componentMount () {
-    this.__ifHost = this.__templateModel;
+    this.__ifHost = this.__templateParent;
     this.__ifSetupMarker();
     this.mount(this, this.__ifMarker);
   }
@@ -123,19 +123,18 @@ export class If extends Component {
 
   __ifSetupMarker () {
     const toAttr = this.getAttribute('to');
-    if (toAttr) {
-      const container = this.parentElement.querySelector(toAttr) || document.querySelector(toAttr);
-      if (!container) {
-        throw new Error(`xin-if render to unknown element ${toAttr}`);
-      }
-
-      this.__ifMarker = document.createComment('marker-if');
-      container.appendChild(this.__ifMarker);
-
+    if (!toAttr) {
+      this.__ifMarker = this;
       return;
     }
 
-    this.__ifMarker = this;
+    const container = this.parentElement.querySelector(toAttr) || document.querySelector(toAttr);
+    if (!container) {
+      throw new Error(`xin-if render to unknown element ${toAttr}`);
+    }
+
+    this.__ifMarker = document.createComment('marker-if');
+    container.appendChild(this.__ifMarker);
   }
 
   __ifTeardownMarker () {

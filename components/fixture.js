@@ -2,6 +2,12 @@ import { Component, define } from '../component';
 import { event, Async } from '../core';
 
 export class Fixture extends Component {
+  /**
+   * Create new fixture element
+   * @param {string} template
+   * @param {object} data
+   * @returns {Fixture}
+   */
   static create (template, data = {}) {
     const d = document.createElement('div');
     d.innerHTML = `<xin-fixture><template>${template}</template></xin-fixture>`;
@@ -28,6 +34,7 @@ export class Fixture extends Component {
     super.detached();
 
     this.connected = false;
+
     this.fire('disconnected');
   }
 

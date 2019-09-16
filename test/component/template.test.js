@@ -1,9 +1,9 @@
-import { Template, Async } from '../../..';
+import { Template, Async } from '../..';
 import assert from 'assert';
 
-import '../../../components/for';
+import '../../components/for';
 
-describe('component:template:template Template', () => {
+describe('component:template Template', () => {
   it('bind value', () => {
     const div = document.createElement('div');
     const template = new Template(`

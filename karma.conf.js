@@ -16,9 +16,8 @@ module.exports = function (config) { // eslint-disable-line max-lines-per-functi
 
     // list of files / patterns to load in the browser
     files: [
-      // 'test/init.js',
-      'test/**/*.test.js',
-      // 'test/**/binding.test.js',
+      'test/init.js',
+      config.grep ? config.grep : 'test/**/*.test.js',
     ],
 
     // list of files to exclude
@@ -27,11 +26,13 @@ module.exports = function (config) { // eslint-disable-line max-lines-per-functi
 
     // preprocess matching files before serving them to the browser
     // available preprocessors: https://npmjs.org/browse/keyword/karma-preprocessor
-    preprocessors: {
-      // 'test/init.js': ['webpack'],
-      'test/**/*.test.js': ['webpack'],
-      // 'test/**/binding.test.js': ['webpack'],
-    },
+    preprocessors: (() => {
+      const result = {
+        'test/init.js': ['webpack'],
+      };
+      result[config.grep ? config.grep : 'test/**/*.test.js'] = ['webpack'];
+      return result;
+    })(),
 
     // test results reporter to use
     // possible values: 'dots', 'progress'
@@ -120,5 +121,16 @@ module.exports = function (config) { // eslint-disable-line max-lines-per-functi
       require('karma-firefox-launcher'),
       require('karma-spec-reporter'),
     ],
+
+    customLaunchers: {
+      ChromeDebugging: {
+        base: 'ChromeCanary',
+        flags: [
+          '--remote-debugging-port=9333',
+          '--auto-open-devtools-for-tabs',
+          '--user-data-dir=' + path.resolve(__dirname, './.chrome'),
+        ],
+      },
+    },
   });
 };

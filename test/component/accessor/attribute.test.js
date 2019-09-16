@@ -19,8 +19,8 @@ describe('component:accessor:attribute AttributeAccessor', () => {
     });
   });
 
-  describe('#set()', () => {
-    it('set value of attribute', async () => {
+  describe('#write()', () => {
+    it('write value of attribute', async () => {
       const fixture = await Fixture.create(`
         <div id="here"></div>
       `);
@@ -30,19 +30,19 @@ describe('component:accessor:attribute AttributeAccessor', () => {
 
         const accessor = new AttributeAccessor(fixture.$.here, 'foo$');
 
-        accessor.set('23');
+        accessor.write('23');
         assert.strictEqual(fixture.$.here.getAttribute('foo'), '23');
-        accessor.set(undefined);
+        accessor.write(undefined);
         assert.strictEqual(fixture.$.here.getAttribute('foo'), null);
-        accessor.set(null);
+        accessor.write(null);
         assert.strictEqual(fixture.$.here.getAttribute('foo'), null);
-        accessor.set('');
+        accessor.write('');
         assert.strictEqual(fixture.$.here.getAttribute('foo'), null);
-        accessor.set(0);
+        accessor.write(0);
         assert.strictEqual(fixture.$.here.getAttribute('foo'), '0');
-        accessor.set(true);
+        accessor.write(true);
         assert.strictEqual(fixture.$.here.getAttribute('foo'), 'true');
-        accessor.set(false);
+        accessor.write(false);
         assert.strictEqual(fixture.$.here.getAttribute('foo'), 'false');
       } finally {
         fixture.dispose();
@@ -50,39 +50,39 @@ describe('component:accessor:attribute AttributeAccessor', () => {
     });
   });
 
-  describe('#get()', () => {
-    it('get value of attribute is null', async () => {
-      const fixture = await Fixture.create(`
-        <div id="here"></div>
-      `);
+  // describe('#read()', () => {
+  //   it('read value of attribute is null', async () => {
+  //     const fixture = await Fixture.create(`
+  //       <div id="here"></div>
+  //     `);
 
-      try {
-        await fixture.waitConnected();
+  //     try {
+  //       await fixture.waitConnected();
 
-        const accessor = new AttributeAccessor(fixture.$.here, 'foo$');
-        const value = accessor.get();
+  //       const accessor = new AttributeAccessor(fixture.$.here, 'foo$');
+  //       const value = accessor.read();
 
-        assert.strictEqual(value, null);
-      } finally {
-        fixture.dispose();
-      }
-    });
+  //       assert.strictEqual(value, null);
+  //     } finally {
+  //       fixture.dispose();
+  //     }
+  //   });
 
-    it('get value of attribute', async () => {
-      const fixture = await Fixture.create(`
-        <div id="here" foo="23"></div>
-      `);
+  //   it('read value of attribute', async () => {
+  //     const fixture = await Fixture.create(`
+  //       <div id="here" foo="23"></div>
+  //     `);
 
-      try {
-        await fixture.waitConnected();
+  //     try {
+  //       await fixture.waitConnected();
 
-        const accessor = new AttributeAccessor(fixture.$.here, 'foo$');
-        const value = accessor.get();
+  //       const accessor = new AttributeAccessor(fixture.$.here, 'foo$');
+  //       const value = accessor.read();
 
-        assert.strictEqual(value, '23');
-      } finally {
-        fixture.dispose();
-      }
-    });
-  });
+  //       assert.strictEqual(value, '23');
+  //     } finally {
+  //       fixture.dispose();
+  //     }
+  //   });
+  // });
 });

@@ -1,5 +1,5 @@
 
-export function fix (template) {
+export function fixTemplate (template) {
   /* istanbul ignore if */
   if (!template.content && HTMLTemplateElement && HTMLTemplateElement.decorate) {
     HTMLTemplateElement.decorate(template);

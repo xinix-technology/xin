@@ -1,5 +1,7 @@
+import { nothing } from '../../../helpers';
+
 export default function (val) {
-  if (val === undefined || val === null) {
+  if (nothing(val)) {
     return '';
   }
   return String(val);

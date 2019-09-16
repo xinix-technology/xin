@@ -1,11 +1,12 @@
 import assert from 'assert';
 import { Fixture } from '../../components';
 import { define, Component } from '../..';
+import { Repository, event } from '../../core';
 
 describe('cases:binding', () => {
   it('bind value from property', async () => {
     const fixture = await Fixture.create(`
-      <input id="el1" type="text" value="[[value]]">
+      <input id="el1" type="text" value="{{value}}">
       <div id="el2">[[value]]</div>
     `);
 
@@ -14,6 +15,12 @@ describe('cases:binding', () => {
       fixture.set('value', 'foo');
       assert.strictEqual(fixture.$.el1.value, 'foo');
       assert.strictEqual(fixture.$.el2.innerText, 'foo');
+
+      fixture.$.el1.value = 'bar';
+      event(fixture.$.el1).fire('input');
+
+      assert.strictEqual(fixture.$.el1.value, 'bar');
+      assert.strictEqual(fixture.$.el2.innerText, 'bar');
     } finally {
       fixture.dispose();
     }
@@ -103,7 +110,7 @@ describe('cases:binding', () => {
     try {
       await fixture.waitConnected();
       fixture.set('value', 'bar');
-      assert.strictEqual(fixture.$.el.getAttribute('foo'), '[[value]]');
+      assert.strictEqual(fixture.$.el.hasAttribute('foo'), false);
       assert.strictEqual(fixture.$.el.foo, 'bar');
     } finally {
       fixture.dispose();
@@ -167,11 +174,13 @@ describe('cases:binding', () => {
       <test-binding-1 id="comp" foo="foo was here"></test-binding-1>
     `);
 
-    await fixture.waitConnected();
+    try {
+      await fixture.waitConnected();
 
-    assert.strictEqual(fixture.$.comp.textContent, 'foo was here');
-
-    fixture.dispose();
+      assert.strictEqual(fixture.$.comp.textContent, 'foo was here');
+    } finally {
+      fixture.dispose();
+    }
   });
 
   it('initialize data from default value', async () => {
@@ -195,11 +204,13 @@ describe('cases:binding', () => {
       <test-binding-2 id="comp"></test-binding-2>
     `);
 
-    await fixture.waitConnected();
+    try {
+      await fixture.waitConnected();
 
-    assert.strictEqual(fixture.$.comp.textContent, 'default foo');
-
-    fixture.dispose();
+      assert.strictEqual(fixture.$.comp.textContent, 'default foo');
+    } finally {
+      fixture.dispose();
+    }
   });
 
   it('compute data', async () => {
@@ -227,7 +238,7 @@ describe('cases:binding', () => {
       }
 
       _computeFull (first, last) {
-        return `${first} ${last}`.trim();
+        return `${first || ''} ${last || ''}`.trim();
       }
     });
 
@@ -237,6 +248,8 @@ describe('cases:binding', () => {
 
     try {
       await fixture.waitConnected();
+
+      assert.strictEqual(fixture.$.comp.full, '');
 
       fixture.$.comp.set('first', 'foo');
       fixture.$.comp.set('last', 'bar');
@@ -252,28 +265,132 @@ describe('cases:binding', () => {
       get props () {
         return {
           ...super.props,
+          foo: {
+            type: String,
+            value: 'xyz',
+          },
+        };
+      }
+
+      get template () {
+        return `
+          <input type="text" value="{{foo}}">
+          <test-binding-5 id="comp" value="{{foo}}"></test-binding-4>
+        `;
+      }
+    });
+
+    define('test-binding-5', class extends Component {
+      get props () {
+        return {
+          ...super.props,
           value: {
             type: String,
             notify: true,
           },
         };
       }
+
+      get template () {
+        return `
+          <input type="text" value="{{value}}">
+        `;
+      }
     });
 
     const fixture = await Fixture.create(`
-      <test-binding-4 id="comp" value="{{foo}}"></test-binding-4>
+      <test-binding-4 id="comp"></test-binding-4>
     `);
 
     try {
       await fixture.waitConnected();
 
-      fixture.set('foo', 'foo');
-      assert.strictEqual(fixture.foo, 'foo');
-      assert.strictEqual(fixture.$.comp.value, 'foo');
+      assert.strictEqual(fixture.$$('test-binding-4').foo, 'xyz');
+      assert.strictEqual(fixture.$$('test-binding-5').value, 'xyz');
 
-      fixture.$.comp.set('value', 'bar');
-      assert.strictEqual(fixture.foo, 'bar');
-      assert.strictEqual(fixture.$.comp.value, 'bar');
+      fixture.$$('test-binding-4').set('foo', 'foo');
+      assert.strictEqual(fixture.$$('test-binding-4').foo, 'foo');
+      assert.strictEqual(fixture.$$('test-binding-5').value, 'foo');
+
+      fixture.$$('test-binding-5').set('value', 'bar');
+      assert.strictEqual(fixture.$$('test-binding-4').foo, 'bar');
+      assert.strictEqual(fixture.$$('test-binding-5').value, 'bar');
+    } finally {
+      fixture.dispose();
+    }
+  });
+
+  it('has required field', async () => {
+    define('test-binding-6', class extends Component {
+      get props () {
+        return {
+          ...super.props,
+          foo: {
+            type: String,
+            required: true,
+          },
+        };
+      }
+    });
+
+    {
+      let hit = 0;
+      Repository.singleton().put('xin.silentError', true);
+      Repository.singleton().addListener('error', () => hit++);
+
+      await Fixture.create(`
+        <test-binding-6></test-binding-6>
+      `);
+
+      assert.strictEqual(hit, 1);
+
+      Repository.singleton().put('xin.silentError', false);
+      Repository.singleton().removeAllListeners('error');
+    }
+
+    const fixture = await Fixture.create(`
+      <test-binding-6 foo="qqq"></test-binding-6>
+    `);
+
+    try {
+      await fixture.waitConnected();
+
+      assert.strictEqual(fixture.$$('test-binding-6').foo, 'qqq');
+    } finally {
+      fixture.dispose();
+    }
+  });
+
+  it('render xin-for', async () => {
+    const fixture = await Fixture.create(`
+      <div>
+        <div>[[name]]</div>
+        <input type="text" value="{{name}}">
+      </div>
+      <div>
+        <xin-for id="loop" items="[[items]]">
+          <template>
+            <div>
+              <span>[[name]]</span>
+              <span>[[item.name]]</span>
+            </div>
+            <input type="text" value="{{name}}">
+          </template>
+        </xin-for>
+      </div>
+    `, {
+      name: 'me',
+      items: [
+        { name: 'foo' },
+        { name: 'bar' },
+        { name: 'baz' },
+      ],
+    });
+
+    try {
+      await fixture.waitConnected();
+
+      assert.strictEqual(fixture.$.loop.__loopRows.length, 3);
     } finally {
       fixture.dispose();
     }

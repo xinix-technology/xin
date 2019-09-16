@@ -19,7 +19,7 @@
   "homepage": "http://xinix.co.id/p/product/xin",
   "scripts": {
     "clean": "rm -rf dist coverage",
-    "dev": "karma start --no-single-run",
+    "dev": "karma start --no-single-run --browsers ChromeDebugging",
     "lint": "eslint .",
     "test": "karma start",
     "build": "webpack --mode development && webpack --mode production"

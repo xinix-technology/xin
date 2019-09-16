@@ -18,8 +18,8 @@ describe('component:accessor:text TextAccessor', () => {
     });
   });
 
-  describe('#set()', () => {
-    it('set value of text', async () => {
+  describe('#write()', () => {
+    it('write value of text', async () => {
       const fixture = await Fixture.create(`
         <div id="here"></div>
       `);
@@ -28,35 +28,16 @@ describe('component:accessor:text TextAccessor', () => {
         await fixture.waitConnected();
 
         const accessor = new TextAccessor(fixture.$.here, 'text');
-        accessor.set('foo');
+        accessor.write('foo');
         assert.strictEqual(fixture.$.here.innerHTML, 'foo');
-        accessor.set('');
+        accessor.write('');
         assert.strictEqual(fixture.$.here.innerHTML, '');
-        accessor.set(0);
+        accessor.write(0);
         assert.strictEqual(fixture.$.here.innerHTML, '0');
-        accessor.set(null);
+        accessor.write(null);
         assert.strictEqual(fixture.$.here.innerHTML, '');
-        accessor.set(undefined);
+        accessor.write(undefined);
         assert.strictEqual(fixture.$.here.innerHTML, '');
-      } finally {
-        fixture.dispose();
-      }
-    });
-  });
-
-  describe('#get()', () => {
-    it('get value of text throw error', async () => {
-      const fixture = await Fixture.create(`
-        <div id="here"></div>
-      `);
-
-      try {
-        await fixture.waitConnected();
-
-        const accessor = new TextAccessor(fixture.$.here, 'text');
-        assert.throws(() => {
-          accessor.get();
-        }, /TextAccessor is write-only/);
       } finally {
         fixture.dispose();
       }

@@ -9,15 +9,11 @@ export class ClassAccessor extends BaseAccessor {
     super(node, name.split('.').splice(1).join('.'));
   }
 
-  set (value) {
+  write (value) {
     if (value) {
       this.node.classList.add(this.name);
     } else {
       this.node.classList.remove(this.name);
     }
-  }
-
-  get () {
-    throw new Error('ClassAccessor is write-only');
   }
 }

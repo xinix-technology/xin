@@ -1,4 +1,5 @@
 import { BaseAccessor } from './base';
+import { nothing } from '../../helpers';
 
 const { TEXT_NODE, ELEMENT_NODE } = Node;
 
@@ -21,14 +22,18 @@ export class ValueAccessor extends BaseAccessor {
     }
   }
 
-  set (value) {
+  write (value) {
     if (document.activeElement !== this.node) {
-      if (value === null || value === undefined) {
+      if (nothing(value)) {
         value = '';
       }
 
       this.node.value = value;
     }
+  }
+
+  read () {
+    return this.node.value;
   }
 }
 

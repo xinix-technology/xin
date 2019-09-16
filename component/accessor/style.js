@@ -9,11 +9,7 @@ export class StyleAccessor extends BaseAccessor {
     super(node, name.split('.').splice(1).join('.'));
   }
 
-  set (value) {
+  write (value) {
     this.node.style[this.name] = value || '';
-  }
-
-  get () {
-    throw new Error('StyleAccessor is write-only');
   }
 }

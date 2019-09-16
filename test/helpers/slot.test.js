@@ -1,8 +1,8 @@
-import { define, Component } from '../../..';
-import { Fixture } from '../../../components/fixture';
+import { define, Component } from '../..';
+import { Fixture } from '../../components/fixture';
 import assert from 'assert';
 
-describe('component:template:slot', () => {
+describe('helpers:slot', () => {
   it('new component with full slot', async () => {
     define('test-component-slot-1', class extends Component {
       get template () {

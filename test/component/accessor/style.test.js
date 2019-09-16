@@ -18,8 +18,8 @@ describe('component:accessor:style StyleAccessor', () => {
     });
   });
 
-  describe('#set()', () => {
-    it('set value of style', async () => {
+  describe('#write()', () => {
+    it('write value of style', async () => {
       const fixture = await Fixture.create(`
         <div id="here"></div>
       `);
@@ -29,34 +29,15 @@ describe('component:accessor:style StyleAccessor', () => {
 
         {
           const accessor = new StyleAccessor(fixture.$.here, 'style.backgroundColor');
-          accessor.set('white');
+          accessor.write('white');
           assert.strictEqual(fixture.$.here.style.backgroundColor, 'white');
         }
 
         {
           const accessor = new StyleAccessor(fixture.$.here, 'style.background-color');
-          accessor.set('black');
+          accessor.write('black');
           assert.strictEqual(fixture.$.here.style.backgroundColor, 'black');
         }
-      } finally {
-        fixture.dispose();
-      }
-    });
-  });
-
-  describe('#get()', () => {
-    it('get value of style throw error', async () => {
-      const fixture = await Fixture.create(`
-        <div id="here"></div>
-      `);
-
-      try {
-        await fixture.waitConnected();
-
-        const accessor = new StyleAccessor(fixture.$.here, 'style.border');
-        assert.throws(() => {
-          accessor.get();
-        }, /StyleAccessor is write-only/);
       } finally {
         fixture.dispose();
       }

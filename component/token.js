@@ -1,6 +1,9 @@
-import { pathArray } from '../helpers';
+import { pathArray, val } from '../helpers';
+import { Modeler } from './modeler';
+import { Repository } from '../core';
 
 const CACHE = {};
+let globalContext = {};
 
 export class Token {
   static get CACHE () {
@@ -15,6 +18,17 @@ export class Token {
     const token = new Token(name);
     CACHE[name] = token;
     return token;
+  }
+
+  static resetGlobal () {
+    globalContext = {
+      $global: window,
+      $repository: () => Repository.singleton(),
+    };
+  }
+
+  static registerGlobal (name, resolver) {
+    globalContext[name] = resolver;
   }
 
   constructor (name) {
@@ -41,11 +55,37 @@ export class Token {
     }
   }
 
+  get isGlobalScoped () {
+    if (this.name[0] !== '$') {
+      return false;
+    }
+
+    if (this.name === '$' || this.name === '$$' || this.name[1] === '.') {
+      return false;
+    }
+
+    return true;
+  }
+
   value (...models) {
     if (this.type === 's') {
       return this._value;
     }
 
+    if (this.isGlobalScoped) {
+      return this._valueFromGlobalContext();
+    }
+
+    return this._valueFromModels(...models);
+  }
+
+  _valueFromGlobalContext () {
+    const [contextName, ...path] = pathArray(this.name);
+    const model = new Modeler(val(globalContext[contextName]));
+    return model.get(path);
+  }
+
+  _valueFromModels (...models) {
     for (const model of models) {
       if (!model) {
         continue;
@@ -63,17 +103,19 @@ export class Token {
       throw new Error(`Method is not eligible, ${model.is}:${model.__id}#${this.name}`);
     }
 
-    const delegator = model.__templateDelegator;
+    const invoker = model.__templateInvoker;
 
-    if (typeof delegator.get === 'function') {
-      const ctx = this.contextName ? delegator.get(this.contextName) : delegator;
+    if (typeof invoker.get === 'function') {
+      const ctx = this.contextName ? invoker.get(this.contextName) : invoker;
       if (typeof ctx[this.baseName] === 'function') {
         return ctx[this.baseName](...args);
       }
-    } else if (typeof delegator[this.name] === 'function') {
-      return delegator[this.name](...args);
+    } else if (typeof invoker[this.name] === 'function') {
+      return invoker[this.name](...args);
     }
 
     throw new Error(`Method is not eligible, ${model.is}:${model.__id}#${this.name}`);
   }
 }
+
+Token.resetGlobal();

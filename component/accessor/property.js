@@ -11,4 +11,20 @@ export class PropertyAccessor extends BaseAccessor {
   constructor (node, name) {
     super(node, camelize(name));
   }
+
+  write (value) {
+    if (typeof this.node.set === 'function') {
+      this.node.set(this.name, value);
+    } else {
+      this.node[this.name] = value;
+    }
+  }
+
+  read () {
+    if (typeof this.node.get === 'function') {
+      return this.node.get(this.name);
+    } else {
+      return this.node[this.name];
+    }
+  }
 }

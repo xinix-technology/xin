@@ -9,7 +9,7 @@ export class AttributeAccessor extends BaseAccessor {
     super(node, name.slice(0, -1));
   }
 
-  set (value) {
+  write (value) {
     if (value === undefined || value === null || value === '') {
       this.node.removeAttribute(this.name);
     } else {
@@ -17,7 +17,7 @@ export class AttributeAccessor extends BaseAccessor {
     }
   }
 
-  get () {
-    return this.node.getAttribute(this.name);
-  }
+  // read () {
+  //   return this.node.getAttribute(this.name);
+  // }
 }

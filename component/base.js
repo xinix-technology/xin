@@ -1,5 +1,4 @@
 import { Repository, event, Async } from '../core';
-import { deserialize, dashify } from '../helpers';
 import { Template } from './template';
 import { Expr } from './expr';
 
@@ -45,14 +44,6 @@ export function base (base) {
       return this.__templateHost.getElementsByTagName('*');
     }
 
-    get $global () {
-      return window;
-    }
-
-    get $repository () {
-      return repository;
-    }
-
     created () {}
 
     ready () {}
@@ -62,17 +53,22 @@ export function base (base) {
     detached () {}
 
     createdCallback () {
-      this.__templateInitData();
-
-      if (debug.enabled) /* istanbul ignore next */ debug(`CREATED ${this.is}:${this.__id}`);
-
-      this.created();
-
+      this.__componentCreated = false;
       this.__componentReady = false;
-      this.__componentReadyInvoked = false;
+      this.__componentReadyInvoking = false;
       this.__componentAttaching = false;
-      this.__componentInitialPropValues = {};
-      this.__componentProps = undefined;
+
+      try {
+        this.__componentInitTemplate();
+
+        if (debug.enabled) /* istanbul ignore next */ debug(`CREATED ${this.is}:${this.__id}`);
+
+        this.created();
+
+        this.__componentCreated = true;
+      } catch (err) {
+        this.__componentEmitError(err);
+      }
     }
 
     readyCallback () {
@@ -90,7 +86,6 @@ export function base (base) {
 
       if (debug.enabled) /* istanbul ignore next */ debug(`READY ${this.is}:${this.__id}`);
 
-      this.__componentInitTemplate();
       this.__componentInitListeners();
 
       this.ready();
@@ -106,11 +101,15 @@ export function base (base) {
     // initialization work that is truly one-time will need a guard to prevent
     // it from running twice.
     attachedCallback () {
+      if (!this.__componentCreated) {
+        return;
+      }
+
       this.__componentAttaching = true;
 
       if (!this.__componentReady) {
-        if (!this.__componentReadyInvoked) {
-          this.__componentReadyInvoked = true;
+        if (!this.__componentReadyInvoking) {
+          this.__componentReadyInvoking = true;
           Async.run(() => this.readyCallback());
         }
         return;
@@ -130,7 +129,11 @@ export function base (base) {
     detachedCallback () {
       this.detached();
 
-      this.__componentUnmount();
+      try {
+        this.__componentUnmount();
+      } catch (err) {
+        this.__componentEmitError(err);
+      }
     }
 
     connectedCallback () {
@@ -141,24 +144,12 @@ export function base (base) {
       return this.detachedCallback();
     }
 
-    __templateInitProp (propKey, prop) {
-      Template.prototype.__templateInitProp.call(this, propKey, prop);
-
-      const attrName = dashify(propKey);
-      if (!this.hasAttribute(attrName)) {
+    __componentEmitError (err) {
+      repository.emit('error', err);
+      if (repository.get('xin.silentError')) {
         return;
       }
-
-      const attrVal = fixAttrValue(this.getAttribute(attrName), prop.type);
-      const expr = Expr.get(attrVal);
-
-      if ('notify' in prop && expr.mode === Expr.READWRITE) {
-        this.__templateAddCallbackBinding(propKey, value => this.__templateModel.set(expr.name, value));
-      }
-
-      this.__templateInitialValues[propKey] = expr.type === Expr.STATIC
-        ? () => deserialize(attrVal, prop.type)
-        : () => expr.invoke(this.__templateModel);
+      throw err;
     }
 
     __componentInitTemplate () {
@@ -180,9 +171,9 @@ export function base (base) {
 
       Object.keys(this.listeners).forEach(key => {
         const meta = parseListenerMetadata(key);
-        const expr = Expr.getFn(this.listeners[key], [], true);
+        const expr = Expr.createFn(this.listeners[key], [], true);
 
-        this.__templateAddEventListener({
+        this.__templateEventer.addHandler({
           name: meta.eventName,
           selector: meta.selector,
           listener: evt => expr.invoke(this, { evt }),
@@ -204,7 +195,7 @@ export function base (base) {
   }
 
   tProtoProps.forEach(key => {
-    if (key === '$' || key === '$global' || key === '$repository' || key === '__templateInitProp') {
+    if (key === '$') {
       return;
     }
 
@@ -216,18 +207,11 @@ export function base (base) {
   return BaseComponent;
 }
 
+// FIXME: revisit this to use template listener
 function parseListenerMetadata (key) {
   key = key.trim();
   const [eventName, ...selectorArr] = key.split(/\s+/);
   const selector = selectorArr.length ? selectorArr.join(' ') : null;
   const metadata = { key, eventName, selector };
   return metadata;
-}
-
-function fixAttrValue (value, type) {
-  if (type === Boolean && value === '') {
-    return 'on';
-  }
-
-  return value;
 }

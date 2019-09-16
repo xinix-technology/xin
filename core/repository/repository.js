@@ -1,6 +1,8 @@
+import { EventEmitter } from 'events';
+
 const debug = require('debug')('xin:core');
 
-export class Repository {
+export class Repository extends EventEmitter {
   static bootstrap (data) {
     let repo = window.xin$repository;
     if (repo) {
@@ -31,6 +33,8 @@ export class Repository {
   }
 
   constructor (data = {}) {
+    super();
+
     if (debug.enabled) /* istanbul ignore next */ debug('Repository construct...');
     this.data = {
       'customElements.version': 'v1',
