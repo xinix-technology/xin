@@ -26,7 +26,7 @@ function _create (value, mode, type) {
   return expr;
 }
 
-class Expr {
+export class Expr {
   static get CACHE () {
     return CACHE;
   }
@@ -47,6 +47,13 @@ class Expr {
     return _create(value, Expr.READONLY, Expr.STATIC);
   }
 
+  /**
+   * Create new function expression
+   * @param {string} value
+   * @param {array} args
+   * @param {boolean} unwrapped
+   * @returns {Expr}
+   */
   static createFn (value, args, unwrapped) {
     return Expr.create(value.indexOf('(') === -1 ? `${value}(${args.join(', ')})` : value, unwrapped);
   }
@@ -137,7 +144,7 @@ class Expr {
       return arg.value(model, otherArgs);
     });
 
-    return this.fn.invoke(args, model);
+    return this.fn.invoke(model, args);
   }
 }
 
@@ -146,5 +153,3 @@ Expr.METHOD = 'm';
 Expr.PROPERTY = 'p';
 Expr.READONLY = '[';
 Expr.READWRITE = '{';
-
-export { Expr };

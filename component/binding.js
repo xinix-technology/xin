@@ -41,20 +41,26 @@ export class Binding {
     return this.children[name].traverse(segments, creating);
   }
 
-  // FIXME: revisit this later
-  getAnnotatedPaths ({ excludeMethods = false } = {}) {
+  getAnnotatedPaths ({ includeProperties = true, includeMethods = true } = {}, contextPath = []) {
+    if (!includeProperties && !includeMethods) {
+      return [];
+    }
+
     const paths = [];
 
     for (const key in this.children) {
       const child = this.children[key];
-      child.getAnnotatedPaths({ excludeMethods }).forEach(path => {
-        paths.push(this.name ? `${this.name}.${path}` : path);
+      const childContextPath = [...contextPath, key];
+      child.getAnnotatedPaths({ includeProperties, includeMethods }, childContextPath).forEach(path => {
+        paths.push(this.name ? pathString([this.name, ...pathArray(path)]) : path);
       });
     }
 
-    const annotations = !excludeMethods ? this.annotations : this.annotations.filter(({ expr }) => {
-      // FIXME: revisit this later expr.name will full path, this.name is basename only
-      return expr.name === this.name && expr.type !== Expr.METHOD;
+    const annotations = findAnnotations({
+      annotations: this.annotations,
+      contextPath: pathString(contextPath),
+      includeMethods,
+      includeProperties,
     });
 
     if (annotations.length) {
@@ -114,9 +120,9 @@ export class Binding {
       annotation.effect({ model });
     });
 
-    Object.keys(this.children).forEach(i => {
+    for (const i in this.children) {
       this.children[i].dispatchEffect({ model });
-    });
+    }
   }
 
   dispose () {
@@ -124,9 +130,9 @@ export class Binding {
       this.stop();
     }
 
-    Object.keys(this.children).forEach(i => {
+    for (const i in this.children) {
       this.children[i].dispose();
-    });
+    }
     this.children = {};
 
     this.annotations.forEach(annotation => {
@@ -154,4 +160,16 @@ export class Binding {
       this.deferredNotifications.push(pathStr);
     }
   }
+}
+
+function findAnnotations ({ annotations, contextPath, includeMethods, includeProperties }) {
+  return includeProperties && includeMethods
+    ? [...annotations]
+    : annotations.filter(({ expr }) => {
+      if (includeMethods) {
+        return expr.fn && contextPath === expr.fn.name;
+      }
+
+      return !expr.fn || contextPath !== expr.fn.name;
+    });
 }

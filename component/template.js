@@ -1,4 +1,4 @@
-import { idGenerator, prepareTemplate, slotName, dashify, nothing } from '../helpers';
+import { idGenerator, prepareTemplate, slotName, dashify, nothing, createFragment } from '../helpers';
 import { Modeler } from './modeler';
 import { Expr } from './expr';
 import { Binding } from './binding';
@@ -305,16 +305,6 @@ function getEventName (node) {
   if (nodeName === 'SELECT') {
     return 'change';
   }
-}
-
-function createFragment (from, excludes = []) {
-  const fragment = document.createDocumentFragment();
-  from.forEach(node => {
-    if (excludes.indexOf(node) === -1) {
-      fragment.appendChild(node);
-    }
-  });
-  return fragment;
 }
 
 // function isUndefinedPropValue (propName, propValue) {

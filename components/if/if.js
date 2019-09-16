@@ -1,10 +1,10 @@
 import { Component, define } from '../../component';
 import { Row } from './row';
-import { pathArray } from '../../helpers';
+import { Async } from '../../core';
 
 const ERR_INVALID_DEFINITION = `Invalid xin-if definition,
 must be:
-<xin-if items="[[items]]">
+<xin-if condition="[[condition]]">
   <template>...</template>
   <template else>...</template>
 </xin-if>`;
@@ -29,82 +29,75 @@ export class If extends Component {
   attached () {
     super.attached();
 
-    this.__ifSetupExternals();
+    this.__ifSetupRows();
     this.__ifObserveCondition(this.condition);
   }
 
   detached () {
     super.detached();
 
-    this.__ifThenRow.dispose();
-    this.__ifElseRow.dispose();
-    this.__ifThenRow = undefined;
-    this.__ifElseRow = undefined;
-
-    this.__ifTeardownExternals();
+    this.__ifTeardownRows();
   }
 
-  __ifSetupExternals () {
-    this.__ifThenRow = new Row(this.__ifThenTemplate, this);
-    if (this.__ifElseTemplate) {
-      this.__ifElseRow = new Row(this.__ifElseTemplate, this);
-    }
-
-    this.__ifExternalAnnotations = [];
-
-    const row = this.__ifThenRow;
-    const paths = row.__templateBinding.getAnnotatedPaths({ excludeMethods: true });
-
-    paths.forEach(path => {
-      const pathArr = pathArray(path);
-      this.__ifAddExternalAnnotation(pathArr[0]);
-      if (path !== pathArr[0]) {
-        this.__ifAddExternalAnnotation(path);
-      }
+  __ifSetupRows () {
+    const paths = [];
+    this.__ifRows = this.__ifTemplates.map(template => {
+      const row = new Row(template, this);
+      row.__templateBinding.getAnnotatedPaths({ includeMethods: false }).forEach(path => {
+        if (paths.indexOf(path) === -1) {
+          paths.push(path);
+        }
+      });
+      return row;
     });
-  }
 
-  __ifAddExternalAnnotation (path) {
-    if (this.__ifExternalAnnotations.find(ea => ea.path === path)) {
-      return;
-    }
-
-    const update = value => {
+    const change = (path, value) => {
       this.set(path, value);
-      this.__ifThenRow.set(path, value);
-      if (this.__ifElseRow) {
-        this.__ifElseRow.set(path, value);
-      }
+      this.__ifRows.forEach(row => row.set(path, value));
     };
 
-    const annotation = this.__templateParent.__templateBinding.bindFunction(path, update);
-    update(this.__templateParent.get(path));
+    this.__ifAnnotations = [];
 
-    this.__ifExternalAnnotations.push({ path, annotation });
+    paths.forEach(path => {
+      if (path === 'condition' || path === 'to') {
+        return;
+      }
+
+      const update = value => change(path, value);
+
+      update(this.__templateParent.get(path));
+
+      const annotation = this.__templateParent.__templateBinding.bindFunction(path, update);
+      this.__ifRows.forEach(row => row.__templateBinding.bindFunction(path, value => {
+        this.__templateParent.set(path, value);
+      }));
+
+      this.__ifAnnotations.push({ path, annotation });
+    });
   }
 
-  __ifTeardownExternals () {
-    this.__ifExternalAnnotations.forEach(({ path, annotation }) => {
+  __ifTeardownRows () {
+    this.__ifAnnotations.forEach(({ path, annotation }) => {
       this.__templateParent.__templateBinding.deannotate(path, annotation);
     });
-    this.__ifExternalAnnotations = [];
+
+    this.__ifRows.forEach(row => row.dispose());
+    this.__ifRows = undefined;
   }
 
   __componentInitTemplate () {
     const children = this.children;
-    if (this.children.length < 1 || this.children.length > 2 || this.firstElementChild.nodeName !== 'TEMPLATE') {
+    if (children.length < 1 || children.length > 2 || this.firstElementChild.nodeName !== 'TEMPLATE') {
       throw new Error(ERR_INVALID_DEFINITION);
     }
 
-    this.__ifThenTemplate = this.firstElementChild;
+    this.__ifTemplates = [this.firstElementChild];
     this.removeChild(this.firstElementChild);
 
-    if (children.length !== 1 || this.firstElementChild.nodeName !== 'TEMPLATE') {
-      throw new Error(ERR_INVALID_DEFINITION);
+    if (children.length === 1 && this.firstElementChild.nodeName === 'TEMPLATE') {
+      this.__ifTemplates.push(this.firstElementChild);
+      this.removeChild(this.firstElementChild);
     }
-
-    this.__ifElseTemplate = this.firstElementChild;
-    this.removeChild(this.firstElementChild);
 
     super.__componentInitTemplate();
   }
@@ -133,7 +126,7 @@ export class If extends Component {
       throw new Error(`xin-if render to unknown element ${toAttr}`);
     }
 
-    this.__ifMarker = document.createComment('marker-if');
+    this.__ifMarker = document.createComment(`marker-if-${this.__id}`);
     container.appendChild(this.__ifMarker);
   }
 
@@ -146,17 +139,20 @@ export class If extends Component {
   }
 
   __ifObserveCondition (condition) {
-    if (!this.__ifThenRow) {
+    if (!this.__ifRows) {
       return;
     }
 
-    if (condition) {
-      this.__ifMount(this.__ifThenRow);
-      this.__ifUnmount(this.__ifElseRow);
-    } else {
-      this.__ifMount(this.__ifElseRow);
-      this.__ifUnmount(this.__ifThenRow);
-    }
+    Async.cancel(this.__ifObserveConditionDebounce);
+    this.__ifObserveConditionDebounce = Async.run(() => {
+      if (condition) {
+        this.__ifUnmount(this.__ifRows[1]);
+        this.__ifMount(this.__ifRows[0]);
+      } else {
+        this.__ifUnmount(this.__ifRows[0]);
+        this.__ifMount(this.__ifRows[1]);
+      }
+    });
   }
 
   __ifMount (row) {

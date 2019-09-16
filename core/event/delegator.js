@@ -1,5 +1,6 @@
 import { idGenerator, matches } from '../../helpers';
 import { prepareArgs } from './helpers/prepare-args';
+import { Async } from '../async';
 
 const WAIT_TIMEOUT = 3000;
 
@@ -89,14 +90,14 @@ export class Delegator {
 
   waitFor (types, timeout = WAIT_TIMEOUT) {
     return new Promise((resolve, reject) => {
-      let t;
+      let async;
       const callback = evt => {
-        clearTimeout(t);
+        Async.cancel(async);
         this.off(types, callback);
         resolve(evt);
       };
       if (timeout > 0) {
-        t = setTimeout(() => {
+        async = Async.run(() => {
           this.off(types, callback);
           reject(new Error('Event#waitFor got timeout'));
         }, timeout);

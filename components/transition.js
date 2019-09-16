@@ -119,7 +119,7 @@ function whenTransitionEnds (elements, expectedType, cb) {
         }
       }
     };
-    setTimeout(function () {
+    Async.run(() => {
       if (ended < propCount) {
         end();
       }

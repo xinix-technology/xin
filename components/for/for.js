@@ -64,7 +64,7 @@ export class For extends Component {
 
     const row = new Row(this.__loopTemplate, this);
 
-    const paths = row.__templateBinding.getAnnotatedPaths({ excludeMethods: true }).filter(path => {
+    const paths = row.__templateBinding.getAnnotatedPaths({ includeMethod: false }).filter(path => {
       const pathArr = pathArray(path);
       if (pathArr[0] === this.as || pathArr[0] === this.indexAs) {
         return false;

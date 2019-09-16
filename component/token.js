@@ -36,19 +36,19 @@ export class Token {
     this.contextName = '';
     this.baseName = '';
     this._value = undefined;
-    this.type = 'v';
+    this.type = Token.VARIABLE;
 
     if (!this.name.match(/^[a-zA-Z_]/)) {
       try {
         this._value = JSON.parse(this.name);
-        this.type = 's';
+        this.type = Token.STATIC;
         return;
       } catch (err) {
         // noop
       }
     }
 
-    if (this.type === 'v') {
+    if (this.type === Token.VARIABLE) {
       const pathArr = pathArray(this.name);
       this.baseName = pathArr.pop();
       this.contextName = pathArr.join('.');
@@ -68,7 +68,7 @@ export class Token {
   }
 
   value (...models) {
-    if (this.type === 's') {
+    if (this.type === Token.STATIC) {
       return this._value;
     }
 
@@ -98,13 +98,12 @@ export class Token {
     }
   }
 
-  invoke (args, model) {
-    if (this.type === 's') {
+  invoke (model, args) {
+    if (this.type === Token.STATIC) {
       throw new Error(`Method is not eligible, ${model.is}:${model.__id}#${this.name}`);
     }
 
     const invoker = model.__templateInvoker;
-
     if (typeof invoker.get === 'function') {
       const ctx = this.contextName ? invoker.get(this.contextName) : invoker;
       if (typeof ctx[this.baseName] === 'function') {
@@ -117,5 +116,8 @@ export class Token {
     throw new Error(`Method is not eligible, ${model.is}:${model.__id}#${this.name}`);
   }
 }
+
+Token.VARIABLE = 'v';
+Token.STATIC = 's';
 
 Token.resetGlobal();

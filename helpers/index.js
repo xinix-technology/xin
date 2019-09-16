@@ -11,3 +11,4 @@ export * from './nothing';
 export * from './fix-template';
 export * from './prepare-template';
 export * from './slot-name';
+export * from './create-fragment';

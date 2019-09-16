@@ -37,7 +37,7 @@ export class Schema {
     const [name, ...newPath] = pathArray(path);
 
     const field = this.fields[name];
-    if (newPath.length === 0 || !field.traverse) {
+    if (newPath.length === 0 || !field || !field.traverse) {
       return field || UNKNOWN_FIELD;
     }
 

@@ -3,7 +3,7 @@ import { Fixture } from '../../components/fixture';
 import { define, Component, Async } from '../..';
 import '../../components/for';
 
-describe.skip('components:for <xin-for>', () => {
+describe('components:for <xin-for>', () => {
   it('render list', async () => {
     const fixture = await Fixture.create(`
       <div id="here">

@@ -170,14 +170,10 @@ export function base (base) {
       }
 
       Object.keys(this.listeners).forEach(key => {
-        const meta = parseListenerMetadata(key);
+        const { name, selector } = parseListenerMetadata(key);
         const expr = Expr.createFn(this.listeners[key], [], true);
-
-        this.__templateEventer.addHandler({
-          name: meta.eventName,
-          selector: meta.selector,
-          listener: evt => expr.invoke(this, { evt }),
-        });
+        const listener = evt => expr.invoke(this, { evt });
+        this.__templateEventer.addHandler({ name, selector, listener });
       });
     }
 
@@ -207,11 +203,9 @@ export function base (base) {
   return BaseComponent;
 }
 
-// FIXME: revisit this to use template listener
 function parseListenerMetadata (key) {
   key = key.trim();
-  const [eventName, ...selectorArr] = key.split(/\s+/);
+  const [name, ...selectorArr] = key.split(/\s+/);
   const selector = selectorArr.length ? selectorArr.join(' ') : null;
-  const metadata = { key, eventName, selector };
-  return metadata;
+  return { key, name, selector };
 }
