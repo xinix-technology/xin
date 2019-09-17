@@ -52,7 +52,7 @@ export class Template {
     return this.__templateModeler.get(path);
   }
 
-  set (path, value) {
+  set (path, value) { // eslint-disable-line complexity
     if (arguments.length === 1 && typeof path === 'object') {
       const data = path;
       for (const key in data) {
@@ -63,11 +63,13 @@ export class Template {
       return;
     }
 
-    value = this.__templateSchema.get(path, value);
-    if (value === this.get(path)) {
+    const oldValue = this.get(path);
+    const newValue = this.__templateSchema.get(path, value);
+    if (!nothing(oldValue) && this.__templateSchema.eq(path, value, oldValue)) {
       return;
     }
-    this.__templateModeler.set(path, value);
+
+    this.__templateModeler.set(path, newValue);
     this.notify(path);
   }
 
@@ -230,12 +232,7 @@ export class Template {
       throw new Error(`${this.is}:${this.__id} missing required ${field.name}`);
     }
 
-    const availableValue = this.get(field.name);
-    if (nothing(availableValue)) {
-      this.set(field.name, value);
-    } else {
-      this.notify(field.name);
-    }
+    this.set(field.name, value);
   }
 
   __templateUninitialize () {

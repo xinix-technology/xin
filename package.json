@@ -1,6 +1,6 @@
 {
   "name": "@xinix/xin",
-  "version": "3.1.8",
+  "version": "3.1.9",
   "description": "Custom elements sugar for the web",
   "repository": {
     "type": "git",
@@ -22,11 +22,12 @@
     "dev": "karma start --no-single-run --browsers ChromeDebugging",
     "lint": "eslint .",
     "test": "karma start",
-    "build": "webpack --mode development && webpack --mode production"
+    "build": "webpack --mode development && webpack --mode production",
+    "prepublishOnly": "npm run clean && npm run lint && npm run test && npm run build"
   },
   "devDependencies": {
     "babel-eslint": "^10.0.3",
-    "eslint": "^6.3.0",
+    "eslint": "^6.4.0",
     "eslint-config-standard": "^14.1.0",
     "eslint-config-xinix": "^1.1.8",
     "eslint-plugin-import": "^2.18.2",
@@ -47,11 +48,10 @@
     "karma-webpack": "^4.0.2",
     "mocha": "^6.2.0",
     "nyc": "^14.1.1",
-    "terser-webpack-plugin": "^2.0.1",
+    "terser-webpack-plugin": "^2.1.0",
     "webcomponents.js": "^0.7.24",
-    "webpack": "^4.39.3",
-    "webpack-cli": "^3.3.8",
-    "webpack-dev-server": "^3.8.0"
+    "webpack": "^4.40.2",
+    "webpack-cli": "^3.3.8"
   },
   "dependencies": {
     "debug": "^4.1.1"

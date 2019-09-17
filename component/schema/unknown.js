@@ -8,8 +8,4 @@ export class UnknownField extends Field {
   cast (value) {
     return value;
   }
-
-  eq (value1, value2) {
-    return value1 === value2;
-  }
 }

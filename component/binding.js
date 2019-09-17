@@ -3,14 +3,11 @@ import { Annotation } from './annotation';
 import { accessorFactory } from './accessor';
 import { pathArray, pathString, pathHead } from '../helpers';
 
-export class Binding {
-  constructor (name) {
+class LeafBinding {
+  constructor (name = '') {
     this.name = name;
     this.children = {};
     this.annotations = [];
-    this.model = undefined;
-    this.deferredNotifications = [];
-    this.running = false;
   }
 
   /**
@@ -31,7 +28,7 @@ export class Binding {
         return undefined;
       }
 
-      this.children[name] = new Binding(name);
+      this.children[name] = new LeafBinding(name);
     }
 
     if (segments.length === 0) {
@@ -39,6 +36,39 @@ export class Binding {
     }
 
     return this.children[name].traverse(segments, creating);
+  }
+
+  addAnnotation (annotation) {
+    this.annotations.push(annotation);
+  }
+
+  removeAnnotation (annotation) {
+    const index = this.annotations.indexOf(annotation);
+    if (index !== -1) {
+      this.annotations.splice(index, 1);
+    }
+  }
+
+  dispatchEffect ({ model }) {
+    this.annotations.forEach(annotation => {
+      annotation.effect({ model });
+    });
+
+    for (const i in this.children) {
+      this.children[i].dispatchEffect({ model });
+    }
+  }
+
+  dispose () {
+    for (const i in this.children) {
+      this.children[i].dispose();
+    }
+    this.children = {};
+
+    this.annotations.forEach(annotation => {
+      this.removeAnnotation(annotation);
+    });
+    this.annotations = [];
   }
 
   getAnnotatedPaths ({ includeProperties = true, includeMethods = true } = {}, contextPath = []) {
@@ -69,6 +99,16 @@ export class Binding {
 
     return paths;
   }
+}
+
+export class Binding extends LeafBinding {
+  constructor (name) {
+    super(name);
+
+    this.model = undefined;
+    this.running = false;
+    this.deferredNotifications = [];
+  }
 
   bindFunction (path, fn) {
     const annotation = new Annotation(Expr.create(path, true), accessorFactory(fn));
@@ -93,17 +133,6 @@ export class Binding {
     this.traverse(path).removeAnnotation(annotation);
   }
 
-  addAnnotation (annotation) {
-    this.annotations.push(annotation);
-  }
-
-  removeAnnotation (annotation) {
-    const index = this.annotations.indexOf(annotation);
-    if (index !== -1) {
-      this.annotations.splice(index, 1);
-    }
-  }
-
   notify (path) {
     if (!this.running) {
       return this.addDeferredNotification(path);
@@ -115,30 +144,12 @@ export class Binding {
     }
   }
 
-  dispatchEffect ({ model }) {
-    this.annotations.forEach(annotation => {
-      annotation.effect({ model });
-    });
-
-    for (const i in this.children) {
-      this.children[i].dispatchEffect({ model });
-    }
-  }
-
   dispose () {
     if (this.running) {
       this.stop();
     }
 
-    for (const i in this.children) {
-      this.children[i].dispose();
-    }
-    this.children = {};
-
-    this.annotations.forEach(annotation => {
-      this.removeAnnotation(annotation);
-    });
-    this.annotations = [];
+    super.dispose();
   }
 
   start (model) {

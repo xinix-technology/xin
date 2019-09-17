@@ -6,7 +6,7 @@ export class Fixture extends Component {
    * Create new fixture element
    * @param {string} template
    * @param {object} data
-   * @returns {Fixture}
+   * @returns {Promise<Fixture>}
    */
   static create (template, data = {}) {
     const d = document.createElement('div');
@@ -15,7 +15,6 @@ export class Fixture extends Component {
     fixture.__fixtureInitialData = data;
     document.body.appendChild(fixture);
 
-    // return as promised element because at v0 it wont be created yet!
     return new Promise(resolve => resolve(fixture));
   }
 

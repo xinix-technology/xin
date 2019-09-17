@@ -106,9 +106,9 @@ describe('components:for <xin-for>', () => {
       fixture.set('rows', rows);
       await Async.sleep();
 
-      assert.deepStrictEqual(fixture.$$('xin-for').itemForElement(fixture.$$('span')), { name: 'foo' });
-      assert.strictEqual(fixture.$$('xin-for').indexForElement(fixture.$$('span')), 0);
-      assert.strictEqual(fixture.$$('xin-for').modelForElement(fixture.$$('span')).get('index'), 0);
+      assert.deepStrictEqual(fixture.$.loop.itemForElement(fixture.$$('span')), { name: 'foo' });
+      assert.strictEqual(fixture.$.loop.indexForElement(fixture.$$('span')), 0);
+      assert.strictEqual(fixture.$.loop.modelForElement(fixture.$$('span')).get('index'), 0);
     } finally {
       fixture.dispose();
     }
@@ -155,9 +155,8 @@ describe('components:for <xin-for>', () => {
     `);
 
     try {
-      await fixture.waitConnected();
+      await fixture.waitConnected(20);
 
-      await Async.sleep();
       assert.strictEqual(fixture.$$('[index="0"] .outer').textContent, 'outer');
       assert.strictEqual(fixture.$$('[index="0"] .idx').textContent, '0');
       assert.strictEqual(fixture.$$('[index="0"] .rowName').textContent, 'foo');

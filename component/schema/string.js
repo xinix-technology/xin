@@ -1,5 +1,4 @@
 import { Field } from './field';
-import { nothing } from '../../helpers';
 
 export class StringField extends Field {
   static test (type) {
@@ -7,10 +6,6 @@ export class StringField extends Field {
   }
 
   cast (value) {
-    if (nothing(value)) {
-      return undefined;
-    }
-
     return String(value);
   }
 }

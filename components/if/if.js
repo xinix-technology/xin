@@ -80,6 +80,7 @@ export class If extends Component {
     this.__ifAnnotations.forEach(({ path, annotation }) => {
       this.__templateParent.__templateBinding.deannotate(path, annotation);
     });
+    this.__ifAnnotations = undefined;
 
     this.__ifRows.forEach(row => row.dispose());
     this.__ifRows = undefined;

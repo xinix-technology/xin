@@ -26,25 +26,41 @@ function _create (value, mode, type) {
   return expr;
 }
 
+function unwrap (value) {
+  return value.slice(2, -2).trim();
+}
+
+function parseMode (value) {
+  if (!value) {
+    return;
+  }
+
+  if (value[0] === value[1] && (value[0] === Expr.READONLY || value[0] === Expr.READWRITE)) {
+    return value[0];
+  }
+}
+
 export class Expr {
   static get CACHE () {
     return CACHE;
   }
 
-  static create (value, unwrapped) {
-    value = (value || '').trim();
+  static create (value, unwrapped = false) {
+    let mode = Expr.READONLY;
+    let type = Expr.VARY;
 
-    if (unwrapped) {
-      return _create(value, Expr.READONLY, 'v');
+    value = value.trim();
+    if (!unwrapped) {
+      mode = parseMode(value);
+      if (!mode) {
+        type = Expr.STATIC;
+        mode = Expr.READONLY;
+      } else {
+        value = unwrap(value);
+      }
     }
 
-    const mode = value[0];
-    if ((mode === Expr.READONLY || mode === Expr.READWRITE) && value[1] === mode) {
-      value = value.slice(2, -2).trim();
-      return _create(value, mode, 'v');
-    }
-
-    return _create(value, Expr.READONLY, Expr.STATIC);
+    return _create(value, mode, type);
   }
 
   /**
@@ -54,8 +70,15 @@ export class Expr {
    * @param {boolean} unwrapped
    * @returns {Expr}
    */
-  static createFn (value, args, unwrapped) {
-    return Expr.create(value.indexOf('(') === -1 ? `${value}(${args.join(', ')})` : value, unwrapped);
+  static createFn (value, args, unwrapped = false) {
+    value = value.trim();
+    value = value.indexOf('(') === -1 ? `${value}(${args.join(', ')})` : value;
+
+    if (!unwrapped) {
+      value = unwrap(value);
+    }
+
+    return _create(value, Expr.READONLY, Expr.VARY);
   }
 
   static rawTokenize (str) {
@@ -85,6 +108,7 @@ export class Expr {
     this.filters = [];
     this.value = value;
     this.varArgs = [];
+    this.originalValue = value;
 
     if (type === Expr.STATIC) {
       return;
@@ -150,6 +174,7 @@ export class Expr {
 
 Expr.STATIC = 's';
 Expr.METHOD = 'm';
+Expr.VARY = 'v';
 Expr.PROPERTY = 'p';
 Expr.READONLY = '[';
 Expr.READWRITE = '{';

@@ -1,5 +1,5 @@
 import { UnknownField } from './unknown';
-import { pathArray } from '../../helpers';
+import { pathArray, nothing } from '../../helpers';
 
 let types = [];
 
@@ -55,6 +55,10 @@ export class Schema {
   }
 
   eq (path, value1, value2) {
+    if (nothing(value1) && nothing(value2)) {
+      return true;
+    }
+
     const field = this.traverse(path);
     return field.eq(value1, value2);
   }

@@ -77,9 +77,9 @@ export class Parser {
     // attribute later if already processed
     // this hack to make sure when attribute removed the attributes index doesnt shift.
     const len = element.attributes.length;
-
+    const attributes = [...element.attributes];
     for (let i = 0; i < len; i++) {
-      const attr = element.attributes[i];
+      const attr = attributes[i];
 
       const attrName = attr.name;
 

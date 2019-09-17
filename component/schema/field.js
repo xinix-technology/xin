@@ -29,7 +29,7 @@ export class Field {
     return value;
   }
 
-  eq () {
-    throw new Error('Unimplemented #eq()');
+  eq (value1, value2) {
+    return this.get(value1) === this.get(value2);
   }
 }
