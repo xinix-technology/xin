@@ -30,6 +30,8 @@ describe('component:accessor:attribute AttributeAccessor', () => {
 
         const accessor = new AttributeAccessor(fixture.$.here, 'foo$');
 
+        window.accessor = accessor;
+
         accessor.write('23');
         assert.strictEqual(fixture.$.here.getAttribute('foo'), '23');
         accessor.write(undefined);

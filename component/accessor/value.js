@@ -5,7 +5,7 @@ const { TEXT_NODE, ELEMENT_NODE } = Node;
 
 export class ValueAccessor extends BaseAccessor {
   static test (node, name) {
-    if (name === 'value' && isInput(node)) {
+    if (name === 'value' && isInputOrSelect(node)) {
       return true;
     }
 
@@ -37,8 +37,8 @@ export class ValueAccessor extends BaseAccessor {
   }
 }
 
-function isInput (node) {
-  return node.nodeType === ELEMENT_NODE && node.nodeName === 'INPUT';
+function isInputOrSelect (node) {
+  return node.nodeType === ELEMENT_NODE && (node.nodeName === 'INPUT' || node.nodeName === 'SELECT');
 }
 
 function isTextareaText (node) {

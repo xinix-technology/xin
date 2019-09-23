@@ -338,14 +338,17 @@ describe('cases:binding', () => {
       Repository.singleton().put('xin.silentError', true);
       Repository.singleton().addListener('error', () => hit++);
 
-      await Fixture.create(`
+      const fixture = await Fixture.create(`
         <test-binding-6></test-binding-6>
       `);
 
-      assert.strictEqual(hit, 1);
-
-      Repository.singleton().put('xin.silentError', false);
-      Repository.singleton().removeAllListeners('error');
+      try {
+        await fixture.waitConnected();
+        assert.strictEqual(hit, 1);
+      } finally {
+        Repository.singleton().put('xin.silentError', false);
+        Repository.singleton().removeAllListeners('error');
+      }
     }
 
     const fixture = await Fixture.create(`
@@ -356,6 +359,27 @@ describe('cases:binding', () => {
       await fixture.waitConnected();
 
       assert.strictEqual(fixture.$$('test-binding-6').foo, 'qqq');
+    } finally {
+      fixture.dispose();
+    }
+  });
+
+  it('bind event', async () => {
+    let hit = 0;
+    const fixture = await Fixture.create(`
+      <button id="button" (click)="doClick(evt)">Click</button>
+    `, {
+      doClick (evt) {
+        hit++;
+      },
+    });
+
+    try {
+      await fixture.waitConnected();
+
+      fixture.$.button.click();
+
+      assert.strictEqual(hit, 1);
     } finally {
       fixture.dispose();
     }

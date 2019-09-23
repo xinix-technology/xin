@@ -1,4 +1,4 @@
-import { Schema } from '../../component';
+import { Schema } from '../../../component';
 import assert from 'assert';
 
 describe('component:schema Schema', () => {

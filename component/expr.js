@@ -146,10 +146,6 @@ export class Expr {
     }, []);
   }
 
-  // get constant () {
-  //   return this.type !== Expr.METHOD && this.varArgs.length !== this.args.length;
-  // }
-
   returnValue (model, otherArgs) {
     if (this.type === Expr.STATIC) {
       return this.value;

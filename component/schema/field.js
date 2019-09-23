@@ -1,10 +1,10 @@
-import { nothing } from '../../helpers';
+import { nothing, val } from '../../helpers';
 
 export class Field {
   constructor (name, { type, value, required = false, computed, observer, notify = false }) {
     this.name = name;
     this.type = type;
-    this.value = nothing(value) ? undefined : this.cast(value);
+    this.value = value;
     this.required = required;
     this.computed = computed;
     this.observer = observer;
@@ -15,18 +15,28 @@ export class Field {
     throw new Error('Unimplemented #cast()');
   }
 
-  get (value) {
-    if (nothing(value)) {
-      return this.value;
-    }
+  getDefaultValue () {
+    return val(this.value);
+  }
 
-    value = this.cast(value);
-
-    if (nothing(value)) {
-      return this.value;
+  validate (value) {
+    if (nothing(value) && this.required) {
+      throw new Error(`Field ${this.name} empty but required`);
     }
 
     return value;
+  }
+
+  get (value) {
+    if (!nothing(value)) {
+      value = this.cast(value);
+    }
+
+    if (nothing(value)) {
+      value = this.getDefaultValue();
+    }
+
+    return this.validate(value);
   }
 
   eq (value1, value2) {

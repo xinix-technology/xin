@@ -1,4 +1,5 @@
 import { BaseAccessor } from './base';
+import { nothing } from '../../helpers';
 
 export class AttributeAccessor extends BaseAccessor {
   static test (node, name) {
@@ -10,14 +11,10 @@ export class AttributeAccessor extends BaseAccessor {
   }
 
   write (value) {
-    if (value === undefined || value === null || value === '') {
+    if (nothing(value) || value === '') {
       this.node.removeAttribute(this.name);
     } else {
       this.node.setAttribute(this.name, value);
     }
   }
-
-  // read () {
-  //   return this.node.getAttribute(this.name);
-  // }
 }

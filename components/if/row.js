@@ -5,12 +5,18 @@ export class Row extends Template {
   constructor (template, instance) {
     super(template);
 
+    this.__templateRenderer.setRenderCallback(renderer => {
+      const templateFragment = createFragment(renderer.childNodes);
+      renderer.marker.parentElement.insertBefore(templateFragment, renderer.marker);
+    });
+
     this.__ifInstance = instance;
-    this.__ifAnnotations = [];
-    this.__templateInvoker = instance.__templateParent;
+
+    this.__templateModeler.invoker = instance.__templateParent;
+
     this.__templateParent = instance;
 
-    this.__templateChildNodes.forEach(node => {
+    this.__templateRenderer.childNodes.forEach(node => {
       if (node.nodeType === Node.ELEMENT_NODE) {
         node.__ifModel = this;
       }
@@ -19,10 +25,5 @@ export class Row extends Template {
 
   get is () {
     return '$if-row';
-  }
-
-  __templateRender () {
-    const templateFragment = createFragment(this.__templateChildNodes);
-    this.__templateMarker.parentElement.insertBefore(templateFragment, this.__templateMarker);
   }
 }

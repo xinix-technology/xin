@@ -1,14 +1,20 @@
 import { Template } from '../../component';
+import { createFragment } from '../../helpers';
 
 export class Row extends Template {
   constructor (template, instance) {
     super(template);
 
+    this.__templateRenderer.setRenderCallback(renderer => {
+      const templateFragment = createFragment(renderer.childNodes);
+      renderer.marker.parentElement.insertBefore(templateFragment, renderer.marker);
+    });
+
     this.__loopInstance = instance;
     this.__loopAs = instance.as;
     this.__loopIndexAs = instance.indexAs;
 
-    this.__templateInvoker = instance.__templateParent;
+    this.__templateModeler.invoker = instance.__templateParent;
 
     this.__templateParent = instance;
 
@@ -17,7 +23,7 @@ export class Row extends Template {
       // instance.set('items', [...instance.items]);
     });
 
-    this.__templateChildNodes.forEach(node => {
+    this.__templateRenderer.childNodes.forEach(node => {
       if (node.nodeType === Node.ELEMENT_NODE) {
         node.__loopModel = this;
       }
@@ -35,13 +41,6 @@ export class Row extends Template {
     this[this.__loopIndexAs] = index;
     this.notify(this.__loopAs);
     this.notify(this.__loopIndexAs);
-  }
-
-  __templateRender () {
-    // override how to render to ignore host data
-    const templateFragment = document.createDocumentFragment();
-    this.__templateChildNodes.forEach(node => templateFragment.appendChild(node));
-    this.__templateMarker.parentElement.insertBefore(templateFragment, this.__templateMarker);
   }
 
   dispose () {

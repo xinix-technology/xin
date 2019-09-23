@@ -91,37 +91,47 @@ export function base (base) {
       this.ready();
 
       event(this).fire('ready');
-
-      if (this.__componentAttaching) {
-        this.attachedCallback();
-      }
     }
 
     // note that connectedCallback can be called more than once, so any
     // initialization work that is truly one-time will need a guard to prevent
     // it from running twice.
-    attachedCallback () {
+    async attachedCallback () { // eslint-disable-line complexity
       if (!this.__componentCreated) {
         return;
       }
 
       this.__componentAttaching = true;
 
-      if (!this.__componentReady) {
-        if (!this.__componentReadyInvoking) {
+      try {
+        if (!this.__componentReady) {
+          if (this.__componentReadyInvoking) {
+            return;
+          }
+
           this.__componentReadyInvoking = true;
-          Async.run(() => this.readyCallback());
+          await new Promise(resolve => {
+            Async.run(() => {
+              this.readyCallback();
+              resolve();
+            });
+          });
+
+          if (!this.__componentAttaching) {
+            return;
+          }
         }
-        return;
+
+        this.__componentMount();
+
+        if (debug.enabled) { /* istanbul ignore next */
+          debug(`ATTACHED ${this.is}:${this.__id} ${this.__componentAttaching ? '(delayed)' : ''}`);
+        }
+
+        this.attached();
+      } catch (err) {
+        this.__componentEmitError(err);
       }
-
-      this.__componentMount();
-
-      if (debug.enabled) { /* istanbul ignore next */
-        debug(`ATTACHED ${this.is}:${this.__id} ${this.__componentAttaching ? '(delayed)' : ''}`);
-      }
-
-      this.attached();
 
       this.__componentAttaching = false;
     }

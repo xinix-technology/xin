@@ -2,9 +2,6 @@ import { pathArray, val } from '../helpers';
 import { Modeler } from './modeler';
 import { Repository } from '../core';
 
-const CACHE = {};
-let globalContext = {};
-
 export class Token {
   static get CACHE () {
     return CACHE;
@@ -35,12 +32,12 @@ export class Token {
     this.name = name;
     this.contextName = '';
     this.baseName = '';
-    this._value = undefined;
+    this.staticValue = undefined;
     this.type = Token.VARIABLE;
 
     if (!this.name.match(/^[a-zA-Z_]/)) {
       try {
-        this._value = JSON.parse(this.name);
+        this.staticValue = JSON.parse(this.name);
         this.type = Token.STATIC;
         return;
       } catch (err) {
@@ -55,65 +52,96 @@ export class Token {
     }
   }
 
-  get isGlobalScoped () {
-    if (this.name[0] !== '$') {
-      return false;
-    }
-
-    if (this.name === '$' || this.name === '$$' || this.name[1] === '.') {
-      return false;
-    }
-
-    return true;
-  }
-
   value (...models) {
     if (this.type === Token.STATIC) {
-      return this._value;
+      return this.staticValue;
     }
 
-    if (this.isGlobalScoped) {
-      return this._valueFromGlobalContext();
-    }
-
-    return this._valueFromModels(...models);
+    return getValue(this.name, ...models);
   }
 
-  _valueFromGlobalContext () {
-    const [contextName, ...path] = pathArray(this.name);
-    const model = new Modeler(val(globalContext[contextName]));
-    return model.get(path);
-  }
-
-  _valueFromModels (...models) {
-    for (const model of models) {
-      if (!model) {
-        continue;
-      }
-
-      const val = typeof model.get === 'function' ? model.get(this.name) : model[this.name];
-      if (val !== undefined) {
-        return val;
-      }
-    }
-  }
-
-  invoke (model, args) {
+  invoke (model, args = []) {
     if (this.type === Token.STATIC) {
+      throw new Error(`Method is not eligible for static, ${model.is}:${model.__id}#${this.name}`);
+    }
+
+    const invoker = getInvoker(model);
+    if (!isGlobalScoped(this.contextName) && !invoker) {
+      throw new Error(`Model does not have invoker, #${this.name}`);
+    }
+
+    const context = getValue(this.contextName, invoker);
+    if (typeof context[this.baseName] !== 'function') {
       throw new Error(`Method is not eligible, ${model.is}:${model.__id}#${this.name}`);
     }
 
-    const invoker = model.__templateInvoker;
-    if (typeof invoker.get === 'function') {
-      const ctx = this.contextName ? invoker.get(this.contextName) : invoker;
-      if (typeof ctx[this.baseName] === 'function') {
-        return ctx[this.baseName](...args);
-      }
-    } else if (typeof invoker[this.name] === 'function') {
-      return invoker[this.name](...args);
+    return context[this.baseName](...args);
+  }
+}
+
+const CACHE = {};
+let globalContext = {};
+
+function isGlobalScoped (name) {
+  if (name[0] !== '$') {
+    return false;
+  }
+
+  if (name === '$' || name === '$$' || name[1] === '.') {
+    return false;
+  }
+
+  return true;
+}
+
+function getGlobalValue (name) {
+  const [contextName, ...path] = pathArray(name);
+  const context = val(globalContext[contextName]);
+
+  if (path.length) {
+    const model = new Modeler({ data: context });
+    return model.get(path);
+  }
+
+  return context;
+}
+
+function getModelValue (name, ...models) {
+  for (const model of models) {
+    if (!model) {
+      continue;
     }
 
-    throw new Error(`Method is not eligible, ${model.is}:${model.__id}#${this.name}`);
+    const val = typeof model.get === 'function' ? model.get(name) : model[name];
+    if (val !== undefined) {
+      return val;
+    }
+  }
+}
+
+function getValue (name, ...models) {
+  if (!name) {
+    return models[0];
+  }
+
+  if (isGlobalScoped(name)) {
+    return getGlobalValue(name);
+  }
+
+  return getModelValue(name, ...models);
+}
+
+function getInvoker (model) {
+  if (!model) {
+    return undefined;
+  }
+
+  if (model.invoker) {
+    return model.invoker;
+  }
+
+  if (model.__templateModeler) {
+    return model.__templateModeler.invoker;
   }
 }
 
