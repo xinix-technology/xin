@@ -34,7 +34,15 @@ export class Async {
   }
 
   static run (callback, wait) {
-    return (new Async()).start(callback, wait);
+    const async = new Async();
+    async.start(callback, wait);
+    return async;
+  }
+
+  static cancel (async) {
+    if (async && typeof async.cancel === 'function') {
+      async.cancel();
+    }
   }
 
   constructor (context) {
