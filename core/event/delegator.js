@@ -1,6 +1,7 @@
-import { idGenerator, matches } from '../../helpers';
+import { idGenerator } from '../id-generator';
 import { prepareArgs } from './helpers/prepare-args';
-import { Async } from '../async';
+import { Async } from '../fn/async';
+import { matches } from './helpers/matches';
 
 const WAIT_TIMEOUT = 3000;
 
@@ -77,10 +78,10 @@ export class Delegator {
       selector = '';
     }
 
-    const proxyCallback = () => {
+    const proxyCallback = (...args) => {
       this.off(types, selector, proxyCallback);
-      this.proxies.delete(proxyCallback);
-      return callback.apply(null, arguments);
+      this.proxies.delete(callback);
+      return callback.apply(null, args);
     };
 
     this.proxies.set(callback, proxyCallback);
