@@ -13,7 +13,7 @@ const debug = require('debug')('xin::component');
 const nextId = idGenerator();
 const baseComponents = {};
 
-export function base (base) {
+export function base (base) { // eslint-disable-line complexity
   const repository = getInstance();
 
   if (baseComponents[base]) {
@@ -118,7 +118,8 @@ export function base (base) {
     // initialization work that is truly one-time will need a guard to prevent
     // it from running twice.
     attachedCallback () {
-      this.__repository.put(this.__id, this);
+      // XXX: causing memory leak
+      // this.__repository.put(this.__id, this);
 
       this.__componentAttaching = true;
 
@@ -193,7 +194,7 @@ export function base (base) {
       this.__componentNotifiedProps = {};
     }
 
-    __initProps () {
+    __initProps () { // eslint-disable-line complexity
       const props = this.__getProps();
       for (const propName in props) {
         const property = props[propName];
@@ -214,7 +215,7 @@ export function base (base) {
           if (expr.type === 's') {
             this.__componentInitialPropValues[propName] = () => deserialize(attrVal, property.type);
           } else {
-            if ('notify' in property && expr.mode === '{') {
+            if ('notify' in property && expr.mode === '{') { // eslint-disable-line max-depth
               this.__componentNotifiedProps[propName] = true;
               this.__templateGetBinding(propName).annotate(new NotifyAnnotation(this, propName));
             }
@@ -236,7 +237,7 @@ export function base (base) {
       return this._props;
     }
 
-    __initPropValues () {
+    __initPropValues () { // eslint-disable-line complexity
       const props = this.__getProps();
 
       for (const propName in props) {
@@ -276,7 +277,10 @@ export function base (base) {
     __initTemplate () {
       let template;
 
-      if (this.childElementCount === 1 && this.firstElementChild.nodeName === 'TEMPLATE' && !this.firstElementChild.hasAttribute('is')) {
+      if (this.childElementCount === 1 &&
+        this.firstElementChild.nodeName === 'TEMPLATE' &&
+        !this.firstElementChild.hasAttribute('is')
+      ) {
         // when instance template exist detach from component content
         template = this.firstElementChild;
         this.removeChild(template);
@@ -350,7 +354,7 @@ export function base (base) {
       return (new Async(this)).start(callback, waitTime);
     }
 
-    debounce (job, callback, wait, immediate) {
+    debounce (job, callback, wait, immediate) { // eslint-disable-line max-params
       let debouncer = this.__componentDebouncers[job];
       if (debouncer && debouncer.running) {
         debouncer.cancel();
@@ -374,7 +378,7 @@ export function base (base) {
     // -------------------------------------------------------------------------
     //
 
-    __templateAnnotate (expr, accessor) {
+    __templateAnnotate (expr, accessor) { // eslint-disable-line complexity
       if (!T.prototype.__templateAnnotate.call(this, expr, accessor)) {
         return false;
       }

@@ -194,7 +194,7 @@ T.prototype = {
     return result;
   },
 
-  splice (path, index, removeCount, ...values) {
+  splice (path, index, removeCount, ...values) { // eslint-disable-line max-params
     path = this.__templateGetPathAsArray(path);
 
     let object = this;
@@ -405,7 +405,7 @@ T.prototype = {
     });
   },
 
-  __parseAttributeAnnotations (element) {
+  __parseAttributeAnnotations (element) { // eslint-disable-line complexity
     // clone attributes to array first then foreach because we will remove
     // attribute later if already processed
     // this hack to make sure when attribute removed the attributes index doesnt shift.
@@ -433,7 +433,7 @@ T.prototype = {
     return annotated;
   },
 
-  __parseElementAnnotations (element) {
+  __parseElementAnnotations (element) { // eslint-disable-line complexity
     let annotated = false;
 
     // when element already has template model it means it already parsed, skip

@@ -56,7 +56,7 @@ export class Token {
     }
   }
 
-  invoke (args, ...contexts) {
+  invoke (args, ...contexts) { // eslint-disable-line complexity
     if (contexts.length === 0) {
       throw new Error(`Cannot invoke method ${this.name} of undefined context`);
     }

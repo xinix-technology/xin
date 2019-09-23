@@ -2,7 +2,7 @@ import { T } from '../../component';
 import { Annotation } from '../../component/annotation';
 
 export class Row extends T {
-  constructor (template, host, item, index) {
+  constructor (template, host, item, index) { // eslint-disable-line max-params
     super();
 
     this.__repeat = host;
@@ -37,7 +37,7 @@ export class Row extends T {
     this.notify(this.__repeatIndexAs, index);
   }
 
-  set (path, value) {
+  set (path, value) { // eslint-disable-line complexity
     if (arguments.length === 1 && typeof path === 'object') {
       const data = path;
       for (const i in data) {
@@ -81,7 +81,7 @@ export class Row extends T {
   //   // return this.__templateHost.notify(path, value);
   // }
 
-  __templateAnnotate (expr, accessor) {
+  __templateAnnotate (expr, accessor) { // eslint-disable-line complexity
     if (!super.__templateAnnotate(expr, accessor)) {
       return false;
     }

@@ -3,8 +3,12 @@ import { Fx } from '../../core';
 
 export class View extends Component {
   get props () {
-    const TRANSITION_IN = this.__repository.get('view.transitionIn') || this.__repository.get('view.transition') || 'slide';
-    const TRANSITION_OUT = this.__repository.get('view.transitionOut') || this.__repository.get('view.transition') || 'fade';
+    const TRANSITION_IN = this.__repository.get('view.transitionIn') ||
+      this.__repository.get('view.transition') ||
+      'slide';
+    const TRANSITION_OUT = this.__repository.get('view.transitionOut') ||
+      this.__repository.get('view.transition') ||
+      'fade';
 
     return Object.assign({}, super.props, {
       uri: {

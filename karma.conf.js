@@ -4,7 +4,7 @@ const path = require('path');
 
 // process.env.CHROME_BIN = require('puppeteer').executablePath();
 
-module.exports = function (config) {
+module.exports = function (config) { // eslint-disable-line max-lines-per-function
   config.set({
 
     // base path that will be used to resolve all patterns (eg. files, exclude)
@@ -17,7 +17,7 @@ module.exports = function (config) {
     // list of files / patterns to load in the browser
     files: [
       'test/init.js',
-      'test/**/*.test.js',
+      config.grep ? config.grep : 'test/**/*.test.js',
     ],
 
     // list of files to exclude
@@ -26,10 +26,13 @@ module.exports = function (config) {
 
     // preprocess matching files before serving them to the browser
     // available preprocessors: https://npmjs.org/browse/keyword/karma-preprocessor
-    preprocessors: {
-      'test/init.js': ['webpack'],
-      'test/**/*.test.js': ['webpack'],
-    },
+    preprocessors: (() => {
+      const result = {
+        'test/init.js': ['webpack'],
+      };
+      result[config.grep ? config.grep : 'test/**/*.test.js'] = ['webpack'];
+      return result;
+    })(),
 
     // test results reporter to use
     // possible values: 'dots', 'progress'
@@ -64,6 +67,7 @@ module.exports = function (config) {
 
     coverageReporter: {
       dir: 'coverage/',
+      includeAllSources: true,
       reporters: [
         { type: 'html' },
         // { type: 'text' },
@@ -113,9 +117,20 @@ module.exports = function (config) {
       require('karma-mocha'),
       require('karma-coverage'),
       require('karma-chrome-launcher'),
-      // require('karma-safari-launcher'),
-      // require('karma-firefox-launcher'),
+      require('karma-safari-launcher'),
+      require('karma-firefox-launcher'),
       require('karma-spec-reporter'),
     ],
+
+    customLaunchers: {
+      ChromeDebugging: {
+        base: 'ChromeCanary',
+        flags: [
+          '--remote-debugging-port=9333',
+          '--auto-open-devtools-for-tabs',
+          '--user-data-dir=' + path.resolve(__dirname, './.chrome'),
+        ],
+      },
+    },
   });
 };

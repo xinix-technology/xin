@@ -1,3 +1,3 @@
 export default function (val) {
-  return Boolean(!val);
+  return !val;
 }

@@ -22,7 +22,7 @@ describe('component', () => {
 
     define('test-component-component2', class extends Component {
       get template () {
-        return `ini component 2`;
+        return 'ini component 2';
       }
     });
 

@@ -30,7 +30,7 @@ function _cancel (evt) {
  *
  * @returns {Function}
  */
-function _getMatcher (element) {
+function _getMatcher (element) { // eslint-disable-line complexity
   if (_matcher) {
     return _matcher;
   }
@@ -101,7 +101,7 @@ function _matchesSelector (element, selector, boundElement) {
   }
 }
 
-function _addHandler (delegator, event, selector, callback) {
+function _addHandler (delegator, event, selector, callback) { // eslint-disable-line max-params
   if (!_handlers[delegator.id]) {
     _handlers[delegator.id] = {};
   }
@@ -117,7 +117,7 @@ function _addHandler (delegator, event, selector, callback) {
   _handlers[delegator.id][event][selector].push(callback);
 }
 
-function _removeHandler (delegator, event, selector, callback) {
+function _removeHandler (delegator, event, selector, callback) { // eslint-disable-line max-params,complexity
   // if there are no events tied to this element at all
   // then don't do anything
   if (!_handlers[delegator.id]) {
@@ -167,7 +167,7 @@ function _removeHandler (delegator, event, selector, callback) {
   }
 }
 
-function _handleEvent (id, e, type) {
+function _handleEvent (id, e, type) { // eslint-disable-line complexity
   if (!_handlers[id][type]) {
     return;
   }
@@ -202,12 +202,12 @@ function _handleEvent (id, e, type) {
   for (i = 0; i <= _level; i++) {
     if (matches[i]) {
       for (j = 0; j < matches[i].length; j++) {
-        if (matches[i][j].call(matches[i].match, e) === false) {
+        if (matches[i][j].call(matches[i].match, e) === false) { // eslint-disable-line max-depth
           Delegator.cancel(e);
           return;
         }
 
-        if (e.cancelBubble) {
+        if (e.cancelBubble) { // eslint-disable-line max-depth
           return;
         }
       }
@@ -257,7 +257,7 @@ function _aliases (name) {
  * @param {boolean=} remove
  * @returns {Object}
  */
-function _bind (events, selector, callback, remove) {
+function _bind (events, selector, callback, remove) { // eslint-disable-line max-params,complexity
   // fail silently if you pass null or undefined as an alement
   // in the Delegator constructor
   if (!this.element) {

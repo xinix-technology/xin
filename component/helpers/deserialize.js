@@ -1,4 +1,4 @@
-export function deserialize (value, type) {
+export function deserialize (value, type) { // eslint-disable-line complexity
   switch (type) {
     case Number:
       value = Number(value);

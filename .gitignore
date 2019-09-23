@@ -3,9 +3,13 @@
 
 # development files
 node_modules
-/coverage
+*.sublime-*
 /.vscode
+/.nyc_output
+/.chrome
+/coverage
+/dist
 
 # user specific files
-*.sublime-*
-.nyc_output
+TODO.md
+docs

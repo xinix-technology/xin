@@ -17,11 +17,11 @@ describe('#define()', () => {
 
     define('test-define-v1', class DefineV1 extends Component {
       get template () {
-        return `define v1`;
+        return 'define v1';
       }
     });
 
-    const fixture = await Fixture.create(`<test-define-v1 id="el"></test-define-v1>`);
+    const fixture = await Fixture.create('<test-define-v1 id="el"></test-define-v1>');
     try {
       await fixture.waitConnected();
       assert.strictEqual(fixture.$.el.textContent, 'define v1');
@@ -35,11 +35,11 @@ describe('#define()', () => {
 
     define('test-define-v0', class DefineV0 extends Component {
       get template () {
-        return `define v0`;
+        return 'define v0';
       }
     });
 
-    const fixture = await Fixture.create(`<test-define-v0 id="el"></test-define-v0>`);
+    const fixture = await Fixture.create('<test-define-v0 id="el"></test-define-v0>');
     try {
       await fixture.waitConnected();
       assert.strictEqual(fixture.$.el.textContent, 'define v0');
