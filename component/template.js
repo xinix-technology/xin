@@ -144,4 +144,8 @@ export class Template {
     this.__templateModeler.dispose();
     this.__templateModeler = undefined;
   }
+
+  __xinInspect () {
+    return `${this.is}:${this.__id}`;
+  }
 }

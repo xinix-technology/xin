@@ -1,4 +1,4 @@
-import { nothing, pathArray, dashify } from '../helpers';
+import { nothing, pathArray, dashify, inspect } from '../helpers';
 import { Schema } from './schema';
 import { Expr } from './expr';
 import { Annotation } from './annotation';
@@ -142,6 +142,10 @@ export class Modeler {
     this.invoker = undefined;
     this.binding = undefined;
     this.schema = undefined;
+  }
+
+  __xinInspect () {
+    return inspect(this.data);
   }
 }
 

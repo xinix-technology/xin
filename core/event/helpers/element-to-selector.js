@@ -4,7 +4,8 @@ const nextId = idGenerator();
 
 export function elementToSelector (selector) {
   if (selector.hasAttribute('event-selector-id')) {
-    return selector.getAttribute('event-selector-id');
+    const selectorId = selector.getAttribute('event-selector-id');
+    return `[event-selector-id="${selectorId}"]`;
   }
 
   const selectorId = nextId();

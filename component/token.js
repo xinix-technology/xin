@@ -1,4 +1,4 @@
-import { pathArray, val } from '../helpers';
+import { pathArray, val, inspect } from '../helpers';
 import { Modeler } from './modeler';
 import { Repository } from '../core';
 
@@ -62,17 +62,17 @@ export class Token {
 
   invoke (model, args = []) {
     if (this.type === Token.STATIC) {
-      throw new Error(`Method is not eligible for static, ${model.is}:${model.__id}#${this.name}`);
+      throw new Error(`Method is not eligible for static, ${inspect(model)}#${this.name}()`);
     }
 
     const invoker = getInvoker(model);
     if (!isGlobalScoped(this.contextName) && !invoker) {
-      throw new Error(`Model does not have invoker, #${this.name}`);
+      throw new Error(`Model does not have invoker, ${inspect(invoker)}#${this.name}()`);
     }
 
     const context = getValue(this.contextName, invoker);
     if (typeof context[this.baseName] !== 'function') {
-      throw new Error(`Method is not eligible, ${model.is}:${model.__id}#${this.name}`);
+      throw new Error(`Method is not eligible, ${inspect(invoker)}#${this.name}()`);
     }
 
     return context[this.baseName](...args);

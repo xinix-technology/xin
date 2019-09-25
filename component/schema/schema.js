@@ -1,3 +1,11 @@
+import { StringField } from './string';
+import { DateField } from './date';
+import { NumberField } from './number';
+import { BooleanField } from './boolean';
+import { ObjectField } from './object';
+import { ArrayField } from './array';
+import { FunctionField } from './function';
+import { RegExpField } from './regexp';
 import { UnknownField } from './unknown';
 import { pathArray, nothing } from '../../helpers';
 
@@ -72,13 +80,14 @@ export class Schema {
 
 function reset () {
   types = [
-    require('./string').StringField,
-    require('./date').DateField,
-    require('./number').NumberField,
-    require('./boolean').BooleanField,
-    require('./object').ObjectField,
-    require('./array').ArrayField,
-    require('./function').FunctionField,
+    StringField,
+    DateField,
+    NumberField,
+    BooleanField,
+    ObjectField,
+    ArrayField,
+    FunctionField,
+    RegExpField,
   ];
 }
 

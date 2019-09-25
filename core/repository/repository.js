@@ -1,6 +1,4 @@
-import { EventEmitter } from 'events';
-
-const debug = require('debug')('xin:core');
+import { EventEmitter } from '../events';
 
 export class Repository extends EventEmitter {
   static bootstrap (data) {
@@ -35,7 +33,6 @@ export class Repository extends EventEmitter {
   constructor (data = {}) {
     super();
 
-    if (debug.enabled) /* istanbul ignore next */ debug('Repository construct...');
     this.data = {
       'customElements.version': 'v1',
       ...data,
@@ -43,8 +40,10 @@ export class Repository extends EventEmitter {
   }
 
   update (data = {}) {
-    if (debug.enabled) /* istanbul ignore next */ debug('Repository update data...');
-    this.data = Object.assign(this.data, data);
+    this.data = {
+      ...this.data,
+      ...data,
+    };
   }
 
   get (id) {

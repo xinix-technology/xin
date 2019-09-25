@@ -117,9 +117,7 @@ export class Expr {
     const tokens = value.split('|');
     const token = tokens[0].trim();
 
-    this.filters = tokens.slice(1).map(word => {
-      return Filter.get(word.trim());
-    });
+    this.filters = tokens.slice(1).map(word => Filter.resolve(word.trim()));
 
     if (token.indexOf('(') === -1) {
       this.type = Expr.PROPERTY;

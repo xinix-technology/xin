@@ -1,6 +1,6 @@
 {
   "name": "@xinix/xin",
-  "version": "3.1.11",
+  "version": "3.1.12",
   "description": "Custom elements sugar for the web",
   "repository": {
     "type": "git",
@@ -50,12 +50,10 @@
     "nyc": "^14.1.1",
     "terser-webpack-plugin": "^2.1.0",
     "webcomponents.js": "^0.7.24",
-    "webpack": "^4.40.2",
+    "webpack": "^4.41.0",
     "webpack-cli": "^3.3.9"
   },
-  "dependencies": {
-    "debug": "^4.1.1"
-  },
+  "optionalDependencies": {},
   "husky": {
     "hooks": {
       "pre-commit": "npm run lint"

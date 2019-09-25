@@ -2,7 +2,6 @@ import { Repository, event, Async } from '../core';
 import { Template } from './template';
 import { Expr } from './expr';
 
-const debug = require('debug')('xin:component');
 const baseComponents = {};
 
 const tProto = Template.prototype;
@@ -61,8 +60,6 @@ export function base (base) {
       try {
         this.__componentInitTemplate();
 
-        if (debug.enabled) /* istanbul ignore next */ debug(`CREATED ${this.is}:${this.__id}`);
-
         this.created();
 
         this.__componentCreated = true;
@@ -83,8 +80,6 @@ export function base (base) {
         // XXX: cause leak here :(
         // repository.put(this.__id, this);
       }
-
-      if (debug.enabled) /* istanbul ignore next */ debug(`READY ${this.is}:${this.__id}`);
 
       this.__componentInitListeners();
 
@@ -123,10 +118,6 @@ export function base (base) {
         }
 
         this.__componentMount();
-
-        if (debug.enabled) { /* istanbul ignore next */
-          debug(`ATTACHED ${this.is}:${this.__id} ${this.__componentAttaching ? '(delayed)' : ''}`);
-        }
 
         this.attached();
       } catch (err) {

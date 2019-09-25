@@ -1,14 +1,12 @@
 import { Repository } from '../core';
 
-const debug = require('debug')('xin:core:define');
-
 export function define (name, Component, options) {
   const repository = Repository.singleton();
 
   let ElementClass = repository.get(name);
 
   if (ElementClass) {
-    if (debug.enabled) /* istanbul ignore next */ debug(`Duplicate registering "${name}"`);
+    console.warn(`Duplicate registering "${name}"`);
     return ElementClass;
   }
 

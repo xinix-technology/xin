@@ -1,3 +1,4 @@
+export * from './inspect';
 export * from './id-generator';
 export * from './val';
 export * from './empty';
