@@ -1,4 +1,4 @@
-import { Repository, event, Async } from '../core';
+import { repository, event, Async } from '../core';
 import { Template } from './template';
 import { Expr } from './expr';
 
@@ -14,18 +14,16 @@ const tProtoProps = Object.getOwnPropertyNames(tProto);
  * @returns {BaseComponent}
  */
 export function base (base) {
-  const repository = Repository.singleton();
-
   if (baseComponents[base]) {
     return baseComponents[base];
   }
 
   let BaseElement;
-  if (repository.get('customElements.version') === 'v1') {
-    BaseElement = window[base];
-  } else {
+  if (repository.$config.customElementsVersion === 'v0') {
     BaseElement = function () {};
     BaseElement.prototype = Object.create(window[base].prototype);
+  } else {
+    BaseElement = window[base];
   }
 
   class BaseComponent extends BaseElement {
@@ -64,7 +62,7 @@ export function base (base) {
 
         this.__componentCreated = true;
       } catch (err) {
-        this.__componentEmitError(err);
+        repository.error(err);
       }
     }
 
@@ -76,9 +74,6 @@ export function base (base) {
       if (!this.hasAttribute('xin-id')) {
         // deferred set attributes until readyCallback
         this.setAttribute('xin-id', this.__id);
-
-        // XXX: cause leak here :(
-        // repository.put(this.__id, this);
       }
 
       this.__componentInitListeners();
@@ -121,7 +116,7 @@ export function base (base) {
 
         this.attached();
       } catch (err) {
-        this.__componentEmitError(err);
+        repository.error(err);
       }
 
       this.__componentAttaching = false;
@@ -133,7 +128,7 @@ export function base (base) {
       try {
         this.__componentUnmount();
       } catch (err) {
-        this.__componentEmitError(err);
+        repository.error(err);
       }
     }
 
@@ -143,14 +138,6 @@ export function base (base) {
 
     disconnectedCallback () {
       return this.detachedCallback();
-    }
-
-    __componentEmitError (err) {
-      repository.emit('error', err);
-      if (repository.get('xin.silentError')) {
-        return;
-      }
-      throw err;
     }
 
     __componentInitTemplate () {

@@ -4,7 +4,6 @@ describe('xin', () => {
   it('has core functionalities', async () => {
     const imported = await import('..');
 
-    assert(typeof imported.bootstrap === 'function');
     assert(imported.Repository);
   });
 
@@ -21,8 +20,5 @@ describe('xin', () => {
   it('define global xin repository', () => {
     const repo = window.xin$repository;
     assert.strictEqual(repo.constructor.name, 'Repository');
-    assert(typeof repo.get === 'function');
-    assert(typeof repo.put === 'function');
-    assert(typeof repo.update === 'function');
   });
 });

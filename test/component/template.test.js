@@ -63,7 +63,6 @@ describe('component:template Template', () => {
       },
     });
 
-    window.template = template;
     document.body.appendChild(div);
 
     try {

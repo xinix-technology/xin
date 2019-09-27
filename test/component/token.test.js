@@ -1,14 +1,15 @@
 import { Token } from '../../component/token';
 import assert from 'assert';
+import { repository } from '../../core';
 
 describe('component:token Token', () => {
   describe('#invoke()', () => {
     beforeEach(() => {
-      Token.resetGlobal();
+      repository.reset();
     });
 
     afterEach(() => {
-      Token.resetGlobal();
+      repository.reset();
     });
 
     it('invoke function from model', () => {
@@ -25,7 +26,7 @@ describe('component:token Token', () => {
     });
 
     it('invoke function from global', () => {
-      Token.registerGlobal('$foo', {
+      repository.set('$foo', {
         fooFn () {
           return 'foo';
         },

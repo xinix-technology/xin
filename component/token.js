@@ -1,6 +1,5 @@
-import { pathArray, val, inspect } from '../helpers';
-import { Modeler } from './modeler';
-import { Repository } from '../core';
+import { pathArray, inspect } from '../helpers';
+import { repository } from '../core';
 
 export class Token {
   static get CACHE () {
@@ -15,17 +14,6 @@ export class Token {
     const token = new Token(name);
     CACHE[name] = token;
     return token;
-  }
-
-  static resetGlobal () {
-    globalContext = {
-      $global: window,
-      $repository: () => Repository.singleton(),
-    };
-  }
-
-  static registerGlobal (name, resolver) {
-    globalContext[name] = resolver;
   }
 
   constructor (name) {
@@ -66,7 +54,7 @@ export class Token {
     }
 
     const invoker = getInvoker(model);
-    if (!isGlobalScoped(this.contextName) && !invoker) {
+    if (!repository.isSpecialScope(this.contextName) && !invoker) {
       throw new Error(`Model does not have invoker, ${inspect(invoker)}#${this.name}()`);
     }
 
@@ -80,31 +68,6 @@ export class Token {
 }
 
 const CACHE = {};
-let globalContext = {};
-
-function isGlobalScoped (name) {
-  if (name[0] !== '$') {
-    return false;
-  }
-
-  if (name === '$' || name === '$$' || name[1] === '.') {
-    return false;
-  }
-
-  return true;
-}
-
-function getGlobalValue (name) {
-  const [contextName, ...path] = pathArray(name);
-  const context = val(globalContext[contextName]);
-
-  if (path.length) {
-    const model = new Modeler({ data: context });
-    return model.get(path);
-  }
-
-  return context;
-}
 
 function getModelValue (name, ...models) {
   for (const model of models) {
@@ -124,8 +87,8 @@ function getValue (name, ...models) {
     return models[0];
   }
 
-  if (isGlobalScoped(name)) {
-    return getGlobalValue(name);
+  if (repository.isSpecialScope(name)) {
+    return repository.get(name);
   }
 
   return getModelValue(name, ...models);
@@ -147,5 +110,3 @@ function getInvoker (model) {
 
 Token.VARIABLE = 'v';
 Token.STATIC = 's';
-
-Token.resetGlobal();

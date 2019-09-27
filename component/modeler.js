@@ -1,26 +1,20 @@
-import { nothing, pathArray, dashify, inspect } from '../helpers';
+import { nothing, dashify, inspect } from '../helpers';
 import { Schema } from './schema';
 import { Expr } from './expr';
 import { Annotation } from './annotation';
 import { accessorFactory } from './accessor';
+import { Context } from '../core';
 
-export class Modeler {
+export class Modeler extends Context {
   constructor ({ data, invoker, props, binding }) {
+    super();
+
     this.data = data;
     this.invoker = invoker;
     this.binding = binding;
     this.initializers = {};
     this.schema = new Schema(props);
     this.schema.forEach(field => this.setupField(field));
-  }
-
-  traverse (path, immediateReturn) {
-    return traverse(this.data, pathArray(path), immediateReturn);
-  }
-
-  get (path) {
-    const { value } = this.traverse(path);
-    return value;
   }
 
   set (path, value) {
@@ -34,43 +28,24 @@ export class Modeler {
       return;
     }
 
-    const { object, key } = this.traverse(path, false);
-
-    object[key] = newValue;
-
+    super.set(path, newValue);
     this.binding.notify(path);
-  }
-
-  all (data) {
-    for (const key in data) {
-      if (Object.prototype.hasOwnProperty.call(data, key)) {
-        this.set(key, data[key]);
-      }
-    }
   }
 
   push (path, ...values) {
-    const { object, key } = this.traverse(path, false);
-    object[key] = ([...(object[key] || [])]);
-
-    const result = object[key].push(...values);
+    const result = super.push(path, ...values);
     this.binding.notify(path);
-
     return result;
   }
 
   pop (path) {
-    const { object, key } = this.traverse(path, false);
-    object[key] = ([...(object[key] || [])]);
-    const result = object[key].pop();
+    const result = super.pop(path);
     this.binding.notify(path);
     return result;
   }
 
   splice (path, index, removeCount, ...values) { // eslint-disable-line max-params
-    const { object, key } = this.traverse(path, false);
-    object[key] = ([...(object[key] || [])]);
-    const result = object[key].splice(index, removeCount, ...values);
+    const result = super.splice(path, index, removeCount, ...values);
     this.binding.notify(path);
     return result;
   }
@@ -134,7 +109,7 @@ export class Modeler {
   }
 
   stop () {
-
+    // noop
   }
 
   dispose () {
@@ -147,27 +122,6 @@ export class Modeler {
   __xinInspect () {
     return inspect(this.data);
   }
-}
-
-function traverse (object, path, immediateReturn = true) { // eslint-disable-line max-params
-  const key = path.shift();
-
-  const value = nothing(object[key]) ? undefined : object[key];
-
-  if (path.length === 0) {
-    return { value, object, key, path };
-  }
-
-  if (nothing(value)) {
-    if (immediateReturn) {
-      const value = undefined;
-      return { value, object, key, path };
-    }
-
-    object[key] = {};
-  }
-
-  return traverse(object[key], path, immediateReturn);
 }
 
 function fixAttrValue (value, type) {

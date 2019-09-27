@@ -1,20 +1,14 @@
-import { Repository } from '../core';
+import { repository } from '../core';
 
 export function define (name, Component, options) {
-  const repository = Repository.singleton();
-
-  let ElementClass = repository.get(name);
+  let ElementClass = repository.$elements[name];
 
   if (ElementClass) {
-    console.warn(`Duplicate registering "${name}"`);
+    repository.warn(`Duplicate registering "${name}"`);
     return ElementClass;
   }
 
-  if (repository.get('customElements.version') === 'v1') {
-    // v1 the element class is the component itself
-    ElementClass = Component;
-    customElements.define(name, Component, options);
-  } else {
+  if (repository.$config.customElementsVersion === 'v0') {
     const prototype = Object.create(Component.prototype, { is: { value: name } });
     const ElementPrototype = { prototype };
 
@@ -23,9 +17,13 @@ export function define (name, Component, options) {
     }
 
     ElementClass = document.registerElement(name, ElementPrototype);
+  } else {
+    // v1 the element class is the component itself
+    ElementClass = Component;
+    customElements.define(name, Component, options);
   }
 
-  repository.put(name, ElementClass);
+  repository.$elements[name] = ElementClass;
 
   return ElementClass;
 }

@@ -1,6 +1,6 @@
-import { Modeler } from '../../component';
 import assert from 'assert';
 import { Binding } from '../../component/binding';
+import { Modeler } from '../../component/modeler';
 
 describe('component:modeler Modeler', () => {
   let data;

@@ -1,5 +1,6 @@
-import { event, Delegator } from '../../../core/event';
+import { event } from '../../../core/event';
 import assert from 'assert';
+import { Delegator } from '../../../core/event/delegator';
 
 describe('core:event event()', () => {
   it('return unique delegator for each element', () => {

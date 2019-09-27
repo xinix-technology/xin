@@ -89,20 +89,7 @@ module.exports = function (config) { // eslint-disable-line max-lines-per-functi
             },
             exclude: /node_modules|\.test\.js|test\/init.js$/,
           },
-          {
-            test: /\.s?css$/,
-            use: ['style-loader', 'css-loader', 'sass-loader'],
-          },
-          {
-            test: /\.html$/,
-            use: ['html-loader'],
-          },
         ],
-      },
-      resolve: {
-        alias: {
-          '@xinix/xin': path.resolve('./'),
-        },
       },
     },
 

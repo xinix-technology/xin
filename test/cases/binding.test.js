@@ -1,7 +1,7 @@
 import assert from 'assert';
 import { Fixture } from '../../components';
 import { define, Component } from '../..';
-import { Repository, event } from '../../core';
+import { event, repository } from '../../core';
 
 describe('cases:binding', () => {
   it('bind value from property', async () => {
@@ -118,7 +118,17 @@ describe('cases:binding', () => {
   });
 
   it('change value', async () => {
-    const fixture = await Fixture.create(require('./binding.test.html'), {
+    const fixture = await Fixture.create(`
+      <input id="input" type="text" value="{{value}}">
+      <textarea id="textarea">{{value}}</textarea>
+      <div id="result">[[value]]</div>
+      <div id="textEl" text="[[otherValue]]"></div>
+      <div id="htmlEl" html="[[otherValue]]"></div>
+      <div id="propEl" prop-data$="[[propValue]]"></div>
+
+      <div id="classEl" class.foo="[[foo]]"></div>
+      <div id="styleEl" style.display="[[displayValue]]"></div>
+    `, {
       value: 'original',
     });
 
@@ -335,8 +345,8 @@ describe('cases:binding', () => {
 
     {
       let hit = 0;
-      Repository.singleton().put('xin.silentError', true);
-      Repository.singleton().addListener('error', () => hit++);
+      repository.$config.silent = true;
+      repository.$config.errorHandler = () => hit++;
 
       const fixture = await Fixture.create(`
         <test-binding-6></test-binding-6>
@@ -346,8 +356,8 @@ describe('cases:binding', () => {
         await fixture.waitConnected();
         assert.strictEqual(hit, 1);
       } finally {
-        Repository.singleton().put('xin.silentError', false);
-        Repository.singleton().removeAllListeners('error');
+        repository.$config.silent = false;
+        repository.$config.errorHandler = undefined;
       }
     }
 

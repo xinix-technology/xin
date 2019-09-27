@@ -1,4 +1,4 @@
-import { Delegator } from '../../../core/event';
+import { Delegator } from '../../../core/event/delegator';
 import assert from 'assert';
 
 describe('core:event Delegator', () => {

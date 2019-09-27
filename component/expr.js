@@ -81,24 +81,6 @@ export class Expr {
     return _create(value, Expr.READONLY, Expr.VARY);
   }
 
-  static rawTokenize (str) {
-    let count = 0;
-    const tokens = [];
-
-    while (str && count++ < 10) {
-      const matches = str.match(/^\s*("[^"]*"|[^,]+),?/);
-
-      str = str.substr(matches[0].length);
-      tokens.push(matches[1].trim());
-    }
-
-    return tokens;
-  }
-
-  static tokenize (str) {
-    return Expr.rawTokenize(str).map(token => Token.get(token));
-  }
-
   constructor (value, mode, type) {
     // define base properties
     this.mode = mode;
@@ -132,7 +114,7 @@ export class Expr {
 
       this.name = matches[1].trim();
       this.fn = Token.get(this.name);
-      this.args = Expr.tokenize(matches[2]);
+      this.args = tokenize(matches[2]);
     }
 
     this.varArgs = this.args.reduce((varArgs, arg) => {
@@ -172,3 +154,21 @@ Expr.VARY = 'v';
 Expr.PROPERTY = 'p';
 Expr.READONLY = '[';
 Expr.READWRITE = '{';
+
+function rawTokenize (str) {
+  let count = 0;
+  const tokens = [];
+
+  while (str && count++ < 10) {
+    const matches = str.match(/^\s*("[^"]*"|[^,]+),?/);
+
+    str = str.substr(matches[0].length);
+    tokens.push(matches[1].trim());
+  }
+
+  return tokens;
+}
+
+function tokenize (str) {
+  return rawTokenize(str).map(token => Token.get(token));
+}

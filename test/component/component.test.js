@@ -5,7 +5,7 @@ import assert from 'assert';
 describe('component:component Component', () => {
   it('make sure invoke ready once when reattached', async () => {
     const hits = {};
-    event(document.body).on('before-ready', evt => {
+    event(document.body).on('ready', evt => {
       hits[evt.target.nodeName] = hits[evt.target.nodeName] || 0;
       hits[evt.target.nodeName]++;
     });
@@ -43,7 +43,7 @@ describe('component:component Component', () => {
     } finally {
       fixture.dispose();
 
-      event(document.body).off('before-ready');
+      event(document.body).off('ready');
     }
   });
 

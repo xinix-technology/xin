@@ -1,63 +1,64 @@
-import { EventEmitter } from '../events';
+import { Context } from '../context';
 
-export class Repository extends EventEmitter {
-  static bootstrap (data) {
-    let repo = window.xin$repository;
-    if (repo) {
-      repo.update(data);
-    } else {
-      repo = window.xin$repository = new Repository(data);
-    }
+const DEFAULT_CONFIG = {
+  // errorHandler: undefined,
+  // warnHandler: undefined,
+  // customElementsVersion: 'v1',
+};
 
-    return repo;
-  }
-
-  /**
-   * Get singleton instance of repository
-   *
-   * @returns {Repository}
-   */
-  static singleton () {
-    let repo = window.xin$repository;
-    if (!repo) {
-      repo = Repository.bootstrap();
-    }
-
-    if (typeof repo.update !== 'function') {
-      throw new Error('Invalid global xin repository found!');
-    }
-
-    return repo;
-  }
-
-  constructor (data = {}) {
+export class Repository extends Context {
+  constructor () {
     super();
 
-    this.data = {
-      'customElements.version': 'v1',
-      ...data,
-    };
+    this.reset();
   }
 
-  update (data = {}) {
-    this.data = {
-      ...this.data,
-      ...data,
-    };
-  }
+  reset () {
+    this.$elements = this.$elements || {};
 
-  get (id) {
-    return this.data[id];
-  }
-
-  put (id, value) {
-    if (value === undefined) {
-      return this.remove(id);
+    for (const key in this) {
+      if (key !== '$elements' && key !== 'data' && Object.prototype.hasOwnProperty.call(this, key)) {
+        delete this[key];
+      }
     }
-    this.data[id] = value;
+
+    this.$global = window;
+    this.$repository = this;
+    this.$config = {
+      ...DEFAULT_CONFIG,
+    };
   }
 
-  remove (id) {
-    delete this.data[id];
+  error (err) {
+    const { errorHandler, silent } = this.$config;
+
+    if (errorHandler) {
+      errorHandler(err);
+    }
+    if (!silent) {
+      throw err;
+    }
+  }
+
+  warn (...args) {
+    const { warnHandler } = this.$config;
+
+    if (warnHandler) {
+      warnHandler(...args);
+    }
+  }
+
+  isSpecialScope (name) {
+    if (name[0] !== '$') {
+      return false;
+    }
+
+    if (name === '$' || name === '$$' || name[1] === '.') {
+      return false;
+    }
+
+    return true;
   }
 }
+
+export const repository = window.xin$repository = window.xin$repository || new Repository();
