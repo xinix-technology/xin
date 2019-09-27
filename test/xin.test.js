@@ -20,8 +20,8 @@ describe('xin', () => {
   });
 
   it('define global xin repository', () => {
-    assert(typeof window.xin.__repository.get === 'function');
-    assert(typeof window.xin.__repository.put === 'function');
-    assert(typeof window.xin.__repository.update === 'function');
+    assert(typeof window.xin$__repository.get === 'function');
+    assert(typeof window.xin$__repository.put === 'function');
+    assert(typeof window.xin$__repository.update === 'function');
   });
 });

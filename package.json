@@ -1,6 +1,6 @@
 {
   "name": "@xinix/xin",
-  "version": "2.7.2",
+  "version": "2.7.3",
   "description": "Web component for the web",
   "repository": {
     "type": "git",
@@ -8,6 +8,7 @@
   },
   "author": "Ganesha <reekoheek@gmail.com> (http://sagara.id)",
   "main": "index.js",
+  "module": "dist/xin.esm.min.js",
   "keywords": [
     "xin",
     "SPA",
@@ -22,12 +23,15 @@
     "dev": "karma start --no-single-run --browsers ChromeDebugging",
     "lint": "eslint .",
     "test": "karma start",
-    "build": "webpack --mode development && webpack --mode production",
+    "build:dev": "webpack --mode development",
+    "build:prod": "webpack --mode production",
+    "build:esm": "webpack --mode production --env.esm=1",
+    "build": "npm run build:dev && npm run build:prod && npm run build:esm",
     "prepublishOnly": "npm run clean && npm run lint && npm run test && npm run build"
   },
   "devDependencies": {
+    "@purtuga/esm-webpack-plugin": "^1.1.1",
     "babel-eslint": "^10.0.3",
-    "browserslist": "^4.7.0",
     "css-loader": "^3.2.0",
     "eslint": "^6.4.0",
     "eslint-config-standard": "^14.1.0",
@@ -51,13 +55,11 @@
     "mini-css-extract-plugin": "^0.8.0",
     "mocha": "^6.2.0",
     "node-sass": "^4.12.0",
-    "nyc": "^14.1.1",
     "optimize-css-assets-webpack-plugin": "^5.0.3",
     "sass-loader": "^8.0.0",
     "style-loader": "^1.0.0",
-    "terser-webpack-plugin": "^2.1.0",
-    "webcomponents.js": "^0.7.24",
-    "webpack": "^4.40.2",
+    "terser-webpack-plugin": "^2.1.1",
+    "webpack": "^4.41.0",
     "webpack-cli": "^3.3.9"
   },
   "dependencies": {

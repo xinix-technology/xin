@@ -1,3 +1,3 @@
 export function hasInstance () {
-  return window.xin && window.xin.__repository;
+  return !!window.xin$__repository;
 }

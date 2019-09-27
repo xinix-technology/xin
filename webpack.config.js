@@ -1,18 +1,20 @@
 const path = require('path');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const TerserPlugin = require('terser-webpack-plugin');
-// const OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin');
+const EsmWebpackPlugin = require('@purtuga/esm-webpack-plugin');
 
-module.exports = function (_, { mode = 'development' }) {
+module.exports = function (env = {}, { mode = 'development' }) {
   return {
     mode,
-    context: path.join(__dirname, 'src'),
+    context: path.join(__dirname),
     entry: {
-      xin: './xin.js',
+      xin: './index.js',
     },
     output: {
       path: path.join(__dirname, 'dist'),
-      filename: `[name]${mode === 'production' ? '.min' : ''}.js`,
+      filename: `[name]${env.esm ? '.esm' : ''}${mode === 'production' ? '.min' : ''}.js`,
+      library: 'xin',
+      libraryTarget: env.esm ? 'var' : 'umd',
     },
     // devtool: 'sourcemap',
     module: {
@@ -29,9 +31,17 @@ module.exports = function (_, { mode = 'development' }) {
       }),
     ],
     optimization: {
-      minimizer: [
-        new TerserPlugin(),
-      ],
+      minimizer: (() => {
+        const plugins = [
+          new TerserPlugin(),
+        ];
+
+        if (env.esm) {
+          plugins.push(new EsmWebpackPlugin());
+        }
+
+        return plugins;
+      })(),
     },
   };
 };

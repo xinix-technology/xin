@@ -146,7 +146,7 @@ export function base (base) { // eslint-disable-line complexity
     }
 
     detachedCallback () {
-      this.__repository.remove(this.__id);
+      // this.__repository.remove(this.__id);
 
       this.detached();
     }
