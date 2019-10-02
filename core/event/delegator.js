@@ -119,7 +119,6 @@ export class Delegator {
         evt = new Event(type, {
           bubbles: bubbles,
           cancelable: cancelable,
-          // TODO: is it ok to have detail here?
           detail: detail,
         });
         break;

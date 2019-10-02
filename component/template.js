@@ -116,7 +116,7 @@ export class Template {
     this.__id = nextId();
     this.__templateBinding = new Binding();
     this.__templateModeler = new Modeler({
-      data: this,
+      instance: this,
       invoker: this,
       props,
       binding: this.__templateBinding,

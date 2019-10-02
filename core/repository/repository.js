@@ -11,7 +11,7 @@ export class Repository extends Context {
     this.$elements = this.$elements || {};
 
     for (const key in this) {
-      if (key !== '$elements' && key !== 'data' && Object.prototype.hasOwnProperty.call(this, key)) {
+      if (key !== '$elements' && key !== 'instance' && Object.prototype.hasOwnProperty.call(this, key)) {
         delete this[key];
       }
     }

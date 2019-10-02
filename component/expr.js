@@ -86,6 +86,14 @@ export class Expr {
     return Boolean(this.fn);
   }
 
+  isReadWrite () {
+    return this.mode === Expr.READWRITE;
+  }
+
+  isReadOnly () {
+    return this.mode === Expr.READONLY;
+  }
+
   eval (model, args = []) {
     let value;
 

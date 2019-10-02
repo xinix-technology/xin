@@ -2,11 +2,11 @@ import { nothing, pathArray } from '../helpers';
 
 export class Context {
   constructor () {
-    this.data = this;
+    this.instance = this;
   }
 
   traverse (path, immediateReturn) {
-    return traverse(this.data, pathArray(path), immediateReturn);
+    return traverse(this.instance, pathArray(path), immediateReturn);
   }
 
   get (path) {
@@ -24,10 +24,10 @@ export class Context {
     object[key] = value;
   }
 
-  all (data) {
-    for (const key in data) {
-      if (Object.prototype.hasOwnProperty.call(data, key)) {
-        this.set(key, data[key]);
+  all (object) {
+    for (const key in object) {
+      if (Object.prototype.hasOwnProperty.call(object, key)) {
+        this.set(key, object[key]);
       }
     }
   }

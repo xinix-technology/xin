@@ -2,8 +2,8 @@ import { nothing, dashify, inspect } from '../helpers';
 import { Schema } from './schema';
 import { Expr } from './expr';
 import { Annotation } from './annotation';
-import { accessorFactory } from './accessor';
 import { Context } from '../core';
+import { propertyWriter } from './writers';
 
 /**
  * @typedef {import('./binding').Binding} Binding
@@ -13,15 +13,19 @@ export class Modeler extends Context {
   /**
    * Create new modeler
    * @param {Object}  options
-   * @param {Object}  options.data
+   * @param {Object}  options.instance
    * @param {Object}  options.invoker
    * @param {Object}  options.props
    * @param {Binding} options.binding
    */
-  constructor ({ data, invoker, props, binding }) {
+  constructor ({ instance, invoker, props, binding }) {
     super();
 
-    this.data = data;
+    if (!instance) {
+      throw new Error('Something wrong');
+    }
+
+    this.instance = instance;
     this.invoker = invoker;
     this.binding = binding;
     this.initializers = {};
@@ -93,14 +97,14 @@ export class Modeler extends Context {
   }
 
   dispose () {
-    this.data = undefined;
+    this.instance = undefined;
     this.invoker = undefined;
     this.binding = undefined;
     this.schema = undefined;
   }
 
   __xinInspect () {
-    return inspect(this.data);
+    return inspect(this.instance);
   }
 }
 
@@ -108,7 +112,7 @@ const FIELD_INITIALIZERS = [
   (modeler, field) => {
     if (field.computed) {
       const expr = field.computed;
-      const annotation = new Annotation(expr, accessorFactory(modeler.data, field.name));
+      const annotation = new Annotation(expr, propertyWriter(modeler.instance, field.name));
       modeler.binding.bindAnnotation(annotation);
       field.initializer = () => expr.eval(modeler);
     }
@@ -125,18 +129,19 @@ const FIELD_INITIALIZERS = [
 
   (modeler, field) => {
     const attrName = dashify(field.name);
-    if (modeler.data.hasAttribute && modeler.data.hasAttribute(attrName)) {
-      const attrVal = fixAttrValue(modeler.data.getAttribute(attrName), field.type);
+    const instance = modeler.instance;
+    if (instance.hasAttribute && instance.hasAttribute(attrName)) {
+      const attrVal = fixAttrValue(instance.getAttribute(attrName), field.type);
 
       if (Expr.validate(attrVal)) {
         const expr = new Expr(attrVal);
 
         if (field.notify && expr.mode === Expr.READWRITE) {
           const exprPath = expr.args[0].string;
-          modeler.binding.bindFunction(field.name, value => modeler.data.__templateParent.set(exprPath, value));
+          modeler.binding.bindFunction(field.name, value => instance.__templateParent.set(exprPath, value));
         }
 
-        field.initializer = () => expr.eval(modeler.data.__templateParent);
+        field.initializer = () => expr.eval(instance.__templateParent);
       } else {
         field.initializer = () => attrVal;
       }

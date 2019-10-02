@@ -5,10 +5,10 @@ export class Fixture extends Component {
   /**
    * Create new fixture element
    * @param {string} template
-   * @param {object} data
+   * @param {object} object
    * @returns {Promise<Fixture>}
    */
-  static create (template, data = {}) {
+  static create (template, object = {}) {
     if (template instanceof HTMLTemplateElement) {
       template = template.innerHTML;
     }
@@ -16,7 +16,7 @@ export class Fixture extends Component {
     const d = document.createElement('div');
     d.innerHTML = `<xin-fixture><template>${template}</template></xin-fixture>`;
     const fixture = window.fixture = d.firstElementChild;
-    fixture.__fixtureInitialData = data;
+    fixture.__fixtureInitialData = object;
     document.body.appendChild(fixture);
 
     return new Promise(resolve => resolve(fixture));

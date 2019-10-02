@@ -1,6 +1,5 @@
 import { Expr } from '../expr';
 import { Annotation } from '../annotation';
-import { accessorFactory } from '../accessor';
 import { pathString, pathHead } from '../../helpers';
 import { LeafBinding } from './leaf';
 
@@ -15,7 +14,7 @@ export class Binding extends LeafBinding {
 
   bindFunction (path, fn) {
     const expr = new Expr(path, Expr.READONLY);
-    const annotation = new Annotation(expr, accessorFactory(fn));
+    const annotation = new Annotation(expr, fn);
     this.traverse(path, true).addAnnotation(annotation);
     return annotation;
   }

@@ -1,8 +1,8 @@
-import { PropertyAccessor } from '../../../component/accessor/property';
+import { propertyWriter } from '../../../component/writers/property';
 import assert from 'assert';
 
-describe('component:accessor:property PropertyAccessor', () => {
-  describe('#write()', () => {
+describe('component:writers:property', () => {
+  describe('propertyWriter()', () => {
     it('write value of object by setter', () => {
       let k;
       let v;
@@ -12,8 +12,8 @@ describe('component:accessor:property PropertyAccessor', () => {
           v = value;
         },
       };
-      const accessor = new PropertyAccessor(object, 'foo');
-      accessor.write('23');
+      const write = propertyWriter(object, 'foo');
+      write('23');
       assert.strictEqual(k, 'foo');
       assert.strictEqual(v, '23');
       assert.strictEqual(object.foo, undefined);
@@ -21,8 +21,8 @@ describe('component:accessor:property PropertyAccessor', () => {
 
     it('set value of object property', () => {
       const object = {};
-      const accessor = new PropertyAccessor(object, 'foo');
-      accessor.write('23');
+      const write = propertyWriter(object, 'foo');
+      write('23');
       assert.strictEqual(object.foo, '23');
     });
   });

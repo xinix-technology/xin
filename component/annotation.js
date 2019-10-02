@@ -6,18 +6,19 @@ export class Annotation {
   /**
    *
    * @param {Expr} expr
-   * @param {*} accessor
+   * @param {function} writer
    */
-  constructor (expr, accessor) {
+  constructor (expr, writer) {
     this.expr = expr;
-    this.accessor = accessor;
+    this.writer = writer;
   }
 
   effect ({ model }) {
     const value = this.expr.eval(model);
 
-    if (this.accessor) {
-      this.accessor.write(value);
+    if (this.writer) {
+      const write = this.writer;
+      write(value);
     }
   }
 }

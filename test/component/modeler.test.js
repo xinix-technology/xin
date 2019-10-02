@@ -3,11 +3,11 @@ import { Binding } from '../../component/binding';
 import { Modeler } from '../../component/modeler';
 
 describe('component:modeler Modeler', () => {
-  let data;
+  let instance;
   let binding;
   beforeEach(() => {
     binding = new Binding();
-    data = {
+    instance = {
       obj: {
         foo: 'bar',
       },
@@ -23,7 +23,7 @@ describe('component:modeler Modeler', () => {
 
   describe('#traverse()', () => {
     it('traverse to model', () => {
-      const model = new Modeler({ data });
+      const model = new Modeler({ instance });
 
       {
         const { value, object, key, path } = model.traverse('obj.foo');
@@ -52,8 +52,8 @@ describe('component:modeler Modeler', () => {
   });
 
   describe('#get()', () => {
-    it('get data', () => {
-      const model = new Modeler({ data });
+    it('get value', () => {
+      const model = new Modeler({ instance });
 
       assert.strictEqual(model.get('str'), 'foobar');
       assert.strictEqual(model.get('obj.foo'), 'bar');
@@ -63,49 +63,49 @@ describe('component:modeler Modeler', () => {
 
   describe('#set()', () => {
     it('set value', () => {
-      const model = new Modeler({ data, binding });
+      const model = new Modeler({ instance, binding });
 
       model.set('foo', 'bar');
-      assert.strictEqual(model.data.foo, 'bar');
+      assert.strictEqual(instance.foo, 'bar');
       model.set('bar.baz', 'barbaz');
-      assert.strictEqual(model.data.bar.baz, 'barbaz');
+      assert.strictEqual(instance.bar.baz, 'barbaz');
     });
 
     it('set multiple value', () => {
-      const data = {};
-      const model = new Modeler({ data, binding });
+      const instance = {};
+      const model = new Modeler({ instance, binding });
       model.set({ foo: 'bar', bar: 'baz' });
-      assert.deepStrictEqual(model.data, { foo: 'bar', bar: 'baz' });
+      assert.deepStrictEqual(instance, { foo: 'bar', bar: 'baz' });
     });
   });
 
   describe('#push()', () => {
     it('push array', () => {
-      const model = new Modeler({ data, binding });
+      const model = new Modeler({ instance, binding });
 
       model.push('arr', 'one', 'two');
-      assert.deepStrictEqual(model.data.arr, ['foo', 'bar', 'baz', 'one', 'two']);
+      assert.deepStrictEqual(instance.arr, ['foo', 'bar', 'baz', 'one', 'two']);
 
       model.push('arr1', 'one', 'two');
-      assert.deepStrictEqual(model.data.arr1, ['one', 'two']);
+      assert.deepStrictEqual(instance.arr1, ['one', 'two']);
     });
   });
 
   describe('#pop()', () => {
     it('pop array', () => {
-      const model = new Modeler({ data, binding });
+      const model = new Modeler({ instance, binding });
 
       model.pop('arr');
-      assert.deepStrictEqual(model.data.arr, ['foo', 'bar']);
+      assert.deepStrictEqual(instance.arr, ['foo', 'bar']);
     });
   });
 
   describe('#splice()', () => {
     it('splice array', () => {
-      const model = new Modeler({ data, binding });
+      const model = new Modeler({ instance, binding });
 
       model.splice('arr', 1, 1, 'one');
-      assert.deepStrictEqual(model.data.arr, ['foo', 'one', 'baz']);
+      assert.deepStrictEqual(instance.arr, ['foo', 'one', 'baz']);
     });
   });
 });

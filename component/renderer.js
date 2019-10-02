@@ -1,8 +1,15 @@
 import { Expr } from './expr';
-import { accessorFactory } from './accessor';
-import { empty, setupMarker, createFragment, slotName, teardownMarker, prepareTemplate } from '../helpers';
+import { empty, setupMarker, createFragment, slotName, teardownMarker, prepareTemplate, camelize } from '../helpers';
 import { Annotation } from './annotation';
-import { ValueAccessor } from './accessor/value';
+import {
+  textWriter,
+  htmlWriter,
+  valueWriter,
+  classWriter,
+  styleWriter,
+  attributeWriter,
+  propertyWriter,
+} from './writers';
 
 export class Renderer {
   constructor ({ instance, binding, eventer, template }) {
@@ -55,7 +62,7 @@ export class Renderer {
     // emptying text
     node.textContent = '';
 
-    this.annotateCallback(new Annotation(expr, accessorFactory(node)));
+    this.binding.bindAnnotation(new Annotation(expr, textWriter(node)));
   }
 
   parseElement (element) {
@@ -112,13 +119,19 @@ export class Renderer {
         }
 
         const expr = new Expr(content);
+        const writer = resolveElementWriter(element, attrName);
+        this.binding.bindAnnotation(new Annotation(expr, writer));
+
+        if (expr.isReadWrite()) {
+          const selector = element;
+          const name = getEventName(selector);
+          const exprPath = expr.args[0].string;
+          const listener = evt => this.instance.set(exprPath, evt.target.value);
+          this.eventer.addHandler({ name, selector, listener });
+        }
 
         // remove attribute after ready to annotate
         element.removeAttribute(attrName);
-
-        const accessor = accessorFactory(element, attrName);
-        const annotation = new Annotation(expr, accessor);
-        this.annotateCallback(annotation);
       }
     }
   }
@@ -138,22 +151,6 @@ export class Renderer {
     });
 
     this.eventer.addHandler({ name, selector, listener, expr });
-  }
-
-  annotateCallback (annotation) {
-    this.binding.bindAnnotation(annotation);
-
-    // register event notifier
-    const { expr, accessor } = annotation;
-    if (expr.mode === Expr.READWRITE && accessor instanceof ValueAccessor) {
-      const name = getEventName(accessor.node);
-      if (name) {
-        const exprPath = expr.args[0].string;
-        const selector = accessor.node;
-        const listener = evt => this.instance.set(exprPath, evt.target.value);
-        this.eventer.addHandler({ name, selector, listener });
-      }
-    }
   }
 
   render (host, marker) {
@@ -202,6 +199,7 @@ export class Renderer {
 
 function getEventName (node) {
   const nodeName = node.nodeName;
+
   if (nodeName === 'INPUT') {
     const inputType = node.getAttribute('type');
     if (inputType === 'radio' || inputType === 'checkbox') {
@@ -215,7 +213,54 @@ function getEventName (node) {
     return 'input';
   }
 
-  if (nodeName === 'SELECT') {
-    return 'change';
+  return 'change';
+}
+
+const WRITER_RESOLVERS = [
+  (node, name) => {
+    if (name === 'value' && ['INPUT', 'SELECT'].includes(node.nodeName)) {
+      return valueWriter(node);
+    }
+  },
+  (node, name) => {
+    if (name === 'text') {
+      return textWriter(node);
+    }
+  },
+  (node, name) => {
+    if (name === 'html') {
+      return htmlWriter(node);
+    }
+  },
+  (node, name) => {
+    if (name.startsWith('class.')) {
+      return classWriter(node, name.split('.').splice(1).join('.'));
+    }
+  },
+  (node, name) => {
+    if (name.startsWith('style.')) {
+      return styleWriter(node, name.split('.').splice(1).join('.'));
+    }
+  },
+  (node, name) => {
+    if (name.endsWith('$')) {
+      return attributeWriter(node, name.slice(0, -1));
+    }
+  },
+  (node, name) => {
+    return propertyWriter(node, camelize(name));
+  },
+];
+
+function resolveElementWriter (element, name) {
+  for (let i = 0; i < WRITER_RESOLVERS.length; i++) {
+    const writerResolve = WRITER_RESOLVERS[i];
+
+    const writer = writerResolve(element, name);
+    if (writer) {
+      return writer;
+    }
   }
+
+  throw new Error(`Unable to resolve writer for ${element}:${name}`);
 }
