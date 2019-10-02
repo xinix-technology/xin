@@ -51,40 +51,4 @@ describe('component:accessor:attribute AttributeAccessor', () => {
       }
     });
   });
-
-  // describe('#read()', () => {
-  //   it('read value of attribute is null', async () => {
-  //     const fixture = await Fixture.create(`
-  //       <div id="here"></div>
-  //     `);
-
-  //     try {
-  //       await fixture.waitConnected();
-
-  //       const accessor = new AttributeAccessor(fixture.$.here, 'foo$');
-  //       const value = accessor.read();
-
-  //       assert.strictEqual(value, null);
-  //     } finally {
-  //       fixture.dispose();
-  //     }
-  //   });
-
-  //   it('read value of attribute', async () => {
-  //     const fixture = await Fixture.create(`
-  //       <div id="here" foo="23"></div>
-  //     `);
-
-  //     try {
-  //       await fixture.waitConnected();
-
-  //       const accessor = new AttributeAccessor(fixture.$.here, 'foo$');
-  //       const value = accessor.read();
-
-  //       assert.strictEqual(value, '23');
-  //     } finally {
-  //       fixture.dispose();
-  //     }
-  //   });
-  // });
 });

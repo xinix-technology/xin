@@ -1,5 +1,6 @@
 import { Component, define } from '../component';
 import { Async } from '../core';
+import { addClass, removeClass } from '../helpers';
 
 const TRANSITION = 'transition';
 const ANIMATION = 'animation';
@@ -21,8 +22,8 @@ export class Transition extends Component {
     };
   }
 
-  ready () {
-    super.ready();
+  attached () {
+    super.attached();
 
     this.enterClass = `${this.name}-enter`;
     this.enterActiveClass = `${this.name}-enter-active`;
@@ -64,34 +65,24 @@ export class Transition extends Component {
 
     await new Promise(resolve => {
       Async.nextFrame(() => {
+        removeClass(elements, this.leaveClass);
         addClass(elements, this.leaveActiveClass, this.leaveToClass);
         whenTransitionEnds(elements, this.type, resolve);
       });
     });
 
     super.removeChild(node);
+    removeClass(elements, this.leaveActiveClass, this.leaveToClass);
   }
 }
 
 define('xin-transition', Transition);
 
-const transformRE = /\b(transform|all)(,|$)/;
-const transitionProp = 'transition';
-const transitionEndEvent = 'transitionend';
-const animationProp = 'animation';
-const animationEndEvent = 'animationend';
-
-function addClass (elements, ...classes) {
-  elements.forEach(el => {
-    el.classList.add(...classes);
-  });
-}
-
-function removeClass (elements, ...classes) {
-  elements.forEach(el => {
-    el.classList.remove(...classes);
-  });
-}
+const TRANSFORM_RE = /\b(transform|all)(,|$)/;
+const TRANSITION_PROP = 'transition';
+const TRANSITION_END_EVENT = 'transitionend';
+const ANIMATION_PROP = 'animation';
+const ANIMATION_END_EVENT = 'animationend';
 
 function whenTransitionEnds (elements, expectedType, cb) {
   let endCount = 0;
@@ -106,7 +97,7 @@ function whenTransitionEnds (elements, expectedType, cb) {
     const { type, timeout, propCount } = getTransitionInfo(el, expectedType);
 
     if (!type) { return elementEnd(); }
-    const event = type === TRANSITION ? transitionEndEvent : animationEndEvent;
+    const event = type === TRANSITION ? TRANSITION_END_EVENT : ANIMATION_END_EVENT;
     let ended = 0;
     const end = function () {
       el.removeEventListener(event, onEnd);
@@ -131,11 +122,11 @@ function whenTransitionEnds (elements, expectedType, cb) {
 function getTransitionInfo (el, expectedType) { // eslint-disable-line complexity
   const styles = getComputedStyle(el);
   // JSDOM may return undefined for transition properties
-  const transitionDelays = (styles[transitionProp + 'Delay'] || '').split(', ');
-  const transitionDurations = (styles[transitionProp + 'Duration'] || '').split(', ');
+  const transitionDelays = (styles[TRANSITION_PROP + 'Delay'] || '').split(', ');
+  const transitionDurations = (styles[TRANSITION_PROP + 'Duration'] || '').split(', ');
   const transitionTimeout = getTimeout(transitionDelays, transitionDurations);
-  const animationDelays = (styles[animationProp + 'Delay'] || '').split(', ');
-  const animationDurations = (styles[animationProp + 'Duration'] || '').split(', ');
+  const animationDelays = (styles[ANIMATION_PROP + 'Delay'] || '').split(', ');
+  const animationDurations = (styles[ANIMATION_PROP + 'Duration'] || '').split(', ');
   const animationTimeout = getTimeout(animationDelays, animationDurations);
 
   let type;
@@ -169,7 +160,7 @@ function getTransitionInfo (el, expectedType) { // eslint-disable-line complexit
   }
   const hasTransform =
     type === TRANSITION &&
-    transformRE.test(styles[transitionProp + 'Property']);
+    TRANSFORM_RE.test(styles[TRANSITION_PROP + 'Property']);
   return {
     type: type,
     timeout: timeout,

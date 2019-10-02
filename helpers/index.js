@@ -15,3 +15,5 @@ export * from './slot-name';
 export * from './create-fragment';
 export * from './setup-marker';
 export * from './teardown-marker';
+export * from './add-class';
+export * from './remove-class';

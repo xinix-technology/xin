@@ -6,7 +6,6 @@ import { ClassAccessor } from './class';
 import { StyleAccessor } from './style';
 import { PropertyAccessor } from './property';
 import { CallbackAccessor } from './callback';
-import { ModelerAccessor } from './modeler';
 
 const accessors = [
   CallbackAccessor,
@@ -16,7 +15,6 @@ const accessors = [
   ClassAccessor,
   StyleAccessor,
   AttributeAccessor,
-  ModelerAccessor,
   PropertyAccessor,
 ];
 

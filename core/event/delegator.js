@@ -119,13 +119,9 @@ export class Delegator {
         evt = new Event(type, {
           bubbles: bubbles,
           cancelable: cancelable,
-          // XXX is it ok to have detail here?
+          // TODO: is it ok to have detail here?
           detail: detail,
         });
-
-        // XXX check if without this works on every browsers
-        // evt = document.createEvent('HTMLEvents');
-        // evt.initEvent(type, true, false);
         break;
       default:
         evt = new CustomEvent(type, {

@@ -1,97 +1,87 @@
 import { pathArray, inspect } from '../helpers';
 import { repository } from '../core';
 
+const SPECIAL_STRINGS = [
+  'true',
+  'false',
+  'null',
+  'undefined',
+];
+
+const VAR_MATCHER = /^[a-zA-Z_$]/;
+
 export class Token {
-  static get CACHE () {
-    return CACHE;
-  }
+  constructor (string) {
+    this.string = string;
+    this.type = Token.VARY;
 
-  static get (name) {
-    if (name in CACHE) {
-      return CACHE[name];
-    }
-
-    const token = new Token(name);
-    CACHE[name] = token;
-    return token;
-  }
-
-  constructor (name) {
-    this.name = name;
-    this.contextName = '';
-    this.baseName = '';
-    this.staticValue = undefined;
-    this.type = Token.VARIABLE;
-
-    if (!this.name.match(/^[a-zA-Z_]/)) {
+    if (!vary(string)) {
       try {
-        this.staticValue = JSON.parse(this.name);
         this.type = Token.STATIC;
-        return;
+        this.staticValue = JSON.parse(string);
       } catch (err) {
-        // noop
+        throw new Error(`Invalid token string, "${string}`);
       }
     }
 
-    if (this.type === Token.VARIABLE) {
-      const pathArr = pathArray(this.name);
+    if (this.type === Token.VARY) {
+      const pathArr = pathArray(string);
       this.baseName = pathArr.pop();
       this.contextName = pathArr.join('.');
     }
   }
 
-  value (...models) {
+  value (model) {
     if (this.type === Token.STATIC) {
       return this.staticValue;
     }
 
-    return getValue(this.name, ...models);
+    return getValue(this.string, model);
   }
 
   invoke (model, args = []) {
     if (this.type === Token.STATIC) {
-      throw new Error(`Method is not eligible for static, ${inspect(model)}#${this.name}()`);
+      throw new Error(`Method is not eligible for static, ${inspect(model)}#${this.string}()`);
     }
 
     const invoker = getInvoker(model);
     if (!repository.isSpecialScope(this.contextName) && !invoker) {
-      throw new Error(`Model does not have invoker, ${inspect(invoker)}#${this.name}()`);
+      throw new Error(`Model does not have invoker, ${inspect(invoker)}#${this.string}()`);
     }
 
     const context = getValue(this.contextName, invoker);
     if (typeof context[this.baseName] !== 'function') {
-      throw new Error(`Method is not eligible, ${inspect(invoker)}#${this.name}()`);
+      throw new Error(`Method is not eligible, ${inspect(invoker)}#${this.string}()`);
     }
 
     return context[this.baseName](...args);
   }
 }
 
-const CACHE = {};
+Token.STATIC = 's';
+Token.VARY = 'v';
 
-function getModelValue (name, ...models) {
-  for (const model of models) {
-    if (!model) {
-      continue;
-    }
+function vary (string) {
+  return !SPECIAL_STRINGS.includes(string) && string.match(VAR_MATCHER);
+}
 
-    const val = typeof model.get === 'function' ? model.get(name) : model[name];
-    if (val !== undefined) {
-      return val;
-    }
+function getModelValue (name, model) {
+  const val = typeof model.get === 'function' ? model.get(name) : model[name];
+  if (val !== undefined) {
+    return val;
   }
 }
 
-function getValue (name, ...models) {
+function getValue (name, model) {
   if (!name) {
-    return models[0];
+    return model;
   }
 
   if (repository.isSpecialScope(name)) {
     return repository.get(name);
   }
 
-  return getModelValue(name, ...models);
+  return getModelValue(name, model);
 }
 
 function getInvoker (model) {
@@ -107,6 +97,3 @@ function getInvoker (model) {
     return model.__templateModeler.invoker;
   }
 }
-
-Token.VARIABLE = 'v';
-Token.STATIC = 's';

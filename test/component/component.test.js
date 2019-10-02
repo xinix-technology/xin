@@ -58,7 +58,7 @@ describe('component:component Component', () => {
 
       get listeners () {
         return {
-          'click #foo': 'doSomething',
+          'click #foo': 'doSomething()',
         };
       }
 

@@ -13,7 +13,6 @@ module.exports = function (env = {}, { mode = 'development' }) {
       library: 'xin',
       libraryTarget: env.esm ? 'var' : 'umd2',
     },
-    // devtool: 'cheap-source-map',
     optimization: {
       minimizer: (() => {
         const plugins = [

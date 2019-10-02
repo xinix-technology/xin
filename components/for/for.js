@@ -18,7 +18,7 @@ export class For extends Component {
       items: {
         type: Array,
         notify: true,
-        observer: '__loopItemsChanged',
+        observer: '__loopObserverFn(items, filter)',
       },
       as: {
         type: String,
@@ -30,7 +30,7 @@ export class For extends Component {
       },
       filter: {
         type: Function,
-        observer: '__loopItemsChanged',
+        observer: '__loopObserverFn(items, filter)',
       },
       to: {
         type: String,
@@ -44,7 +44,7 @@ export class For extends Component {
 
     this.__loopSetupExternals();
     this.__loopRows = [];
-    this.__loopItemsChanged();
+    this.__loopObserverFn();
   }
 
   detached () {
@@ -149,7 +149,7 @@ export class For extends Component {
     this.__loopMarker = undefined;
   }
 
-  __loopItemsChanged () {
+  __loopObserverFn () {
     Async.cancel(this.__loopDebounceItemsChanged);
     this.__loopDebounceItemsChanged = Async.run(() => {
       let len = 0;

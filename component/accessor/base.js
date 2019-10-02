@@ -7,8 +7,4 @@ export class BaseAccessor {
   write (value) {
     throw new Error(`${this.constructor.name} #write() unimplemented`);
   }
-
-  read () {
-    throw new Error(`${this.constructor.name} #read() unimplemented`);
-  }
 }

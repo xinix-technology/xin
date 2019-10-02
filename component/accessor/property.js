@@ -17,12 +17,4 @@ export class PropertyAccessor extends BaseAccessor {
       this.node[this.name] = value;
     }
   }
-
-  read () {
-    if (typeof this.node.get === 'function') {
-      return this.node.get(this.name);
-    } else {
-      return this.node[this.name];
-    }
-  }
 }

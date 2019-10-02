@@ -103,9 +103,9 @@ function findAnnotations ({ annotations, contextPath, includeMethods, includePro
     ? [...annotations]
     : annotations.filter(({ expr }) => {
       if (includeMethods) {
-        return expr.fn && contextPath === expr.fn.name;
+        return expr.fn && contextPath === expr.fn.string;
       }
 
-      return !expr.fn || contextPath !== expr.fn.name;
+      return !expr.fn || contextPath !== expr.fn.string;
     });
 }

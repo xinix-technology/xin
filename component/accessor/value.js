@@ -31,10 +31,6 @@ export class ValueAccessor extends BaseAccessor {
       this.node.value = value;
     }
   }
-
-  read () {
-    return this.node.value;
-  }
 }
 
 function isInputOrSelect (node) {

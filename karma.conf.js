@@ -16,7 +16,6 @@ module.exports = function (config) { // eslint-disable-line max-lines-per-functi
 
     // list of files / patterns to load in the browser
     files: [
-      'test/init.js',
       config.grep ? config.grep : 'test/**/*.test.js',
     ],
 
@@ -27,9 +26,7 @@ module.exports = function (config) { // eslint-disable-line max-lines-per-functi
     // preprocess matching files before serving them to the browser
     // available preprocessors: https://npmjs.org/browse/keyword/karma-preprocessor
     preprocessors: (() => {
-      const result = {
-        'test/init.js': ['webpack'],
-      };
+      const result = {};
       result[config.grep ? config.grep : 'test/**/*.test.js'] = ['webpack'];
       return result;
     })(),

@@ -14,17 +14,18 @@ export class Binding extends LeafBinding {
   }
 
   bindFunction (path, fn) {
-    const annotation = new Annotation(Expr.create(path, true), accessorFactory(fn));
+    const expr = new Expr(path, Expr.READONLY);
+    const annotation = new Annotation(expr, accessorFactory(fn));
     this.traverse(path, true).addAnnotation(annotation);
     return annotation;
   }
 
   bindAnnotation (annotation) {
-    if (annotation.expr.type === Expr.METHOD) {
-      this.annotate(annotation.expr.fn.name, annotation);
+    if (annotation.expr.isInvocable()) {
+      this.annotate(annotation.expr.fn.string, annotation);
     }
 
-    annotation.expr.varArgs.forEach(arg => this.annotate(arg.name, annotation));
+    annotation.expr.varArgs.forEach(arg => this.annotate(arg.string, annotation));
   }
 
   annotate (path, annotation) {

@@ -26,24 +26,4 @@ describe('component:accessor:property PropertyAccessor', () => {
       assert.strictEqual(object.foo, '23');
     });
   });
-
-  describe('#read()', () => {
-    it('read value of object by getter', () => {
-      const object = {
-        get (key) {
-          return 'bar';
-        },
-      };
-      const accessor = new PropertyAccessor(object, 'foo');
-      assert.strictEqual(accessor.read(), 'bar');
-    });
-
-    it('get value of object property', () => {
-      const object = {
-        foo: 'baz',
-      };
-      const accessor = new PropertyAccessor(object, 'foo');
-      assert.strictEqual(accessor.read(), 'baz');
-    });
-  });
 });

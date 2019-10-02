@@ -1,11 +1,5 @@
 import { Context } from '../context';
 
-const DEFAULT_CONFIG = {
-  // errorHandler: undefined,
-  // warnHandler: undefined,
-  // customElementsVersion: 'v1',
-};
-
 export class Repository extends Context {
   constructor () {
     super();
@@ -24,9 +18,9 @@ export class Repository extends Context {
 
     this.$global = window;
     this.$repository = this;
-    this.$config = {
-      ...DEFAULT_CONFIG,
-    };
+
+    // XXX someday we might want to have default config
+    this.$config = {};
   }
 
   error (err) {

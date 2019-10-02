@@ -9,6 +9,10 @@ export class Fixture extends Component {
    * @returns {Promise<Fixture>}
    */
   static create (template, data = {}) {
+    if (template instanceof HTMLTemplateElement) {
+      template = template.innerHTML;
+    }
+
     const d = document.createElement('div');
     d.innerHTML = `<xin-fixture><template>${template}</template></xin-fixture>`;
     const fixture = window.fixture = d.firstElementChild;

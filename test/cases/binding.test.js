@@ -1,6 +1,6 @@
 import assert from 'assert';
 import { Fixture } from '../../components';
-import { define, Component } from '../..';
+import { define, defineTest, Component } from '../..';
 import { event, repository } from '../../core';
 
 describe('cases:binding', () => {
@@ -265,6 +265,43 @@ describe('cases:binding', () => {
       fixture.$.comp.set('last', 'bar');
 
       assert.strictEqual(fixture.$.comp.full, 'foo bar');
+    } finally {
+      fixture.dispose();
+    }
+  });
+
+  it('observe value', async () => {
+    const logs = [];
+    const componentName = defineTest(class extends Component {
+      get props () {
+        return {
+          foo: {
+            type: String,
+            observer: 'fooChanged(foo)',
+          },
+        };
+      }
+
+      fooChanged (foo) {
+        if (!foo) {
+          return;
+        }
+        logs.push(foo);
+      }
+    });
+
+    const fixture = await Fixture.create(`
+      <${componentName} id="comp"></${componentName}>
+    `);
+
+    try {
+      await fixture.waitConnected();
+
+      fixture.$.comp.set('foo', 'one');
+      fixture.$.comp.set('foo', 'two');
+      fixture.$.comp.set('foo', 'three');
+
+      assert.deepStrictEqual(logs, ['one', 'two', 'three']);
     } finally {
       fixture.dispose();
     }

@@ -5,7 +5,19 @@ import { Annotation } from './annotation';
 import { accessorFactory } from './accessor';
 import { Context } from '../core';
 
+/**
+ * @typedef {import('./binding').Binding} Binding
+ */
+
 export class Modeler extends Context {
+  /**
+   * Create new modeler
+   * @param {Object}  options
+   * @param {Object}  options.data
+   * @param {Object}  options.invoker
+   * @param {Object}  options.props
+   * @param {Binding} options.binding
+   */
   constructor ({ data, invoker, props, binding }) {
     super();
 
@@ -54,16 +66,17 @@ export class Modeler extends Context {
     let initializer;
 
     if (field.computed) {
-      const expr = Expr.createFn(field.computed, [], true);
-      const annotation = new Annotation(expr, accessorFactory(this, field.name));
+      const expr = field.computed;
+      const annotation = new Annotation(expr, accessorFactory(this.data, field.name));
       this.binding.bindAnnotation(annotation);
-      initializer = () => expr.returnValue(this);
+      initializer = () => expr.eval(this);
     }
 
-    if (field.observer) {
-      const expr = Expr.createFn(field.observer, [field.name], true);
-      const annotation = new Annotation(expr);
-      this.binding.bindAnnotation(annotation);
+    if (field.observers.length) {
+      field.observers.forEach(observer => {
+        const annotation = new Annotation(observer);
+        this.binding.bindAnnotation(annotation);
+      });
     }
 
     /**
@@ -73,14 +86,19 @@ export class Modeler extends Context {
     const attrName = dashify(field.name);
     if (this.data.hasAttribute && this.data.hasAttribute(attrName)) {
       const attrVal = fixAttrValue(this.data.getAttribute(attrName), field.type);
-      const expr = Expr.create(attrVal);
 
-      if (field.notify && expr.mode === Expr.READWRITE) {
-        const path = expr.name;
-        this.binding.bindFunction(field.name, value => this.data.__templateParent.set(path, value));
+      if (Expr.validate(attrVal)) {
+        const expr = new Expr(attrVal);
+
+        if (field.notify && expr.mode === Expr.READWRITE) {
+          const exprPath = expr.args[0].string;
+          this.binding.bindFunction(field.name, value => this.data.__templateParent.set(exprPath, value));
+        }
+
+        initializer = () => expr.eval(this.data.__templateParent);
+      } else {
+        initializer = () => attrVal;
       }
-
-      initializer = () => expr.returnValue(this.data.__templateParent);
     }
 
     if (!initializer) {

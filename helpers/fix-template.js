@@ -10,7 +10,7 @@ export function fixTemplate (template) {
 function needFixImportNode () {
   /* istanbul ignore if */
   if (document.__importNode) {
-    // already fixed
+    // document import node already fixed
     return false;
   }
   const template = document.createElement('template');

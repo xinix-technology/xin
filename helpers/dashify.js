@@ -1,3 +1,5 @@
+const CAMEL_REPLACER = /([a-z][A-Z])/g;
+
 const dashified = {};
 
 export function dashify (camel) {
@@ -5,11 +7,7 @@ export function dashify (camel) {
   if (mapped) {
     return mapped;
   }
-  dashified[camel] = camel.replace(/([a-z][A-Z])/g,
-    function (g) {
-      return g[0] + '-' + g[1].toLowerCase();
-    }
-  );
+  dashified[camel] = camel.replace(CAMEL_REPLACER, g => `${g[0]}-${g[1].toLowerCase()}`);
 
   return dashified[camel];
 }

@@ -1,157 +1,105 @@
 import { Token } from './token';
 import { Filter } from './filter';
 
-const CACHE = {
-  s: {
-    '[': {},
-    '{': {},
-  },
-  v: {
-    '[': {},
-    '{': {},
-  },
-};
-
-function _create (value, mode, type) {
-  const cache = CACHE[type][mode];
-  if (value in cache) {
-    return cache[value];
-  }
-
-  const expr = new Expr(value, mode, type);
-  if (type !== Expr.STATIC) {
-    cache[value] = expr;
-  }
-
-  return expr;
-}
-
-function unwrap (value) {
-  return value.slice(2, -2).trim();
-}
-
-function parseMode (value) {
-  if (!value) {
-    return;
-  }
-
-  if (value[0] === value[1] && (value[0] === Expr.READONLY || value[0] === Expr.READWRITE)) {
-    return value[0];
-  }
-}
+const FN_MATCHER = /([^(]+)\(([^)]*)\)/;
+const FN_TOKENIZER_MATCHER = /^\s*("[^"]*"|[^,]+),?/;
 
 export class Expr {
-  static get CACHE () {
-    return CACHE;
-  }
-
-  static create (value, unwrapped = false) {
-    let mode = Expr.READONLY;
-    let type = Expr.VARY;
-
-    value = value.trim();
-    if (!unwrapped) {
-      mode = parseMode(value);
-      if (!mode) {
-        type = Expr.STATIC;
-        mode = Expr.READONLY;
-      } else {
-        value = unwrap(value);
-      }
+  static prepareFnString (string, args = []) {
+    if (string.includes('(')) {
+      return string;
     }
 
-    return _create(value, mode, type);
+    console.warn(
+      `[Deprecation] Bare fn string support will be removed from expr, please use "fn(...args)", "${string}"`
+    );
+
+    return `${string}(${args.join(', ')})`;
   }
 
-  /**
-   * Create new function expression
-   * @param {string} value
-   * @param {array} args
-   * @param {boolean} unwrapped
-   * @returns {Expr}
-   */
-  static createFn (value, args, unwrapped = false) {
-    value = value.trim();
-    value = value.indexOf('(') === -1 ? `${value}(${args.join(', ')})` : value;
-
-    if (!unwrapped) {
-      value = unwrap(value);
-    }
-
-    return _create(value, Expr.READONLY, Expr.VARY);
+  static validate (string) {
+    string = string.trim();
+    return (
+      (string.startsWith('[[') && string.endsWith(']]')) ||
+      (string.startsWith('{{') && string.endsWith('}}'))
+    );
   }
 
-  constructor (value, mode, type) {
-    // define base properties
-    this.mode = mode;
-    this.type = type;
-    this.name = '';
-    this.args = [];
-    this.filters = [];
-    this.value = value;
-    this.varArgs = [];
-    this.originalValue = value;
-
-    if (type === Expr.STATIC) {
-      return;
+  static unwrap (string) {
+    string = string.trim();
+    const mode = string[0];
+    if (mode !== Expr.READONLY && mode !== Expr.READWRITE) {
+      throw new Error(`Invalid expr string, "${string}"`);
     }
+    return [string.slice(2, -2).trim(), mode];
+  }
 
-    const tokens = value.split('|');
+  static parse (string) {
+    const tokens = string.split('|');
     const token = tokens[0].trim();
-
-    this.filters = tokens.slice(1).map(word => Filter.resolve(word.trim()));
+    const filters = tokens.slice(1).map(token => Filter.resolve(token.trim()));
+    const varArgs = [];
+    let args;
+    let fn;
 
     if (token.indexOf('(') === -1) {
-      this.type = Expr.PROPERTY;
-      this.name = token;
-      this.args.push(Token.get(token));
+      args = [new Token(token)];
     } else {
-      // force mode to Expr.READONLY when type is not Expr.PROPERTY
-      this.mode = Expr.READONLY;
-      this.type = Expr.METHOD;
-
-      const matches = token.match(/([^(]+)\(([^)]*)\)/);
-
-      this.name = matches[1].trim();
-      this.fn = Token.get(this.name);
-      this.args = tokenize(matches[2]);
+      [fn, args] = Expr.parseFn(token);
     }
 
-    this.varArgs = this.args.reduce((varArgs, arg) => {
-      if (arg.type === 'v' && varArgs.indexOf(arg.name) === -1) {
+    for (let i = 0; i < args.length; i++) {
+      const arg = args[i];
+      if (arg.type === Token.VARY && !varArgs.includes(arg.string)) {
         varArgs.push(arg);
       }
-
-      return varArgs;
-    }, []);
-  }
-
-  returnValue (model, otherArgs) {
-    if (this.type === Expr.STATIC) {
-      return this.value;
     }
 
-    return this.invoke(model, otherArgs);
+    return { fn, args, varArgs, filters };
   }
 
-  invoke (model, otherArgs) {
-    if (this.type === Expr.PROPERTY) {
-      const val = this.args[0].value(model, otherArgs);
-      return this.filters.reduce((val, filter) => filter.invoke(val), val);
+  static parseFn (token) {
+    const matches = token.match(FN_MATCHER);
+    const fn = new Token(matches[1]);
+    const args = rawTokenize(matches[2]).map(token => new Token(token));
+    return [fn, args];
+  }
+
+  constructor (string, mode) {
+    if (!mode) {
+      [string, mode] = Expr.unwrap(string);
     }
 
-    const args = this.args.map(arg => {
-      return arg.value(model, otherArgs);
-    });
+    string = string.trim();
 
-    return this.fn.invoke(model, args);
+    const { fn, args, varArgs, filters } = Expr.parse(string);
+
+    this.string = string;
+    this.mode = fn ? Expr.READONLY : mode;
+    this.fn = fn;
+    this.args = args;
+    this.varArgs = varArgs;
+    this.filters = filters;
+  }
+
+  isInvocable () {
+    return Boolean(this.fn);
+  }
+
+  eval (model, args = []) {
+    let value;
+
+    if (this.fn) {
+      const invokeArgs = this.args.map(arg => arg.value(model, args));
+      value = this.fn.invoke(model, invokeArgs);
+    } else {
+      value = this.args[0].value(model, args);
+    }
+
+    return this.filters.reduce((value, filter) => filter.invoke(value), value);
   }
 }
 
-Expr.STATIC = 's';
-Expr.METHOD = 'm';
-Expr.VARY = 'v';
-Expr.PROPERTY = 'p';
 Expr.READONLY = '[';
 Expr.READWRITE = '{';
 
@@ -160,15 +108,11 @@ function rawTokenize (str) {
   const tokens = [];
 
   while (str && count++ < 10) {
-    const matches = str.match(/^\s*("[^"]*"|[^,]+),?/);
+    const matches = str.match(FN_TOKENIZER_MATCHER);
 
     str = str.substr(matches[0].length);
     tokens.push(matches[1].trim());
   }
 
   return tokens;
-}
-
-function tokenize (str) {
-  return rawTokenize(str).map(token => Token.get(token));
 }

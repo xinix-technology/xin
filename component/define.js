@@ -1,4 +1,5 @@
 import { repository } from '../core';
+import { idGenerator } from '../helpers/id-generator';
 
 export function define (name, Component, options) {
   let ElementClass = repository.$elements[name];
@@ -26,4 +27,14 @@ export function define (name, Component, options) {
   repository.$elements[name] = ElementClass;
 
   return ElementClass;
+}
+
+const nextVal = idGenerator();
+
+export function defineTest (Component, options) {
+  const name = `test-${nextVal()}`;
+
+  define(name, Component, options);
+
+  return name;
 }

@@ -45,10 +45,12 @@ export class Renderer {
   }
 
   parseText (node) {
-    const expr = Expr.create(node.textContent);
-    if (expr.type === Expr.STATIC) {
-      return false;
+    const content = node.textContent;
+    if (!Expr.validate(content)) {
+      return;
     }
+
+    const expr = new Expr(content);
 
     // emptying text
     node.textContent = '';
@@ -103,10 +105,13 @@ export class Renderer {
       if (attrName.indexOf('(') === 0) {
         this.parseEvent(element, attrName);
       } else {
-        const expr = Expr.create(attr.value);
-        if (expr.type === Expr.STATIC) {
+        const content = attr.value;
+
+        if (!Expr.validate(content)) {
           continue;
         }
+
+        const expr = new Expr(content);
 
         // remove attribute after ready to annotate
         element.removeAttribute(attrName);
@@ -122,9 +127,15 @@ export class Renderer {
     // bind event annotation
     const attrValue = element.getAttribute(attrName);
     const name = attrName.slice(1, -1);
-    const expr = Expr.createFn(attrValue, [], true);
+    const expr = new Expr(attrValue, Expr.READONLY);
+    if (!expr.isInvocable()) {
+      throw new Error(`Invalid expr for event, "${attrValue}"`);
+    }
     const selector = element;
-    const listener = evt => expr.invoke(this.instance, { evt });
+    const listener = evt => expr.eval({
+      ...this.instance,
+      evt,
+    });
 
     this.eventer.addHandler({ name, selector, listener, expr });
   }
@@ -135,12 +146,12 @@ export class Renderer {
     // register event notifier
     const { expr, accessor } = annotation;
     if (expr.mode === Expr.READWRITE && accessor instanceof ValueAccessor) {
-      const eventName = getEventName(accessor.node);
-      if (eventName) {
-        const name = expr.name;
+      const name = getEventName(accessor.node);
+      if (name) {
+        const exprPath = expr.args[0].string;
         const selector = accessor.node;
-        const listener = evt => this.instance.set(name, evt.target.value);
-        this.eventer.addHandler({ name: eventName, selector, listener });
+        const listener = evt => this.instance.set(exprPath, evt.target.value);
+        this.eventer.addHandler({ name, selector, listener });
       }
     }
   }

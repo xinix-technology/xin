@@ -2,6 +2,7 @@ import { repository, event, Async } from '../core';
 import { Template } from './template';
 import { Expr } from './expr';
 
+const SPACE_DELIMITED_SPLITTER = /\s+/;
 const baseComponents = {};
 
 const tProto = Template.prototype;
@@ -69,8 +70,6 @@ export function base (base) {
     readyCallback () {
       this.__componentReady = true;
 
-      event(this).fire('before-ready');
-
       if (!this.hasAttribute('xin-id')) {
         // deferred set attributes until readyCallback
         this.setAttribute('xin-id', this.__id);
@@ -86,31 +85,30 @@ export function base (base) {
     // note that connectedCallback can be called more than once, so any
     // initialization work that is truly one-time will need a guard to prevent
     // it from running twice.
-    async attachedCallback () { // eslint-disable-line complexity
-      if (!this.__componentCreated) {
+    async attachedCallback () {
+      if (!this.__componentCreated || this.__componentAttaching) {
         return;
       }
 
       this.__componentAttaching = true;
 
       try {
-        if (!this.__componentReady) {
-          if (this.__componentReadyInvoking) {
-            return;
-          }
+        const tryReady = async () => {
+          if (!this.__componentReady) {
+            if (this.__componentReadyInvoking) {
+              return;
+            }
 
-          this.__componentReadyInvoking = true;
-          await new Promise(resolve => {
-            Async.run(() => {
-              this.readyCallback();
-              resolve();
+            this.__componentReadyInvoking = true;
+            await new Promise(resolve => {
+              Async.run(() => {
+                this.readyCallback();
+                resolve();
+              });
             });
-          });
-
-          if (!this.__componentAttaching) {
-            return;
           }
-        }
+        };
+        await tryReady();
 
         this.__componentMount();
 
@@ -159,8 +157,12 @@ export function base (base) {
 
       Object.keys(this.listeners).forEach(key => {
         const { name, selector } = parseListenerMetadata(key);
-        const expr = Expr.createFn(this.listeners[key], [], true);
-        const listener = evt => expr.invoke(this, { evt });
+        const fnString = Expr.prepareFnString(this.listeners[key]);
+        const expr = new Expr(fnString, Expr.READONLY);
+        const listener = evt => expr.eval({
+          ...this,
+          evt,
+        });
         this.__templateEventer.addHandler({ name, selector, listener });
       });
     }
@@ -193,7 +195,7 @@ export function base (base) {
 
 function parseListenerMetadata (key) {
   key = key.trim();
-  const [name, ...selectorArr] = key.split(/\s+/);
+  const [name, ...selectorArr] = key.split(SPACE_DELIMITED_SPLITTER);
   const selector = selectorArr.length ? selectorArr.join(' ') : null;
   return { key, name, selector };
 }

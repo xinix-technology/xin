@@ -16,7 +16,7 @@ export class If extends Component {
 
       condition: {
         type: Boolean,
-        observer: '__ifObserveCondition(condition)',
+        observer: '__ifObserverFn(condition)',
       },
 
       to: {
@@ -30,7 +30,7 @@ export class If extends Component {
     super.attached();
 
     this.__ifSetupRows();
-    this.__ifObserveCondition(this.condition);
+    this.__ifObserverFn(this.condition);
   }
 
   detached () {
@@ -139,13 +139,13 @@ export class If extends Component {
     this.__ifMarker = undefined;
   }
 
-  __ifObserveCondition (condition) {
+  __ifObserverFn (condition) {
     if (!this.__ifRows) {
       return;
     }
 
-    Async.cancel(this.__ifObserveConditionDebounce);
-    this.__ifObserveConditionDebounce = Async.run(() => {
+    Async.cancel(this.__ifObserverFnDebounce);
+    this.__ifObserverFnDebounce = Async.run(() => {
       if (condition) {
         this.__ifUnmount(this.__ifRows[1]);
         this.__ifMount(this.__ifRows[0]);

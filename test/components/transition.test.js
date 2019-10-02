@@ -1,102 +1,103 @@
-// import { Async } from '../..';
-// import { Fixture } from '../../components/fixture';
-// import '../../components/if';
-// import '../../components/transition';
+import { Async } from '../..';
+import { Fixture } from '../../components/fixture';
+import '../../components/if';
+import '../../components/transition';
+import { html } from '../../component';
 
-// describe('components:transition <xin-transition>', () => {
-//   it('render', async () => {
-//     const fixture = await Fixture.create(`
-//       <style>
-//       .fade-enter-active, .fade-leave-active {
-//         transition: opacity .3s;
-//       }
-//       .fade-enter, .fade-leave-to /* .fade-leave-active below version 2.1.8 */ {
-//         opacity: 0;
-//       }
+describe('components:transition <xin-transition>', () => {
+  it('render', async () => {
+    const fixture = await Fixture.create(html`
+      <style>
+      .fade-enter-active, .fade-leave-active {
+        transition: opacity .3s;
+      }
+      .fade-enter, .fade-leave-to /* .fade-leave-active below version 2.1.8 */ {
+        opacity: 0;
+      }
 
-//       xin-transition {
-//         display: block;
-//         position: relative;
-//       }
+      xin-transition {
+        display: block;
+        position: relative;
+      }
 
-//       .block {
-//         position: absolute;
-//         top: 0;
-//         left: 0;
-//         right: 0;
-//       }
+      .block {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+      }
 
-//       .red {
-//         background-color: red;
-//       }
+      .red {
+        background-color: red;
+      }
 
-//       .blue {
-//         background-color: blue;
-//       }
-//       </style>
-//       <div>
-//         <button (click)="doToggle(evt)">Toggle</button>
-//       </div>
-//       <xin-transition name="fade">
-//         <xin-if condition="[[show]]">
-//           <template>
-//             <div class="block blue">
-//               <h3>if</h3>
-//               <p>
-//                 hello <span>[[name]]</span>
-//               </p>
-//             </div>
-//           </template>
-//           <template else>
-//             <div class="block red">
-//               <h3>else</h3>
-//               <p>
-//                 change <span>[[name]]</span>
-//               </p>
-//             </div>
-//           </template>
-//         </xin-if>
-//       </xin-transition>
-//     `, {
-//       show: false,
-//       name: 'Ganesha',
-//       doToggle () {
-//         this.set('show', !this.show);
-//       },
-//     });
+      .blue {
+        background-color: blue;
+      }
+      </style>
+      <div>
+        <button (click)="doToggle(evt)">Toggle</button>
+      </div>
+      <xin-transition name="fade">
+        <xin-if condition="[[show]]">
+          <template>
+            <div class="block blue">
+              <h3>if</h3>
+              <p>
+                hello <span>[[name]]</span>
+              </p>
+            </div>
+          </template>
+          <template else>
+            <div class="block red">
+              <h3>else</h3>
+              <p>
+                change <span>[[name]]</span>
+              </p>
+            </div>
+          </template>
+        </xin-if>
+      </xin-transition>
+    `, {
+      show: false,
+      name: 'Ganesha',
+      doToggle () {
+        this.set('show', !this.show);
+      },
+    });
 
-//     try {
-//       await fixture.waitConnected();
+    try {
+      await fixture.waitConnected();
 
-//       await Async.sleep();
+      await Async.sleep();
 
-//       await new Promise(resolve => {
-//         function onTransitionEnd (evt) {
-//           fixture.removeEventListener('transitionend', onTransitionEnd);
-//           resolve();
-//         }
-//         fixture.addEventListener('transitionend', onTransitionEnd);
-//         fixture.set('show', true);
-//       });
+      await new Promise(resolve => {
+        function onTransitionEnd (evt) {
+          fixture.removeEventListener('transitionend', onTransitionEnd);
+          resolve();
+        }
+        fixture.addEventListener('transitionend', onTransitionEnd);
+        fixture.set('show', true);
+      });
 
-//       const style = fixture.$$('style');
-//       style.parentElement.removeChild(style);
+      const style = fixture.$$('style');
+      style.parentElement.removeChild(style);
 
-//       await new Promise((resolve, reject) => {
-//         Async.run(() => {
-//           fixture.removeEventListener('transitionend', onTransitionEnd);
-//           resolve();
-//         }, 500);
+      await new Promise((resolve, reject) => {
+        Async.run(() => {
+          fixture.removeEventListener('transitionend', onTransitionEnd);
+          resolve();
+        }, 500);
 
-//         function onTransitionEnd (evt) {
-//           fixture.removeEventListener('transitionend', onTransitionEnd);
-//           reject(new Error('Must not invoked'));
-//         }
-//         fixture.addEventListener('transitionend', onTransitionEnd);
-//         fixture.set('show', false);
-//       });
-//     } finally {
-//       fixture.dispose();
-//     }
-//   });
-// });
+        function onTransitionEnd (evt) {
+          fixture.removeEventListener('transitionend', onTransitionEnd);
+          reject(new Error('Must not invoked'));
+        }
+        fixture.addEventListener('transitionend', onTransitionEnd);
+        fixture.set('show', false);
+      });
+    } finally {
+      fixture.dispose();
+    }
+  });
+});

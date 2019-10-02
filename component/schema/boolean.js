@@ -7,9 +7,9 @@ export class BooleanField extends Field {
 
   cast (value) {
     if (typeof value === 'string') {
-      return Boolean(value === 'true' || value === '1' || value === 'on' || value === 'yes');
+      return value === 'true' || value === '1' || value === 'on' || value === 'yes';
     }
 
-    return !!value;
+    return Boolean(value);
   }
 }
