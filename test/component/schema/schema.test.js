@@ -58,14 +58,16 @@ describe('component:schema Schema', () => {
   });
 
   describe('#eq()', () => {
-    const schema = new Schema({
-      fun: {
-        type: Function,
-      },
+    it('compare functions', () => {
+      const schema = new Schema({
+        fun: {
+          type: Function,
+        },
+      });
+
+      const fun = () => 'somefunction';
+
+      assert(schema.eq('fun', fun, '() => \'somefunction\''));
     });
-
-    const fun = new Function('return "somefunction"'); // eslint-disable-line no-new-func
-
-    assert(schema.eq('fun', fun, 'return "somefunction"'));
   });
 });

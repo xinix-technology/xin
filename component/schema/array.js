@@ -17,7 +17,7 @@ export class ArrayField extends Field {
   }
 
   traverse (path) {
-    const [_, ...newPath] = pathArray(path); // eslint-disable-line no-unused-vars
+    const [, ...newPath] = pathArray(path);
     if (newPath.length === 0) {
       return this.field;
     }

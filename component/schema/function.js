@@ -10,7 +10,9 @@ export class FunctionField extends Field {
       return value;
     }
 
-    return new Function(value); // eslint-disable-line no-new-func
+    let fn;
+    eval(`fn = ${value};`); // eslint-disable-line no-eval
+    return fn;
   }
 
   eq (value1, value2) {

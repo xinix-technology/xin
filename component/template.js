@@ -47,7 +47,7 @@ export class Template {
     return this.__templateModeler.get(path);
   }
 
-  set (path, value) { // eslint-disable-line complexity
+  set (path, value) {
     return this.__templateModeler.set(path, value);
   }
 
@@ -59,8 +59,15 @@ export class Template {
     return this.__templateModeler.pop(path);
   }
 
-  splice (path, index, removeCount, ...values) { // eslint-disable-line max-params
-    return this.__templateModeler.splice(path, index, removeCount, ...values);
+  /**
+   * Splice an array at path
+   * @param {any} path
+   * @param {any} index
+   * @param {any} removeCount
+   * @param  {...any} values
+   */
+  splice () {
+    return this.__templateModeler.splice(...arguments);
   }
 
   notify (path) {

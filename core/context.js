@@ -46,7 +46,15 @@ export class Context {
     return object[key].pop();
   }
 
-  splice (path, index, removeCount, ...values) { // eslint-disable-line max-params
+  /**
+   * Splice an array at path
+   * @param {any} path
+   * @param {any} index
+   * @param {any} removeCount
+   * @param  {...any} values
+   */
+  splice () {
+    const [path, index, removeCount, ...values] = arguments;
     const { object, key } = this.traverse(path, false);
     object[key] = ([...(object[key] || [])]);
 
@@ -54,7 +62,7 @@ export class Context {
   }
 }
 
-function traverse (object, path, immediateReturn = true) { // eslint-disable-line max-params
+function traverse (object, path, immediateReturn = true) {
   const key = path.shift();
 
   const value = nothing(object[key]) ? undefined : object[key];
