@@ -66,8 +66,7 @@ describe('component:schema Schema', () => {
       });
 
       const fun = () => 'somefunction';
-
-      assert(schema.eq('fun', fun, '() => \'somefunction\''));
+      assert(schema.eq('fun', fun, fun));
     });
   });
 });

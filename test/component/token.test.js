@@ -1,6 +1,6 @@
+import { repository } from '../..';
 import { Token } from '../../component/token';
 import assert from 'assert';
-import { repository } from '../../core';
 
 describe('component:token Token', () => {
   describe('#invoke()', () => {

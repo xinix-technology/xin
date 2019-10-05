@@ -1,11 +1,11 @@
-import { attributeWriter } from '../../../component/writers/attribute';
-import { Fixture } from '../../../components/fixture';
 import assert from 'assert';
+import { testing } from '../../..';
+import { attributeWriter } from '../../../component/writers/attribute';
 
 describe('component:writers:attribute', () => {
   describe('attributeWriter()', () => {
     it('write value of attribute', async () => {
-      const fixture = await Fixture.create(`
+      const fixture = await testing.createFixture(`
         <div id="here"></div>
       `);
 

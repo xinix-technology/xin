@@ -19,13 +19,7 @@ export function base (base) {
     return baseComponents[base];
   }
 
-  let BaseElement;
-  if (repository.$config.customElementsVersion === 'v0') {
-    BaseElement = function () {};
-    BaseElement.prototype = Object.create(window[base].prototype);
-  } else {
-    BaseElement = window[base];
-  }
+  const BaseElement = getBaseElement(base);
 
   class BaseComponent extends BaseElement {
     constructor () {
@@ -198,4 +192,14 @@ function parseListenerMetadata (key) {
   const [name, ...selectorArr] = key.split(SPACE_DELIMITED_SPLITTER);
   const selector = selectorArr.length ? selectorArr.join(' ') : null;
   return { key, name, selector };
+}
+
+function getBaseElement (base) {
+  if (repository.$config.ceVersion === 'v0') {
+    const BaseElement = function () {};
+    BaseElement.prototype = Object.create(window[base].prototype);
+    return BaseElement;
+  }
+
+  return window[base];
 }

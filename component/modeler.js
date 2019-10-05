@@ -137,11 +137,12 @@ const FIELD_INITIALIZERS = [
         const expr = new Expr(attrVal);
 
         if (field.notify && expr.mode === Expr.READWRITE) {
-          const exprPath = expr.args[0].string;
-          modeler.binding.bindFunction(field.name, value => instance.__templateParent.set(exprPath, value));
+          const path = expr.args[0].string;
+          // modeler.binding.bindFunction(field.name, value => instance.__templateParent.set(exprPath, value));
+          modeler.binding.bindFunction(field.name, value => instance.fire('change', { path, value }));
         }
 
-        field.initializer = () => expr.eval(instance.__templateParent);
+        // field.initializer = () => expr.eval(instance.__templateParent);
       } else {
         field.initializer = () => attrVal;
       }

@@ -1,10 +1,9 @@
 import assert from 'assert';
-import { Filter } from '../..';
-import { Fixture } from '../../components/fixture';
+import { Filter, testing } from '../..';
 
 describe('component:filter Filter', () => {
   it('format currency', async () => {
-    const fixture = await Fixture.create(`
+    const fixture = await testing.createFixture(`
       <span id="val">[[money|currency]]</span>
     `);
 

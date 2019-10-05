@@ -1,12 +1,8 @@
-import { Async } from '../..';
-import { Fixture } from '../../components/fixture';
-import '../../components/if';
-import '../../components/transition';
-import { html } from '../../component';
+import { Async, html, testing } from '../..';
 
 describe('components:transition <xin-transition>', () => {
   it('render', async () => {
-    const fixture = await Fixture.create(html`
+    const fixture = await testing.createFixture(html`
       <style>
       .fade-enter-active, .fade-leave-active {
         transition: opacity .3s;

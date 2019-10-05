@@ -1,5 +1,9 @@
 import { Context } from '../context';
 
+const DEFAULT_CONFIG = {
+  ceVersion: window.XIN_CE_VERSION || 'v1',
+};
+
 export class Repository extends Context {
   constructor () {
     super();
@@ -20,7 +24,9 @@ export class Repository extends Context {
     this.$repository = this;
 
     // XXX someday we might want to have default config
-    this.$config = {};
+    this.$config = {
+      ...DEFAULT_CONFIG,
+    };
   }
 
   error (err) {
@@ -55,4 +61,4 @@ export class Repository extends Context {
   }
 }
 
-export const repository = window.xin$repository = window.xin$repository || new Repository();
+export const repository = window.xin ? window.xin.repository : new Repository();

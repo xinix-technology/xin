@@ -3,6 +3,7 @@ import { idGenerator, matches } from '../../helpers';
 import { Async } from '../async';
 
 const WAIT_TIMEOUT = 3000;
+const TOUCHMOUSE_EVENT_TYPES = ['touchstart', 'touchmove', 'wheel', 'mousewheel'];
 
 const nextId = idGenerator();
 
@@ -201,17 +202,13 @@ export class Delegator {
 }
 
 function getOptions (type) {
-  if (isTouchAndMouseEventType(type)) {
-    return { passive: true };
-  }
-
   if (type === 'blur' || type === 'focus') {
     return true;
   }
 
-  return false;
-}
+  if (TOUCHMOUSE_EVENT_TYPES.includes(type)) {
+    return { passive: true };
+  }
 
-function isTouchAndMouseEventType (type) {
-  return ['touchstart', 'touchmove', 'wheel', 'mousewheel'].indexOf(type) !== -1;
+  return false;
 }

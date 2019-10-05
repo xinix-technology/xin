@@ -1,5 +1,4 @@
 import { repository } from '../core';
-import { idGenerator } from '../helpers/id-generator';
 
 export function define (name, Component, options) {
   let ElementClass = repository.$elements[name];
@@ -9,7 +8,7 @@ export function define (name, Component, options) {
     return ElementClass;
   }
 
-  if (repository.$config.customElementsVersion === 'v0') {
+  if (repository.$config.ceVersion === 'v0') {
     const prototype = Object.create(Component.prototype, { is: { value: name } });
     const ElementPrototype = { prototype };
 
@@ -27,14 +26,4 @@ export function define (name, Component, options) {
   repository.$elements[name] = ElementClass;
 
   return ElementClass;
-}
-
-const nextVal = idGenerator();
-
-export function defineTest (Component, options) {
-  const name = `test-${nextVal()}`;
-
-  define(name, Component, options);
-
-  return name;
 }

@@ -1,11 +1,10 @@
 import assert from 'assert';
-import { Fixture } from '../../components';
-import { define, defineTest, Component } from '../..';
-import { event, repository } from '../../core';
+import { Component, event, repository, testing } from '../..';
+import { html } from '../../component';
 
 describe('cases:binding', () => {
   it('bind value from property', async () => {
-    const fixture = await Fixture.create(`
+    const fixture = await testing.createFixture(`
       <input id="el1" type="text" value="{{value}}">
       <div id="el2">[[value]]</div>
     `);
@@ -27,7 +26,7 @@ describe('cases:binding', () => {
   });
 
   it('bind value from text content', async () => {
-    const fixture = await Fixture.create('<textarea id="el">[[value]]</textarea>');
+    const fixture = await testing.createFixture('<textarea id="el">[[value]]</textarea>');
     try {
       await fixture.waitConnected();
       fixture.set('value', 'foo');
@@ -38,7 +37,7 @@ describe('cases:binding', () => {
   });
 
   it('bind text from text content', async () => {
-    const fixture = await Fixture.create('<span id="el">[[value]]</span>');
+    const fixture = await testing.createFixture('<span id="el">[[value]]</span>');
     try {
       await fixture.waitConnected();
       fixture.set('value', 'foo');
@@ -49,7 +48,7 @@ describe('cases:binding', () => {
   });
 
   it('bind text from attribute', async () => {
-    const fixture = await Fixture.create('<span id="el" text="[[value]]"></span>');
+    const fixture = await testing.createFixture('<span id="el" text="[[value]]"></span>');
     try {
       await fixture.waitConnected();
       fixture.set('value', 'foo');
@@ -60,7 +59,7 @@ describe('cases:binding', () => {
   });
 
   it('bind html from attribute', async () => {
-    const fixture = await Fixture.create('<span id="el" html="[[value]]"></span>');
+    const fixture = await testing.createFixture('<span id="el" html="[[value]]"></span>');
     try {
       await fixture.waitConnected();
       fixture.set('value', '<b>bold</b> <i>italic</i>');
@@ -72,7 +71,7 @@ describe('cases:binding', () => {
   });
 
   it('bind style from attribute', async () => {
-    const fixture = await Fixture.create('<span id="el" style.border="[[value]]"></span>');
+    const fixture = await testing.createFixture('<span id="el" style.border="[[value]]"></span>');
     try {
       await fixture.waitConnected();
       fixture.set('value', '1px solid red');
@@ -83,7 +82,7 @@ describe('cases:binding', () => {
   });
 
   it('bind class from attribute', async () => {
-    const fixture = await Fixture.create('<span id="el" class.foo="[[value]]"></span>');
+    const fixture = await testing.createFixture('<span id="el" class.foo="[[value]]"></span>');
     try {
       await fixture.waitConnected();
       fixture.set('value', true);
@@ -94,7 +93,7 @@ describe('cases:binding', () => {
   });
 
   it('bind attribute', async () => {
-    const fixture = await Fixture.create('<span id="el" foo$="[[value]]"></span>');
+    const fixture = await testing.createFixture('<span id="el" foo$="[[value]]"></span>');
     try {
       await fixture.waitConnected();
       fixture.set('value', 'bar');
@@ -106,7 +105,7 @@ describe('cases:binding', () => {
   });
 
   it('bind property', async () => {
-    const fixture = await Fixture.create('<span id="el" foo="[[value]]"></span>');
+    const fixture = await testing.createFixture('<span id="el" foo="[[value]]"></span>');
     try {
       await fixture.waitConnected();
       fixture.set('value', 'bar');
@@ -118,7 +117,7 @@ describe('cases:binding', () => {
   });
 
   it('change value', async () => {
-    const fixture = await Fixture.create(`
+    const fixture = await testing.createFixture(`
       <input id="input" type="text" value="{{value}}">
       <textarea id="textarea">{{value}}</textarea>
       <div id="result">[[value]]</div>
@@ -165,7 +164,7 @@ describe('cases:binding', () => {
   });
 
   it('initialize data from attribute', async () => {
-    define('test-binding-1', class extends Component {
+    const componentName = testing.define(class extends Component {
       get template () {
         return '<span>[[foo]]</span>';
       }
@@ -180,8 +179,8 @@ describe('cases:binding', () => {
       }
     });
 
-    const fixture = await Fixture.create(`
-      <test-binding-1 id="comp" foo="foo was here"></test-binding-1>
+    const fixture = await testing.createFixture(`
+      <${componentName} id="comp" foo="foo was here"></${componentName}>
     `);
 
     try {
@@ -194,7 +193,7 @@ describe('cases:binding', () => {
   });
 
   it('initialize data from default value', async () => {
-    define('test-binding-2', class extends Component {
+    const componentName = testing.define(class extends Component {
       get template () {
         return '<span>[[foo]]</span>';
       }
@@ -210,8 +209,8 @@ describe('cases:binding', () => {
       }
     });
 
-    const fixture = await Fixture.create(`
-      <test-binding-2 id="comp"></test-binding-2>
+    const fixture = await testing.createFixture(`
+      <${componentName} id="comp"></${componentName}>
     `);
 
     try {
@@ -224,7 +223,7 @@ describe('cases:binding', () => {
   });
 
   it('compute data', async () => {
-    define('test-binding-3', class extends Component {
+    const componentName = testing.define(class extends Component {
       get template () {
         return '<span>[[full]]</span>';
       }
@@ -252,8 +251,8 @@ describe('cases:binding', () => {
       }
     });
 
-    const fixture = await Fixture.create(`
-      <test-binding-3 id="comp"></test-binding-3>
+    const fixture = await testing.createFixture(`
+      <${componentName} id="comp"></${componentName}>
     `);
 
     try {
@@ -272,7 +271,7 @@ describe('cases:binding', () => {
 
   it('observe value', async () => {
     const logs = [];
-    const componentName = defineTest(class extends Component {
+    const componentName = testing.define(class extends Component {
       get props () {
         return {
           foo: {
@@ -290,7 +289,7 @@ describe('cases:binding', () => {
       }
     });
 
-    const fixture = await Fixture.create(`
+    const fixture = await testing.createFixture(`
       <${componentName} id="comp"></${componentName}>
     `);
 
@@ -308,7 +307,7 @@ describe('cases:binding', () => {
   });
 
   it('notify data', async () => {
-    define('test-binding-4', class extends Component {
+    const comp1 = testing.define(class extends Component {
       get props () {
         return {
           ...super.props,
@@ -320,14 +319,22 @@ describe('cases:binding', () => {
       }
 
       get template () {
-        return `
-          <input type="text" value="{{foo}}">
-          <test-binding-5 id="comp" value="{{foo}}"></test-binding-4>
+        return html`
+          <div style="background-color: lime; padding: 5px">
+            <div>
+              <div>Foo</div>
+              <input type="text" value="{{foo}}">
+            </div>
+            <div>
+              <div>Comp2</div>
+              <${comp2} id="comp" value="{{foo}}"></${comp1}>
+            </div>
+          </div>
         `;
       }
     });
 
-    define('test-binding-5', class extends Component {
+    const comp2 = testing.define(class extends Component {
       get props () {
         return {
           ...super.props,
@@ -339,36 +346,46 @@ describe('cases:binding', () => {
       }
 
       get template () {
-        return `
-          <input type="text" value="{{value}}">
+        return html`
+          <div style="background-color: yellow; padding: 5px">
+            <div>Value</div>
+            <input type="text" value="{{value}}">
+          </div>
         `;
       }
     });
 
-    const fixture = await Fixture.create(`
-      <test-binding-4 id="comp"></test-binding-4>
+    const fixture = await testing.createFixture(html`
+      <div>
+        <div>Fixture Foo</div>
+        <input type="text" value="{{foo}}">
+      </div>
+      <div>
+        <div>Comp1</div>
+        <${comp1} id="comp"></${comp1}>
+      </div>
     `);
 
     try {
       await fixture.waitConnected();
 
-      assert.strictEqual(fixture.$$('test-binding-4').foo, 'xyz');
-      assert.strictEqual(fixture.$$('test-binding-5').value, 'xyz');
+      assert.strictEqual(fixture.$$(comp1).foo, 'xyz');
+      assert.strictEqual(fixture.$$(comp2).value, 'xyz');
 
-      fixture.$$('test-binding-4').set('foo', 'foo');
-      assert.strictEqual(fixture.$$('test-binding-4').foo, 'foo');
-      assert.strictEqual(fixture.$$('test-binding-5').value, 'foo');
+      fixture.$$(comp1).set('foo', 'foo');
+      assert.strictEqual(fixture.$$(comp1).foo, 'foo');
+      assert.strictEqual(fixture.$$(comp2).value, 'foo');
 
-      fixture.$$('test-binding-5').set('value', 'bar');
-      assert.strictEqual(fixture.$$('test-binding-4').foo, 'bar');
-      assert.strictEqual(fixture.$$('test-binding-5').value, 'bar');
+      fixture.$$(comp2).set('value', 'bar');
+      assert.strictEqual(fixture.$$(comp1).foo, 'bar');
+      assert.strictEqual(fixture.$$(comp2).value, 'bar');
     } finally {
       fixture.dispose();
     }
   });
 
   it('has required field', async () => {
-    define('test-binding-6', class extends Component {
+    const tag = testing.define(class extends Component {
       get props () {
         return {
           ...super.props,
@@ -385,8 +402,8 @@ describe('cases:binding', () => {
       repository.$config.silent = true;
       repository.$config.errorHandler = () => hit++;
 
-      const fixture = await Fixture.create(`
-        <test-binding-6></test-binding-6>
+      const fixture = await testing.createFixture(`
+        <${tag}></${tag}>
       `);
 
       try {
@@ -398,14 +415,14 @@ describe('cases:binding', () => {
       }
     }
 
-    const fixture = await Fixture.create(`
-      <test-binding-6 foo="qqq"></test-binding-6>
+    const fixture = await testing.createFixture(`
+      <${tag} foo="qqq"></${tag}>
     `);
 
     try {
       await fixture.waitConnected();
 
-      assert.strictEqual(fixture.$$('test-binding-6').foo, 'qqq');
+      assert.strictEqual(fixture.$$(tag).foo, 'qqq');
     } finally {
       fixture.dispose();
     }
@@ -413,7 +430,7 @@ describe('cases:binding', () => {
 
   it('bind event', async () => {
     let hit = 0;
-    const fixture = await Fixture.create(`
+    const fixture = await testing.createFixture(`
       <button id="button" (click)="doClick(evt)">Click</button>
     `, {
       doClick (evt) {
@@ -433,7 +450,7 @@ describe('cases:binding', () => {
   });
 
   it('render xin-for', async () => {
-    const fixture = await Fixture.create(`
+    const fixture = await testing.createFixture(`
       <div>
         <div>[[name]]</div>
         <input type="text" value="{{name}}">

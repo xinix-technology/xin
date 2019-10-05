@@ -1,6 +1,7 @@
 // Karma configuration
 // Generated on Wed Apr 04 2018 09:55:19 GMT+0700 (WIB)
 const path = require('path');
+const webpack = require('webpack');
 
 // process.env.CHROME_BIN = require('puppeteer').executablePath();
 
@@ -16,6 +17,7 @@ module.exports = function (config) { // eslint-disable-line max-lines-per-functi
 
     // list of files / patterns to load in the browser
     files: [
+      'test/init.js',
       config.grep ? config.grep : 'test/**/*.test.js',
     ],
 
@@ -26,7 +28,9 @@ module.exports = function (config) { // eslint-disable-line max-lines-per-functi
     // preprocess matching files before serving them to the browser
     // available preprocessors: https://npmjs.org/browse/keyword/karma-preprocessor
     preprocessors: (() => {
-      const result = {};
+      const result = {
+        'test/init.js': ['webpack'],
+      };
       result[config.grep ? config.grep : 'test/**/*.test.js'] = ['webpack'];
       return result;
     })(),
@@ -84,10 +88,15 @@ module.exports = function (config) { // eslint-disable-line max-lines-per-functi
               loader: 'istanbul-instrumenter-loader',
               options: { esModules: true },
             },
-            exclude: /node_modules|\.test\.js|test\/init.js$/,
+            exclude: /(node_modules|test)\//,
           },
         ],
       },
+      plugins: [
+        new webpack.DefinePlugin({
+          'process.env.XIN_CE_VERSION': JSON.stringify(process.env.XIN_CE_VERSION || ''),
+        }),
+      ],
     },
 
     webpackMiddleware: {

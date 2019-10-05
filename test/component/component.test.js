@@ -1,5 +1,4 @@
-import { define, Component, event } from '../..';
-import { Fixture } from '../../components';
+import { Component, event, testing } from '../..';
 import assert from 'assert';
 
 describe('component:component Component', () => {
@@ -10,7 +9,7 @@ describe('component:component Component', () => {
       hits[evt.target.nodeName]++;
     });
 
-    define('test-component-component1', class extends Component {
+    const comp1 = testing.define(class extends Component {
       get template () {
         return `
           <div>
@@ -20,7 +19,7 @@ describe('component:component Component', () => {
       }
     });
 
-    define('test-component-component2', class extends Component {
+    const comp2 = testing.define(class extends Component {
       get template () {
         return `
           ini component 2
@@ -28,10 +27,10 @@ describe('component:component Component', () => {
       }
     });
 
-    const fixture = await Fixture.create(`
-      <test-component-component1>
-        <test-component-component2></test-component-component2>
-      </test-component-component1>
+    const fixture = await testing.createFixture(`
+      <${comp1}>
+        <${comp2}></${comp2}>
+      </${comp1}>
     `);
 
     try {
@@ -49,7 +48,7 @@ describe('component:component Component', () => {
 
   it('register listeners', async () => {
     let hit = false;
-    define('test-component-component3', class extends Component {
+    const comp1 = testing.define(class extends Component {
       get template () {
         return `
           <div id="foo"></div>
@@ -67,8 +66,8 @@ describe('component:component Component', () => {
       }
     });
 
-    const fixture = await Fixture.create(`
-    <test-component-component3></test-component-component3>
+    const fixture = await testing.createFixture(`
+    <${comp1}></${comp1}>
     `);
 
     try {

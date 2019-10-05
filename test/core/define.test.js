@@ -1,16 +1,14 @@
-import { repository } from '../../core';
-import { define, Component } from '../../component';
-import { Fixture } from '../../components/fixture';
+import { repository, define, Component, testing } from '../..';
 import assert from 'assert';
 
 describe('core:define #define()', () => {
   let originalVersion;
   before(() => {
-    originalVersion = repository.$config.customElementsVersion;
+    originalVersion = repository.$config.ceVersion;
   });
 
   after(() => {
-    repository.$config.customElementsVersion = originalVersion;
+    repository.$config.ceVersion = originalVersion;
   });
 
   it('define new custom element v1', async () => {
@@ -20,7 +18,7 @@ describe('core:define #define()', () => {
       }
     });
 
-    const fixture = await Fixture.create('<test-define-v1 id="el"></test-define-v1>');
+    const fixture = await testing.createFixture('<test-define-v1 id="el"></test-define-v1>');
     try {
       await fixture.waitConnected();
       assert.strictEqual(fixture.$.el.textContent, 'define v1');
@@ -30,7 +28,7 @@ describe('core:define #define()', () => {
   });
 
   it('define new custom element v0', async () => {
-    repository.$config.customElementsVersion = 'v0';
+    repository.$config.ceVersion = 'v0';
 
     define('test-define-v0', class DefineV0 extends Component {
       get template () {
@@ -38,7 +36,7 @@ describe('core:define #define()', () => {
       }
     });
 
-    const fixture = await Fixture.create('<test-define-v0 id="el"></test-define-v0>');
+    const fixture = await testing.createFixture('<test-define-v0 id="el"></test-define-v0>');
     try {
       await fixture.waitConnected();
       assert.strictEqual(fixture.$.el.textContent, 'define v0');

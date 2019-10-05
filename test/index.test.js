@@ -16,9 +16,4 @@ describe('xin', () => {
     assert(imported.Template);
     assert(imported.Filter);
   });
-
-  it('define global xin repository', () => {
-    const repo = window.xin$repository;
-    assert.strictEqual(repo.constructor.name, 'Repository');
-  });
 });

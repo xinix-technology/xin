@@ -1,11 +1,9 @@
+import { Async, testing } from '../..';
 import assert from 'assert';
-import { Fixture } from '../../components/fixture';
-import '../../components/if';
-import { Async } from '../../core';
 
 describe('components:if <xin-if>', () => {
   it('render template', async () => {
-    const fixture = await Fixture.create(`
+    const fixture = await testing.createFixture(`
       <div>
         <div>
           <button (click)="doToggle(evt)">Toggle</button>
@@ -45,7 +43,7 @@ describe('components:if <xin-if>', () => {
   });
 
   it('propagate change to if parent, instance and row', async () => {
-    const fixture = await Fixture.create(`
+    const fixture = await testing.createFixture(`
       <div>
         <input type="text" value="{{form.value}}">
       </div>

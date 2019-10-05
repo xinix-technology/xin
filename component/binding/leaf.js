@@ -1,9 +1,16 @@
 import { pathArray, pathString } from '../../helpers';
 
+/**
+ * @typedef {import('../annotation').Annotation} Annotation
+ */
+
 export class LeafBinding {
   constructor (name = '') {
     this.name = name;
     this.children = {};
+    /**
+     * @type {Annotation[]}
+     */
     this.annotations = [];
   }
 

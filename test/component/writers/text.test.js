@@ -1,11 +1,11 @@
 import { textWriter } from '../../../component/writers/text';
-import { Fixture } from '../../../components/fixture';
 import assert from 'assert';
+import { testing } from '../../..';
 
 describe('component:writers:text', () => {
   describe('textWriter()', () => {
     it('write value of text', async () => {
-      const fixture = await Fixture.create(`
+      const fixture = await testing.createFixture(`
         <div id="here"></div>
       `);
 

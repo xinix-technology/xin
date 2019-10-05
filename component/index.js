@@ -5,3 +5,4 @@ export * from './component';
 export * from './template';
 export * from './schema';
 export * from './filter';
+export * from './testing';

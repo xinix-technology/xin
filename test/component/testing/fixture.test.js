@@ -1,9 +1,9 @@
 import assert from 'assert';
-import { Fixture } from '../../components/fixture';
+import { testing } from '../../..';
 
 describe('components:fixture <xin-fixture>', () => {
   it('render list', async () => {
-    const fixture = await Fixture.create(`
+    const fixture = await testing.createFixture(`
       <div id="here">foo</div>
     `);
 

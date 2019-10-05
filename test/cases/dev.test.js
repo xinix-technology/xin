@@ -1,4 +1,4 @@
-import { Fixture } from '../../components';
+import { testing } from '../..';
 
 describe('cases:dev', () => {
   it('bind', async () => {
@@ -6,7 +6,7 @@ describe('cases:dev', () => {
       bar: 'ini global foo.bar',
     };
 
-    const fixture = await Fixture.create(`
+    const fixture = await testing.createFixture(`
       <div>[[$global.foo.bar]]</div>
     `);
 

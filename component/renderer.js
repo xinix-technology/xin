@@ -126,7 +126,15 @@ export class Renderer {
           const selector = element;
           const name = getEventName(selector);
           const exprPath = expr.args[0].string;
-          const listener = evt => this.instance.set(exprPath, evt.target.value);
+          const listener = evt => {
+            const { path = exprPath, value = evt.target.value } = evt.detail || {};
+            if (path !== exprPath) {
+              return;
+            }
+
+            evt.stopImmediatePropagation();
+            this.instance.set(path, value);
+          };
           this.eventer.addHandler({ name, selector, listener });
         }
 

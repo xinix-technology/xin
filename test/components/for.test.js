@@ -1,11 +1,9 @@
 import assert from 'assert';
-import { Fixture } from '../../components/fixture';
-import { define, Component, Async } from '../..';
-import '../../components/for';
+import { Component, Async, testing } from '../..';
 
 describe('components:for <xin-for>', () => {
   it('render list', async () => {
-    const fixture = await Fixture.create(`
+    const fixture = await testing.createFixture(`
       <div id="here">
         <xin-for id="loop" items="{{rows}}" as="row">
           <template>
@@ -39,7 +37,7 @@ describe('components:for <xin-for>', () => {
   });
 
   it('render to nearest defined element from parent', async () => {
-    const fixture = await Fixture.create(`
+    const fixture = await testing.createFixture(`
       <div>
         <table>
           <tbody id="firstBody">
@@ -86,7 +84,7 @@ describe('components:for <xin-for>', () => {
   });
 
   it('get item, index, and model for element', async () => {
-    const fixture = await Fixture.create(`
+    const fixture = await testing.createFixture(`
       <xin-for id="loop" items="[[rows]]" as="row">
         <template>
           <div>
@@ -115,7 +113,7 @@ describe('components:for <xin-for>', () => {
   });
 
   it('bind item and index from row model', async () => {
-    define('test-for-bind', class extends Component {
+    const compName = testing.define(class extends Component {
       get template () {
         return `
           <div id="container">
@@ -150,8 +148,8 @@ describe('components:for <xin-for>', () => {
       }
     });
 
-    const fixture = await Fixture.create(`
-      <test-for-bind id="placeholder"></test-for-bind>
+    const fixture = await testing.createFixture(`
+      <${compName} id="placeholder"></${compName}>
     `);
 
     try {
@@ -172,7 +170,7 @@ describe('components:for <xin-for>', () => {
   });
 
   it('render list with data from parent', async () => {
-    const fixture = await Fixture.create(`
+    const fixture = await testing.createFixture(`
       <div id="here">
         <xin-for id="loop" items="[[rows]]" as="row">
           <template>
@@ -228,7 +226,7 @@ describe('components:for <xin-for>', () => {
   });
 
   it('uninitialize rows when disconnected (prevent leak)', async () => {
-    const fixture = await Fixture.create(`
+    const fixture = await testing.createFixture(`
       <div id="here">
         <xin-for id="loop" items="[[rows]]" as="row">
           <template>
@@ -272,7 +270,7 @@ describe('components:for <xin-for>', () => {
   it('delegate event to template host', async () => {
     const hits = [];
 
-    const fixture = await Fixture.create(`
+    const fixture = await testing.createFixture(`
       <div id="here">
         <xin-for id="loop" items="[[items]]">
           <template>
@@ -305,7 +303,7 @@ describe('components:for <xin-for>', () => {
   });
 
   it('render nested for', async () => {
-    const fixture = await Fixture.create(`
+    const fixture = await testing.createFixture(`
       <div id="here">
         <xin-for id="loop" items="[[rows]]" as="row">
           <template>
