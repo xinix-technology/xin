@@ -76,8 +76,20 @@ export class Expr {
 
     this.string = string;
     this.mode = fn ? Expr.READONLY : mode;
+
+    /**
+     * @type {Token}
+     */
     this.fn = fn;
+
+    /**
+     * @type {Token[]}
+     */
     this.args = args;
+
+    /**
+     * @type {Token[]}
+     */
     this.varArgs = varArgs;
     this.filters = filters;
   }
@@ -94,14 +106,14 @@ export class Expr {
     return this.mode === Expr.READONLY;
   }
 
-  eval (model, args = []) {
+  eval (model, extendedContext) {
     let value;
 
     if (this.fn) {
-      const invokeArgs = this.args.map(arg => arg.value(model, args));
+      const invokeArgs = this.args.map(arg => arg.value(model, extendedContext));
       value = this.fn.invoke(model, invokeArgs);
     } else {
-      value = this.args[0].value(model, args);
+      value = this.args[0].value(model, extendedContext);
     }
 
     return this.filters.reduce((value, filter) => filter.invoke(value), value);

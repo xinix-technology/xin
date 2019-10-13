@@ -1,8 +1,8 @@
-export function teardownMarker (host, id, marker) {
+export function teardownMarker (container, identifier, marker) {
   if (marker &&
-    marker.parentElement === host &&
+    marker.parentElement === container &&
     marker.nodeType === Node.COMMENT_NODE &&
-    marker.data === `marker-${id}`) {
-    host.removeChild(marker);
+    marker.data === `marker-${identifier}`) {
+    container.removeChild(marker);
   }
 }

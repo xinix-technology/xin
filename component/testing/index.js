@@ -20,7 +20,7 @@ export const testing = {
     const d = document.createElement('div');
     d.innerHTML = `<xin-fixture><template>${template}</template></xin-fixture>`;
     const fixture = window.fixture = d.firstElementChild;
-    fixture.__fixtureInitialData = object;
+    fixture.set(object);
     document.body.appendChild(fixture);
 
     return new Promise(resolve => resolve(fixture));

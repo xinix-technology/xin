@@ -1,7 +1,7 @@
 import assert from 'assert';
 import { Component, Async, testing } from '../..';
 
-describe('components:for <xin-for>', () => {
+describe.skip('components:for <xin-for>', () => {
   it('render list', async () => {
     const fixture = await testing.createFixture(`
       <div id="here">

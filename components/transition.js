@@ -40,17 +40,11 @@ export class Transition extends Component {
 
     super.insertBefore(node, marker);
 
-    await new Promise(resolve => {
-      Async.nextFrame(() => {
-        addClass(elements, this.enterActiveClass, this.enterToClass);
-
-        Async.nextFrame(() => {
-          removeClass(elements, this.enterClass);
-          whenTransitionEnds(elements, this.type, resolve);
-        });
-      });
-    });
-
+    await Async.waitNextFrame();
+    addClass(elements, this.enterActiveClass, this.enterToClass);
+    await Async.waitNextFrame();
+    removeClass(elements, this.enterClass);
+    await new Promise(resolve => whenTransitionEnds(elements, this.type, resolve));
     removeClass(elements, this.enterActiveClass, this.enterToClass);
   }
 
@@ -62,14 +56,10 @@ export class Transition extends Component {
     const elements = [node];
 
     addClass(elements, this.leaveClass);
-
-    await new Promise(resolve => {
-      Async.nextFrame(() => {
-        removeClass(elements, this.leaveClass);
-        addClass(elements, this.leaveActiveClass, this.leaveToClass);
-        whenTransitionEnds(elements, this.type, resolve);
-      });
-    });
+    await Async.waitNextFrame();
+    removeClass(elements, this.leaveClass);
+    addClass(elements, this.leaveActiveClass, this.leaveToClass);
+    await new Promise(resolve => whenTransitionEnds(elements, this.type, resolve));
 
     super.removeChild(node);
     removeClass(elements, this.leaveActiveClass, this.leaveToClass);

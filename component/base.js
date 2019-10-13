@@ -33,7 +33,7 @@ export function base (base) {
     }
 
     get $ () {
-      return this.__templateHost.getElementsByTagName('*');
+      return this.__templatePresenter.$;
     }
 
     created () {}
@@ -51,7 +51,8 @@ export function base (base) {
       this.__componentAttaching = false;
 
       try {
-        this.__componentInitTemplate();
+        const template = this.__componentGetTemplate();
+        this.__templateInitialize(template, this.props);
 
         this.created();
 
@@ -69,7 +70,7 @@ export function base (base) {
         this.setAttribute('xin-id', this.__id);
       }
 
-      this.__componentInitListeners();
+      this.__componentPrepareListeners();
 
       this.ready();
 
@@ -94,19 +95,15 @@ export function base (base) {
             }
 
             this.__componentReadyInvoking = true;
-            await new Promise(resolve => {
-              Async.run(() => {
-                this.readyCallback();
-                resolve();
-              });
-            });
+            await Async.waitNextFrame();
+            this.readyCallback();
           }
         };
         await tryReady();
 
-        this.__componentMount();
+        this.mount(this);
 
-        this.attached();
+        await this.attached();
       } catch (err) {
         repository.error(err);
       }
@@ -118,7 +115,9 @@ export function base (base) {
       this.detached();
 
       try {
-        this.__componentUnmount();
+        if (this.__componentReady) {
+          this.unmount();
+        }
       } catch (err) {
         repository.error(err);
       }
@@ -132,45 +131,29 @@ export function base (base) {
       return this.detachedCallback();
     }
 
-    __componentInitTemplate () {
-      let template = this.template;
-
+    __componentGetTemplate () {
       if (this.childElementCount === 1 && this.firstElementChild.nodeName === 'TEMPLATE') {
         // when instance template exist detach from component content
-        template = this.firstElementChild;
+        const template = this.firstElementChild;
         this.removeChild(template);
+        return template;
       }
 
-      this.__templateInitialize(template, this.props);
+      return this.template;
     }
 
-    __componentInitListeners () {
+    __componentPrepareListeners () {
       if (!this.listeners) {
         return;
       }
 
       Object.keys(this.listeners).forEach(key => {
-        const { name, selector } = parseListenerMetadata(key);
+        const { type, selector } = parseListenerMetadata(key);
         const fnString = Expr.prepareFnString(this.listeners[key]);
         const expr = new Expr(fnString, Expr.READONLY);
-        const listener = evt => expr.eval({
-          ...this,
-          evt,
-        });
-        this.__templateEventer.addHandler({ name, selector, listener });
+        const callback = evt => expr.eval(this.__templateModeler, { evt });
+        this.__templatePresenter.addHandler(type, selector, callback);
       });
-    }
-
-    __componentMount () {
-      this.mount(this);
-    }
-
-    __componentUnmount () {
-      if (!this.__componentReady) {
-        return;
-      }
-
-      this.unmount();
     }
   }
 
@@ -189,9 +172,9 @@ export function base (base) {
 
 function parseListenerMetadata (key) {
   key = key.trim();
-  const [name, ...selectorArr] = key.split(SPACE_DELIMITED_SPLITTER);
+  const [type, ...selectorArr] = key.split(SPACE_DELIMITED_SPLITTER);
   const selector = selectorArr.length ? selectorArr.join(' ') : null;
-  return { key, name, selector };
+  return { type, selector };
 }
 
 function getBaseElement (base) {

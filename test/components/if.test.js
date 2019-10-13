@@ -1,27 +1,25 @@
 import { Async, testing } from '../..';
 import assert from 'assert';
+import { html } from '../../component';
 
 describe('components:if <xin-if>', () => {
   it('render template', async () => {
-    const fixture = await testing.createFixture(`
-      <div>
-        <div>
-          <button (click)="doToggle(evt)">Toggle</button>
-        </div>
+    const fixture = await testing.createFixture(html`
+      <div class="button-groups">
+        <button (click)="doToggle(evt)">Toggle</button>
+      </div>
+      <div class="if-placeholder">
         <xin-if id="selection" condition="[[show]]">
           <template>
-            <h3>if</h3>
+            <h3>IF AREA</h3>
           </template>
           <template else>
-            <h3>else</h3>
+            <h3>ELSE AREA</h3>
           </template>
         </xin-if>
       </div>
     `, {
-      show: false,
-      display (show) {
-        return show ? 'visible' : 'hidden';
-      },
+      show: true,
       doToggle () {
         this.set('show', !this.show);
       },
@@ -31,36 +29,130 @@ describe('components:if <xin-if>', () => {
       await fixture.waitConnected();
 
       fixture.set('show', false);
-      await Async.sleep();
-      assert.strictEqual(fixture.$$('h3').textContent.trim(), 'else');
+      assert.strictEqual(fixture.$$('h3').textContent.trim(), 'ELSE AREA');
 
       fixture.set('show', true);
+      assert.strictEqual(fixture.$$('h3').textContent.trim(), 'IF AREA');
+    } finally {
+      fixture.dispose();
+    }
+  });
+
+  it('nest', async () => {
+    const fixture = await testing.createFixture(html`
+      <div class="buttons">
+        <button (click)='toggle("foo")'>Toggle Foo</button>
+        <button (click)='toggle("bar")'>Toggle Bar</button>
+      </div>
+
+      <div class="placeholder">
+        <xin-if condition="[[shows.foo]]">
+          <template>
+            <h3>Foo If</h3>
+            <div>
+              <xin-if condition="[[shows.bar]]">
+                <template>
+                  <h4>Foo If Bar If</h4>
+                </template>
+                <template else>
+                  <h4>Foo If Bar Else</h4>
+                </template>
+              </xin-if>
+            </div>
+          </template>
+          <template>
+            <h3>Foo Else</h3>
+            <xin-if condition="[[shows.bar]]">
+              <template>
+                <h4>Foo Else Bar If</h4>
+              </template>
+              <template else>
+                <h4>Foo Else Bar Else</h4>
+              </template>
+            </xin-if>
+          </template>
+        </xin-if>
+      </div>
+    `, {
+      shows: {
+        foo: true,
+        bar: true,
+      },
+      toggle (key) {
+        this.set(`shows.${key}`, !this.get(`shows.${key}`));
+      },
+    });
+    try {
+      await fixture.waitConnected();
+
+      assert(fixture.innerHTML.includes('<h3>Foo If</h3>'));
+      assert(!fixture.innerHTML.includes('<h3>Foo Else</h3>'));
+      assert(fixture.innerHTML.includes('<h4>Foo If Bar If</h4>'));
+      assert(!fixture.innerHTML.includes('<h4>Foo If Bar Else</h4>'));
+      assert(!fixture.innerHTML.includes('<h4>Foo Else Bar If</h4>'));
+      assert(!fixture.innerHTML.includes('<h4>Foo Else Bar Else</h4>'));
+
+      fixture.set('shows.foo', false);
       await Async.sleep();
-      assert.strictEqual(fixture.$$('h3').textContent.trim(), 'if');
+
+      assert(!fixture.innerHTML.includes('<h3>Foo If</h3>'));
+      assert(fixture.innerHTML.includes('<h3>Foo Else</h3>'));
+      assert(!fixture.innerHTML.includes('<h4>Foo If Bar If</h4>'));
+      assert(!fixture.innerHTML.includes('<h4>Foo If Bar Else</h4>'));
+      assert(fixture.innerHTML.includes('<h4>Foo Else Bar If</h4>'));
+      assert(!fixture.innerHTML.includes('<h4>Foo Else Bar Else</h4>'));
+
+      fixture.set('shows.bar', false);
+      await Async.sleep();
+
+      assert(!fixture.innerHTML.includes('<h3>Foo If</h3>'));
+      assert(fixture.innerHTML.includes('<h3>Foo Else</h3>'));
+      assert(!fixture.innerHTML.includes('<h4>Foo If Bar If</h4>'));
+      assert(!fixture.innerHTML.includes('<h4>Foo If Bar Else</h4>'));
+      assert(!fixture.innerHTML.includes('<h4>Foo Else Bar If</h4>'));
+      assert(fixture.innerHTML.includes('<h4>Foo Else Bar Else</h4>'));
     } finally {
       fixture.dispose();
     }
   });
 
   it('propagate change to if parent, instance and row', async () => {
-    const fixture = await testing.createFixture(`
-      <div>
-        <input type="text" value="{{form.value}}">
+    const fixture = await testing.createFixture(html`
+      <div style="background-color: blue">
+        <div>
+          <button (click)="doClick(evt)">Toggle</button>
+        </div>
+        <div>
+          <input type="text" value="{{form.value}}">
+          <span>[[formatValue(form.value)]]</span>
+        </div>
       </div>
       <xin-if id="selection" condition="[[show]]">
         <template>
-          <div>
-            <input type="text" value="{{form.value}}">
+          <div style="background-color: green">
+            <div>
+              <input type="text" value="{{form.value}}">
+              <span>[[formatValue(form.value)]]</span>
+            </div>
           </div>
         </template>
         <template else>
-          <div>
-            <input type="text" value="{{form.value}}">
+          <div style="background-color: red">
+            <div>
+              <input type="text" value="{{form.value}}">
+              <span>[[formatValue(form.value)]]</span>
+            </div>
           </div>
         </template>
       </xin-if>
     `, {
       show: true,
+      doClick () {
+        this.set('show', !this.show);
+      },
+      formatValue (value) {
+        return `formatted(${value})`;
+      },
       form: {
         value: 'foo',
       },
@@ -87,7 +179,6 @@ describe('components:if <xin-if>', () => {
       assert.strictEqual(fixture.$.selection.__ifRows[1].form.value, 'baz');
 
       fixture.set('show', false);
-      await Async.sleep();
 
       fixture.$.selection.__ifRows[1].set('form.value', 'baz1');
       assert.strictEqual(fixture.form.value, 'baz1');

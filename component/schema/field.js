@@ -23,24 +23,8 @@ export class Field {
     return val(this.value);
   }
 
-  validate (value) {
-    if (nothing(value) && this.required) {
-      throw new Error(`Field ${this.name} empty but required`);
-    }
-
-    return value;
-  }
-
   get (value) {
-    if (!nothing(value)) {
-      value = this.cast(value);
-    }
-
-    if (nothing(value)) {
-      value = this.getDefaultValue();
-    }
-
-    return this.validate(value);
+    return nothing(value) ? undefined : this.cast(value);
   }
 
   eq (value1, value2) {

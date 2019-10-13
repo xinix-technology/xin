@@ -1,6 +1,6 @@
 import { Component, define } from '../../component';
 import { Row } from './row';
-import { Async } from '../../core';
+import { setupMarker, pathArray } from '../../helpers';
 
 const ERR_INVALID_DEFINITION = `Invalid xin-if definition,
 must be:
@@ -16,7 +16,7 @@ export class If extends Component {
 
       condition: {
         type: Boolean,
-        observer: '__ifObserverFn(condition)',
+        observer: '__ifConditionChanged(condition)',
       },
 
       to: {
@@ -29,64 +29,89 @@ export class If extends Component {
   attached () {
     super.attached();
 
+    this.__ifSetupMarker();
     this.__ifSetupRows();
-    this.__ifObserverFn(this.condition);
+
+    this.__ifConditionChanged(this.condition);
   }
 
   detached () {
-    super.detached();
-
     this.__ifTeardownRows();
+    this.__ifTeardownMarker();
+
+    super.detached();
+  }
+
+  get __ifHost () {
+    return this.__templatePresenter.parent.__templatePresenter.host;
   }
 
   __ifSetupRows () {
-    const paths = [];
-    this.__ifRows = this.__ifTemplates.map(template => {
-      const row = new Row(template, this);
-      row.__templateBinding.getAnnotatedPaths({ includeMethods: false }).forEach(path => {
-        if (paths.indexOf(path) === -1) {
-          paths.push(path);
-        }
-      });
-      return row;
-    });
-
-    const change = (path, value) => {
-      this.set(path, value);
-      this.__ifRows.forEach(row => row.set(path, value));
-    };
-
     this.__ifAnnotations = [];
 
-    paths.forEach(path => {
-      if (path === 'condition' || path === 'to') {
+    const annotatedPaths = [];
+    const modelers = [this.__templateModeler, this.__ifHost.__templateModeler];
+    const values = {};
+    const setValue = (path, value) => {
+      if (values[path] === value) {
         return;
       }
 
-      const update = value => change(path, value);
+      values[path] = value;
 
-      update(this.__templateParent.get(path));
+      modelers.forEach(modeler => {
+        modeler.set(path, value);
+        modeler.notify(path);
+      });
+    };
 
-      const annotation = this.__templateParent.__templateBinding.bindFunction(path, update);
-      this.__ifRows.forEach(row => row.__templateBinding.bindFunction(path, value => {
-        this.__templateParent.set(path, value);
-      }));
+    this.__ifRows = this.__ifTemplates.map(template => {
+      const row = new Row(template, this);
 
-      this.__ifAnnotations.push({ path, annotation });
+      const paths = row.__templateModeler.getAnnotatedPaths({ includeProperties: true, includeMethods: false });
+      paths.forEach(path => {
+        if (!annotatedPaths.includes(path)) {
+          annotatedPaths.push(path);
+        }
+      });
+
+      modelers.push(row.__templateModeler);
+
+      return row;
+    });
+
+    annotatedPaths.forEach(path => {
+      const pathArr = pathArray(path);
+      const prop = pathArr[0];
+      if (['to', 'condition'].includes(prop)) {
+        return;
+      }
+
+      const initialPropValue = this.__ifHost.get(prop);
+
+      this.__ifRows.forEach(row => row.set(prop, initialPropValue));
+
+      const update = value => setValue(path, value);
+      modelers.forEach(modeler => {
+        const annotation = modeler.bindFunction(path, update);
+        this.__ifAnnotations.push({ modeler, path, annotation });
+      });
     });
   }
 
   __ifTeardownRows () {
-    this.__ifAnnotations.forEach(({ path, annotation }) => {
-      this.__templateParent.__templateBinding.deannotate(path, annotation);
-    });
-    this.__ifAnnotations = undefined;
+    if (this.__ifAnnotations) {
+      this.__ifAnnotations.forEach(({ modeler, path, annotation }) => modeler.deannotate(path, annotation));
+      this.__ifAnnotations = undefined;
+    }
 
-    this.__ifRows.forEach(row => row.dispose());
-    this.__ifRows = undefined;
+    if (this.__ifRows) {
+      this.__ifRows.forEach(row => row.dispose());
+      this.__ifRows = undefined;
+    }
   }
 
-  __componentInitTemplate () {
+  __componentGetTemplate () {
     const children = this.children;
     if (children.length < 1 || children.length > 2 || this.firstElementChild.nodeName !== 'TEMPLATE') {
       throw new Error(ERR_INVALID_DEFINITION);
@@ -95,75 +120,67 @@ export class If extends Component {
     this.__ifTemplates = [this.firstElementChild];
     this.removeChild(this.firstElementChild);
 
-    if (children.length === 1 && this.firstElementChild.nodeName === 'TEMPLATE') {
-      this.__ifTemplates.push(this.firstElementChild);
-      this.removeChild(this.firstElementChild);
+    if (this.firstElementChild.nodeName !== 'TEMPLATE') {
+      throw new Error(ERR_INVALID_DEFINITION);
     }
 
-    super.__componentInitTemplate();
-  }
-
-  __componentMount () {
-    this.__ifHost = this.__templateParent;
-    this.__ifSetupMarker();
-    this.mount(this, this.__ifMarker);
-  }
-
-  __componentUnmount () {
-    super.__componentUnmount();
-    this.__ifTeardownMarker();
-    this.__ifHost = undefined;
+    this.__ifTemplates.push(this.firstElementChild);
+    this.removeChild(this.firstElementChild);
   }
 
   __ifSetupMarker () {
-    const toAttr = this.getAttribute('to');
-    if (!toAttr) {
+    if (!this.to) {
       this.__ifMarker = this;
       return;
     }
 
-    const container = this.parentElement.querySelector(toAttr) || document.querySelector(toAttr);
+    const container = this.parentElement.querySelector(this.to) || document.querySelector(this.to);
     if (!container) {
-      throw new Error(`xin-if render to unknown element ${toAttr}`);
+      throw new Error(`xin-if render to unknown element ${this.to}`);
     }
 
-    this.__ifMarker = document.createComment(`marker-if-${this.__id}`);
+    this.__ifMarker = setupMarker(container, `if-${this.__id}`);
     container.appendChild(this.__ifMarker);
   }
 
   __ifTeardownMarker () {
-    if (this.__ifMarker !== this) {
+    if (this.__ifMarker && this.__ifMarker !== this) {
       this.__ifMarker.parentElement.removeChild(this.__ifMarker);
     }
 
     this.__ifMarker = undefined;
   }
 
-  __ifObserverFn (condition) {
+  __ifConditionChanged (condition) {
     if (!this.__ifRows) {
       return;
     }
 
-    Async.cancel(this.__ifObserverFnDebounce);
-    this.__ifObserverFnDebounce = Async.run(() => {
-      if (condition) {
-        this.__ifUnmount(this.__ifRows[1]);
-        this.__ifMount(this.__ifRows[0]);
-      } else {
-        this.__ifUnmount(this.__ifRows[0]);
-        this.__ifMount(this.__ifRows[1]);
-      }
-    });
+    if (condition) {
+      this.__ifUnmountRow(this.__ifRows[1]);
+      this.__ifMountRow(this.__ifRows[0]);
+    } else {
+      this.__ifUnmountRow(this.__ifRows[0]);
+      this.__ifMountRow(this.__ifRows[1]);
+    }
   }
 
-  __ifMount (row) {
-    if (row && !row.__templateMounted) {
+  /**
+   * Mount row
+   * @param {Row} row
+   */
+  __ifMountRow (row) {
+    if (row && !row.isMounted()) {
       row.mount(this.__ifHost, this.__ifMarker);
     }
   }
 
-  __ifUnmount (row) {
-    if (row && row.__templateMounted) {
+  /**
+   * Unmount row
+   * @param {Row} row
+   */
+  __ifUnmountRow (row) {
+    if (row && row.isMounted()) {
       row.unmount();
     }
   }

@@ -8,23 +8,23 @@ describe('component:schema Field', () => {
     }
   }
 
-  describe('constructor', () => {
-    it('create new field with default value', () => {
+  describe('#getDefaultValue()', () => {
+    it('get default value', () => {
       const field = new TestField('foo', {
         type: String,
         value: 'foo',
       });
 
-      assert.strictEqual(field.get(), 'foo');
+      assert.strictEqual(field.getDefaultValue(), 'foo');
     });
 
-    it('create new field with default value in function form', () => {
+    it('get default value in function form', () => {
       const field = new TestField('foo', {
         type: String,
         value: () => 'foo',
       });
 
-      assert.strictEqual(field.get(), 'foo');
+      assert.strictEqual(field.getDefaultValue(), 'foo');
     });
   });
 });

@@ -3,11 +3,11 @@ import { Row } from './row';
 import { Async } from '../../core';
 import { pathArray } from '../../helpers';
 
-const ERR_INVALID_DEFINITION = `Invalid xin-for definition,
-must be:
-<xin-for items="[[items]]">
-  <template>...</template>
-</xin-for>`;
+// const ERR_INVALID_DEFINITION = `Invalid xin-for definition,
+// must be:
+// <xin-for items="[[items]]">
+//   <template>...</template>
+// </xin-for>`;
 
 const FILTER_ALL = () => true;
 
@@ -90,7 +90,7 @@ export class For extends Component {
         this.__loopRows.forEach(row => row.set(path, value));
       }
     };
-    const annotation = this.__templateParent.__templateBinding.bindFunction(path, update);
+    const annotation = this.__templateParent.__templateModeler.bindFunction(path, update);
     update(this.__templateParent.get(path));
 
     this.__loopExternalAnnotations.push({ path, annotation });
@@ -98,33 +98,33 @@ export class For extends Component {
 
   __loopTeardownExternals () {
     this.__loopExternalAnnotations.forEach(({ path, annotation }) => {
-      this.__templateParent.__templateBinding.deannotate(path, annotation);
+      this.__templateParent.__templateModeler.deannotate(path, annotation);
     });
     this.__loopExternalAnnotations = [];
   }
 
-  __componentInitTemplate () {
-    if (this.children.length !== 1 && this.firstElementChild.nodeName !== 'TEMPLATE') {
-      throw new Error(ERR_INVALID_DEFINITION);
-    }
+  // __componentInitTemplate () {
+  //   if (this.children.length !== 1 && this.firstElementChild.nodeName !== 'TEMPLATE') {
+  //     throw new Error(ERR_INVALID_DEFINITION);
+  //   }
 
-    this.__loopTemplate = this.firstElementChild;
-    this.removeChild(this.__loopTemplate);
+  //   this.__loopTemplate = this.firstElementChild;
+  //   this.removeChild(this.__loopTemplate);
 
-    super.__componentInitTemplate();
-  }
+  //   super.__componentInitTemplate();
+  // }
 
-  __componentMount () {
-    this.__loopHost = this.__templateParent;
-    this.__loopSetupMarker();
-    this.mount(this, this.__loopMarker);
-  }
+  // __componentMount () {
+  //   this.__loopHost = this.__templatePresenter.parent;
+  //   this.__loopSetupMarker();
+  //   this.mount(this, this.__loopMarker);
+  // }
 
-  __componentUnmount () {
-    super.__componentUnmount();
-    this.__loopTeardownMarker();
-    this.__loopHost = undefined;
-  }
+  // __componentUnmount () {
+  //   super.__componentUnmount();
+  //   this.__loopTeardownMarker();
+  //   this.__loopHost = undefined;
+  // }
 
   __loopSetupMarker () {
     const toAttr = this.getAttribute('to');

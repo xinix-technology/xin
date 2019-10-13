@@ -3,15 +3,15 @@ import { Component } from '../component';
 import { define } from '../define';
 
 export class Fixture extends Component {
-  attached () {
+  async attached () {
     super.attached();
 
-    this.set(this.__fixtureInitialData);
-    delete this.__fixtureInitialData;
     this.connected = true;
 
     // delay connected to make sure children is already connected
-    Async.run(() => this.fire('connected'));
+    await Async.waitNextFrame();
+
+    this.fire('connected');
   }
 
   detached () {
@@ -28,7 +28,7 @@ export class Fixture extends Component {
     super.dispose();
   }
 
-  async waitConnected (timeout) {
+  async waitConnected (timeout = 0) {
     if (!this.connected) {
       await event(this).waitFor('connected');
     }

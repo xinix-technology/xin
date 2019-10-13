@@ -7,7 +7,11 @@ describe('component:binding Binding', () => {
   describe('#getAnnotatedPaths()', () => {
     it('return annotated paths', () => {
       const binding = new Binding();
-      binding.bindAnnotation(new Annotation(new Expr('[[some.method.foo(some.property.bar)]]')));
+
+      const annotation = new Annotation(new Expr('[[some.method.foo(some.property.bar)]]'));
+
+      binding.traverse('some.method.foo', true).addAnnotation(annotation);
+      binding.traverse('some.property.bar', true).addAnnotation(annotation);
 
       assert.deepStrictEqual(binding.getAnnotatedPaths(), ['some.method.foo', 'some.property.bar']);
 

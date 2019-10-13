@@ -1,5 +1,6 @@
 import { Expr } from '../../component/expr';
 import assert from 'assert';
+import { Context } from '../../core';
 
 describe('component:expr Expr', () => {
   describe('.validate()', () => {
@@ -58,8 +59,9 @@ describe('component:expr Expr', () => {
 
   describe('#eval()', () => {
     it('eval expr', () => {
+      const context = new Context({ foo: 'bar' });
       const expr = new Expr('[[foo]]');
-      assert.strictEqual(expr.eval({ foo: 'bar' }), 'bar');
+      assert.strictEqual(expr.eval(context), 'bar');
     });
   });
 

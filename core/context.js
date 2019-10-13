@@ -1,8 +1,9 @@
 import { nothing, pathArray } from '../helpers';
 
 export class Context {
-  constructor () {
-    this.instance = this;
+  constructor (instance = this) {
+    this.instance = instance;
+    this.invoker = instance;
   }
 
   traverse (path, immediateReturn) {
@@ -63,6 +64,10 @@ export class Context {
 }
 
 function traverse (object, path, immediateReturn = true) {
+  if (path.length === 0) {
+    return { value: object, object, key: '', path };
+  }
+
   const key = path.shift();
 
   const value = nothing(object[key]) ? undefined : object[key];

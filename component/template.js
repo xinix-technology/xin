@@ -1,8 +1,6 @@
 import { idGenerator } from '../helpers';
 import { Modeler } from './modeler';
-import { Binding } from './binding';
-import { Renderer } from './renderer';
-import { Eventer } from './eventer';
+import { Presenter } from './presenter';
 
 const nextId = idGenerator();
 
@@ -12,11 +10,11 @@ export class Template {
   }
 
   get $ () {
-    return this.__templateHost.getElementsByTagName('*');
+    return this.__templatePresenter.$;
   }
 
   $$ (selector) {
-    return this.__templateHost.querySelector(selector);
+    return this.__templatePresenter.$$(selector);
   }
 
   dispose () {
@@ -24,23 +22,23 @@ export class Template {
   }
 
   on () {
-    return this.__templateEventer.on(...arguments);
+    return this.__templatePresenter.on(...arguments);
   }
 
   off () {
-    return this.__templateEventer.off(...arguments);
+    return this.__templatePresenter.off(...arguments);
   }
 
   once () {
-    return this.__templateEventer.once(...arguments);
+    return this.__templatePresenter.once(...arguments);
   }
 
   waitFor () {
-    return this.__templateEventer.waitFor(...arguments);
+    return this.__templatePresenter.waitFor(...arguments);
   }
 
   fire (type, detail, options) {
-    return this.__templateEventer.fire(type, detail, options);
+    return this.__templatePresenter.fire(type, detail, options);
   }
 
   get (path) {
@@ -71,11 +69,15 @@ export class Template {
   }
 
   notify (path) {
-    return this.__templateBinding.notify(path);
+    return this.__templateModeler.notify(path);
+  }
+
+  isMounted () {
+    return this.__templatePresenter.running;
   }
 
   mount (host, marker) {
-    if (this.__templateMounted) {
+    if (this.isMounted()) {
       throw new Error('Template already mounted');
     }
 
@@ -83,71 +85,37 @@ export class Template {
       throw new Error('Cannot mount to unknown host');
     }
 
-    this.__templateMounted = true;
-    this.__templateHost = host;
-    this.__templateEventer.start(host);
-
-    if (this.__templateRenderer) {
-      this.__templateRenderer.render(host, marker);
-    }
-
+    this.__templatePresenter.start(host, marker);
     this.__templateModeler.start();
-    this.__templateBinding.start(this.__templateModeler);
   }
 
   unmount () {
-    if (!this.__templateMounted) {
+    if (!this.isMounted()) {
       throw new Error('Template already unmounted');
     }
 
-    this.__templateMounted = false;
-    this.__templateBinding.stop();
     this.__templateModeler.stop();
-    this.__templateEventer.stop();
-
-    if (this.__templateRenderer) {
-      this.__templateRenderer.unrender();
-    }
-
-    this.__templateHost = undefined;
+    this.__templatePresenter.stop();
   }
 
   __templateInitialize (template, props = {}) {
     this.__id = nextId();
-    this.__templateBinding = new Binding();
-    this.__templateModeler = new Modeler({
-      instance: this,
-      invoker: this,
-      props,
-      binding: this.__templateBinding,
-    });
-    this.__templateMounted = false;
-    this.__templateEventer = new Eventer();
 
-    if (template) {
-      this.__templateRenderer = new Renderer({
-        instance: this,
-        binding: this.__templateBinding,
-        eventer: this.__templateEventer,
-        template: template,
-      });
-    }
+    const instance = this;
+    const modeler = new Modeler({ instance, props });
+    const presenter = new Presenter({ instance, modeler, template });
+
+    this.__templateModeler = modeler;
+    this.__templatePresenter = presenter;
   }
 
   __templateUninitialize () {
-    if (this.__templateMounted) {
+    if (this.isMounted()) {
       this.unmount();
     }
 
-    if (this.__templateRenderer) {
-      this.__templateRenderer.dispose();
-      this.__templateRenderer = undefined;
-    }
-
-    this.__templateEventer.dispose();
-    this.__templateEventer = undefined;
-    this.__templateBinding.dispose();
-    this.__templateBinding = undefined;
+    this.__templatePresenter.dispose();
+    this.__templatePresenter = undefined;
     this.__templateModeler.dispose();
     this.__templateModeler = undefined;
   }

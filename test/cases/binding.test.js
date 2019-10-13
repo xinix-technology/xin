@@ -117,7 +117,7 @@ describe('cases:binding', () => {
   });
 
   it('change value', async () => {
-    const fixture = await testing.createFixture(`
+    const fixture = await testing.createFixture(html`
       <input id="input" type="text" value="{{value}}">
       <textarea id="textarea">{{value}}</textarea>
       <div id="result">[[value]]</div>
@@ -327,7 +327,7 @@ describe('cases:binding', () => {
             </div>
             <div>
               <div>Comp2</div>
-              <${comp2} id="comp" value="{{foo}}"></${comp1}>
+              <${comp2} id="comp2" value="{{foo}}"></${comp1}>
             </div>
           </div>
         `;
@@ -362,7 +362,7 @@ describe('cases:binding', () => {
       </div>
       <div>
         <div>Comp1</div>
-        <${comp1} id="comp"></${comp1}>
+        <${comp1} id="comp1"></${comp1}>
       </div>
     `);
 
@@ -444,41 +444,6 @@ describe('cases:binding', () => {
       fixture.$.button.click();
 
       assert.strictEqual(hit, 1);
-    } finally {
-      fixture.dispose();
-    }
-  });
-
-  it('render xin-for', async () => {
-    const fixture = await testing.createFixture(`
-      <div>
-        <div>[[name]]</div>
-        <input type="text" value="{{name}}">
-      </div>
-      <div>
-        <xin-for id="loop" items="[[items]]">
-          <template>
-            <div>
-              <span>[[name]]</span>
-              <span>[[item.name]]</span>
-            </div>
-            <input type="text" value="{{name}}">
-          </template>
-        </xin-for>
-      </div>
-    `, {
-      name: 'me',
-      items: [
-        { name: 'foo' },
-        { name: 'bar' },
-        { name: 'baz' },
-      ],
-    });
-
-    try {
-      await fixture.waitConnected();
-
-      assert.strictEqual(fixture.$.loop.__loopRows.length, 3);
     } finally {
       fixture.dispose();
     }

@@ -7,7 +7,11 @@ import { ArrayField } from './array';
 import { FunctionField } from './function';
 import { RegExpField } from './regexp';
 import { UnknownField } from './unknown';
-import { pathArray, nothing } from '../../helpers';
+import { pathArray } from '../../helpers';
+
+/**
+ * @typedef {import('./field').Field} Field
+ */
 
 let types = [];
 
@@ -41,6 +45,11 @@ export class Schema {
     }
   }
 
+  /**
+   * Traverse field
+   * @param {string} path
+   * @returns {Field}
+   */
   traverse (path) {
     const [name, ...newPath] = pathArray(path);
 
@@ -63,10 +72,6 @@ export class Schema {
   }
 
   eq (path, value1, value2) {
-    if (nothing(value1) && nothing(value2)) {
-      return true;
-    }
-
     const field = this.traverse(path);
     return field.eq(value1, value2);
   }

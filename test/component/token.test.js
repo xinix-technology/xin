@@ -1,6 +1,7 @@
 import { repository } from '../..';
 import { Token } from '../../component/token';
 import assert from 'assert';
+import { Context } from '../../core';
 
 describe('component:token Token', () => {
   describe('#invoke()', () => {
@@ -33,7 +34,7 @@ describe('component:token Token', () => {
       });
 
       const token = new Token('$foo.fooFn');
-      assert.strictEqual(token.invoke(), 'foo');
+      assert.strictEqual(token.invoke(new Context()), 'foo');
     });
   });
 });

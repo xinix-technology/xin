@@ -1,14 +1,10 @@
 import { Template } from '../../component';
-import { createFragment } from '../../helpers';
 
 export class Row extends Template {
   constructor (template, instance) {
     super(template);
 
-    this.__templateRenderer.setRenderCallback(renderer => {
-      const templateFragment = createFragment(renderer.childNodes);
-      renderer.marker.parentElement.insertBefore(templateFragment, renderer.marker);
-    });
+    this.__templatePresenter.isReplacing = false;
 
     this.__loopInstance = instance;
     this.__loopAs = instance.as;
@@ -18,12 +14,13 @@ export class Row extends Template {
 
     this.__templateParent = instance;
 
-    this.__templateBinding.bindFunction(this.__loopAs, value => {
+    this.__templateModeler.bindFunction(this.__loopAs, value => {
       instance.items[this[this.__loopIndexAs]] = value;
       // instance.set('items', [...instance.items]);
     });
 
-    this.__templateRenderer.childNodes.forEach(node => {
+    // FIXME: cari cara lain untuk mengakses loop model
+    this.__templatePresenter.nodes.forEach(node => {
       if (node.nodeType === Node.ELEMENT_NODE) {
         node.__loopModel = this;
       }

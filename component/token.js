@@ -1,5 +1,5 @@
 import { pathArray, inspect } from '../helpers';
-import { repository } from '../core';
+import { repository, Context } from '../core';
 
 const SPECIAL_STRINGS = [
   'true',
@@ -31,12 +31,12 @@ export class Token {
     }
   }
 
-  value (model) {
+  value (model, extendedContext) {
     if (this.type === Token.STATIC) {
       return this.staticValue;
     }
 
-    return getValue(this.string, model);
+    return getValue(this.string, model, extendedContext);
   }
 
   invoke (model, args = []) {
@@ -44,7 +44,7 @@ export class Token {
       throw new Error(`Method is not eligible for static, ${inspect(model)}#${this.string}()`);
     }
 
-    const invoker = getInvoker(model);
+    const invoker = model.invoker;
     if (!repository.isSpecialScope(this.contextName) && !invoker) {
       throw new Error(`Model does not have invoker, ${inspect(invoker)}#${this.string}()`);
     }
@@ -65,35 +65,21 @@ function vary (string) {
   return !SPECIAL_STRINGS.includes(string) && string.match(VAR_MATCHER);
 }
 
-function getModelValue (name, model) {
-  const val = typeof model.get === 'function' ? model.get(name) : model[name];
-  if (val !== undefined) {
-    return val;
-  }
-}
-
-function getValue (name, model) {
+function getValue (name, model, extendedContext = {}) {
   if (!name) {
     return model;
+  }
+
+  if (extendedContext[name]) {
+    return extendedContext[name];
   }
 
   if (repository.isSpecialScope(name)) {
     return repository.get(name);
   }
 
-  return getModelValue(name, model);
-}
-
-function getInvoker (model) {
-  if (!model) {
-    return undefined;
+  if (model instanceof Context === false) {
+    throw new Error('Cannot get value from non model context');
   }
-
-  if (model.invoker) {
-    return model.invoker;
-  }
-
-  if (model.__templateModeler) {
-    return model.__templateModeler.invoker;
-  }
+  return model.get(name);
 }

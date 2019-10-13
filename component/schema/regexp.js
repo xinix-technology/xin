@@ -14,6 +14,6 @@ export class RegExpField extends Field {
   }
 
   eq (value1, value2) {
-    return this.get(value1).toString() === this.get(value2).toString();
+    return (this.get(value1) || '').toString() === (this.get(value2) || '').toString();
   }
 }

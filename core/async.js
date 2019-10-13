@@ -1,7 +1,3 @@
-import { idGenerator } from '../helpers';
-
-const nextId = idGenerator();
-
 const requestAnimationFrame = (
   window.requestAnimationFrame || /* istanbul ignore next */
   window.webkitRequestAnimationFrame || /* istanbul ignore next */
@@ -27,59 +23,34 @@ export class Async {
     return requestAnimationFrame(callback);
   }
 
-  static sleep (wait) {
+  static cancelNextFrame (f) {
+    cancelAnimationFrame(f);
+  }
+
+  static waitNextFrame () {
+    return new Promise(resolve => this.nextFrame(resolve));
+  }
+
+  static run (callback, wait = 0) {
+    return setTimeout(callback, wait);
+  }
+
+  static cancel (t) {
+    clearTimeout(t);
+  }
+
+  static waitRun (callback, wait = 0) {
     return new Promise(resolve => {
-      setTimeout(() => this.nextFrame(resolve), wait);
+      this.run(async () => {
+        if (callback) {
+          await callback();
+        }
+        resolve();
+      }, wait);
     });
   }
 
-  static run (callback, wait) {
-    const async = new Async();
-    async.start(callback, wait);
-    return async;
-  }
-
-  static cancel (async) {
-    if (async && typeof async.cancel === 'function') {
-      async.cancel();
-    }
-  }
-
-  constructor () {
-    this.id = nextId();
-    this.cleared = true;
-  }
-
-  start (callback, wait) {
-    if (typeof callback !== 'function') {
-      throw new Error('Async should specify function');
-    }
-
-    if (!this.cleared) {
-      throw new Error('Async already run');
-    }
-
-    this.cleared = false;
-
-    const self = this;
-    const boundCallback = function () {
-      self.frameHandle = requestAnimationFrame(() => {
-        self.cancel();
-        callback();
-      });
-    };
-
-    if (wait) {
-      this.handle = setTimeout(boundCallback, wait);
-    } else {
-      boundCallback();
-    }
-  }
-
-  cancel () {
-    this.cleared = true;
-    cancelAnimationFrame(~~this.frameHandle);
-    clearTimeout(~~this.handle);
-    this.handle = this.frameHandle = undefined;
+  static sleep (wait = 0) {
+    return wait ? this.waitRun(undefined, wait) : this.waitNextFrame();
   }
 }

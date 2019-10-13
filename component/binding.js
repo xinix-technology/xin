@@ -1,10 +1,6 @@
-import { pathArray, pathString } from '../../helpers';
+import { pathString, pathArray } from '../helpers';
 
-/**
- * @typedef {import('../annotation').Annotation} Annotation
- */
-
-export class LeafBinding {
+export class Binding {
   constructor (name = '') {
     this.name = name;
     this.children = {};
@@ -12,6 +8,13 @@ export class LeafBinding {
      * @type {Annotation[]}
      */
     this.annotations = [];
+  }
+
+  notify (path, { model }) {
+    const binding = this.traverse(path);
+    if (binding) {
+      binding.dispatchEffect({ model });
+    }
   }
 
   /**
@@ -32,7 +35,7 @@ export class LeafBinding {
         return undefined;
       }
 
-      this.children[name] = new LeafBinding(name);
+      this.children[name] = new Binding(name);
     }
 
     if (segments.length === 0) {
