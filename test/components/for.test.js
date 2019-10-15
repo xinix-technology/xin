@@ -1,9 +1,10 @@
 import assert from 'assert';
-import { Component, Async, testing } from '../..';
+import { Component, testing } from '../..';
+import { html } from '../../component';
 
-describe.skip('components:for <xin-for>', () => {
+describe('components:for <xin-for>', () => {
   it('render list', async () => {
-    const fixture = await testing.createFixture(`
+    const fixture = await testing.createFixture(html`
       <div id="here">
         <xin-for id="loop" items="{{rows}}" as="row">
           <template>
@@ -12,32 +13,26 @@ describe.skip('components:for <xin-for>', () => {
         </xin-for>
       </div>
     `, {
+      foo: 'bar',
       rows: ['foo', 'bar', 'baz'],
     });
 
     try {
       await fixture.waitConnected();
 
-      assert.strictEqual(fixture.$.loop.__loopRows[0].__templateParent, fixture.$.loop);
-
       assert.strictEqual(fixture.querySelectorAll('.child').length, 3);
 
       fixture.set('rows', ['zap']);
-      await Async.sleep();
       assert.strictEqual(fixture.$.loop.items[0], 'zap');
       assert.strictEqual(fixture.$.loop.__loopRows[0].row, 'zap');
       assert.strictEqual(fixture.querySelectorAll('.child').length, 1);
-
-      fixture.$.loop.__loopRows[0].set('row', 'update from row');
-      assert.strictEqual(fixture.$.loop.items[0], 'update from row');
-      assert.strictEqual(fixture.rows[0], 'update from row');
     } finally {
       fixture.dispose();
     }
   });
 
   it('render to nearest defined element from parent', async () => {
-    const fixture = await testing.createFixture(`
+    const fixture = await testing.createFixture(html`
       <div>
         <table>
           <tbody id="firstBody">
@@ -74,7 +69,6 @@ describe.skip('components:for <xin-for>', () => {
         },
       ];
       fixture.set('rows', rows);
-      await Async.sleep();
 
       assert.strictEqual(fixture.$.firstBody.children.length, 0);
       assert.strictEqual(fixture.$.secondBody.children.length, 3);
@@ -84,7 +78,7 @@ describe.skip('components:for <xin-for>', () => {
   });
 
   it('get item, index, and model for element', async () => {
-    const fixture = await testing.createFixture(`
+    const fixture = await testing.createFixture(html`
       <xin-for id="loop" items="[[rows]]" as="row">
         <template>
           <div>
@@ -102,11 +96,10 @@ describe.skip('components:for <xin-for>', () => {
         },
       ];
       fixture.set('rows', rows);
-      await Async.sleep();
 
       assert.deepStrictEqual(fixture.$.loop.itemForElement(fixture.$$('span')), { name: 'foo' });
       assert.strictEqual(fixture.$.loop.indexForElement(fixture.$$('span')), 0);
-      assert.strictEqual(fixture.$.loop.modelForElement(fixture.$$('span')).get('index'), 0);
+      assert.strictEqual(fixture.$.loop.rowForElement(fixture.$$('span')).get('index'), 0);
     } finally {
       fixture.dispose();
     }
@@ -115,7 +108,7 @@ describe.skip('components:for <xin-for>', () => {
   it('bind item and index from row model', async () => {
     const compName = testing.define(class extends Component {
       get template () {
-        return `
+        return html`
           <div id="container">
             <xin-for id="loop" items="[[rows]]" as="row" index-as="idx">
               <template>
@@ -153,7 +146,7 @@ describe.skip('components:for <xin-for>', () => {
     `);
 
     try {
-      await fixture.waitConnected(20);
+      await fixture.waitConnected();
 
       assert.strictEqual(fixture.$$('[index="0"] .outer').textContent, 'outer');
       assert.strictEqual(fixture.$$('[index="0"] .idx').textContent, '0');
@@ -170,7 +163,7 @@ describe.skip('components:for <xin-for>', () => {
   });
 
   it('render list with data from parent', async () => {
-    const fixture = await testing.createFixture(`
+    const fixture = await testing.createFixture(html`
       <div id="here">
         <xin-for id="loop" items="[[rows]]" as="row">
           <template>
@@ -204,7 +197,6 @@ describe.skip('components:for <xin-for>', () => {
         },
       ];
       fixture.set('rows', rows);
-      await Async.sleep();
 
       assert.strictEqual(fixture.$.loop.__loopRows[0].foo, 'foo');
       assert.strictEqual(fixture.$.loop.foo, 'foo');
@@ -226,7 +218,7 @@ describe.skip('components:for <xin-for>', () => {
   });
 
   it('uninitialize rows when disconnected (prevent leak)', async () => {
-    const fixture = await testing.createFixture(`
+    const fixture = await testing.createFixture(html`
       <div id="here">
         <xin-for id="loop" items="[[rows]]" as="row">
           <template>
@@ -254,13 +246,12 @@ describe.skip('components:for <xin-for>', () => {
       assert.strictEqual(fixture.querySelectorAll('.child').length, 3);
 
       fixture.pop('rows');
-      await Async.sleep();
 
-      assert.strictEqual(fixture.__templateBinding.children.other.annotations.length, 1);
+      assert.strictEqual(fixture.__templateModeler.binding.children.other.annotations.length, 1);
 
       fixture.$.loop.parentElement.removeChild(fixture.$.loop);
 
-      assert.strictEqual(fixture.__templateBinding.children.other.annotations.length, 0);
+      assert.strictEqual(fixture.__templateModeler.binding.children.other.annotations.length, 0);
       assert.strictEqual(fixture.querySelectorAll('.child').length, 0);
     } finally {
       fixture.dispose();
@@ -292,7 +283,6 @@ describe.skip('components:for <xin-for>', () => {
 
     try {
       await fixture.waitConnected();
-      await Async.sleep();
 
       fixture.querySelectorAll('a').forEach(el => el.click());
 
@@ -303,7 +293,7 @@ describe.skip('components:for <xin-for>', () => {
   });
 
   it('render nested for', async () => {
-    const fixture = await testing.createFixture(`
+    const fixture = await testing.createFixture(html`
       <div id="here">
         <xin-for id="loop" items="[[rows]]" as="row">
           <template>
@@ -312,7 +302,6 @@ describe.skip('components:for <xin-for>', () => {
               <template>
                 <div id="childLine">
                   <span>[[outer]]</span>
-                  <span>[[row.name]]</span>
                   <span>[[child]]</span>
                 </div>
               </template>
@@ -334,10 +323,8 @@ describe.skip('components:for <xin-for>', () => {
 
     try {
       await fixture.waitConnected();
-      await Async.sleep(50);
-
       assert.strictEqual(fixture.$.rowLine.textContent, 'loop outer');
-      assert.strictEqual(fixture.$.childLine.textContent.trim().replace(/\s+/g, ' '), 'outer foo foo1');
+      assert.strictEqual(fixture.$.childLine.textContent.trim().replace(/\s+/g, ' '), 'outer foo1');
     } finally {
       fixture.dispose();
     }

@@ -4,33 +4,35 @@ export class Row extends Template {
   constructor (template, instance) {
     super(template);
 
+    this.is = '$loop-row';
+
     this.__templatePresenter.isReplacing = false;
+
+    this.__templateModeler.invoker = instance.__loopHost;
 
     this.__loopInstance = instance;
     this.__loopAs = instance.as;
     this.__loopIndexAs = instance.indexAs;
 
-    this.__templateModeler.invoker = instance.__templateParent;
-
-    this.__templateParent = instance;
-
-    this.__templateModeler.bindFunction(this.__loopAs, value => {
-      instance.items[this[this.__loopIndexAs]] = value;
-      // instance.set('items', [...instance.items]);
-    });
-
-    // FIXME: cari cara lain untuk mengakses loop model
     this.__templatePresenter.nodes.forEach(node => {
       if (node.nodeType === Node.ELEMENT_NODE) {
-        node.__loopModel = this;
+        node.__loopRow = this;
       }
     });
 
-    instance.__loopExternalAnnotations.forEach(({ path }) => this.set(path, instance.get(path)));
+    if (instance.__loopAnnotatedPaths) {
+      instance.__loopBindAnnotations(this.__templateModeler);
+    }
   }
 
-  get is () {
-    return '$for-row';
+  dispose () {
+    this.__templatePresenter.nodes.forEach(node => (node.__loopRow = undefined));
+
+    this.__loopInstance = undefined;
+    this.__loopAs = undefined;
+    this.__loopIndexAs = undefined;
+
+    super.dispose();
   }
 
   update (item, index) {
@@ -38,14 +40,5 @@ export class Row extends Template {
     this[this.__loopIndexAs] = index;
     this.notify(this.__loopAs);
     this.notify(this.__loopIndexAs);
-  }
-
-  dispose () {
-    this.__templateParent = undefined;
-    this.__loopInstance = undefined;
-    this.__loopAs = undefined;
-    this.__loopIndexAs = undefined;
-
-    super.dispose();
   }
 }

@@ -1,15 +1,12 @@
 import { Component, define } from '../../component';
 import { Row } from './row';
-import { Async } from '../../core';
-import { pathArray } from '../../helpers';
+import { pathArray, setupMarker } from '../../helpers';
 
-// const ERR_INVALID_DEFINITION = `Invalid xin-for definition,
-// must be:
-// <xin-for items="[[items]]">
-//   <template>...</template>
-// </xin-for>`;
-
-const FILTER_ALL = () => true;
+const ERR_INVALID_DEFINITION = `Invalid xin-for definition,
+must be:
+<xin-for items="[[items]]">
+  <template>...</template>
+</xin-for>`;
 
 export class For extends Component {
   get props () {
@@ -17,8 +14,7 @@ export class For extends Component {
       ...super.props,
       items: {
         type: Array,
-        notify: true,
-        observer: '__loopObserverFn(items, filter)',
+        observer: '__loopItemsChanged(items)',
       },
       as: {
         type: String,
@@ -28,10 +24,6 @@ export class For extends Component {
         type: String,
         value: 'index',
       },
-      filter: {
-        type: Function,
-        observer: '__loopObserverFn(items, filter)',
-      },
       to: {
         type: String,
         value: '',
@@ -39,156 +31,160 @@ export class For extends Component {
     };
   }
 
+  get __loopHost () {
+    return this.__templatePresenter.parent.__templatePresenter.host;
+  }
+
   attached () {
     super.attached();
 
-    this.__loopSetupExternals();
     this.__loopRows = [];
-    this.__loopObserverFn();
+    this.__loopValues = {};
+
+    this.__loopSetupMarker();
+    this.__loopSetupAnnotations();
+
+    this.__loopItemsChanged();
   }
 
   detached () {
-    super.detached();
+    this.__loopRows.forEach(row => row.dispose());
 
-    Async.cancel(this.__loopDebounceItemsChanged);
+    this.__loopTeardownAnnotations();
+    this.__loopTeardownMarker();
+
+    this.__loopValues = undefined;
+    this.__loopRows = undefined;
+
+    super.detached();
+  }
+
+  __loopSetupAnnotations () {
+    this.__loopAnnotations = [];
+
+    const excludedProps = ['items', 'as', 'indexAs', 'to', this.as, this.indexAs];
+    const row = new Row(this.__loopTemplate, this);
+    this.__loopAnnotatedPaths = row.__templateModeler.getAnnotatedPaths({
+      includeProperties: true,
+      includeMethods: false,
+    }).filter(path => !excludedProps.includes(pathArray(path)[0]));
+
+    this.__loopBindAnnotations(this.__templateModeler).forEach(bindAnnotation => {
+      this.__loopAnnotations.push(bindAnnotation);
+    });
+
+    this.__loopBindAnnotations(this.__loopHost.__templateModeler).forEach(bindAnnotation => {
+      this.__loopAnnotations.push(bindAnnotation);
+    });
+
+    row.dispose();
+  }
+
+  __loopTeardownAnnotations () {
+    this.__loopAnnotations.forEach(({ modeler, path, annotation }) => modeler.deannotate(path, annotation));
+    this.__loopAnnotations = undefined;
+  }
+
+  __loopBindAnnotations (modeler) {
+    return this.__loopAnnotatedPaths.map(path => {
+      const prop = pathArray(path)[0];
+      const initialPropValue = this.__loopHost.get(prop);
+      modeler.set(prop, initialPropValue);
+
+      const annotation = modeler.bindFunction(path, value => this.__loopSetValue(path, value));
+
+      return { modeler, path, annotation };
+    });
+  }
+
+  __loopSetValue (path, value) {
+    if (this.__loopValues[path] === value) {
+      return;
+    }
+
+    this.__loopValues[path] = value;
+
+    this.__templateModeler.set(path, value);
+    this.__templateModeler.notify(path);
+    this.__loopHost.__templateModeler.set(path, value);
+    this.__loopHost.__templateModeler.notify(path);
+
     this.__loopRows.forEach(row => {
+      row.__templateModeler.set(path, value);
+      row.__templateModeler.notify(path);
+    });
+  }
+
+  __componentGetTemplate () {
+    if (this.children.length !== 1 && this.firstElementChild.nodeName !== 'TEMPLATE') {
+      throw new Error(ERR_INVALID_DEFINITION);
+    }
+
+    this.__loopTemplate = this.firstElementChild;
+    this.removeChild(this.__loopTemplate);
+  }
+
+  __loopItemsChanged () {
+    if (!this.__loopRows) {
+      return;
+    }
+
+    const items = this.items || [];
+    let len = 0;
+    items.forEach((item, index) => {
+      if (!this.__loopRows[index]) {
+        const row = new Row(this.__loopTemplate, this);
+        row.mount(this.__loopHost, this.__loopMarker);
+        this.__loopRows.push(row);
+      }
+
+      this.__loopRows[index].update(item, index);
+
+      len++;
+    });
+
+    this.__loopRows.splice(len).forEach(row => {
       row.unmount();
       row.dispose();
     });
-    this.__loopRows = [];
-    this.__loopTeardownExternals();
   }
-
-  __loopSetupExternals () {
-    this.__loopExternalAnnotations = [];
-
-    const row = new Row(this.__loopTemplate, this);
-
-    const paths = row.__templateBinding.getAnnotatedPaths({ includeMethod: false });
-
-    paths.forEach(path => {
-      const pathArr = pathArray(path);
-      if (pathArr[0] === this.as || pathArr[0] === this.indexAs) {
-        return;
-      }
-
-      this.__loopAddExternalAnnotation(pathArr[0]);
-      if (path !== pathArr[0]) {
-        this.__loopAddExternalAnnotation(path);
-      }
-    });
-  }
-
-  __loopAddExternalAnnotation (path) {
-    if (this.__loopExternalAnnotations.find(ea => ea.path === path)) {
-      return;
-    }
-
-    const update = value => {
-      this.set(path, value);
-      if (this.__loopRows) {
-        this.__loopRows.forEach(row => row.set(path, value));
-      }
-    };
-    const annotation = this.__templateParent.__templateModeler.bindFunction(path, update);
-    update(this.__templateParent.get(path));
-
-    this.__loopExternalAnnotations.push({ path, annotation });
-  }
-
-  __loopTeardownExternals () {
-    this.__loopExternalAnnotations.forEach(({ path, annotation }) => {
-      this.__templateParent.__templateModeler.deannotate(path, annotation);
-    });
-    this.__loopExternalAnnotations = [];
-  }
-
-  // __componentInitTemplate () {
-  //   if (this.children.length !== 1 && this.firstElementChild.nodeName !== 'TEMPLATE') {
-  //     throw new Error(ERR_INVALID_DEFINITION);
-  //   }
-
-  //   this.__loopTemplate = this.firstElementChild;
-  //   this.removeChild(this.__loopTemplate);
-
-  //   super.__componentInitTemplate();
-  // }
-
-  // __componentMount () {
-  //   this.__loopHost = this.__templatePresenter.parent;
-  //   this.__loopSetupMarker();
-  //   this.mount(this, this.__loopMarker);
-  // }
-
-  // __componentUnmount () {
-  //   super.__componentUnmount();
-  //   this.__loopTeardownMarker();
-  //   this.__loopHost = undefined;
-  // }
 
   __loopSetupMarker () {
-    const toAttr = this.getAttribute('to');
-    if (toAttr) {
-      const container = this.parentElement.querySelector(toAttr) || document.querySelector(toAttr);
-      if (!container) {
-        throw new Error(`xin-for render to unknown element ${toAttr}`);
-      }
-      this.__loopMarker = document.createComment('marker-for');
-      container.appendChild(this.__loopMarker);
+    if (!this.to) {
+      this.__loopMarker = this;
       return;
     }
 
-    this.__loopMarker = this;
+    const container = this.parentElement.querySelector(this.to) || document.querySelector(this.to);
+    if (!container) {
+      throw new Error(`xin-for render to unknown element ${this.to}`);
+    }
+
+    this.__loopMarker = setupMarker(container, `loop-${this.__id}`);
+    container.appendChild(this.__loopMarker);
   }
 
   __loopTeardownMarker () {
-    if (this.__loopMarker !== this) {
+    if (this.__loopMarker && this.__loopMarker !== this) {
       this.__loopMarker.parentElement.removeChild(this.__loopMarker);
     }
 
     this.__loopMarker = undefined;
   }
 
-  __loopObserverFn () {
-    Async.cancel(this.__loopDebounceItemsChanged);
-    this.__loopDebounceItemsChanged = Async.run(() => {
-      let len = 0;
-      const items = this.items;
-      if (items && items.length) {
-        const filter = this.filter || FILTER_ALL;
-        items.filter(filter).forEach((item, index) => {
-          if (!this.__loopRows[index]) {
-            const row = new Row(this.__loopTemplate, this);
-            row.mount(this.__loopHost, this.__loopMarker);
-            this.__loopRows.push(row);
-          }
-
-          this.__loopRows[index].update(item, index);
-
-          len++;
-        });
-      }
-
-      this.__loopRows.splice(len).forEach(row => {
-        row.unmount();
-        row.dispose();
-      });
-    });
-  }
-
   itemForElement (element) {
-    return this.modelForElement(element).get(this.as);
+    return this.rowForElement(element).get(this.as);
   }
 
   indexForElement (element) {
-    return this.modelForElement(element).get(this.indexAs);
+    return this.rowForElement(element).get(this.indexAs);
   }
 
-  modelForElement (element) {
-    while (element && !element.__loopModel) {
+  rowForElement (element) {
+    while (element && !element.__loopRow) {
       element = element.parentElement;
     }
-    return element.__loopModel;
+    return element.__loopRow;
   }
 }
 

@@ -47,7 +47,7 @@ function prepareObservers (observers = [], observer, name) {
   });
 }
 
-function prepareInvocableExpr (string, args = []) {
+function prepareInvocableExpr (string) {
   if (!string) {
     return;
   }

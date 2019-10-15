@@ -100,15 +100,14 @@ export class If extends Component {
   }
 
   __ifTeardownRows () {
-    if (this.__ifAnnotations) {
-      this.__ifAnnotations.forEach(({ modeler, path, annotation }) => modeler.deannotate(path, annotation));
-      this.__ifAnnotations = undefined;
+    if (!this.__ifAnnotations) {
+      return;
     }
 
-    if (this.__ifRows) {
-      this.__ifRows.forEach(row => row.dispose());
-      this.__ifRows = undefined;
-    }
+    this.__ifAnnotations.forEach(({ modeler, path, annotation }) => modeler.deannotate(path, annotation));
+    this.__ifAnnotations = undefined;
+    this.__ifRows.forEach(row => row.dispose());
+    this.__ifRows = undefined;
   }
 
   __componentGetTemplate () {
