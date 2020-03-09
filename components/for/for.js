@@ -43,7 +43,7 @@ export class For extends Component {
     this.__templateFor = this.firstElementChild;
     if (!this.__templateFor) {
       throw new Error(
-        'Invalid xin-for definition, must be <xin-for items="[[items]]"><template>...</template></xin-for>'
+        'Invalid xin-for definition, must be <xin-for items="[[items]]"><template>...</template></xin-for>',
       );
     }
     // this.__templateFor.__templateHost = this.__templateHost;

@@ -8,10 +8,11 @@ export function camelize (dash) {
   if (dash.indexOf('-') < 0) {
     camelized[dash] = dash;
   } else {
-    camelized[dash] = dash.replace(/-([a-z])/g,
+    camelized[dash] = dash.replace(
+      /-([a-z])/g,
       function (m) {
         return m[1].toUpperCase();
-      }
+      },
     );
   }
 

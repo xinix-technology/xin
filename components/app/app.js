@@ -219,7 +219,8 @@ export class App extends Component {
       const url = this.rootUri + path.toString().replace(/\/$/, '').replace(/^\//, '');
       if (this.location.href.replace(this.location.origin, '') !== url) {
         this.history[options.replace ? 'replaceState' : 'pushState'](
-          this.__navParameters, document.title, url
+          this.__navParameters, document.title,
+          url,
         );
         this.__execute();
       }

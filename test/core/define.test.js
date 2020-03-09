@@ -30,7 +30,7 @@ describe('#define()', () => {
     }
   });
 
-  it('define new custom element v0', async () => {
+  it.skip('define new custom element v0', async () => {
     bootstrap({ 'customElements.version': 'v0' });
 
     define('test-define-v0', class DefineV0 extends Component {

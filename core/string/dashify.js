@@ -5,10 +5,11 @@ export function dashify (camel) {
   if (mapped) {
     return mapped;
   }
-  dashified[camel] = camel.replace(/([a-z][A-Z])/g,
+  dashified[camel] = camel.replace(
+    /([a-z][A-Z])/g,
     function (g) {
       return g[0] + '-' + g[1].toLowerCase();
-    }
+    },
   );
 
   return dashified[camel];
